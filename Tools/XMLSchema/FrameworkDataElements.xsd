@@ -172,6 +172,7 @@
     <xs:element name="Constructor" type="C_Name"/>
     <xs:element name="Copyright" type="Sentence"/>
     <xs:element name="Created" type="DateType"/>
+    <xs:element name="CreatedDate" type="DateType"/>
     <xs:element name="CreatedBy" type="UserName"/>
     <xs:element name="DataHubs">
         <xs:annotation>
@@ -427,6 +428,11 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element name="File" type="DirectoryNamingConvention">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">Describe the valid content of a Path and filename</xs:documentation>
+        </xs:annotation>
+    </xs:element>
     <xs:element name="Filename">
         <xs:annotation>
             <xs:documentation xml:lang="en">Describe the valid content of a filename</xs:documentation>
@@ -625,11 +631,37 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="PackageName"/>
+                <xs:element minOccurs="1" name="Package">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
+                        </xs:sequence>
+                        <xs:attributeGroup ref="PackageAttributes"/>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
                     <xs:complexType>
                         <xs:sequence minOccurs="1">
-                            <xs:element maxOccurs="unbounded" ref="PackageName"/>
+                            <xs:element minOccurs="1" name="Package">
+                                <xs:annotation>
+                                    <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
+                                </xs:annotation>
+                                <xs:complexType>
+                                    <xs:sequence maxOccurs="unbounded">
+                                        <xs:element minOccurs="0" maxOccurs="1" ref="Path"/>
+                                        <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
+                                        <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
+                                        <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
+                                    </xs:sequence>
+                                    <xs:attributeGroup ref="PackageAttributes"/>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                         <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                     </xs:complexType>
@@ -725,6 +757,7 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="Modified" type="DateType"/>
+    <xs:element name="ModifiedDate" type="DateType"/>
     <xs:element name="Module">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is record format for a Module entry in the Framework Database file.</xs:documentation>
@@ -881,9 +914,21 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence maxOccurs="unbounded">
-                <xs:element minOccurs="1" maxOccurs="unbounded" ref="PackageName"/>
+                <xs:element minOccurs="1" name="Package">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
+                        </xs:sequence>
+                        <xs:attributeGroup ref="PackageAttributes"/>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
-            <xs:attributeGroup ref="PackageNameAttributes"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="PackageHeaders">
@@ -904,15 +949,14 @@
             <xs:sequence maxOccurs="unbounded">
                 <xs:element minOccurs="1" name="Package">
                     <xs:annotation>
-                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path to the SPD File.</xs:documentation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
-                            <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="File"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PackageAttributes"/>
                     </xs:complexType>
@@ -921,9 +965,6 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="PackageName">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This tag is used in the Package Surface Area Description File to track package dependencies for a module</xs:documentation>
-        </xs:annotation>
         <xs:complexType>
             <xs:simpleContent>
                 <xs:extension base="BaseNameConvention">
@@ -932,7 +973,6 @@
             </xs:simpleContent>
         </xs:complexType>
     </xs:element>
-    <xs:element name="PackageType" type="PackageType"/>
     <xs:element name="Path">
         <xs:annotation>
             <xs:documentation xml:lang="en">Describe the valid content of a filename</xs:documentation>
@@ -1121,21 +1161,12 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="PlatformName">
-                    <xs:annotation>
-                        <xs:documentation xml:lang="en">Define the Name of a Platform</xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:simpleContent>
-                            <xs:extension base="PlatformNamingConvention">
-                                <xs:attributeGroup ref="PlatformAttributes"/>
-                            </xs:extension>
-                        </xs:simpleContent>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element ref="Path"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="AlternatePcdFile" type="FileNameConvention"/>
+                <xs:element ref="File"/>
+                <!--                <xs:element minOccurs="0" maxOccurs="1" name="AlternatePcdFile" type="FileNameConvention"/>
                 <xs:element minOccurs="0" maxOccurs="1" name="AlternateFdfFile" type="FileNameConvention"/>
+-->
+                <xs:element minOccurs="0" maxOccurs="1" name="InstalledDate" type="DateType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="ModifiedDate" type="DateType"/>
             </xs:sequence>
             <xs:attributeGroup ref="PlatformAttributes"/>
         </xs:complexType>

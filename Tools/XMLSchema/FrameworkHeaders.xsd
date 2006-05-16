@@ -20,49 +20,15 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="DatabaseName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Path"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Updated"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="MbdHeader">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is the header for the Component Module Build Description (MBD) file. NOTE: The GUID may be different from the GUID in the MSA file, as the Guid is updated every time the file is changed, as the Guid may change if the contents of the file are changed.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="BaseName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Modified"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="MbdLibHeader">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is the header for the Library Module Build Description (MBD) file. NOTE: The Guid may be different from the Guid in the MSA file, as the Guid may change when the contents of the file are changed..</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="BaseName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Modified"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Specification"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -75,36 +41,15 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="BaseName"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="ModuleType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="ComponentType"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Specification"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Updated"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="MsaLibHeader">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is the Library Module Surface Area Description Header - a replacement for INF files. The Guid may change when the contents of the file are changed.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="BaseName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="ModuleType"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="ComponentType"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Specification"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Updated"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -116,19 +61,21 @@
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" name="PlatformName" type="PlatformNamingConvention">
                     <xs:annotation>
-                        <xs:documentation xml:lang="en">Define the Name of a Platform</xs:documentation>
+                        <xs:documentation xml:lang="en">Define a Name for a Platform</xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Version"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="License"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
-                <xs:element maxOccurs="1" minOccurs="1" ref="CreatedBy"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="Created"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="CreatedBy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Updated"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PackageType"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="Specification"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -138,8 +85,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="PackageName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="PackageName" type="BaseNameConvention"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
@@ -149,11 +96,10 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="E-Mail"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Updated"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="URL"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="PackageType"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Type" type="PackageType"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ReadOnly"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="RePackage"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="Specification"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

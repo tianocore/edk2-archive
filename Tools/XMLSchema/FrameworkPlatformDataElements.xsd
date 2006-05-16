@@ -230,7 +230,7 @@
             <xs:documentation xml:lang="en">This is a mixed element, allowing the user to specify the name of the MSA file, as well as to optionally specify additional override information.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:sequence minOccurs="1">
+            <xs:sequence minOccurs="0">
                 <xs:element minOccurs="0" maxOccurs="1" ref="SourceFiles"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Includes"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Libraries"/>
@@ -245,6 +245,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="Formsets"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Guids"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Externs"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
             </xs:sequence>
             <xs:attributeGroup ref="MsaAttributes"/>
         </xs:complexType>
@@ -267,7 +268,7 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="PlatformDescriptions">
+    <xs:element name="PlatformList">
         <xs:complexType>
             <xs:sequence maxOccurs="unbounded">
                 <xs:element ref="Platform"/>
