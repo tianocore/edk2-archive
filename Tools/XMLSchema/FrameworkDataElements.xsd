@@ -875,8 +875,10 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="Token" type="HexDoubleWordDataType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="PcdItemType" type="PcdUsage"/>
                             <xs:element default="false" minOccurs="0" maxOccurs="1" name="HiiEnable" type="xs:boolean"/>
                             <xs:element default="false" minOccurs="0" maxOccurs="1" name="VpdEnable" type="xs:boolean"/>
                             <xs:element default="false" minOccurs="0" maxOccurs="1" name="AlternateNameSpaceEnable" type="xs:boolean"/>
@@ -900,7 +902,7 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="GuidOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="xs:normalizedString"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PcdAttributes"/>
                     </xs:complexType>
@@ -1002,6 +1004,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+                            <xs:element minOccurs="0" maxOccurs="0" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="Token">
                                 <xs:annotation>
                                     <xs:documentation xml:lang="en">This as a unique identifier defined for either this name space.</xs:documentation>
@@ -1089,6 +1092,7 @@
                                     <xs:documentation xml:lang="en">This is the C Name for the Variable, and is valid if and only HII is enabled.</xs:documentation>
                                 </xs:annotation>
                             </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="1" name="VariableValueDefault" type="xs:normalizedString"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DataOffset" type="Hex64BitDataType">
                                 <xs:annotation>
                                     <xs:documentation xml:lang="en">If HII is enabled, This is the offset into the variable data entry, If Vpd is enabled, then it's the Offset into the VPD area of the image defined by platform manufacturer, if neither HII nor Vpd are enabled, it's the offset into the PCD Data Area. HII and VPD can never be enabled at the same time (as of the date of this document.)</xs:documentation>
