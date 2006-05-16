@@ -36,7 +36,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="PlatformHeader"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Flash"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="TianoImage"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PcdBuildDeclarations"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="PcdDynamicBuildDeclarations"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
             </xs:sequence>
         </xs:complexType>
