@@ -17,6 +17,7 @@
     </xs:annotation>
     <xs:include schemaLocation="NamingConvention.xsd"/>
     <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
+    <xs:include schemaLocation="FrameworkDataAttributes.xsd"/>
     <xs:element name="Abstract">
         <xs:annotation>
             <xs:documentation xml:lang="en">Abstract is valid for all Description Files</xs:documentation>
@@ -171,7 +172,6 @@
     </xs:element>
     <xs:element name="Constructor" type="C_Name"/>
     <xs:element name="Copyright" type="Sentence"/>
-    <xs:element name="Created" type="DateType"/>
     <xs:element name="CreatedDate" type="DateType"/>
     <xs:element name="CreatedBy" type="UserName"/>
     <xs:element name="DataHubs">
@@ -427,11 +427,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="Sections"/>
             </xs:sequence>
         </xs:complexType>
-    </xs:element>
-    <xs:element name="File" type="DirectoryNamingConvention">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">Describe the valid content of a Path and filename</xs:documentation>
-        </xs:annotation>
     </xs:element>
     <xs:element name="Filename">
         <xs:annotation>
@@ -951,14 +946,12 @@
             <xs:sequence maxOccurs="unbounded">
                 <xs:element minOccurs="1" name="Package">
                     <xs:annotation>
-                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The File is a relative path (with respect to the WORKSPACE) to and the name of the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="1" maxOccurs="1" ref="File"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="File" type="DirectoryNamingConvention"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PackageAttributes"/>
                     </xs:complexType>
@@ -1287,12 +1280,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="File"/>
-                <!--                <xs:element minOccurs="0" maxOccurs="1" name="AlternatePcdFile" type="FileNameConvention"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="AlternateFdfFile" type="FileNameConvention"/>
--->
+                <xs:element name="File" type="DirectoryNamingConvention"/>
                 <xs:element minOccurs="0" maxOccurs="1" name="InstalledDate" type="DateType"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="ModifiedDate" type="DateType"/>
             </xs:sequence>
             <xs:attributeGroup ref="PlatformAttributes"/>
         </xs:complexType>
@@ -1502,7 +1491,8 @@
         <xs:complexType>
             <xs:simpleContent>
                 <xs:extension base="xs:normalizedString">
-                    <xs:attribute name="Version" type="xs:normalizedString" use="optional"/>
+                    <xs:attribute name="SpecVersion" type="xs:normalizedString" use="required"/>
+                    <xs:attribute name="SpecGuid" type="GuidType" use="optional"/>
                 </xs:extension>
             </xs:simpleContent>
         </xs:complexType>
@@ -1524,7 +1514,7 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="Updated" type="DateType"/>
+    <xs:element name="UpdatedDate" type="DateType"/>
     <xs:element name="URL" type="xs:anyURI"/>
     <xs:element name="URI" type="xs:anyURI"/>
     <xs:element name="UserDefinedAntTasks">

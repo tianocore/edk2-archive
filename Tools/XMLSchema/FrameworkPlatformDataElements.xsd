@@ -271,12 +271,12 @@
     </xs:element>
     <xs:element name="PlatformList">
         <xs:complexType>
-            <xs:sequence maxOccurs="unbounded">
+            <xs:sequence minOccurs="1" maxOccurs="unbounded">
                 <xs:element ref="Platform"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="TianoImage">
+    <xs:element name="FrameworkModules">
         <xs:annotation>
             <xs:documentation xml:lang="en">This defines the required sections of a valid EFI/Tiano binary image</xs:documentation>
         </xs:annotation>
