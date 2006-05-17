@@ -18,18 +18,11 @@
     <xs:include schemaLocation="NamingConvention.xsd"/>
     <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
     <xs:include schemaLocation="FrameworkDataAttributes.xsd"/>
-    <xs:element name="Abstract">
+    <xs:element name="Abstract" type="Sentence">
         <xs:annotation>
             <xs:documentation xml:lang="en">Abstract is valid for all Description Files</xs:documentation>
             <xs:documentation xml:lang="en">This section is required. This is a single sentence to describe the module and will be used in sample files as the abstract data in the header comment section.</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="Sentence">
-                    <xs:attribute name="URL" type="xs:anyURI"/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
     </xs:element>
     <xs:element name="AntCmd">
         <xs:annotation>
@@ -100,7 +93,6 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="ImageEntryPoint"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="Ffs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Sections"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="Filenames"/>
                 <xs:sequence minOccurs="0">
                     <xs:element minOccurs="0" maxOccurs="unbounded" name="Option">
@@ -112,25 +104,13 @@
                             </xs:simpleContent>
                         </xs:complexType>
                     </xs:element>
-                    <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                        <xs:complexType>
-                            <xs:sequence minOccurs="1">
-                                <xs:element maxOccurs="unbounded" name="Option">
-                                    <xs:complexType>
-                                        <xs:simpleContent>
-                                            <xs:extension base="xs:normalizedString">
-                                                <xs:attributeGroup ref="OptionAttributes"/>
-                                            </xs:extension>
-                                        </xs:simpleContent>
-                                    </xs:complexType>
-                                </xs:element>
-                            </xs:sequence>
-                            <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                        </xs:complexType>
-                    </xs:element>
                 </xs:sequence>
             </xs:sequence>
-            <xs:attribute name="ToolChain" type="ToolChains"/>
+            <xs:attribute name="ToolChainFamilies" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">The string can be any combiniation of INTC, MSFT and/or GCC</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
     <xs:element name="C_Name" type="C_Name">
@@ -208,17 +188,10 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="DatabaseName">
+    <xs:element name="DatabaseName" type="BaseNameConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en">The Name of the Database, "FrameworkDatabase"</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="BaseNameConvention">
-                    <xs:attributeGroup ref="BaseNameAttributes"/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
     </xs:element>
     <xs:element name="DefaultValue">
         <xs:annotation>
@@ -953,7 +926,7 @@
                             <xs:element minOccurs="1" maxOccurs="1" name="File" type="DirectoryNamingConvention"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
                         </xs:sequence>
-                        <xs:attributeGroup ref="PackageAttributes"/>
+                        <xs:attributeGroup ref="PackageDbAttributes"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

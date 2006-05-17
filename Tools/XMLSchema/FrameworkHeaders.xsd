@@ -27,7 +27,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="CreatedDate"/>
-                <!-- NOTE:  The Updted element is the modified date of the Database File and should be updated by the Package Installation Tool. -->
+                <!-- NOTE:  The Updated element is the modified date of the Database File and should be updated by the Package Installation Tool. -->
                 <xs:element minOccurs="0" maxOccurs="1" ref="UpdatedDate"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
@@ -81,8 +81,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="CreatedBy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Specification"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

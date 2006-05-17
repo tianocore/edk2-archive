@@ -113,6 +113,17 @@
             </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="CommandCode">
+        <xs:restriction base="UCNameType">
+            <xs:enumeration value="ASM"/>
+            <xs:enumeration value="ASMLINK"/>
+            <xs:enumeration value="ASL"/>
+            <xs:enumeration value="CC"/>
+            <xs:enumeration value="PP"/>
+            <xs:enumeration value="SLINK"/>
+            <xs:enumeration value="DLINK"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="ComponentExecutionPhase">
         <xs:annotation>
             <xs:documentation xml:lang="en">These are the supported EFI/Framework Execution Phases</xs:documentation>

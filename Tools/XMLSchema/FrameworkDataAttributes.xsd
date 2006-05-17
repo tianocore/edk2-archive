@@ -97,14 +97,21 @@
         <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="OptionAttributes">
-        <xs:attribute name="Platform" type="PlatformNamingConvention" use="optional"/>
-        <xs:attribute name="ToolChain" type="ToolChains" use="optional"/>
+        <xs:attribute name="ToolChainFamily" type="ToolChains" use="optional"/>
+        <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
+        <xs:attribute name="Command" type="CommandCode" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageAttributes">
         <xs:attribute name="PackageName" type="BaseNameConvention" use="required"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="required"/>
         <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
+        <xs:attribute name="Type" type="PackageType" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="PackageDbAttributes">
+        <xs:attribute name="PackageName" type="BaseNameConvention" use="required"/>
+        <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
+        <xs:attribute name="PackageVersion" type="VersionDataType" use="required"/>
         <xs:attribute name="Type" type="PackageType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PcdAttributes">

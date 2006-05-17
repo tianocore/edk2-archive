@@ -18,49 +18,6 @@
     <xs:include schemaLocation="NamingConvention.xsd"/>
     <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
     <xs:include schemaLocation="FrameworkDataElements.xsd"/>
-    <xs:element name="Capsule">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" name="CapsuleId" type="xs:string"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="CapsuleOptions"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="CapsuleAttributes"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="CapsuleAttributes">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This element is used specify different name value pairs.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Enable"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Disable"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="CapsuleOptions">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This element is used specify different name value pairs.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Enable"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Disable"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="Capsules">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">Permit multiple Capsule Sections</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                <xs:element ref="Capsule"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="Disable" type="xs:string"/>
     <xs:element name="Enable" type="xs:string"/>
     <xs:element name="Flash">
@@ -74,7 +31,6 @@
                     <xs:element name="FlashDefinitionFile" type="FileNameConvention"/>
                 </xs:choice>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvImages"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Capsules"/>
             </xs:sequence>
             <xs:attribute name="MicrocodeFile" type="FileNameConvention" use="optional"/>
         </xs:complexType>
@@ -189,14 +145,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="FvImageOptions"/>
             </xs:sequence>
             <xs:attribute name="Type" type="xs:string" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="FvImageName">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="FvImageOptions"/>
-            </xs:sequence>
-            <xs:attribute name="Name" type="FvRegionTypes" use="required"/>
+            <!-- CHECK Example Yizhong's flies -->
         </xs:complexType>
     </xs:element>
     <xs:element name="FvImageNames" type="xs:string"/>
@@ -207,8 +156,6 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Enable"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Disable"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -220,7 +167,6 @@
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvImage"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvImageName"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -231,20 +177,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence minOccurs="0">
-                <xs:element minOccurs="0" maxOccurs="1" ref="SourceFiles"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Includes"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Libraries"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Protocols"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Events"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Hobs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PPIs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Variables"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="BootModes"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="SystemTables"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="DataHubs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Formsets"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Guids"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Externs"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="PcdBuildDeclarations"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
             </xs:sequence>
@@ -259,14 +192,6 @@
                     <xs:attribute name="Value" type="xs:string" use="required"/>
                 </xs:extension>
             </xs:simpleContent>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="Overrides">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceOverrideInfo"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceOverrideImage"/>
-            </xs:sequence>
         </xs:complexType>
     </xs:element>
     <xs:element name="PlatformList">
@@ -346,14 +271,8 @@
     </xs:complexType>
     <xs:complexType name="FlashData">
         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefinedFvRegion" type="NameConvention"/>
-            <xs:choice minOccurs="0" maxOccurs="1">
-                <xs:sequence>
-                    <xs:element minOccurs="1" maxOccurs="1" ref="FlashDeviceInfo"/>
-                    <xs:element minOccurs="1" maxOccurs="1" ref="FlashDeviceImage"/>
-                </xs:sequence>
-            </xs:choice>
-            <xs:element minOccurs="0" maxOccurs="1" ref="Overrides"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="FlashDeviceInfo"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="FlashDeviceImage"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="FvImageFileType">
