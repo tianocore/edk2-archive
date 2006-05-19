@@ -362,7 +362,6 @@
             <xs:enumeration value="COMBINED_PEIM_DRIVER"/>
             <xs:enumeration value="PEI_CORE"/>
             <xs:enumeration value="DXE_CORE"/>
-            <xs:enumeration value="APPLICATION"/>
             <xs:enumeration value="BS_DRIVER_EFI"/>
             <xs:enumeration value="SHELLAPP"/>
             <xs:enumeration value="APPLICATION"/>
@@ -674,6 +673,15 @@
             <xs:enumeration value="UINT64"/>
             <xs:enumeration value="VOID*"/>
             <xs:enumeration value="BOOLEAN"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="PcdIsDriver">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">This is an enumerated data type that will be used for DYNAMIC_EX, PEIM or DXE only</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="UCNameType">
+            <xs:enumeration value="PEI_PCD_DRIVER"/>
+            <xs:enumeration value="DXE_PCD_DRIVER"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PcdFeatureFlagUsage">

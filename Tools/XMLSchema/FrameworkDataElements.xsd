@@ -106,10 +106,15 @@
                     </xs:element>
                 </xs:sequence>
             </xs:sequence>
-            <xs:attribute name="ToolChainFamilies" type="xs:string">
+            <xs:attribute name="ToolChainFamilies">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">The string can be any combiniation of INTC, MSFT and/or GCC</xs:documentation>
                 </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:normalizedString">
+                        <xs:pattern value="([,]+[INTC|MSFT|GCC])+"/>
+                    </xs:restriction>
+                </xs:simpleType>
             </xs:attribute>
         </xs:complexType>
     </xs:element>
@@ -153,7 +158,6 @@
     <xs:element name="Constructor" type="C_Name"/>
     <xs:element name="Copyright" type="Sentence"/>
     <xs:element name="CreatedDate" type="DateType"/>
-    <xs:element name="CreatedBy" type="UserName"/>
     <xs:element name="DataHubs">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is a list of DataHubRecord elements.</xs:documentation>
@@ -167,22 +171,6 @@
                                 <xs:attributeGroup ref="DataHubAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="DataHubRecord">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="xs:normalizedString">
-                                            <xs:attributeGroup ref="DataHubAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -231,22 +219,6 @@
                                     <xs:attributeGroup ref="EventAttributes"/>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="Event">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                                                    <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
-                                                </xs:sequence>
-                                                <xs:attributeGroup ref="EventAttributes"/>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                    <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                                </xs:complexType>
-                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -263,22 +235,6 @@
                                         <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
                                     </xs:sequence>
                                     <xs:attributeGroup ref="EventAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="Event">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                                                    <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
-                                                </xs:sequence>
-                                                <xs:attributeGroup ref="EventAttributes"/>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                    <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
@@ -334,6 +290,7 @@
                         <xs:attributeGroup ref="ExternAttributes"/>
                     </xs:complexType>
                 </xs:element>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="Specification" type="xs:string"> </xs:element>
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
                     <xs:complexType>
                         <xs:sequence>
@@ -391,14 +348,17 @@
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
                     <xs:complexType>
-                        <xs:sequence>
-                            <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_Name"/>
-                            <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_Name"/>
-                        </xs:sequence>
+                        <xs:simpleContent>
+                            <xs:extension base="C_Name">
+                                <xs:attribute name="Name" type="C_Name" use="optional"/>
+                                <xs:attribute name="Value" type="C_Name" use="optional"/>
+                            </xs:extension>
+                        </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Sections"/>
             </xs:sequence>
+            <xs:attribute name="Type" type="xs:normalizedString" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="Filename">
@@ -447,25 +407,6 @@
                                 <xs:attributeGroup ref="FormsetAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Formset">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">Describe the valid content of a Formset</xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="C_Name">
-                                            <xs:attributeGroup ref="FormsetAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -518,29 +459,6 @@
                         <xs:attributeGroup ref="GuidAttributes"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="GuidEntry">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">Describe the valid content of a PCD GUID element</xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:sequence minOccurs="0" maxOccurs="1">
-                                        <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
-                                        <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="C_Name"/>
-                                        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ConditionalExpression"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="DefaultValue"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
-                                    </xs:sequence>
-                                    <xs:attributeGroup ref="GuidAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                    </xs:complexType>
-                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -561,23 +479,6 @@
                             <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="HobAttributes"/>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Hob">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:normalizedString"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="C_Name"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
-                                    </xs:sequence>
-                                    <xs:attributeGroup ref="HobAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -604,34 +505,12 @@
                         <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
-                        <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
-                        </xs:sequence>
-                        <xs:attributeGroup ref="PackageAttributes"/>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence minOccurs="1">
-                            <xs:element minOccurs="1" name="Package">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:sequence maxOccurs="unbounded">
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="Path"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
-                                    </xs:sequence>
-                                    <xs:attributeGroup ref="PackageAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
+                        <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
+                        <xs:attribute name="PackageName" type="BaseNameConvention" use="required"/>
+                        <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
+                        <xs:attribute name="PackageVersion" type="VersionDataType" use="required"/>
+                        <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
+                        <xs:attribute name="Type" type="PackageType" use="optional"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -653,22 +532,6 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:choice minOccurs="1" maxOccurs="unbounded">
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="Library">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="BaseNameConvention">
-                                            <xs:attributeGroup ref="LibraryAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:choice>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                    </xs:complexType>
-                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -679,9 +542,16 @@
         <xs:complexType>
             <xs:simpleContent>
                 <xs:extension base="BaseNameConvention">
-                    <xs:attribute name="Usage" type="LibraryUsage" use="optional"/>
+                    <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
                 </xs:extension>
             </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="LibraryClassDeclarations">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="1" maxOccurs="unbounded" ref="LibraryClassDeclaration"/>
+            </xs:sequence>
         </xs:complexType>
     </xs:element>
     <xs:element name="LibraryClassDeclaration">
@@ -692,16 +562,6 @@
             <xs:sequence minOccurs="0">
                 <xs:element minOccurs="1" maxOccurs="1" ref="LibraryClass"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="IncludeHeader"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="LibraryClassDeclarations">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This section defines what Classes of Libraries that this library belongs to. A Library may belong to multiple different library classes.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType mixed="true">
-            <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                <xs:element ref="LibraryClassDeclaration"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -786,25 +646,6 @@
                         <xs:attributeGroup ref="MsaAttributes"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence minOccurs="1">
-                            <xs:element maxOccurs="unbounded" name="MsaFile">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">Describe the valid content of a Surface Area Package Description (SPD) file</xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:sequence minOccurs="0" maxOccurs="1">
-                                        <xs:element minOccurs="0" ref="Filename"/>
-                                        <xs:element minOccurs="0" ref="BuildOptions"/>
-                                    </xs:sequence>
-                                    <xs:attributeGroup ref="MsaAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                    </xs:complexType>
-                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -868,7 +709,6 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableName" type="xs:normalizedString"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableGuid" type="VariableGuidType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
-                            <xs:element minOccurs="0" maxOccurs="1" name="GuidOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="xs:normalizedString"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
@@ -959,8 +799,7 @@
             <xs:documentation xml:lang="en">We permit the FPD to use an external XML file for PCD information or else the information must be contained within the XML data element, PcdBuildData.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:choice minOccurs="1">
-                <xs:element minOccurs="0" maxOccurs="1" ref="Filename"/>
+            <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="PcdBuildData">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">Child of PcdBuildDeclarations</xs:documentation>
@@ -970,7 +809,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                            <xs:element minOccurs="0" maxOccurs="0" name="TokenSpaceGuid" type="GuidType"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="Token">
                                 <xs:annotation>
                                     <xs:documentation xml:lang="en">This as a unique identifier defined for either this name space.</xs:documentation>
@@ -1064,17 +903,12 @@
                                     <xs:documentation xml:lang="en">If HII is enabled, This is the offset into the variable data entry, If Vpd is enabled, then it's the Offset into the VPD area of the image defined by platform manufacturer, if neither HII nor Vpd are enabled, it's the offset into the PCD Data Area. HII and VPD can never be enabled at the same time (as of the date of this document.)</xs:documentation>
                                 </xs:annotation>
                             </xs:element>
-                            <xs:element minOccurs="1" maxOccurs="1" name="GuidOffset" type="Hex64BitDataType">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">This field is only valid if AlternateNameSpaceEnable is true.</xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
                             <xs:element minOccurs="1" maxOccurs="1" name="DefaultValue" type="xs:normalizedString"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PcdAttributes"/>
                     </xs:complexType>
                 </xs:element>
-            </xs:choice>
+            </xs:sequence>
         </xs:complexType>
     </xs:element>
     <xs:element name="PcdDynamicBuildDeclarations">
@@ -1186,11 +1020,6 @@
                                     <xs:documentation xml:lang="en">If HII is enabled, This is the offset into the variable data entry, If Vpd is enabled, then it's the Offset into the VPD area of the image defined by platform manufacturer, if neither HII nor Vpd are enabled, it's the offset into the PCD Data Area. HII and VPD can never be enabled at the same time (as of the date of this document.)</xs:documentation>
                                 </xs:annotation>
                             </xs:element>
-                            <xs:element minOccurs="1" maxOccurs="1" name="GuidOffset" type="Hex64BitDataType">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">This field is only valid if AlternateNameSpaceEnable is true.</xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
                             <xs:element minOccurs="1" maxOccurs="1" name="DefaultValue" type="xs:normalizedString"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PcdAttributes"/>
@@ -1238,7 +1067,6 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableName" type="xs:normalizedString"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableGuid" type="VariableGuidType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
-                            <xs:element default="0" minOccurs="0" maxOccurs="1" name="GuidOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValue"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PcdAttributes"/>
@@ -1299,31 +1127,6 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="Ppi">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="C_Name">
-                                            <xs:attributeGroup ref="PpiAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="PpiNotify">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="C_Name">
-                                            <xs:attributeGroup ref="PpiNotifyAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                    </xs:complexType>
-                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -1353,7 +1156,10 @@
                     <xs:complexType>
                         <xs:simpleContent>
                             <xs:extension base="C_Name">
-                                <xs:attributeGroup ref="ProtocolAttributes"/>
+                                <xs:attribute name="Guid" type="GuidType" use="optional"/>
+                                <xs:attribute name="Usage" type="ProtocolUsage" use="required"/>
+                                <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+                                <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                             </xs:extension>
                         </xs:simpleContent>
                     </xs:complexType>
@@ -1362,34 +1168,12 @@
                     <xs:complexType>
                         <xs:simpleContent>
                             <xs:extension base="C_Name">
-                                <xs:attributeGroup ref="ProtocolNotifyAttributes"/>
+                                <xs:attribute name="Guid" type="GuidType" use="optional"/>
+                                <xs:attribute name="Usage" type="ProtocolNotifyUsage" use="required"/>
+                                <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+                                <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                             </xs:extension>
                         </xs:simpleContent>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="Protocol">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="C_Name">
-                                            <xs:attributeGroup ref="ProtocolAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="ProtocolNotify">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="C_Name">
-                                            <xs:attributeGroup ref="ProtocolNotifyAttributes"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -1444,14 +1228,36 @@
             <xs:documentation xml:lang="en">Multiple Filenames may be specified, and they may also be scoped to a specific Architecture.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:sequence minOccurs="1">
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Filename"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
+            <xs:sequence>
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename">
                     <xs:complexType>
-                        <xs:sequence minOccurs="1">
-                            <xs:element maxOccurs="unbounded" ref="Filename"/>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
+                        <xs:simpleContent>
+                            <xs:extension base="DirectoryNamingConvention">
+                                <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
+                                <xs:attribute name="FileGuid" type="GuidType" use="optional"/>
+                                <xs:attribute name="FileVersion" type="VersionDataType" use="optional"/>
+                                <xs:attribute name="FileType" use="optional">
+                                    <xs:simpleType>
+                                        <xs:restriction base="UCNameType">
+                                            <xs:enumeration value="CCODE"/>
+                                            <xs:enumeration value="CHEADER"/>
+                                            <xs:enumeration value="ASMHEADER"/>
+                                            <xs:enumeration value="ASM"/>
+                                            <xs:enumeration value="UNI"/>
+                                            <xs:enumeration value="TXT"/>
+                                            <xs:enumeration value="DXS"/>
+                                            <xs:enumeration value="BMP"/>
+                                            <xs:enumeration value="VFR"/>
+                                            <xs:enumeration value="BINARY"/>
+                                            <xs:enumeration value="FV"/>
+                                            <xs:enumeration value="FFS"/>
+                                            <xs:enumeration value="EFI"/>
+                                        </xs:restriction>
+                                    </xs:simpleType>
+                                </xs:attribute>
+                                <xs:attribute name="UserDefinedFileType" type="xs:string" use="optional"/>
+                            </xs:extension>
+                        </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

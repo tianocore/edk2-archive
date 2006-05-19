@@ -46,7 +46,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="BaseName"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="BaseName" type="BaseNameConvention"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="ModuleType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="ComponentType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
@@ -57,6 +57,13 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="CreatedDate"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:pattern value="(([,]*[IA32|X64|IPF|EBC]*)+)|ALL"></xs:pattern>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Specification"/>
             </xs:sequence>
         </xs:complexType>
@@ -78,7 +85,6 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="CreatedDate"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="CreatedBy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Specification"/>
             </xs:sequence>

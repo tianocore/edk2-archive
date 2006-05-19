@@ -50,7 +50,6 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="MsaHeader"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="LibraryClassDefinitions"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="SourceFiles"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Includes"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Protocols"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Events"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Hobs"/>

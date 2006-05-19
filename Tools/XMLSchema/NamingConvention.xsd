@@ -284,9 +284,7 @@
         <xs:annotation>
             <xs:documentation xml:lang="en"> Definition of a Version Number, which can be any combination of a number followed by zero or more alphanumeric-dot-alphanumeric characters </xs:documentation>
         </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="xs:normalizedString"/>
-        </xs:restriction>
+        <xs:union memberTypes="xs:decimal xs:hexBinary xs:normalizedString"/>
     </xs:simpleType>
     <xs:simpleType name="Zero">
         <xs:annotation>
