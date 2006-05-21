@@ -46,6 +46,7 @@
     </xs:attributeGroup>
     <xs:attributeGroup name="ExternAttributes">
         <xs:attribute name="Usage" type="ExternUsage" use="optional"/>
+        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="FilenameAttributes">
         <xs:attribute name="Usage" type="FileNameUsage" use="optional"/>

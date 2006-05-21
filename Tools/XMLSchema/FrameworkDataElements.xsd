@@ -290,53 +290,7 @@
                         <xs:attributeGroup ref="ExternAttributes"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Specification" type="xs:string"> </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Extern">
-                                <xs:complexType>
-                                    <xs:choice minOccurs="1">
-                                        <xs:sequence minOccurs="0" maxOccurs="1">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en">Driver Module</xs:documentation>
-                                            </xs:annotation>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="ModuleEntryPoint"/>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="ModuleUnloadImage"/>
-                                        </xs:sequence>
-                                        <xs:sequence minOccurs="0" maxOccurs="1">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en">Library Module</xs:documentation>
-                                            </xs:annotation>
-                                            <xs:element minOccurs="0" maxOccurs="1" ref="Constructor"/>
-                                            <xs:element minOccurs="0" maxOccurs="1" ref="Destructor"/>
-                                        </xs:sequence>
-                                        <xs:sequence minOccurs="0" maxOccurs="1">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en">Allow multiple entries for DriverBinding, ComponentName, DriverConfig and DriverDiag elements. For ComponentName, DriverConfig and/or DriverDiag - you must have a 1:1 mapping to DriverBinding if the element is defined.</xs:documentation>
-                                                <xs:documentation xml:lang="en">Permit User Defined Extern Tags</xs:documentation>
-                                            </xs:annotation>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="DriverBinding"/>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="ComponentName"/>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="DriverConfig"/>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="DriverDiag"/>
-                                        </xs:sequence>
-                                        <xs:sequence minOccurs="0" maxOccurs="1">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en"> Module Call Backs</xs:documentation>
-                                            </xs:annotation>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="SetVirtualAddressMapCallBack"/>
-                                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="ExitBootServicesCallBack"/>
-                                        </xs:sequence>
-                                        <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefined" type="C_Name"/>
-                                    </xs:choice>
-                                    <xs:attributeGroup ref="ExternAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Specification"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -684,8 +638,8 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                            <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="Token" type="HexDoubleWordDataType"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="PcdItemType" type="PcdUsage"/>
                             <xs:element default="false" minOccurs="0" maxOccurs="1" name="HiiEnable" type="xs:boolean"/>
@@ -708,6 +662,7 @@
                             </xs:element>
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableName" type="xs:normalizedString"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableGuid" type="VariableGuidType"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="VariableValueDefault" type="xs:normalizedString"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="xs:normalizedString"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
@@ -941,6 +896,7 @@
                                     </xs:simpleContent>
                                 </xs:complexType>
                             </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes">
                                 <xs:annotation>
                                     <xs:documentation xml:lang="en">This specifies the size of the Pcd Datum. It is either 8, 16, 32 or 64 bits for values, 1 bit for BOOLEAN and variable length for elements defined as VOID*</xs:documentation>
@@ -1015,6 +971,7 @@
                                     <xs:documentation xml:lang="en">This is the C Name for the Variable, and is valid if and only HII is enabled.</xs:documentation>
                                 </xs:annotation>
                             </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="1" name="VariableValueDefault" type="xs:normalizedString"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DataOffset" type="Hex64BitDataType">
                                 <xs:annotation>
                                     <xs:documentation xml:lang="en">If HII is enabled, This is the offset into the variable data entry, If Vpd is enabled, then it's the Offset into the VPD area of the image defined by platform manufacturer, if neither HII nor Vpd are enabled, it's the offset into the PCD Data Area. HII and VPD can never be enabled at the same time (as of the date of this document.)</xs:documentation>
@@ -1045,6 +1002,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="Token" type="Token"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
                             <xs:element default="false" minOccurs="0" maxOccurs="1" name="HiiEnable" type="xs:boolean"/>
                             <xs:element default="false" minOccurs="0" maxOccurs="1" name="VpdEnable" type="xs:boolean"/>
@@ -1064,8 +1022,9 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
-                            <xs:element minOccurs="0" maxOccurs="1" name="VariableName" type="xs:normalizedString"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableGuid" type="VariableGuidType"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="VariableName" type="xs:normalizedString"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="VariableValueDefault" type="xs:normalizedString"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValue"/>
                         </xs:sequence>
@@ -1272,6 +1231,7 @@
                 <xs:extension base="xs:normalizedString">
                     <xs:attribute name="SpecVersion" type="xs:normalizedString" use="required"/>
                     <xs:attribute name="SpecGuid" type="GuidType" use="optional"/>
+                    <xs:attribute name="ArchType" type="SupportedArchitectures" use="optional"/>
                 </xs:extension>
             </xs:simpleContent>
         </xs:complexType>
@@ -1350,52 +1310,6 @@
                             </xs:element>
                         </xs:sequence>
                         <xs:attributeGroup ref="VariableAttributes"/>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Arch">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Variable">
-                                <xs:annotation>
-                                    <xs:documentation xml:lang="en">This is an EFI Variable Entry</xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element minOccurs="1" maxOccurs="1" name="String" type="xs:normalizedString"/>
-                                        <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" name="ByteOffset" type="HexWordDataType">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en">This entry represents the Hex Byte Offset {0x0, 0xn} to where the data starts.</xs:documentation>
-                                            </xs:annotation>
-                                        </xs:element>
-                                        <xs:element minOccurs="0" maxOccurs="1" name="BitOffset">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en">This entry represents the Location of the Starting Bit {0,8} of the start of Data. A value of zero or 1 indicates that there is no BitOffset into the byte.</xs:documentation>
-                                            </xs:annotation>
-                                            <xs:simpleType>
-                                                <xs:restriction base="xs:int">
-                                                    <xs:minInclusive value="0"/>
-                                                    <xs:maxInclusive value="8"/>
-                                                </xs:restriction>
-                                            </xs:simpleType>
-                                        </xs:element>
-                                        <xs:element minOccurs="0" maxOccurs="1" name="OffsetBitSize">
-                                            <xs:annotation>
-                                                <xs:documentation xml:lang="en">This number represents the number of bits to use {0, 7} starting at the BitOffset. A value of 0 indicates that the entire Byte should be used.</xs:documentation>
-                                            </xs:annotation>
-                                            <xs:simpleType>
-                                                <xs:restriction base="xs:int">
-                                                    <xs:minInclusive value="0"/>
-                                                    <xs:maxInclusive value="7"/>
-                                                </xs:restriction>
-                                            </xs:simpleType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                    <xs:attributeGroup ref="VariableAttributes"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
