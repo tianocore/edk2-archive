@@ -117,7 +117,7 @@
                 </xs:annotation>
                 <xs:simpleType>
                     <xs:restriction base="xs:normalizedString">
-                        <xs:pattern value="([,]+[INTC|MSFT|GCC])+"/>
+                        <xs:pattern value="((INTC)|(MSFT)|(GCC)){1}(,((INTC)|(MSFT)|(GCC))){0,2}"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>

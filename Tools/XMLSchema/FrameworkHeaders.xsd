@@ -60,7 +60,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures">
                     <xs:simpleType>
                         <xs:restriction base="xs:string">
-                            <xs:pattern value="(([,]*[IA32|X64|IPF|EBC]*)+)|ALL"></xs:pattern>
+                            <xs:pattern value="(ALL){1}|(((IA32)|((X64)|(IPF)|(EBC)){1}((,((IA32)|(X64)|(IPF)|(EBC)){1} ){0,2}))){1}"/>
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:element>
