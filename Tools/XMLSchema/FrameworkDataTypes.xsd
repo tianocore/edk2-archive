@@ -188,6 +188,15 @@
             <xs:pattern value="[1-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="DatumSizeLimit">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">Max Number of Bytes of the data.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="16777215"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="DefaultValue">
         <xs:annotation>
             <xs:documentation xml:lang="en"> The DefaultValue is a union of a string and an integer. </xs:documentation>
@@ -666,6 +675,9 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PcdDataTypes">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">This specifies the size of the Pcd Datum. It is either 8, 16, 32 or 64 bits for values, 1 bit for BOOLEAN and variable length for elements defined as VOID*</xs:documentation>
+        </xs:annotation>
         <xs:restriction base="xs:normalizedString">
             <xs:enumeration value="UINT8"/>
             <xs:enumeration value="UINT16"/>
