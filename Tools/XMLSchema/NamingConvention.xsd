@@ -35,7 +35,7 @@
         <xs:annotation>
             <xs:documentation xml:lang="en"> Directory naming convention is a UNION of DOS an UNIX directory path names </xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="Directory_DOS Directory_UNIX"/>
+        <xs:union memberTypes="Directory_DOS Directory_UNIX xs:anyURI"/>
     </xs:simpleType>
     <xs:simpleType name="Directory_DOS">
         <xs:annotation>

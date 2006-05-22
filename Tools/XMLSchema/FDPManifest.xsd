@@ -37,7 +37,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="PackageName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Guid" type="GuidType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
@@ -196,7 +196,7 @@
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
                             <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="Guid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
@@ -223,7 +223,7 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element ref="Guid"/>
+                <xs:element ref="GuidValue"/>
                 <xs:element ref="File"/>
             </xs:choice>
         </xs:complexType>
@@ -241,7 +241,7 @@
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
                             <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="Guid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
@@ -274,7 +274,7 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element ref="Guid"/>
+                <xs:element name="Guid" type="GuidType"/>
                 <xs:element ref="File"/>
             </xs:choice>
         </xs:complexType>
@@ -284,7 +284,7 @@
     </xs:attributeGroup>
     <xs:attributeGroup name="attlist.Protocol">
         <xs:attribute name="Name" use="required"/>
-        <xs:attribute name="Guid" use="required" type="xs:NMTOKEN"/>
+        <xs:attribute name="Guid" use="required" type="GuidType"/>
     </xs:attributeGroup>
     <xs:element name="Private">
         <xs:annotation>

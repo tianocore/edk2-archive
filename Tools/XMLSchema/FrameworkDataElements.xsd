@@ -242,7 +242,7 @@
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                                        <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
+                                        <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
                                     </xs:sequence>
                                     <xs:attributeGroup ref="EventAttributes"/>
                                 </xs:complexType>
@@ -374,18 +374,6 @@
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="Guid">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">Describe the valid content of a GUID</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="GuidType">
-                    <xs:attributeGroup ref="GuidAttributes"/>
-                </xs:extension>
-            </xs:simpleContent>
         </xs:complexType>
     </xs:element>
     <xs:element name="GuidDeclarations">
@@ -570,7 +558,7 @@
             </xs:annotation>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="ModuleName"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
             </xs:sequence>
@@ -669,29 +657,6 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="PackageDependencies">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This tag is used in the Package Surface Area Description File to track package dependencies for a module</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence maxOccurs="unbounded">
-                <xs:element minOccurs="1" name="Package">
-                    <xs:annotation>
-                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path (with respect to the WORKSPACE) to the SPD File.</xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="InstalledDate"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="CreatedDate"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
-                        </xs:sequence>
-                        <xs:attributeGroup ref="PackageAttributes"/>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="PackageHeaders">
         <xs:annotation>
             <xs:documentation xml:lang="en">This defines the minimum header file needed to support a given ModuleType.</xs:documentation>
@@ -765,8 +730,8 @@
                             <xs:element minOccurs="0" maxOccurs="1" ref="HiiEnable"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="VpdEnable"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="AlternateNameSpaceEnable"/>
-                            <xs:element default="false" minOccurs="0" maxOccurs="1" name="SkuEnable" type="xs:boolean"/>
-                            <xs:element default="false" minOccurs="0" maxOccurs="1" name="SkuDataArrayEnable" type="xs:boolean"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="SkuEnable"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="SkuDataArrayEnable"/>
                             <xs:choice minOccurs="0">
                                 <xs:element minOccurs="0" maxOccurs="1" ref="SkuDataArray"/>
                                 <xs:element minOccurs="0" maxOccurs="unbounded" name="SkuData"/>
@@ -810,8 +775,8 @@
                             <xs:element minOccurs="0" maxOccurs="1" ref="HiiEnable"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="VpdEnable"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="AlternateNameSpaceEnable"/>
-                            <xs:element default="false" minOccurs="0" maxOccurs="1" name="SkuEnable" type="xs:boolean"/>
-                            <xs:element default="false" minOccurs="0" maxOccurs="1" name="SkuDataArrayEnable" type="xs:boolean"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="SkuEnable"/>
+                            <xs:element minOccurs="0" maxOccurs="1" ref="SkuDataArrayEnable"/>
                             <xs:choice minOccurs="0">
                                 <xs:annotation>
                                     <xs:documentation xml:lang="en">Only required if SkuDataArrayEnable is true</xs:documentation>
@@ -853,8 +818,8 @@
                             <xs:element minOccurs="1" maxOccurs="1" name="Token" type="Token"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
                             <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
-                            <xs:element minOccurs="1" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="VariableValueDefault" type="xs:normalizedString"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="DataOffset" type="Hex64BitDataType"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValue"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PcdAttributes"/>
@@ -1011,14 +976,6 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="SetVirtualAddressMapCallBack" type="C_Name"/>
-    <xs:element name="SkuDataArray">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This element is a list of two entries per line, the first should be an integer, while the second entry should be a string value</xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-            <xs:list itemType="xs:normalizedString"/>
-        </xs:simpleType>
-    </xs:element>
     <xs:element name="SkuData">
         <xs:annotation>
             <xs:documentation xml:lang="en">This section is for a list of SkuData Elements, ID and Value</xs:documentation>
@@ -1030,6 +987,16 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element name="SkuDataArray">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">This element is a list of two entries per line, the first should be an integer, while the second entry should be a string value</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:list itemType="xs:normalizedString"/>
+        </xs:simpleType>
+    </xs:element>
+    <xs:element default="false" name="SkuDataArrayEnable" type="xs:boolean"/>
+    <xs:element default="false" name="SkuEnable" type="xs:boolean"/>
     <xs:element default="0x00" name="SkuId" type="HexByteDataType">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is the specific Sku ID for this build.</xs:documentation>
