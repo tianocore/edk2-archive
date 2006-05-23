@@ -479,16 +479,8 @@
             <xs:documentation xml:lang="en">Different Instances of Libraries</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:sequence minOccurs="1">
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Library">
-                    <xs:complexType>
-                        <xs:simpleContent>
-                            <xs:extension base="BaseNameConvention">
-                                <xs:attributeGroup ref="LibraryAttributes"/>
-                            </xs:extension>
-                        </xs:simpleContent>
-                    </xs:complexType>
-                </xs:element>
+            <xs:sequence>
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="Library" type="BaseNameConvention"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

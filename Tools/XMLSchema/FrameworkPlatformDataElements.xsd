@@ -172,12 +172,12 @@
     </xs:element>
     <xs:element name="ModuleSA">
         <xs:annotation>
-            <xs:documentation xml:lang="en">This element is used to specify information in the Platform Description File.</xs:documentation>
-            <xs:documentation xml:lang="en">This is a mixed element, allowing the user to specify the name of the MSA file, as well as to optionally specify additional override information.</xs:documentation>
+            <xs:documentation xml:lang="en">This element is used to specify information in the Platform Description (FPD) File.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence minOccurs="0">
                 <xs:element minOccurs="0" maxOccurs="1" ref="Libraries"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="Externs"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="PcdBuildDeclarations"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
             </xs:sequence>
