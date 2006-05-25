@@ -181,7 +181,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="PcdBuildDeclarations"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
             </xs:sequence>
-            <xs:attributeGroup ref="MsaAttributes"/>
+            <xs:attributeGroup ref="ModuleSaAttributes"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="NameValue">

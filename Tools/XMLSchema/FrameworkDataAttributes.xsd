@@ -92,12 +92,21 @@
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Version" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
-    <xs:attributeGroup name="MsaAttributes">
+    <xs:attributeGroup name="ModuleSaAttributes">
         <xs:attribute name="PackageName" type="C_Name" use="required"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleName" type="C_Name" use="required"/>
         <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
+        <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
+        <xs:attribute name="Binary" type="xs:boolean" default="false" use="optional"/>
+        <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
+        <xs:attribute name="FvBinding" type="xs:string" use="optional"/>
+        <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="MsaAttributes">
+        <xs:attribute name="ModuleName" type="C_Name" use="required"/>
+        <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="Binary" type="xs:boolean" default="false" use="optional"/>
         <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
