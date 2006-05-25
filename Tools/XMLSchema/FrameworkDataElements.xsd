@@ -1005,15 +1005,15 @@
                         <xs:simpleContent>
                             <xs:extension base="DirectoryNamingConvention">
                                 <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
-                                <xs:attribute name="ToolChainFamily" use="optional">
                                 <xs:attribute name="FileGuid" type="GuidType" use="optional"/>
-                                  <xs:simpleType>
-                                    <xs:restriction base="UCNameType">
-                                      <xs:enumeration value="MSFT"/>
-                                      <xs:enumeration value="INTC"/>
-                                      <xs:enumeration value="GCC"/>
-                                    </xs:restriction>
-                                  </xs:simpleType>
+                                <xs:attribute name="ToolChainFamily" use="optional">
+                                    <xs:simpleType>
+                                        <xs:restriction base="UCNameType">
+                                            <xs:enumeration value="MSFT"/>
+                                            <xs:enumeration value="INTC"/>
+                                            <xs:enumeration value="GCC"/>
+                                        </xs:restriction>
+                                    </xs:simpleType>
                                 </xs:attribute>
                                 <xs:attribute name="FileVersion" type="VersionDataType" use="optional"/>
                                 <xs:attribute name="FileType" use="optional">
