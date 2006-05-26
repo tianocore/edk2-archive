@@ -27,7 +27,7 @@ public class ModuleIdentification extends Identification {
     	super(name, guid, version, path);
     }
     
-    public ModuleIdentification(String name, String guid, String version, PackageIdentification packageId){
+    public ModuleIdentification(String name, String guid, String version, String path, PackageIdentification packageId){
         super(name, guid, version);
         this.packageId = packageId;
     }

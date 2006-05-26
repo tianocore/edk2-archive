@@ -170,7 +170,13 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     private PCDsDocument.PCDs xmlpcd = null;
 
-    IDefaultMutableTreeNode dmtnRoot = null;
+    private IDefaultMutableTreeNode dmtnRoot = null;
+    
+    private IDefaultMutableTreeNode dmtnModuleDescription = null;
+    
+    private IDefaultMutableTreeNode dmtnPackageDescription = null;
+    
+    private IDefaultMutableTreeNode dmtnPlatformDescription = null;
 
     private JPanel jContentPane = null;
 
@@ -654,8 +660,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         //
         //Before open a real module, use an empty root node for the tree
         //
-        IDefaultMutableTreeNode root = new IDefaultMutableTreeNode("No Msa/Mbd file opened", -1, -1);
-        iTree = new ITree(root);
+        makeEmptyTree();
         return iTree;
     }
 
@@ -1883,6 +1888,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         this.setResizable(true);
         this.setJMenuBar(getjJMenuBar());
         this.addComponentListener(this);
+        this.getCompontentsFromFrameworkDatabase();
         this.setContentPane(getJContentPane());
         this.setTitle(windowTitle + "- [" + ws.getCurrentWorkspace() + "]");
         this.setExitType(1);
@@ -2199,7 +2205,38 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
      
      **/
     private void makeEmptyTree() {
-        dmtnRoot = new IDefaultMutableTreeNode("No Msa/Mbd file opened", -1, -1);
+        //dmtnRoot = new IDefaultMutableTreeNode("No Msa/Mbd file opened", -1, -1);
+        // Make root
+        dmtnRoot = new IDefaultMutableTreeNode("WORKSPACE", -1, -1);
+        
+        // Make Module Description
+        dmtnModuleDescription = new IDefaultMutableTreeNode("ModuleDescription", -1, -1);
+        
+        if (this.vModuleList.size() > 0) {
+            for (int index = 0; index < this.vModuleList.size(); index++) {
+                dmtnModuleDescription.add(new IDefaultMutableTreeNode(this.vModuleList.elementAt(index).getName(), -1, -1));
+            }
+        }
+        
+        // Make Package Description
+        dmtnPackageDescription = new IDefaultMutableTreeNode("PackageDescription", -1, -1);
+        if (this.vPackageList.size() > 0) {
+            for (int index = 0; index < this.vPackageList.size(); index++) {
+                dmtnPackageDescription.add(new IDefaultMutableTreeNode(this.vPackageList.elementAt(index).getName(), -1, -1));
+            }
+        }
+        
+        // Make Platform Description
+        dmtnPlatformDescription = new IDefaultMutableTreeNode("PlatformDescription", -1, -1);
+        if (this.vPlatformList.size() > 0) {
+            for (int index = 0; index < this.vPlatformList.size(); index++){
+                dmtnPlatformDescription.add(new IDefaultMutableTreeNode(this.vPlatformList.elementAt(index).getName(), -1, -1));    
+            }
+        }
+        
+        dmtnRoot.add(dmtnModuleDescription);
+        dmtnRoot.add(dmtnPackageDescription);
+        dmtnRoot.add(dmtnPlatformDescription);
         iTree = new ITree(dmtnRoot);
         jScrollPaneTree.setViewportView(iTree);
     }
@@ -3676,6 +3713,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         //jTabbedPaneEditor.addTab("1", null, a, null);
         
         getJDesktopPaneModule().add(msa, 1);
+        this.jTabbedPaneEditor.setSelectedIndex(0);
         this.currentNodeType = IDefaultMutableTreeNode.MSA_HEADER;
         this.currentModuleType = 1;
         if (type == FrameworkWizardUI.VIEW) {
@@ -4267,4 +4305,10 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 		// TODO Auto-generated method stub
 		
 	}
+    
+    private void getCompontentsFromFrameworkDatabase() {
+        this.vModuleList = ws.getAllModules();
+        this.vPackageList = ws.getAllPackages();
+        this.vPlatformList = ws.getAllPlatforms();
+    }
 }
