@@ -71,10 +71,6 @@ public class ModuleBootModes extends IInternalFrame {
 
     private JButton jButtonCancel = null;
 
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
-
     private JButton jButtonGenerateGuid = null;
 
     private StarLabel jStarLabel1 = null;
@@ -151,20 +147,6 @@ public class ModuleBootModes extends IInternalFrame {
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
-    }
-
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 85, 50, 20));
-        }
-        return jTextFieldOverrideID;
     }
 
     /**
@@ -256,7 +238,6 @@ public class ModuleBootModes extends IInternalFrame {
             if (this.bootModes.getBootModeArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.bootModes.getBootModeArray(index).getUsage().toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.bootModes.getBootModeArray(index).getOverrideID()));
         }
     }
 
@@ -286,7 +267,6 @@ public class ModuleBootModes extends IInternalFrame {
             this.jComboBoxBootModeName.setEnabled(!isView);
             this.jTextFieldGuid.setEnabled(!isView);
             this.jComboBoxUsage.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonCancel.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
             this.jButtonOk.setEnabled(!isView);
@@ -301,9 +281,6 @@ public class ModuleBootModes extends IInternalFrame {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 85, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelUsage = new JLabel();
             jLabelUsage.setText("Usage");
             jLabelUsage.setBounds(new java.awt.Rectangle(15, 60, 140, 20));
@@ -323,8 +300,6 @@ public class ModuleBootModes extends IInternalFrame {
             jContentPane.add(getJComboBoxUsage(), null);
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
             jContentPane.add(getJButtonGenerateGuid(), null);
 
             jStarLabel1 = new StarLabel();
@@ -414,11 +389,6 @@ public class ModuleBootModes extends IInternalFrame {
             Log.err("Incorrect data type for Guid");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -440,9 +410,6 @@ public class ModuleBootModes extends IInternalFrame {
                 bootMode.setGuid(this.jTextFieldGuid.getText());
             }
             bootMode.setUsage(BootModeUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                bootMode.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
             if (location > -1) {
                 bootModes.setBootModeArray(location, bootMode);
             } else {

@@ -64,10 +64,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
 
     private JButton jButtonCancel = null;
 
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
-
     private JPanel jPanelType1 = null;
 
     private JLabel jLabelModuleEntryPoint = null;
@@ -170,20 +166,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
-    }
-
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 60, 50, 20));
-        }
-        return jTextFieldOverrideID;
     }
 
     /**
@@ -555,7 +537,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
             if (this.externs.getExternArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.externs.getExternArray(index).getUsage().toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.externs.getExternArray(index).getOverrideID()));
             //
             //Type 1
             //
@@ -679,7 +660,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
         this.jButtonCancel.setVisible(false);
         if (isView) {
             this.jComboBoxUsage.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             //
             //Type 1
             //
@@ -725,9 +705,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 60, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelUsage = new JLabel();
             jLabelUsage.setText("Usage");
             jLabelUsage.setBounds(new java.awt.Rectangle(15, 35, 140, 20));
@@ -747,8 +724,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
             jContentPane.add(getJComboBoxUsage(), null);
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
 
             jContentPane.add(getJPanelType1(), null);
         }
@@ -889,12 +864,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
             }
         }
 
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
-
         return true;
     }
 
@@ -914,9 +883,6 @@ public class ModuleExterns extends IInternalFrame implements ItemListener {
             //Save common fields
             //
             extern.setUsage(ExternUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                extern.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
 
             //
             //Save type 1

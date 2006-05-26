@@ -23,6 +23,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
@@ -36,7 +37,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
@@ -45,24 +49,15 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.tianocore.BootModesDocument;
-import org.tianocore.BuildOptionsDocument;
 import org.tianocore.DataHubsDocument;
 import org.tianocore.EventsDocument;
 import org.tianocore.ExternsDocument;
 import org.tianocore.FormsetsDocument;
 import org.tianocore.GuidsDocument;
 import org.tianocore.HobsDocument;
-import org.tianocore.IncludesDocument;
-import org.tianocore.LibrariesDocument;
 import org.tianocore.LibraryClassDefinitionsDocument;
-import org.tianocore.LibraryModuleBuildDescriptionDocument;
-import org.tianocore.LibraryModuleSurfaceAreaDocument;
-import org.tianocore.MbdHeaderDocument;
-import org.tianocore.MbdLibHeaderDocument;
-import org.tianocore.ModuleBuildDescriptionDocument;
 import org.tianocore.ModuleSurfaceAreaDocument;
 import org.tianocore.MsaHeaderDocument;
-import org.tianocore.MsaLibHeaderDocument;
 import org.tianocore.PCDsDocument;
 import org.tianocore.PPIsDocument;
 import org.tianocore.ProtocolsDocument;
@@ -76,9 +71,7 @@ import org.tianocore.frameworkwizard.common.ui.IDefaultMutableTreeNode;
 import org.tianocore.frameworkwizard.common.ui.IDesktopManager;
 import org.tianocore.frameworkwizard.common.ui.IFrame;
 import org.tianocore.frameworkwizard.common.ui.ITree;
-import org.tianocore.frameworkwizard.module.ui.MbdHeader;
-import org.tianocore.frameworkwizard.module.ui.MbdLibHeader;
-import org.tianocore.frameworkwizard.module.ui.MbdLibraries;
+import org.tianocore.frameworkwizard.module.ModuleIdentification;
 import org.tianocore.frameworkwizard.module.ui.ModuleBootModes;
 import org.tianocore.frameworkwizard.module.ui.ModuleDataHubs;
 import org.tianocore.frameworkwizard.module.ui.ModuleEvents;
@@ -86,7 +79,6 @@ import org.tianocore.frameworkwizard.module.ui.ModuleExterns;
 import org.tianocore.frameworkwizard.module.ui.ModuleFormsets;
 import org.tianocore.frameworkwizard.module.ui.ModuleGuids;
 import org.tianocore.frameworkwizard.module.ui.ModuleHobs;
-import org.tianocore.frameworkwizard.module.ui.ModuleIncludes;
 import org.tianocore.frameworkwizard.module.ui.ModuleLibraryClassDefinitions;
 import org.tianocore.frameworkwizard.module.ui.ModulePCDs;
 import org.tianocore.frameworkwizard.module.ui.ModulePpis;
@@ -95,7 +87,8 @@ import org.tianocore.frameworkwizard.module.ui.ModuleSourceFiles;
 import org.tianocore.frameworkwizard.module.ui.ModuleSystemTables;
 import org.tianocore.frameworkwizard.module.ui.ModuleVariables;
 import org.tianocore.frameworkwizard.module.ui.MsaHeader;
-import org.tianocore.frameworkwizard.module.ui.MsaLibHeader;
+import org.tianocore.frameworkwizard.packaging.PackageIdentification;
+import org.tianocore.frameworkwizard.platform.PlatformIdentification;
 import org.tianocore.frameworkwizard.workspace.Workspace;
 import javax.swing.JCheckBoxMenuItem;
 
@@ -106,7 +99,7 @@ import javax.swing.JCheckBoxMenuItem;
  @since ModuleEditor 1.0
 
  **/
-public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSelectionListener, ComponentListener {
+public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSelectionListener, ComponentListener, ChangeListener {
     ///
     /// Define class Serial Version UID
     ///
@@ -120,6 +113,21 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
     private String saveFileName = "";
 
     private boolean isSaved = true;
+    
+    //
+    // To save information of all files
+    //
+    private Vector<ModuleIdentification> vModuleList = new Vector<ModuleIdentification>();
+    
+    private Vector<PackageIdentification> vPackageList = new Vector<PackageIdentification>();
+    
+    private Vector<PlatformIdentification> vPlatformList = new Vector<PlatformIdentification>();
+    
+    private Vector<ModuleIdentification> vOpeningModuleList = new Vector<ModuleIdentification>();
+    
+    private Vector<PackageIdentification> vOpeningPackageList = new Vector<PackageIdentification>();
+    
+    private Vector<PlatformIdentification> vOpeningPlatformList = new Vector<PlatformIdentification>();
 
     ///
     ///  0 - reserved; 1 - msa; 2 - mbd; 3 - lmsa; 4 - lmbd;
@@ -132,27 +140,11 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     private ModuleSurfaceAreaDocument xmlMsaDoc = null;
 
-    private ModuleBuildDescriptionDocument xmlMbdDoc = null;
-
-    private LibraryModuleSurfaceAreaDocument xmlMlsaDoc = null;
-
-    private LibraryModuleBuildDescriptionDocument xmlMlbdDoc = null;
-
     private MsaHeaderDocument.MsaHeader xmlmh = null;
-
-    private MbdHeaderDocument.MbdHeader xmlmbdh = null;
-
-    private MsaLibHeaderDocument.MsaLibHeader xmlmlh = null;
-
-    private MbdLibHeaderDocument.MbdLibHeader xmlmlbdh = null;
 
     private LibraryClassDefinitionsDocument.LibraryClassDefinitions xmllcd = null;
 
-    private LibrariesDocument.Libraries xmllib = null;
-
     private SourceFilesDocument.SourceFiles xmlsf = null;
-
-    private IncludesDocument.Includes xmlic = null;
 
     private ProtocolsDocument.Protocols xmlpl = null;
 
@@ -178,8 +170,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     private PCDsDocument.PCDs xmlpcd = null;
 
-    private BuildOptionsDocument.BuildOptions xmlbo = null;
-
     IDefaultMutableTreeNode dmtnRoot = null;
 
     private JPanel jContentPane = null;
@@ -198,37 +188,15 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     private JMenu jMenuEdit = null;
 
-    private JMenuItem jMenuItemEditAddLibraryClassDefinitions = null;
-
-    private JMenuItem jMenuItemEditAddSourceFiles = null;
-
-    private JMenuItem jMenuItemEditAddIncludes = null;
-
-    private JMenuItem jMenuItemEditAddProtocols = null;
-
-    private JMenuItem jMenuItemEditAddEvents = null;
-
-    private JMenuItem jMenuItemEditAddHobs = null;
-
-    private JMenuItem jMenuItemEditAddPPIs = null;
-
-    private JMenuItem jMenuItemEditAddVariables = null;
-
-    private JMenuItem jMenuItemEditAddBootModes = null;
-
-    private JMenuItem jMenuItemEditAddSystemTables = null;
-
-    private JMenuItem jMenuItemEditAddDataHubs = null;
-
-    private JMenuItem jMenuItemEditAddFormsets = null;
-
-    private JMenuItem jMenuItemEditAddGuids = null;
-
-    private JMenuItem jMenuItemEditAddExterns = null;
-
-    private JMenuItem jMenuItemEditAddPCDs = null;
-
-    private JDesktopPane jDesktopPane = null;
+    private JDesktopPane jDesktopPaneModule = null;
+    
+    private JDesktopPane jDesktopPanePackage = null;
+    
+    private JDesktopPane jDesktopPanePlatform = null;
+    
+    private JTabbedPane jTabbedPaneTree = null;
+    
+    private JTabbedPane jTabbedPaneEditor = null;
 
     private IDesktopManager iDesktopManager = new IDesktopManager();
 
@@ -240,11 +208,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     private JMenuItem jMenuItemHelpAbout = null;
 
-    private JMenu jMenuEditAdd = null;
-
     private JMenuItem jMenuItemEditDelete = null;
-
-    private JMenuItem jMenuItemEditUpdate = null;
 
     private JPopupMenu jPopupMenu = null;
 
@@ -282,19 +246,9 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     private MsaHeader msa = null;
 
-    private MbdHeader mbd = null;
-
-    private MsaLibHeader mlsa = null;
-
-    private MbdLibHeader mlbd = null;
-
     private ModuleLibraryClassDefinitions mlcd = null;
 
-    private MbdLibraries mlib = null;
-
     private ModuleSourceFiles msf = null;
-
-    private ModuleIncludes mic = null;
 
     private ModuleProtocols mp = null;
 
@@ -322,12 +276,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
     //private JMenuItem jMenuItemModuleOpenModule = null;
 
-    private JMenuItem jMenuItemModuleNewModuleBuildDescription = null;
-
-    private JMenuItem jMenuItemModuleNewLibraryModule = null;
-
-    private JMenuItem jMenuItemModuleNewLibraryModuleBuildDescription = null;
-
     //private JMenu jMenuFileOpen = null;
 
     private JMenuItem jMenuItemModuleOpenModuleBuildDescription = null;
@@ -343,8 +291,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
     private JMenu jMenuTools = null;
 
     private JMenu jMenuWindow = null;
-
-    private JMenuItem jMenuItemEditAddLibraries = null;
 
     private JPanel jPanelOperation = null;
 
@@ -418,9 +364,9 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
 	private JMenuItem jMenuItemToolsCodeScan = null;
 
-	private JMenuItem jMenuItemWindowSplitVertical = null;
+	private JMenuItem jMenuItemWindowDisplaySide = null;
 
-	private JMenuItem jMenuItemWindowSplitHorizontal = null;
+	private JMenuItem jMenuItemWindowDisplayTopBottom = null;
 
 	private JMenuItem jMenuItemViewXML = null;
 
@@ -438,11 +384,11 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 
 	private JMenuItem jMenuItemHelpSearch = null;
 
-	private JMenuItem jMenuItemToolsInstallPackage = null;
+	private JMenuItem jMenuItemProjectInstallPackage = null;
 
-	private JMenuItem jMenuItemToolsUpdatePackage = null;
+	private JMenuItem jMenuItemProjectUpdatePackage = null;
 
-	private JMenuItem jMenuItemRemovePackage = null;
+	private JMenuItem jMenuItemProjectRemovePackage = null;
 
 	//private JToolBar jToolBarFile = null;
 
@@ -479,12 +425,47 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
      **/
     private JSplitPane getJSplitPane() {
         if (jSplitPane == null) {
-            jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getJScrollPaneTree(), getJDesktopPane());
+            jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getJTabbedPaneTree(), getJTabbedPaneEditor());
             jSplitPane.setBounds(new java.awt.Rectangle(0, 1, DataType.MAIN_FRAME_SPLIT_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_SPLIT_PANEL_PREFERRED_SIZE_HEIGHT));
             jSplitPane.addComponentListener(this);
         }
         return jSplitPane;
     }
+    
+	/**
+	  This method initializes jTabbedPaneEditor	
+	  	
+	  @return javax.swing.JTabbedPane	
+	 
+	 */
+	private JTabbedPane getJTabbedPaneEditor() {
+		if (jTabbedPaneEditor == null) {
+			jTabbedPaneEditor = new JTabbedPane();
+			jTabbedPaneEditor.setBounds(new java.awt.Rectangle(DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_X, DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_Y, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+			jTabbedPaneEditor.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+			jTabbedPaneEditor.addChangeListener(this);
+			jTabbedPaneEditor.addTab("Module", null, getJDesktopPaneModule(), null);
+			jTabbedPaneEditor.addTab("Package", null, getJDesktopPanePlatform(), null);
+			jTabbedPaneEditor.addTab("Platform", null, getJDesktopPanePackage(), null);
+		}
+		return jTabbedPaneEditor;
+	}
+	
+	/**
+	  This method initializes jTabbedPaneTree
+	  	
+	  @return javax.swing.JTabbedPane	
+	 
+	 */
+	private JTabbedPane getJTabbedPaneTree() {
+		if (jTabbedPaneTree == null) {
+			jTabbedPaneTree = new JTabbedPane();
+			jTabbedPaneTree.setPreferredSize(new java.awt.Dimension(DataType.MAIN_FRAME_TREE_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_TREE_PANEL_PREFERRED_SIZE_HEIGHT));
+			jTabbedPaneTree.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_TREE_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_TREE_PANEL_PREFERRED_SIZE_HEIGHT));
+            jTabbedPaneTree.addTab("Workspace Explorer", null, getJScrollPaneTree(), null);
+		}
+		return jTabbedPaneTree;
+	}
 
     /**
      This method initializes jMenuFile 
@@ -591,235 +572,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             jMenuEdit.add(getJMenuItemEditFind());
             jMenuEdit.add(getJMenuItemEditFindNext());
             jMenuEdit.addSeparator();
-            jMenuEdit.add(getJMenu());
-            jMenuEdit.add(getJMenuItemEditUpdate());
         }
         return jMenuEdit;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddLibraryClassDefinitions 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddLibraryClassDefinitions
-     
-     **/
-    private JMenuItem getJMenuItemEditAddLibraryClassDefinitions() {
-        if (jMenuItemEditAddLibraryClassDefinitions == null) {
-            jMenuItemEditAddLibraryClassDefinitions = new JMenuItem();
-            jMenuItemEditAddLibraryClassDefinitions.setText("Library Class Definitions");
-            jMenuItemEditAddLibraryClassDefinitions.addActionListener(this);
-        }
-        return jMenuItemEditAddLibraryClassDefinitions;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddSourceFiles 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddSourceFiles
-     
-     **/
-    private JMenuItem getJMenuItemEditAddSourceFiles() {
-        if (jMenuItemEditAddSourceFiles == null) {
-            jMenuItemEditAddSourceFiles = new JMenuItem();
-            jMenuItemEditAddSourceFiles.setText("Source Files");
-            jMenuItemEditAddSourceFiles.addActionListener(this);
-        }
-        return jMenuItemEditAddSourceFiles;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddIncludes 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddIncludes
-     
-     **/
-    private JMenuItem getJMenuItemEditAddIncludes() {
-        if (jMenuItemEditAddIncludes == null) {
-            jMenuItemEditAddIncludes = new JMenuItem();
-            jMenuItemEditAddIncludes.setText("Includes");
-            jMenuItemEditAddIncludes.addActionListener(this);
-        }
-        return jMenuItemEditAddIncludes;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddProtocols 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddProtocols
-     
-     **/
-    private JMenuItem getJMenuItemEditAddProtocols() {
-        if (jMenuItemEditAddProtocols == null) {
-            jMenuItemEditAddProtocols = new JMenuItem();
-            jMenuItemEditAddProtocols.setText("Protocols");
-            jMenuItemEditAddProtocols.addActionListener(this);
-        }
-        return jMenuItemEditAddProtocols;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddEvents 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddEvents
-     
-     **/
-    private JMenuItem getJMenuItemEditAddEvents() {
-        if (jMenuItemEditAddEvents == null) {
-            jMenuItemEditAddEvents = new JMenuItem();
-            jMenuItemEditAddEvents.setText("Events");
-            jMenuItemEditAddEvents.addActionListener(this);
-        }
-        return jMenuItemEditAddEvents;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddHobs 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddHobs
-     
-     **/
-    private JMenuItem getJMenuItemEditAddHobs() {
-        if (jMenuItemEditAddHobs == null) {
-            jMenuItemEditAddHobs = new JMenuItem();
-            jMenuItemEditAddHobs.setText("Hobs");
-            jMenuItemEditAddHobs.addActionListener(this);
-        }
-        return jMenuItemEditAddHobs;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddPPIs 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddPPIs
-     
-     **/
-    private JMenuItem getJMenuItemEditAddPPIs() {
-        if (jMenuItemEditAddPPIs == null) {
-            jMenuItemEditAddPPIs = new JMenuItem();
-            jMenuItemEditAddPPIs.setText("PPIs");
-            jMenuItemEditAddPPIs.addActionListener(this);
-        }
-        return jMenuItemEditAddPPIs;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddVariables 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddVariables
-     
-     **/
-    private JMenuItem getJMenuItemEditAddVariables() {
-        if (jMenuItemEditAddVariables == null) {
-            jMenuItemEditAddVariables = new JMenuItem();
-            jMenuItemEditAddVariables.setText("Variables");
-            jMenuItemEditAddVariables.addActionListener(this);
-        }
-        return jMenuItemEditAddVariables;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddBootModes 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddBootModes
-     
-     **/
-    private JMenuItem getJMenuItemAddBootModes() {
-        if (jMenuItemEditAddBootModes == null) {
-            jMenuItemEditAddBootModes = new JMenuItem();
-            jMenuItemEditAddBootModes.setText("Boot Modes");
-            jMenuItemEditAddBootModes.addActionListener(this);
-        }
-        return jMenuItemEditAddBootModes;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddSystemTables 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddSystemTables
-     
-     **/
-    private JMenuItem getJMenuItemAddSystemTables() {
-        if (jMenuItemEditAddSystemTables == null) {
-            jMenuItemEditAddSystemTables = new JMenuItem();
-            jMenuItemEditAddSystemTables.setText("System Tables");
-            jMenuItemEditAddSystemTables.addActionListener(this);
-        }
-        return jMenuItemEditAddSystemTables;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddDataHubs 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddDataHubs
-     
-     **/
-    private JMenuItem getJMenuItemEditAddDataHubs() {
-        if (jMenuItemEditAddDataHubs == null) {
-            jMenuItemEditAddDataHubs = new JMenuItem();
-            jMenuItemEditAddDataHubs.setText("Data Hubs");
-            jMenuItemEditAddDataHubs.addActionListener(this);
-        }
-        return jMenuItemEditAddDataHubs;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddFormsets 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddFormsets
-     
-     **/
-    private JMenuItem getJMenuItemEditAddFormsets() {
-        if (jMenuItemEditAddFormsets == null) {
-            jMenuItemEditAddFormsets = new JMenuItem();
-            jMenuItemEditAddFormsets.setText("Formsets");
-            jMenuItemEditAddFormsets.addActionListener(this);
-        }
-        return jMenuItemEditAddFormsets;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddGuids 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddGuids
-     
-     **/
-    private JMenuItem getJMenuItemEditAddGuids() {
-        if (jMenuItemEditAddGuids == null) {
-            jMenuItemEditAddGuids = new JMenuItem();
-            jMenuItemEditAddGuids.setText("Guids");
-            jMenuItemEditAddGuids.addActionListener(this);
-        }
-        return jMenuItemEditAddGuids;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddExterns 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddExterns
-     
-     **/
-    private JMenuItem getJMenuItemEditAddExterns() {
-        if (jMenuItemEditAddExterns == null) {
-            jMenuItemEditAddExterns = new JMenuItem();
-            jMenuItemEditAddExterns.setText("Externs");
-            jMenuItemEditAddExterns.addActionListener(this);
-        }
-        return jMenuItemEditAddExterns;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddPCDs 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddPCDs
-     
-     **/
-    private JMenuItem getJMenuItemEditAddPCDs() {
-        if (jMenuItemEditAddPCDs == null) {
-            jMenuItemEditAddPCDs = new JMenuItem();
-            jMenuItemEditAddPCDs.setText("PCDs");
-            jMenuItemEditAddPCDs.addActionListener(this);
-        }
-        return jMenuItemEditAddPCDs;
     }
 
     /**
@@ -828,17 +582,50 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
      @return javax.swing.JDesktopPane jDesktopPane
      
      **/
-    private JDesktopPane getJDesktopPane() {
-        if (jDesktopPane == null) {
-            jDesktopPane = new JDesktopPane();
-            jDesktopPane.setBounds(new java.awt.Rectangle(DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_X, DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_Y, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
-            jDesktopPane.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
-            //jDesktopPane.setPreferredSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
-            jDesktopPane.setDesktopManager(iDesktopManager);
-            jDesktopPane.addComponentListener(this);
+    private JDesktopPane getJDesktopPaneModule() {
+        if (jDesktopPaneModule == null) {
+            jDesktopPaneModule = new JDesktopPane();
+            jDesktopPaneModule.setBounds(new java.awt.Rectangle(DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_X, DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_Y, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+            jDesktopPaneModule.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+            jDesktopPaneModule.setDesktopManager(iDesktopManager);
+            jDesktopPaneModule.addComponentListener(this);
         }
-        return jDesktopPane;
+        return jDesktopPaneModule;
     }
+    
+    /**
+    This method initializes jDesktopPane 
+    
+    @return javax.swing.JDesktopPane jDesktopPane
+    
+    **/
+   private JDesktopPane getJDesktopPanePackage() {
+       if (jDesktopPanePackage == null) {
+    	   jDesktopPanePackage = new JDesktopPane();
+    	   jDesktopPanePackage.setBounds(new java.awt.Rectangle(DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_X, DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_Y, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+    	   jDesktopPanePackage.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+    	   jDesktopPanePackage.setDesktopManager(iDesktopManager);
+    	   jDesktopPanePackage.addComponentListener(this);
+       }
+       return jDesktopPanePackage;
+   }
+   
+   /**
+   This method initializes jDesktopPane 
+   
+   @return javax.swing.JDesktopPane jDesktopPane
+   
+   **/
+  private JDesktopPane getJDesktopPanePlatform() {
+      if (jDesktopPanePlatform == null) {
+    	  jDesktopPanePlatform = new JDesktopPane();
+    	  jDesktopPanePlatform.setBounds(new java.awt.Rectangle(DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_X, DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_Y, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+    	  jDesktopPanePlatform.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+    	  jDesktopPanePlatform.setDesktopManager(iDesktopManager);
+    	  jDesktopPanePlatform.addComponentListener(this);
+      }
+      return jDesktopPanePlatform;
+  }
 
     /**
      This method initializes jScrollPaneTree 
@@ -907,40 +694,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
     }
 
     /**
-     This method initializes jMenuEditAdd 
-     
-     @return javax.swing.JMenu jMenuEditAdd
-     
-     **/
-    private JMenu getJMenu() {
-        if (jMenuEditAdd == null) {
-            jMenuEditAdd = new JMenu();
-            jMenuEditAdd.setText("Add");
-            //
-            //Add all menu items of menu "Add"
-            //
-            jMenuEditAdd.add(getJMenuItemEditAddLibraries());
-            jMenuEditAdd.add(getJMenuItemEditAddLibraryClassDefinitions());
-            jMenuEditAdd.add(getJMenuItemEditAddSourceFiles());
-            jMenuEditAdd.add(getJMenuItemEditAddIncludes());
-            jMenuEditAdd.add(getJMenuItemEditAddProtocols());
-            jMenuEditAdd.add(getJMenuItemEditAddEvents());
-            jMenuEditAdd.add(getJMenuItemEditAddHobs());
-            jMenuEditAdd.add(getJMenuItemEditAddPPIs());
-            jMenuEditAdd.add(getJMenuItemEditAddVariables());
-            jMenuEditAdd.add(getJMenuItemAddBootModes());
-            jMenuEditAdd.add(getJMenuItemAddSystemTables());
-            jMenuEditAdd.add(getJMenuItemEditAddDataHubs());
-            jMenuEditAdd.add(getJMenuItemEditAddFormsets());
-            jMenuEditAdd.add(getJMenuItemEditAddGuids());
-            jMenuEditAdd.add(getJMenuItemEditAddExterns());
-            jMenuEditAdd.add(getJMenuItemEditAddPCDs());
-            jMenuEditAdd.setEnabled(false);
-        }
-        return jMenuEditAdd;
-    }
-
-    /**
      This method initializes jMenuItemEditDelete 
      
      @return javax.swing.JMenuItem jMenuItemEditDelete
@@ -958,25 +711,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             jMenuItemEditDelete.setEnabled(false);
         }
         return jMenuItemEditDelete;
-    }
-
-    /**
-     This method initializes jMenuItemEditUpdate 
-     
-     @return javax.swing.JMenuItem jMenuItemEditUpdate
-     
-     **/
-    private JMenuItem getJMenuItemEditUpdate() {
-        if (jMenuItemEditUpdate == null) {
-            jMenuItemEditUpdate = new JMenuItem();
-            jMenuItemEditUpdate.setText("Update");
-            jMenuItemEditUpdate.addActionListener(this);
-            //
-            //Disabled when no module is open
-            //
-            jMenuItemEditUpdate.setEnabled(false);
-        }
-        return jMenuItemEditUpdate;
     }
 
     /**
@@ -1241,9 +975,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             jMenuTools.addSeparator();
             jMenuTools.add(getJMenuItemToolsClone());
             jMenuTools.addSeparator();
-            jMenuTools.add(getJMenuItemToolsInstallPackage());
-            jMenuTools.add(getJMenuItemToolsUpdatePackage());
-            jMenuTools.add(getJMenuItemRemovePackage());
             jMenuTools.addSeparator();
             jMenuTools.add(getJMenuItemToolsCodeScan());
         }
@@ -1262,8 +993,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             jMenuWindow = new JMenu();
             jMenuWindow.setText("Window");
             jMenuWindow.setMnemonic('W');
-            jMenuWindow.add(getJMenuItemWindowSplitVertical());
-            jMenuWindow.add(getJMenuItemWindowSplitHorizontal());
+            jMenuWindow.add(getJMenuItemWindowDisplaySide());
+            jMenuWindow.add(getJMenuItemWindowDisplayTopBottom());
             jMenuWindow.addSeparator();
             jMenuWindow.add(getJMenuItemWindowTabView());
             jMenuWindow.addSeparator();
@@ -1273,21 +1004,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             jMenuWindow.add(getJMenuItemWindowPreferences());
         }
         return jMenuWindow;
-    }
-
-    /**
-     This method initializes jMenuItemEditAddLibraries 
-     
-     @return javax.swing.JMenuItem jMenuItemEditAddLibraries
-     
-     **/
-    private JMenuItem getJMenuItemEditAddLibraries() {
-        if (jMenuItemEditAddLibraries == null) {
-            jMenuItemEditAddLibraries = new JMenuItem();
-            jMenuItemEditAddLibraries.setText("Libraries");
-            jMenuItemEditAddLibraries.addActionListener(this);
-        }
-        return jMenuItemEditAddLibraries;
     }
 
     /**
@@ -1730,6 +1446,9 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 			jMenuProject.setMnemonic('P');
 			jMenuProject.add(getJMenuItemProjectAdmin());
 			jMenuProject.add(getJMenuItemProjectChangeWorkspace());
+			jMenuProject.add(getJMenuItemProjectInstallPackage());
+			jMenuProject.add(getJMenuItemProjectUpdatePackage());
+			jMenuProject.add(getJMenuItemProjectRemovePackage());
 			jMenuProject.add(getJMenuProjectBuildTargets());
 		}
 		return jMenuProject;
@@ -1872,15 +1591,15 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 	  @return javax.swing.JMenuItem	
 	 
 	 */
-	private JMenuItem getJMenuItemWindowSplitVertical() {
-		if (jMenuItemWindowSplitVertical == null) {
-			jMenuItemWindowSplitVertical = new JMenuItem();
-			jMenuItemWindowSplitVertical.setText("Split Vertical");
-			jMenuItemWindowSplitVertical.setMnemonic('V');
-			jMenuItemWindowSplitVertical.setEnabled(false);
-			jMenuItemWindowSplitVertical.addActionListener(this);
+	private JMenuItem getJMenuItemWindowDisplaySide() {
+		if (jMenuItemWindowDisplaySide == null) {
+			jMenuItemWindowDisplaySide = new JMenuItem();
+			jMenuItemWindowDisplaySide.setText("Display Side by Side");
+			jMenuItemWindowDisplaySide.setMnemonic('S');
+			jMenuItemWindowDisplaySide.setEnabled(false);
+			jMenuItemWindowDisplaySide.addActionListener(this);
 		}
-		return jMenuItemWindowSplitVertical;
+		return jMenuItemWindowDisplaySide;
 	}
 
 	/**
@@ -1889,15 +1608,15 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 	  @return javax.swing.JMenuItem	
 	 
 	 */
-	private JMenuItem getJMenuItemWindowSplitHorizontal() {
-		if (jMenuItemWindowSplitHorizontal == null) {
-			jMenuItemWindowSplitHorizontal = new JMenuItem();
-			jMenuItemWindowSplitHorizontal.setText("Split Horizontal");
-			jMenuItemWindowSplitHorizontal.setMnemonic('H');
-			jMenuItemWindowSplitHorizontal.setEnabled(false);
-			jMenuItemWindowSplitHorizontal.addActionListener(this);
+	private JMenuItem getJMenuItemWindowDisplayTopBottom() {
+		if (jMenuItemWindowDisplayTopBottom == null) {
+			jMenuItemWindowDisplayTopBottom = new JMenuItem();
+			jMenuItemWindowDisplayTopBottom.setText("Display Top and Bottom");
+			jMenuItemWindowDisplayTopBottom.setMnemonic('B');
+			jMenuItemWindowDisplayTopBottom.setEnabled(false);
+			jMenuItemWindowDisplayTopBottom.addActionListener(this);
 		}
-		return jMenuItemWindowSplitHorizontal;
+		return jMenuItemWindowDisplayTopBottom;
 	}
 
 	/**
@@ -2067,15 +1786,15 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */
-	private JMenuItem getJMenuItemToolsInstallPackage() {
-		if (jMenuItemToolsInstallPackage == null) {
-			jMenuItemToolsInstallPackage = new JMenuItem();
-			jMenuItemToolsInstallPackage.setText("Install Distribution Package");
-			jMenuItemToolsInstallPackage.setMnemonic('I');
-			jMenuItemToolsInstallPackage.setEnabled(false);
-			jMenuItemToolsInstallPackage.addActionListener(this);
+	private JMenuItem getJMenuItemProjectInstallPackage() {
+		if (jMenuItemProjectInstallPackage == null) {
+			jMenuItemProjectInstallPackage = new JMenuItem();
+			jMenuItemProjectInstallPackage.setText("Install Distribution Package");
+			jMenuItemProjectInstallPackage.setMnemonic('I');
+			jMenuItemProjectInstallPackage.setEnabled(false);
+			jMenuItemProjectInstallPackage.addActionListener(this);
 		}
-		return jMenuItemToolsInstallPackage;
+		return jMenuItemProjectInstallPackage;
 	}
 
 	/**
@@ -2083,15 +1802,15 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */
-	private JMenuItem getJMenuItemToolsUpdatePackage() {
-		if (jMenuItemToolsUpdatePackage == null) {
-			jMenuItemToolsUpdatePackage = new JMenuItem();
-			jMenuItemToolsUpdatePackage.setText("Update Disstribution Package");
-			jMenuItemToolsUpdatePackage.setMnemonic('U');
-			jMenuItemToolsUpdatePackage.setEnabled(false);
-			jMenuItemToolsUpdatePackage.addActionListener(this);
+	private JMenuItem getJMenuItemProjectUpdatePackage() {
+		if (jMenuItemProjectUpdatePackage == null) {
+			jMenuItemProjectUpdatePackage = new JMenuItem();
+			jMenuItemProjectUpdatePackage.setText("Update Disstribution Package");
+			jMenuItemProjectUpdatePackage.setMnemonic('U');
+			jMenuItemProjectUpdatePackage.setEnabled(false);
+			jMenuItemProjectUpdatePackage.addActionListener(this);
 		}
-		return jMenuItemToolsUpdatePackage;
+		return jMenuItemProjectUpdatePackage;
 	}
 
 	/**
@@ -2099,15 +1818,15 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */
-	private JMenuItem getJMenuItemRemovePackage() {
-		if (jMenuItemRemovePackage == null) {
-			jMenuItemRemovePackage = new JMenuItem();
-			jMenuItemRemovePackage.setText("Remove Distribution Package");
-			jMenuItemRemovePackage.setMnemonic('R');
-			jMenuItemRemovePackage.setEnabled(false);
-			jMenuItemRemovePackage.addActionListener(this);
+	private JMenuItem getJMenuItemProjectRemovePackage() {
+		if (jMenuItemProjectRemovePackage == null) {
+			jMenuItemProjectRemovePackage = new JMenuItem();
+			jMenuItemProjectRemovePackage.setText("Remove Distribution Package");
+			jMenuItemProjectRemovePackage.setMnemonic('R');
+			jMenuItemProjectRemovePackage.setEnabled(false);
+			jMenuItemProjectRemovePackage.addActionListener(this);
 		}
-		return jMenuItemRemovePackage;
+		return jMenuItemProjectRemovePackage;
 	}
 
 	/**
@@ -2185,7 +1904,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             //jContentPane.add(getJToolBarWindow(), null);
             jContentPane.add(getJPanelOperation(), null);
             jContentPane.add(getJSplitPane(), null);
-            //jContentPane.add(getJDesktopPane(), null);
+            //jContentPane.add(getjDesktopPaneModule(), null);
             //jContentPane.add(getJScrollPaneTree(), null);
             jContentPane.add(getJPopupMenu(), null);
         }
@@ -2203,92 +1922,77 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         // Open relevant frame via clicking different menu items
         //
         if (arg0.getSource() == jMenuItemHelpAbout) {
-            ModuleAbout ma = new ModuleAbout();
-            ma.setEdited(false);
+            About a = new About();
+            a.setEdited(false);
         }
 
-        if (arg0.getSource() == jMenuItemEditAddLibraries) {
-            showLibraries(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.LIBRARIES, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddLibraryClassDefinitions) {
-            showLibraryClassDefinitions(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.LIBRARYCLASSDEFINITIONS);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddSourceFiles) {
-            showSourceFiles(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.SOURCEFILES, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddIncludes) {
-            showIncludes(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.INCLUDES, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddProtocols) {
-            showProtocols(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.PROTOCOLS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddEvents) {
-            showEvents(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.EVENTS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddHobs) {
-            showHobs(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.HOBS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddPPIs) {
-            showPpis(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.PPIS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddVariables) {
-            showVariables(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.VARIABLES, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddBootModes) {
-            showBootModes(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.BOOTMODES, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddSystemTables) {
-            showSystemTables(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.SYSTEMTABLES, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddDataHubs) {
-            showDataHubs(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.DATAHUBS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddFormsets) {
-            showFormsets(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.FORMSETS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddGuids) {
-            showGuids(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.GUIDS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddExterns) {
-            showExterns(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.EXTERNS, -1);
-        }
-
-        if (arg0.getSource() == jMenuItemEditAddPCDs) {
-            showPCDs(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.PCDS, -1);
-        }
+//        if (arg0.getSource() == jMenuItemEditAddLibraries) {
+//            showLibraries(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.LIBRARIES, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddLibraryClassDefinitions) {
+//            showLibraryClassDefinitions(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.LIBRARYCLASSDEFINITIONS);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddSourceFiles) {
+//            showSourceFiles(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.SOURCEFILES, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddIncludes) {
+//            showIncludes(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.INCLUDES, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddProtocols) {
+//            showProtocols(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.PROTOCOLS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddEvents) {
+//            showEvents(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.EVENTS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddHobs) {
+//            showHobs(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.HOBS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddPPIs) {
+//            showPpis(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.PPIS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddVariables) {
+//            showVariables(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.VARIABLES, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddBootModes) {
+//            showBootModes(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.BOOTMODES, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddSystemTables) {
+//            showSystemTables(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.SYSTEMTABLES, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddDataHubs) {
+//            showDataHubs(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.DATAHUBS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddFormsets) {
+//            showFormsets(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.FORMSETS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddGuids) {
+//            showGuids(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.GUIDS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddExterns) {
+//            showExterns(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.EXTERNS, -1);
+//        }
+//
+//        if (arg0.getSource() == jMenuItemEditAddPCDs) {
+//            showPCDs(FrameworkWizardUI.ADD, IDefaultMutableTreeNode.PCDS, -1);
+//        }
 
         if (arg0.getSource() == jMenuItemModuleNewModule) {
             this.closeCurrentModule();
             showMsaHeader(FrameworkWizardUI.ADD);
-        }
-
-        if (arg0.getSource() == jMenuItemModuleNewModuleBuildDescription) {
-            this.closeCurrentModule();
-            showMbdHeader(FrameworkWizardUI.ADD);
-        }
-
-        if (arg0.getSource() == jMenuItemModuleNewLibraryModule) {
-            this.closeCurrentModule();
-            showMlsaHeader(FrameworkWizardUI.ADD);
-        }
-
-        if (arg0.getSource() == jMenuItemModuleNewLibraryModuleBuildDescription) {
-            this.closeCurrentModule();
-            showMlbdHeader(FrameworkWizardUI.ADD);
         }
 
         //
@@ -2319,11 +2023,11 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             addCurrentModule(intCategory, intLocation);
         }
 
-        if (arg0.getSource() == jMenuItemPopupUpdate || arg0.getSource() == jMenuItemEditUpdate) {
-            int intCategory = iTree.getSelectCategory();
-            int intLocation = iTree.getSelectLoaction();
-            updateCurrentModule(intCategory, intLocation);
-        }
+//        if (arg0.getSource() == jMenuItemPopupUpdate || arg0.getSource() == jMenuItemEditUpdate) {
+//            int intCategory = iTree.getSelectCategory();
+//            int intLocation = iTree.getSelectLoaction();
+//            updateCurrentModule(intCategory, intLocation);
+//        }
 
         if (arg0.getSource() == jMenuItemPopupDelete || arg0.getSource() == jMenuItemEditDelete) {
             int intCategory = iTree.getSelectCategory();
@@ -2417,15 +2121,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
                 case 1:
                     openMsaFile(fc.getSelectedFile().getPath());
                     break;
-                case 2:
-                    openMbdFile(fc.getSelectedFile().getPath());
-                    break;
-                case 3:
-                    openMlsaFile(fc.getSelectedFile().getPath());
-                    break;
-                case 4:
-                    openMlbdFile(fc.getSelectedFile().getPath());
-                    break;
                 }
                 break;
             case 2:
@@ -2480,7 +2175,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         xmlmh = xmlMsaDoc.getModuleSurfaceArea().getMsaHeader();
         xmllcd = xmlMsaDoc.getModuleSurfaceArea().getLibraryClassDefinitions();
         xmlsf = xmlMsaDoc.getModuleSurfaceArea().getSourceFiles();
-        xmlic = xmlMsaDoc.getModuleSurfaceArea().getIncludes();
         xmlpl = xmlMsaDoc.getModuleSurfaceArea().getProtocols();
         xmlen = xmlMsaDoc.getModuleSurfaceArea().getEvents();
         xmlhob = xmlMsaDoc.getModuleSurfaceArea().getHobs();
@@ -2493,156 +2187,11 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         xmlgu = xmlMsaDoc.getModuleSurfaceArea().getGuids();
         xmlet = xmlMsaDoc.getModuleSurfaceArea().getExterns();
         xmlpcd = xmlMsaDoc.getModuleSurfaceArea().getPCDs();
-        xmlbo = xmlMsaDoc.getModuleSurfaceArea().getBuildOptions();
 
         this.showMsaHeader(FrameworkWizardUI.VIEW);
         resizeDesktopPanel();
         reloadTreeAndTable(FrameworkWizardUI.OPENED);
-        jMenuEditAdd.setEnabled(true);
-    }
-
-    /**
-     Open specificed Mbd file and read its content
-     
-     @param strMbdFilePath The input data of Mbd File Path
-     
-     **/
-    private void openMbdFile(String strMbdFilePath) {
-        Log.log("Open Mbd", strMbdFilePath);
-        try {
-            File mbdFile = new File(strMbdFilePath);
-            xmlMbdDoc = (ModuleBuildDescriptionDocument) XmlObject.Factory.parse(mbdFile);
-            this.currentModule = strMbdFilePath;
-            this.saveFileName = strMbdFilePath;
-            this.currentModuleType = 2;
-        } catch (IOException e) {
-            Log.err("Open Mbd " + strMbdFilePath, e.getMessage());
-            return;
-        } catch (XmlException e) {
-            Log.err("Open Mbd " + strMbdFilePath, e.getMessage());
-            return;
-        } catch (Exception e) {
-            Log.err("Open Mbd " + strMbdFilePath, "Invalid file type");
-            return;
-        }
-
-        xmlmbdh = xmlMbdDoc.getModuleBuildDescription().getMbdHeader();
-        xmllib = xmlMbdDoc.getModuleBuildDescription().getLibraries();
-        xmlsf = xmlMbdDoc.getModuleBuildDescription().getSourceFiles();
-        xmlic = xmlMbdDoc.getModuleBuildDescription().getIncludes();
-        xmlpl = xmlMbdDoc.getModuleBuildDescription().getProtocols();
-        xmlen = xmlMbdDoc.getModuleBuildDescription().getEvents();
-        xmlhob = xmlMbdDoc.getModuleBuildDescription().getHobs();
-        xmlppi = xmlMbdDoc.getModuleBuildDescription().getPPIs();
-        xmlvb = xmlMbdDoc.getModuleBuildDescription().getVariables();
-        xmlbm = xmlMbdDoc.getModuleBuildDescription().getBootModes();
-        xmlst = xmlMbdDoc.getModuleBuildDescription().getSystemTables();
-        xmldh = xmlMbdDoc.getModuleBuildDescription().getDataHubs();
-        xmlfs = xmlMbdDoc.getModuleBuildDescription().getFormsets();
-        xmlgu = xmlMbdDoc.getModuleBuildDescription().getGuids();
-        xmlet = xmlMbdDoc.getModuleBuildDescription().getExterns();
-        xmlpcd = xmlMbdDoc.getModuleBuildDescription().getPCDs();
-        xmlbo = xmlMbdDoc.getModuleBuildDescription().getBuildOptions();
-
-        this.showMbdHeader(FrameworkWizardUI.VIEW);
-        reloadTreeAndTable(FrameworkWizardUI.OPENED);
-        jMenuEditAdd.setEnabled(true);
-    }
-
-    /**
-     Open specificed Mlsa file and read its content
-     
-     @param strMlsaFilePath The input data of Mlsa File Path
-     
-     **/
-    private void openMlsaFile(String strMlsaFilePath) {
-        Log.log("Open Mlsa", strMlsaFilePath);
-        try {
-            File mlsaFile = new File(strMlsaFilePath);
-            xmlMlsaDoc = (LibraryModuleSurfaceAreaDocument) XmlObject.Factory.parse(mlsaFile);
-            this.currentModule = strMlsaFilePath;
-            this.saveFileName = strMlsaFilePath;
-            this.currentModuleType = 3;
-        } catch (IOException e) {
-            Log.err("Open Mlsa " + strMlsaFilePath, e.getMessage());
-            return;
-        } catch (XmlException e) {
-            Log.err("Open Mlsa " + strMlsaFilePath, e.getMessage());
-            return;
-        } catch (Exception e) {
-            Log.err("Open Mlsa " + strMlsaFilePath, "Invalid file type");
-            return;
-        }
-
-        xmlmlh = xmlMlsaDoc.getLibraryModuleSurfaceArea().getMsaLibHeader();
-        xmllcd = xmlMlsaDoc.getLibraryModuleSurfaceArea().getLibraryClassDefinitions();
-        xmlsf = xmlMlsaDoc.getLibraryModuleSurfaceArea().getSourceFiles();
-        xmlic = xmlMlsaDoc.getLibraryModuleSurfaceArea().getIncludes();
-        xmlpl = xmlMlsaDoc.getLibraryModuleSurfaceArea().getProtocols();
-        xmlen = xmlMlsaDoc.getLibraryModuleSurfaceArea().getEvents();
-        xmlhob = xmlMlsaDoc.getLibraryModuleSurfaceArea().getHobs();
-        xmlppi = xmlMlsaDoc.getLibraryModuleSurfaceArea().getPPIs();
-        xmlvb = xmlMlsaDoc.getLibraryModuleSurfaceArea().getVariables();
-        xmlbm = xmlMlsaDoc.getLibraryModuleSurfaceArea().getBootModes();
-        xmlst = xmlMlsaDoc.getLibraryModuleSurfaceArea().getSystemTables();
-        xmldh = xmlMlsaDoc.getLibraryModuleSurfaceArea().getDataHubs();
-        xmlfs = xmlMlsaDoc.getLibraryModuleSurfaceArea().getFormsets();
-        xmlgu = xmlMlsaDoc.getLibraryModuleSurfaceArea().getGuids();
-        xmlet = xmlMlsaDoc.getLibraryModuleSurfaceArea().getExterns();
-        xmlpcd = xmlMlsaDoc.getLibraryModuleSurfaceArea().getPCDs();
-        xmlbo = xmlMlsaDoc.getLibraryModuleSurfaceArea().getBuildOptions();
-
-        this.showMlsaHeader(FrameworkWizardUI.VIEW);
-        reloadTreeAndTable(FrameworkWizardUI.OPENED);
-        jMenuEditAdd.setEnabled(true);
-    }
-
-    /**
-     Open specificed Mlbd file and read its content
-     
-     @param strMlbdFilePath The input data of Mlbd File Path
-     
-     **/
-    private void openMlbdFile(String strMlbdFilePath) {
-        Log.log("Open Mlbd", strMlbdFilePath);
-        try {
-            File mlbdFile = new File(strMlbdFilePath);
-            xmlMlbdDoc = (LibraryModuleBuildDescriptionDocument) XmlObject.Factory.parse(mlbdFile);
-            this.currentModule = strMlbdFilePath;
-            this.saveFileName = strMlbdFilePath;
-            this.currentModuleType = 4;
-        } catch (IOException e) {
-            Log.err("Open Mlbd " + strMlbdFilePath, e.getMessage());
-            return;
-        } catch (XmlException e) {
-            Log.err("Open Mlbd " + strMlbdFilePath, e.getMessage());
-            return;
-        } catch (Exception e) {
-            Log.err("Open Mlbd " + strMlbdFilePath, "Invalid file type");
-            return;
-        }
-
-        xmlmlbdh = xmlMlbdDoc.getLibraryModuleBuildDescription().getMbdLibHeader();
-        xmllib = xmlMlbdDoc.getLibraryModuleBuildDescription().getLibraries();
-        xmlsf = xmlMlbdDoc.getLibraryModuleBuildDescription().getSourceFiles();
-        xmlic = xmlMlbdDoc.getLibraryModuleBuildDescription().getIncludes();
-        xmlpl = xmlMlbdDoc.getLibraryModuleBuildDescription().getProtocols();
-        xmlen = xmlMlbdDoc.getLibraryModuleBuildDescription().getEvents();
-        xmlhob = xmlMlbdDoc.getLibraryModuleBuildDescription().getHobs();
-        xmlppi = xmlMlbdDoc.getLibraryModuleBuildDescription().getPPIs();
-        xmlvb = xmlMlbdDoc.getLibraryModuleBuildDescription().getVariables();
-        xmlbm = xmlMlbdDoc.getLibraryModuleBuildDescription().getBootModes();
-        xmlst = xmlMlbdDoc.getLibraryModuleBuildDescription().getSystemTables();
-        xmldh = xmlMlbdDoc.getLibraryModuleBuildDescription().getDataHubs();
-        xmlfs = xmlMlbdDoc.getLibraryModuleBuildDescription().getFormsets();
-        xmlgu = xmlMlbdDoc.getLibraryModuleBuildDescription().getGuids();
-        xmlet = xmlMlbdDoc.getLibraryModuleBuildDescription().getExterns();
-        xmlpcd = xmlMlbdDoc.getLibraryModuleBuildDescription().getPCDs();
-        xmlbo = xmlMlbdDoc.getLibraryModuleBuildDescription().getBuildOptions();
-
-        this.showMlbdHeader(FrameworkWizardUI.VIEW);
-        reloadTreeAndTable(FrameworkWizardUI.OPENED);
-        jMenuEditAdd.setEnabled(true);
+        //jMenuEditAdd.setEnabled(true);
     }
 
     /**
@@ -2681,7 +2230,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             //Add MsaHeader Node
             //
             if (xmlmh != null) {
-                dmtnRoot = new IDefaultMutableTreeNode(xmlmh.getBaseName().getStringValue(),
+                dmtnRoot = new IDefaultMutableTreeNode(xmlmh.getBaseName(),
                                                        IDefaultMutableTreeNode.MSA_HEADER,
                                                        IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE);
             } else {
@@ -2710,226 +2259,82 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         }
 
         //
-        //Mbd File
-        //
-        if (this.currentModuleType == 2) {
-            //
-            //Add MsaHeader Node
-            //
-            if (xmlmbdh != null) {
-                dmtnRoot = new IDefaultMutableTreeNode(xmlmbdh.getBaseName().getStringValue(),
-                                                       IDefaultMutableTreeNode.MBD_HEADER,
-                                                       IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE);
-            } else {
-                makeEmptyTree();
-                return;
-            }
-
-            //
-            //Add Libraries Node
-            //
-            if (xmllib != null) {
-                IDefaultMutableTreeNode libraries = new IDefaultMutableTreeNode(
-                                                                                "Libraries",
-                                                                                IDefaultMutableTreeNode.LIBRARIES,
-                                                                                IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-                if (xmllib.getArchList().size() > 0) {
-                    IDefaultMutableTreeNode librariesArch = new IDefaultMutableTreeNode(
-                                                                                        "Arch",
-                                                                                        IDefaultMutableTreeNode.LIBRARIES_ARCH,
-                                                                                        IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-                    for (int indexI = 0; indexI < xmllib.getArchList().size(); indexI++) {
-                        librariesArch.add(new IDefaultMutableTreeNode(xmllib.getArchArray(indexI).getArchType()
-                                                                            .toString(),
-                                                                      IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM,
-                                                                      IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE,
-                                                                      indexI));
-                    }
-                    libraries.add(librariesArch);
-                }
-                if (xmllib.getLibraryList().size() > 0) {
-                    IDefaultMutableTreeNode library = new IDefaultMutableTreeNode(
-                                                                                  "Library",
-                                                                                  IDefaultMutableTreeNode.LIBRARIES_LIBRARY,
-                                                                                  IDefaultMutableTreeNode.OPERATION_ADD_UPDATE_DELETE);
-                    for (int indexI = 0; indexI < xmllib.getLibraryList().size(); indexI++) {
-                        library.add(new IDefaultMutableTreeNode(xmllib.getLibraryArray(indexI).getStringValue(),
-                                                                IDefaultMutableTreeNode.LIBRARIES_LIBRARY_ITEM,
-                                                                IDefaultMutableTreeNode.OPERATION_DELETE));
-                    }
-                    libraries.add(library);
-                }
-                dmtnRoot.add(libraries);
-            }
-        }
-
-        //
-        //MLsa File
-        //
-        if (this.currentModuleType == 3) {
-            //
-            //Add MsaHeader Node
-            //
-            if (xmlmlh != null) {
-                dmtnRoot = new IDefaultMutableTreeNode(xmlmlh.getBaseName().getStringValue(),
-                                                       IDefaultMutableTreeNode.MLSA_HEADER,
-                                                       IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE);
-            } else {
-                makeEmptyTree();
-                return;
-            }
-
-            //
-            //Add LibraryClassDefinitions Node
-            //
-            if (xmllcd != null && xmllcd.getLibraryClassList().size() > 0) {
-                IDefaultMutableTreeNode libraryClassDefinitions = new IDefaultMutableTreeNode(
-                                                                                              "Library Class Definitions",
-                                                                                              IDefaultMutableTreeNode.LIBRARYCLASSDEFINITIONS,
-                                                                                              IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE);
-                for (int indexI = 0; indexI < xmllcd.getLibraryClassList().size(); indexI++) {
-                    libraryClassDefinitions
-                                           .add(new IDefaultMutableTreeNode(
-                                                                            xmllcd.getLibraryClassArray(indexI)
-                                                                                  .getStringValue(),
-                                                                            IDefaultMutableTreeNode.LIBRARY_CLASS_DEFINITION,
-                                                                            IDefaultMutableTreeNode.OPERATION_NULL));
-                }
-                dmtnRoot.add(libraryClassDefinitions);
-            }
-        }
-
-        //
-        //Mlbd File
-        //
-        if (this.currentModuleType == 4) {
-            //
-            //Add MsaHeader Node
-            //
-            if (xmlmlbdh != null) {
-                dmtnRoot = new IDefaultMutableTreeNode(xmlmlbdh.getBaseName().getStringValue(),
-                                                       IDefaultMutableTreeNode.MLBD_HEADER,
-                                                       IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE);
-            } else {
-                makeEmptyTree();
-                return;
-            }
-
-            //
-            //Add Libraries Node
-            //
-            if (xmllib != null) {
-                IDefaultMutableTreeNode libraries = new IDefaultMutableTreeNode(
-                                                                                "Libraries",
-                                                                                IDefaultMutableTreeNode.LIBRARIES,
-                                                                                IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-                if (xmllib.getArchList().size() > 0) {
-                    IDefaultMutableTreeNode librariesArch = new IDefaultMutableTreeNode(
-                                                                                        "Arch",
-                                                                                        IDefaultMutableTreeNode.LIBRARIES_ARCH,
-                                                                                        IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-                    for (int indexI = 0; indexI < xmllib.getArchList().size(); indexI++) {
-                        librariesArch.add(new IDefaultMutableTreeNode(xmllib.getArchArray(indexI).getArchType()
-                                                                            .toString(),
-                                                                      IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM,
-                                                                      IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE,
-                                                                      indexI));
-                    }
-                    libraries.add(librariesArch);
-                }
-                if (xmllib.getLibraryList().size() > 0) {
-                    IDefaultMutableTreeNode library = new IDefaultMutableTreeNode(
-                                                                                  "Library",
-                                                                                  IDefaultMutableTreeNode.LIBRARIES_LIBRARY,
-                                                                                  IDefaultMutableTreeNode.OPERATION_ADD_UPDATE_DELETE);
-                    for (int indexI = 0; indexI < xmllib.getLibraryList().size(); indexI++) {
-                        library.add(new IDefaultMutableTreeNode(xmllib.getLibraryArray(indexI).getStringValue(),
-                                                                IDefaultMutableTreeNode.LIBRARIES_LIBRARY_ITEM,
-                                                                IDefaultMutableTreeNode.OPERATION_DELETE));
-                    }
-                    libraries.add(library);
-                }
-                dmtnRoot.add(libraries);
-            }
-        }
-
-        //
         //Add SourceFiles Node
         //
-        if (xmlsf != null) {
-            IDefaultMutableTreeNode sourceFiles = new IDefaultMutableTreeNode(
-                                                                              "Source Files",
-                                                                              IDefaultMutableTreeNode.SOURCEFILES,
-                                                                              IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-            if (xmlsf.getArchList().size() > 0) {
-                IDefaultMutableTreeNode sourceFilesArch = new IDefaultMutableTreeNode(
-                                                                                      "Arch",
-                                                                                      IDefaultMutableTreeNode.SOURCEFILES_ARCH,
-                                                                                      IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-                for (int indexI = 0; indexI < xmlsf.getArchList().size(); indexI++) {
-                    sourceFilesArch
-                                   .add(new IDefaultMutableTreeNode(
-                                                                    xmlsf.getArchArray(indexI).getArchType().toString(),
-                                                                    IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM,
-                                                                    IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE,
-                                                                    indexI));
-                }
-                sourceFiles.add(sourceFilesArch);
-            }
-            if (xmlsf.getFilenameList().size() > 0) {
-                IDefaultMutableTreeNode sourceFilesFileName = new IDefaultMutableTreeNode(
-                                                                                          "File Name",
-                                                                                          IDefaultMutableTreeNode.SOURCEFILES_FILENAME,
-                                                                                          IDefaultMutableTreeNode.OPERATION_ADD_UPDATE_DELETE);
-                for (int indexI = 0; indexI < xmlsf.getFilenameList().size(); indexI++) {
-                    sourceFilesFileName
-                                       .add(new IDefaultMutableTreeNode(
-                                                                        xmlsf.getFilenameArray(indexI).getStringValue(),
-                                                                        IDefaultMutableTreeNode.SOURCEFILES_FILENAME_ITEM,
-                                                                        IDefaultMutableTreeNode.OPERATION_DELETE));
-                }
-                sourceFiles.add(sourceFilesFileName);
-            }
-            dmtnRoot.add(sourceFiles);
-        }
-
-        //
-        //Add includes
-        //
-        if (xmlic != null) {
-            IDefaultMutableTreeNode includes = new IDefaultMutableTreeNode("Includes",
-                                                                           IDefaultMutableTreeNode.INCLUDES,
-                                                                           IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-            if (xmlic.getArchList().size() > 0) {
-                IDefaultMutableTreeNode includesArch = new IDefaultMutableTreeNode(
-                                                                                   "Arch",
-                                                                                   IDefaultMutableTreeNode.INCLUDES_ARCH,
-                                                                                   IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
-                for (int indexI = 0; indexI < xmlic.getArchList().size(); indexI++) {
-                    includesArch.add(new IDefaultMutableTreeNode(xmlic.getArchArray(indexI).getArchType().toString(),
-                                                                 IDefaultMutableTreeNode.INCLUDES_ARCH_ITEM,
-                                                                 IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE,
-                                                                 indexI));
-                }
-                includes.add(includesArch);
-            }
-            if (xmlic.getPackageNameList().size() > 0) {
-                IDefaultMutableTreeNode includesPackageName = new IDefaultMutableTreeNode(
-                                                                                          "Package Name",
-                                                                                          IDefaultMutableTreeNode.INCLUDES_PACKAGENAME,
-                                                                                          IDefaultMutableTreeNode.OPERATION_ADD_UPDATE_DELETE);
-                for (int indexI = 0; indexI < xmlic.getPackageNameList().size(); indexI++) {
-                    includesPackageName
-                                       .add(new IDefaultMutableTreeNode(
-                                                                        xmlic.getPackageNameArray(indexI)
-                                                                             .getStringValue(),
-                                                                        IDefaultMutableTreeNode.INCLUDES_PACKAGENAME_ITEM,
-                                                                        IDefaultMutableTreeNode.OPERATION_DELETE));
-                }
-                includes.add(includesPackageName);
-            }
-            dmtnRoot.add(includes);
-        }
+//        if (xmlsf != null) {
+//            IDefaultMutableTreeNode sourceFiles = new IDefaultMutableTreeNode(
+//                                                                              "Source Files",
+//                                                                              IDefaultMutableTreeNode.SOURCEFILES,
+//                                                                              IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
+//            if (xmlsf.getArchList().size() > 0) {
+//                IDefaultMutableTreeNode sourceFilesArch = new IDefaultMutableTreeNode(
+//                                                                                      "Arch",
+//                                                                                      IDefaultMutableTreeNode.SOURCEFILES_ARCH,
+//                                                                                      IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
+//                for (int indexI = 0; indexI < xmlsf.getArchList().size(); indexI++) {
+//                    sourceFilesArch
+//                                   .add(new IDefaultMutableTreeNode(
+//                                                                    xmlsf.getArchArray(indexI).getArchType().toString(),
+//                                                                    IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM,
+//                                                                    IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE,
+//                                                                    indexI));
+//                }
+//                sourceFiles.add(sourceFilesArch);
+//            }
+//            if (xmlsf.getFilenameList().size() > 0) {
+//                IDefaultMutableTreeNode sourceFilesFileName = new IDefaultMutableTreeNode(
+//                                                                                          "File Name",
+//                                                                                          IDefaultMutableTreeNode.SOURCEFILES_FILENAME,
+//                                                                                          IDefaultMutableTreeNode.OPERATION_ADD_UPDATE_DELETE);
+//                for (int indexI = 0; indexI < xmlsf.getFilenameList().size(); indexI++) {
+//                    sourceFilesFileName
+//                                       .add(new IDefaultMutableTreeNode(
+//                                                                        xmlsf.getFilenameArray(indexI).getStringValue(),
+//                                                                        IDefaultMutableTreeNode.SOURCEFILES_FILENAME_ITEM,
+//                                                                        IDefaultMutableTreeNode.OPERATION_DELETE));
+//                }
+//                sourceFiles.add(sourceFilesFileName);
+//            }
+//            dmtnRoot.add(sourceFiles);
+//        }
+//
+//        //
+//        //Add includes
+//        //
+//        if (xmlic != null) {
+//            IDefaultMutableTreeNode includes = new IDefaultMutableTreeNode("Includes",
+//                                                                           IDefaultMutableTreeNode.INCLUDES,
+//                                                                           IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
+//            if (xmlic.getArchList().size() > 0) {
+//                IDefaultMutableTreeNode includesArch = new IDefaultMutableTreeNode(
+//                                                                                   "Arch",
+//                                                                                   IDefaultMutableTreeNode.INCLUDES_ARCH,
+//                                                                                   IDefaultMutableTreeNode.OPERATION_ADD_DELETE);
+//                for (int indexI = 0; indexI < xmlic.getArchList().size(); indexI++) {
+//                    includesArch.add(new IDefaultMutableTreeNode(xmlic.getArchArray(indexI).getArchType().toString(),
+//                                                                 IDefaultMutableTreeNode.INCLUDES_ARCH_ITEM,
+//                                                                 IDefaultMutableTreeNode.OPERATION_UPDATE_DELETE,
+//                                                                 indexI));
+//                }
+//                includes.add(includesArch);
+//            }
+//            if (xmlic.getPackageNameList().size() > 0) {
+//                IDefaultMutableTreeNode includesPackageName = new IDefaultMutableTreeNode(
+//                                                                                          "Package Name",
+//                                                                                          IDefaultMutableTreeNode.INCLUDES_PACKAGENAME,
+//                                                                                          IDefaultMutableTreeNode.OPERATION_ADD_UPDATE_DELETE);
+//                for (int indexI = 0; indexI < xmlic.getPackageNameList().size(); indexI++) {
+//                    includesPackageName
+//                                       .add(new IDefaultMutableTreeNode(
+//                                                                        xmlic.getPackageNameArray(indexI)
+//                                                                             .getStringValue(),
+//                                                                        IDefaultMutableTreeNode.INCLUDES_PACKAGENAME_ITEM,
+//                                                                        IDefaultMutableTreeNode.OPERATION_DELETE));
+//                }
+//                includes.add(includesPackageName);
+//            }
+//            dmtnRoot.add(includes);
+//        }
 
         //
         //Add protocols
@@ -3331,7 +2736,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
      **/
     private void setMenuItemUpdateEnabled(boolean isEnable) {
         jMenuItemPopupUpdate.setEnabled(isEnable);
-        jMenuItemEditUpdate.setEnabled(isEnable);
+        //jMenuItemEditUpdate.setEnabled(isEnable);
     }
 
     /**
@@ -3362,9 +2767,11 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
      
      **/
     private void cleanDesktopPane() {
-        JInternalFrame[] iif = this.jDesktopPane.getAllFrames();
-        for (int index = 0; index < iif.length; index++) {
-            iif[index].dispose();
+        if (jDesktopPaneModule != null) {
+        	JInternalFrame[] iif = this.jDesktopPaneModule.getAllFrames();
+        	for (int index = 0; index < iif.length; index++) {
+        		iif[index].dispose();
+        	}
         }
     }
 
@@ -3379,14 +2786,9 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         this.currentNodeType = 0;
 
         xmlMsaDoc = null;
-        xmlMbdDoc = null;
-        xmlMlsaDoc = null;
-        xmlMlbdDoc = null;
         xmlmh = null;
         xmllcd = null;
-        xmllib = null;
         xmlsf = null;
-        xmlic = null;
         xmlpl = null;
         xmlen = null;
         xmlhob = null;
@@ -3399,7 +2801,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         xmlgu = null;
         xmlet = null;
         xmlpcd = null;
-        xmlbo = null;
     }
 
     /**
@@ -3411,30 +2812,12 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
      **/
     private void addCurrentModule(int intCategory, int intLocation) {
         //
-        //Add new libraries
-        //
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES
-            || intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY
-            || intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH) {
-            showLibraries(FrameworkWizardUI.ADD, intCategory, -1);
-        }
-
-        //
         //Add new sourcefiles
         //
         if (intCategory == IDefaultMutableTreeNode.SOURCEFILES
             || intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME
             || intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH) {
             showSourceFiles(FrameworkWizardUI.ADD, intCategory, -1);
-        }
-
-        //
-        //Add new includes
-        //
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES
-            || intCategory == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME
-            || intCategory == IDefaultMutableTreeNode.INCLUDES_ARCH) {
-            showIncludes(FrameworkWizardUI.ADD, intCategory, -1);
         }
 
         //
@@ -3568,89 +2951,60 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         //
         //Delete Libraries
         //
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES) {
-            xmllib = null;
-        }
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY) {
-            for (int indexI = xmllib.getLibraryList().size() - 1; indexI > -1; indexI--) {
-                xmllib.removeLibrary(indexI);
-            }
-            if (xmllib.getArchList().size() < 1 && xmllib.getLibraryList().size() < 1) {
-                xmllib = null;
-            }
-        }
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH) {
-            for (int indexI = xmllib.getArchList().size() - 1; indexI > -1; indexI--) {
-                xmllib.removeArch(indexI);
-            }
-            if (xmllib.getArchList().size() < 1 && xmllib.getLibraryList().size() < 1) {
-                xmllib = null;
-            }
-        }
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM) {
-            xmllib.removeArch(intLocation);
-        }
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY_ITEM) {
-            xmllib.removeLibrary(intLocation);
-        }
+//        if (intCategory == IDefaultMutableTreeNode.LIBRARIES) {
+//            xmllib = null;
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY) {
+//            for (int indexI = xmllib.getLibraryList().size() - 1; indexI > -1; indexI--) {
+//                xmllib.removeLibrary(indexI);
+//            }
+//            if (xmllib.getArchList().size() < 1 && xmllib.getLibraryList().size() < 1) {
+//                xmllib = null;
+//            }
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH) {
+//            for (int indexI = xmllib.getArchList().size() - 1; indexI > -1; indexI--) {
+//                xmllib.removeArch(indexI);
+//            }
+//            if (xmllib.getArchList().size() < 1 && xmllib.getLibraryList().size() < 1) {
+//                xmllib = null;
+//            }
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM) {
+//            xmllib.removeArch(intLocation);
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY_ITEM) {
+//            xmllib.removeLibrary(intLocation);
+//        }
 
         //
         //Delete SourceFiles
         //
-        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES) {
-            xmlsf = null;
-        }
-        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME) {
-            for (int indexI = xmlsf.getFilenameList().size() - 1; indexI > -1; indexI--) {
-                xmlsf.removeFilename(indexI);
-            }
-            if (xmlsf.getArchList().size() < 1 && xmlsf.getFilenameList().size() < 1) {
-                xmlsf = null;
-            }
-        }
-        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH) {
-            for (int indexI = xmlsf.getArchList().size() - 1; indexI > -1; indexI--) {
-                xmlsf.removeArch(indexI);
-            }
-            if (xmlsf.getArchList().size() < 1 && xmlsf.getFilenameList().size() < 1) {
-                xmlsf = null;
-            }
-        }
-        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM) {
-            xmlsf.removeArch(intLocation);
-        }
-        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME_ITEM) {
-            xmlsf.removeFilename(intLocation);
-        }
-
-        //
-        //Delete Includes
-        //
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES) {
-            xmlic = null;
-        }
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME) {
-            for (int indexI = xmlic.getPackageNameList().size() - 1; indexI > -1; indexI--) {
-                xmlic.removePackageName(indexI);
-            }
-            if (xmlic.getArchList().size() < 1 && xmlic.getPackageNameList().size() < 1) {
-                xmlic = null;
-            }
-        }
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES_ARCH) {
-            for (int indexI = xmlic.getArchList().size() - 1; indexI > -1; indexI--) {
-                xmlic.removeArch(indexI);
-            }
-            if (xmlic.getArchList().size() < 1 && xmlic.getPackageNameList().size() < 1) {
-                xmlic = null;
-            }
-        }
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES_ARCH_ITEM) {
-            xmlic.removeArch(intLocation);
-        }
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME_ITEM) {
-            xmlic.removePackageName(intLocation);
-        }
+//        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES) {
+//            xmlsf = null;
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME) {
+//            for (int indexI = xmlsf.getFilenameList().size() - 1; indexI > -1; indexI--) {
+//                xmlsf.removeFilename(indexI);
+//            }
+//            if (xmlsf.getArchList().size() < 1 && xmlsf.getFilenameList().size() < 1) {
+//                xmlsf = null;
+//            }
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH) {
+//            for (int indexI = xmlsf.getArchList().size() - 1; indexI > -1; indexI--) {
+//                xmlsf.removeArch(indexI);
+//            }
+//            if (xmlsf.getArchList().size() < 1 && xmlsf.getFilenameList().size() < 1) {
+//                xmlsf = null;
+//            }
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM) {
+//            xmlsf.removeArch(intLocation);
+//        }
+//        if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME_ITEM) {
+//            xmlsf.removeFilename(intLocation);
+//        }
 
         //
         //Delete Protocols
@@ -3874,35 +3228,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         }
 
         //
-        //View Mbd Header
-        //
-        if (intCategory == IDefaultMutableTreeNode.MBD_HEADER) {
-            showMbdHeader(FrameworkWizardUI.VIEW);
-        }
-
-        //
-        //View Msa Lib Header
-        //
-        if (intCategory == IDefaultMutableTreeNode.MLSA_HEADER) {
-            showMlsaHeader(FrameworkWizardUI.VIEW);
-        }
-
-        //
-        //View Mbd Lib Header
-        //
-        if (intCategory == IDefaultMutableTreeNode.MLBD_HEADER) {
-            showMlbdHeader(FrameworkWizardUI.VIEW);
-        }
-
-        //
-        //View Libraries
-        //
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY
-            || intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM) {
-            showLibraries(FrameworkWizardUI.VIEW, intCategory, intLocation);
-        }
-
-        //
         //View LIBRARY CLASS DEFINITIONS
         //
         if (intCategory == IDefaultMutableTreeNode.LIBRARYCLASSDEFINITIONS) {
@@ -3915,14 +3240,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME
             || intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM) {
             showSourceFiles(FrameworkWizardUI.VIEW, intCategory, intLocation);
-        }
-
-        //
-        //View Includes
-        //
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME
-            || intCategory == IDefaultMutableTreeNode.INCLUDES_ARCH_ITEM) {
-            showIncludes(FrameworkWizardUI.VIEW, intCategory, intLocation);
         }
 
         //
@@ -4029,35 +3346,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         }
 
         //
-        //Update Mbd Header
-        //
-        if (intCategory == IDefaultMutableTreeNode.MBD_HEADER) {
-            showMbdHeader(FrameworkWizardUI.UPDATE);
-        }
-
-        //
-        //Update Msa Lib Header
-        //
-        if (intCategory == IDefaultMutableTreeNode.MLSA_HEADER) {
-            showMlsaHeader(FrameworkWizardUI.UPDATE);
-        }
-
-        //
-        //Update Mbd Lib Header
-        //
-        if (intCategory == IDefaultMutableTreeNode.MLBD_HEADER) {
-            showMlbdHeader(FrameworkWizardUI.UPDATE);
-        }
-
-        //
-        //Update Libraries
-        //
-        if (intCategory == IDefaultMutableTreeNode.LIBRARIES_LIBRARY
-            || intCategory == IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM) {
-            showLibraries(FrameworkWizardUI.UPDATE, intCategory, intLocation);
-        }
-
-        //
         //Update LIBRARY CLASS DEFINITIONS
         //
         if (intCategory == IDefaultMutableTreeNode.LIBRARYCLASSDEFINITIONS) {
@@ -4070,14 +3358,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (intCategory == IDefaultMutableTreeNode.SOURCEFILES_FILENAME
             || intCategory == IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM) {
             showSourceFiles(FrameworkWizardUI.UPDATE, intCategory, intLocation);
-        }
-
-        //
-        //Update Includes
-        //
-        if (intCategory == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME
-            || intCategory == IDefaultMutableTreeNode.INCLUDES_ARCH_ITEM) {
-            showIncludes(FrameworkWizardUI.UPDATE, intCategory, intLocation);
         }
 
         //
@@ -4185,15 +3465,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             case 1:
                 saveMsa();
                 break;
-            case 2:
-                saveMbd();
-                break;
-            case 3:
-                saveMlsa();
-                break;
-            case 4:
-                saveMlbd();
-                break;
             }
 
         }
@@ -4232,9 +3503,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (xmlsf != null) {
             msa.setSourceFiles(xmlsf);
         }
-        if (xmlic != null) {
-            msa.setIncludes(xmlic);
-        }
         if (xmlpl != null) {
             msa.setProtocols(xmlpl);
         }
@@ -4270,9 +3538,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         }
         if (xmlpcd != null) {
             msa.setPCDs(xmlpcd);
-        }
-        if (xmlbo != null) {
-            msa.setBuildOptions(xmlbo);
         }
         //
         //Init namespace
@@ -4310,304 +3575,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
     }
 
     /**
-     Save file as mbd
-     
-     **/
-    private void saveMbd() {
-        File f = new File(this.saveFileName);
-        ModuleBuildDescriptionDocument mbdDoc = ModuleBuildDescriptionDocument.Factory.newInstance();
-        ModuleBuildDescriptionDocument.ModuleBuildDescription mbd = ModuleBuildDescriptionDocument.ModuleBuildDescription.Factory
-                                                                                                                                 .newInstance();
-        //
-        //Add all components into xml doc file
-        //
-        if (xmlmbdh != null) {
-            mbd.setMbdHeader(xmlmbdh);
-        }
-        if (xmllib != null) {
-            mbd.setLibraries(xmllib);
-        }
-        if (xmlsf != null) {
-            mbd.setSourceFiles(xmlsf);
-        }
-        if (xmlic != null) {
-            mbd.setIncludes(xmlic);
-        }
-        if (xmlpl != null) {
-            mbd.setProtocols(xmlpl);
-        }
-        if (xmlen != null) {
-            mbd.setEvents(xmlen);
-        }
-        if (xmlhob != null) {
-            mbd.setHobs(xmlhob);
-        }
-        if (xmlppi != null) {
-            mbd.setPPIs(xmlppi);
-        }
-        if (xmlvb != null) {
-            mbd.setVariables(xmlvb);
-        }
-        if (xmlbm != null) {
-            mbd.setBootModes(xmlbm);
-        }
-        if (xmlst != null) {
-            mbd.setSystemTables(xmlst);
-        }
-        if (xmldh != null) {
-            mbd.setDataHubs(xmldh);
-        }
-        if (xmlfs != null) {
-            mbd.setFormsets(xmlfs);
-        }
-        if (xmlgu != null) {
-            mbd.setGuids(xmlgu);
-        }
-        if (xmlet != null) {
-            mbd.setExterns(xmlet);
-        }
-        if (xmlpcd != null) {
-            mbd.setPCDs(xmlpcd);
-        }
-        if (xmlbo != null) {
-            mbd.setBuildOptions(xmlbo);
-        }
-        //
-        //Init namespace
-        //
-        XmlCursor cursor = mbd.newCursor();
-        String uri = "http://www.TianoCore.org/2006/Edk2.0";
-        cursor.push();
-        cursor.toNextToken();
-        cursor.insertNamespace("", uri);
-        cursor.insertNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        cursor.pop();
-
-        //
-        //Config file format
-        //
-        XmlOptions options = new XmlOptions();
-        options.setCharacterEncoding("UTF-8");
-        options.setSavePrettyPrint();
-        options.setSavePrettyPrintIndent(2);
-
-        //
-        //Create finial doc
-        //
-        mbdDoc.addNewModuleBuildDescription();
-        mbdDoc.setModuleBuildDescription((ModuleBuildDescriptionDocument.ModuleBuildDescription) cursor.getObject());
-        try {
-            //
-            //Save the file
-            //
-            mbdDoc.save(f, options);
-            this.currentModule = this.saveFileName;
-        } catch (Exception e) {
-            Log.err("Save Mbd", e.getMessage());
-        }
-    }
-
-    /**
-     Save file as mlsa
-     
-     **/
-    private void saveMlsa() {
-        File f = new File(this.saveFileName);
-        LibraryModuleSurfaceAreaDocument mlsaDoc = LibraryModuleSurfaceAreaDocument.Factory.newInstance();
-        LibraryModuleSurfaceAreaDocument.LibraryModuleSurfaceArea mlsa = LibraryModuleSurfaceAreaDocument.LibraryModuleSurfaceArea.Factory
-                                                                                                                                          .newInstance();
-        //
-        //Add all components into xml doc file
-        //
-        if (xmlmlh != null) {
-            mlsa.setMsaLibHeader(xmlmlh);
-        }
-        if (xmllcd != null) {
-            mlsa.setLibraryClassDefinitions(xmllcd);
-        }
-        if (xmlsf != null) {
-            mlsa.setSourceFiles(xmlsf);
-        }
-        if (xmlic != null) {
-            mlsa.setIncludes(xmlic);
-        }
-        if (xmlpl != null) {
-            mlsa.setProtocols(xmlpl);
-        }
-        if (xmlen != null) {
-            mlsa.setEvents(xmlen);
-        }
-        if (xmlhob != null) {
-            mlsa.setHobs(xmlhob);
-        }
-        if (xmlppi != null) {
-            mlsa.setPPIs(xmlppi);
-        }
-        if (xmlvb != null) {
-            mlsa.setVariables(xmlvb);
-        }
-        if (xmlbm != null) {
-            mlsa.setBootModes(xmlbm);
-        }
-        if (xmlst != null) {
-            mlsa.setSystemTables(xmlst);
-        }
-        if (xmldh != null) {
-            mlsa.setDataHubs(xmldh);
-        }
-        if (xmlfs != null) {
-            mlsa.setFormsets(xmlfs);
-        }
-        if (xmlgu != null) {
-            mlsa.setGuids(xmlgu);
-        }
-        if (xmlet != null) {
-            mlsa.setExterns(xmlet);
-        }
-        if (xmlpcd != null) {
-            mlsa.setPCDs(xmlpcd);
-        }
-        if (xmlbo != null) {
-            mlsa.setBuildOptions(xmlbo);
-        }
-        //
-        //Init namespace
-        //
-        XmlCursor cursor = mlsa.newCursor();
-        String uri = "http://www.TianoCore.org/2006/Edk2.0";
-        cursor.push();
-        cursor.toNextToken();
-        cursor.insertNamespace("", uri);
-        cursor.insertNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        cursor.pop();
-
-        //
-        //Config file format
-        //
-        XmlOptions options = new XmlOptions();
-        options.setCharacterEncoding("UTF-8");
-        options.setSavePrettyPrint();
-        options.setSavePrettyPrintIndent(2);
-
-        //
-        //Create finial doc
-        //
-        mlsaDoc.addNewLibraryModuleSurfaceArea();
-        mlsaDoc
-               .setLibraryModuleSurfaceArea((LibraryModuleSurfaceAreaDocument.LibraryModuleSurfaceArea) cursor
-                                                                                                              .getObject());
-        try {
-            //
-            //Save the file
-            //
-            mlsaDoc.save(f, options);
-            this.currentModule = this.saveFileName;
-        } catch (Exception e) {
-            Log.err("Save Mlsa", e.getMessage());
-        }
-    }
-
-    /**
-     Save file as mbd
-     
-     **/
-    private void saveMlbd() {
-        File f = new File(this.saveFileName);
-        LibraryModuleBuildDescriptionDocument mlbdDoc = LibraryModuleBuildDescriptionDocument.Factory.newInstance();
-        LibraryModuleBuildDescriptionDocument.LibraryModuleBuildDescription mlbd = LibraryModuleBuildDescriptionDocument.LibraryModuleBuildDescription.Factory
-                                                                                                                                                              .newInstance();
-        //
-        //Add all components into xml doc file
-        //
-        if (xmlmlbdh != null) {
-            mlbd.setMbdLibHeader(xmlmlbdh);
-        }
-        if (xmllib != null) {
-            mlbd.setLibraries(xmllib);
-        }
-        if (xmlsf != null) {
-            mlbd.setSourceFiles(xmlsf);
-        }
-        if (xmlic != null) {
-            mlbd.setIncludes(xmlic);
-        }
-        if (xmlpl != null) {
-            mlbd.setProtocols(xmlpl);
-        }
-        if (xmlen != null) {
-            mlbd.setEvents(xmlen);
-        }
-        if (xmlhob != null) {
-            mlbd.setHobs(xmlhob);
-        }
-        if (xmlppi != null) {
-            mlbd.setPPIs(xmlppi);
-        }
-        if (xmlvb != null) {
-            mlbd.setVariables(xmlvb);
-        }
-        if (xmlbm != null) {
-            mlbd.setBootModes(xmlbm);
-        }
-        if (xmlst != null) {
-            mlbd.setSystemTables(xmlst);
-        }
-        if (xmldh != null) {
-            mlbd.setDataHubs(xmldh);
-        }
-        if (xmlfs != null) {
-            mlbd.setFormsets(xmlfs);
-        }
-        if (xmlgu != null) {
-            mlbd.setGuids(xmlgu);
-        }
-        if (xmlet != null) {
-            mlbd.setExterns(xmlet);
-        }
-        if (xmlpcd != null) {
-            mlbd.setPCDs(xmlpcd);
-        }
-        if (xmlbo != null) {
-            mlbd.setBuildOptions(xmlbo);
-        }
-        //
-        //Init namespace
-        //
-        XmlCursor cursor = mlbd.newCursor();
-        String uri = "http://www.TianoCore.org/2006/Edk2.0";
-        cursor.push();
-        cursor.toNextToken();
-        cursor.insertNamespace("", uri);
-        cursor.insertNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        cursor.pop();
-
-        //
-        //Config file format
-        //
-        XmlOptions options = new XmlOptions();
-        options.setCharacterEncoding("UTF-8");
-        options.setSavePrettyPrint();
-        options.setSavePrettyPrintIndent(2);
-
-        //
-        //Create finial doc
-        //
-        mlbdDoc.addNewLibraryModuleBuildDescription();
-        mlbdDoc
-               .setLibraryModuleBuildDescription((LibraryModuleBuildDescriptionDocument.LibraryModuleBuildDescription) cursor
-                                                                                                                             .getObject());
-        try {
-            //
-            //Save the file
-            //
-            mlbdDoc.save(f, options);
-            this.currentModule = this.saveFileName;
-        } catch (Exception e) {
-            Log.err("Save Mbd", e.getMessage());
-        }
-    }
-
-    /**
      Reflash the tree via current value of xml documents.
      
      @param intMode The input data of current operation type
@@ -4618,7 +3585,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (intMode == FrameworkWizardUI.OPENED) {
             this.jMenuItemFileClose.setEnabled(true);
             this.jMenuItemFileSaveAs.setEnabled(true);
-            this.jMenuEditAdd.setEnabled(true);
+            //this.jMenuEditAdd.setEnabled(true);
             this.setTitle(windowTitle + "- [" + this.currentModule + "]");
             this.jButtonOk.setEnabled(false);
             this.jButtonCancel.setEnabled(false);
@@ -4627,7 +3594,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             this.jMenuItemFileClose.setEnabled(false);
             this.jMenuItemFileSave.setEnabled(false);
             this.jMenuItemFileSaveAs.setEnabled(false);
-            this.jMenuEditAdd.setEnabled(false);
+            //this.jMenuEditAdd.setEnabled(false);
             this.setTitle(windowTitle + "- [" + ws.getCurrentWorkspace() + "]");
             this.setButtonEnable(false);
         }
@@ -4639,7 +3606,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             this.jMenuItemFileClose.setEnabled(true);
             this.jMenuItemFileSave.setEnabled(true);
             this.jMenuItemFileSaveAs.setEnabled(true);
-            this.jMenuEditAdd.setEnabled(true);
+            //this.jMenuEditAdd.setEnabled(true);
             setButtonEnable(false);
         }
         if (intMode == FrameworkWizardUI.UPDATE_WITHOUT_CHANGE) {
@@ -4661,7 +3628,7 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             this.jMenuItemFileClose.setEnabled(true);
             this.jMenuItemFileSave.setEnabled(false);
             this.jMenuItemFileSaveAs.setEnabled(true);
-            this.jMenuItemEditUpdate.setEnabled(false);
+            //this.jMenuItemEditUpdate.setEnabled(false);
             this.jMenuItemEditDelete.setEnabled(false);
             this.setTitle(windowTitle + "- [" + this.currentModule + "]");
             this.jButtonOk.setEnabled(false);
@@ -4669,12 +3636,12 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         }
 
         if (this.currentModuleType == 1 || this.currentModuleType == 3) {
-            this.jMenuItemEditAddLibraries.setEnabled(false);
-            this.jMenuItemEditAddLibraryClassDefinitions.setEnabled(true);
+            //this.jMenuItemEditAddLibraries.setEnabled(false);
+            //this.jMenuItemEditAddLibraryClassDefinitions.setEnabled(true);
         }
         if (this.currentModuleType == 2 || this.currentModuleType == 4) {
-            this.jMenuItemEditAddLibraries.setEnabled(true);
-            this.jMenuItemEditAddLibraryClassDefinitions.setEnabled(false);
+            //this.jMenuItemEditAddLibraries.setEnabled(true);
+            //this.jMenuItemEditAddLibraryClassDefinitions.setEnabled(false);
         }
     }
 
@@ -4699,105 +3666,21 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
     private void showMsaHeader(int type) {
         msa = null;
         msa = new MsaHeader(this.xmlmh);
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(msa, 1);
+//        jDesktopPane a = new jDesktopPane();
+//        
+//        a.setBounds(new java.awt.Rectangle(DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_X, DataType.MAIN_FRAME_EDITOR_PANEL_LOCATION_Y, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+//        a.setMinimumSize(new java.awt.Dimension(DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_WIDTH, DataType.MAIN_FRAME_EDITOR_PANEL_PREFERRED_SIZE_HEIGHT));
+//        a.setDesktopManager(iDesktopManager);
+//        a.addComponentListener(this);
+//        a.add(msa, 1);
+        //jTabbedPaneEditor.addTab("1", null, a, null);
+        
+        getJDesktopPaneModule().add(msa, 1);
         this.currentNodeType = IDefaultMutableTreeNode.MSA_HEADER;
         this.currentModuleType = 1;
         if (type == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
             msa.setViewMode(true);
-        } else {
-            setButtonEnable(true);
-        }
-    }
-
-    /**
-     Show MbdHeader
-     When the operation is VIEW, disable all fields of internal frame
-     
-     @param type The input data of operation type
-     
-     **/
-    private void showMbdHeader(int type) {
-        mbd = null;
-        mbd = new MbdHeader(this.xmlmbdh);
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mbd, 1);
-        this.currentNodeType = IDefaultMutableTreeNode.MBD_HEADER;
-        this.currentModuleType = 2;
-        if (type == FrameworkWizardUI.VIEW) {
-            setButtonEnable(false);
-            mbd.setViewMode(true);
-        } else {
-            setButtonEnable(true);
-        }
-    }
-
-    /**
-     Show MlsaHeader
-     When the operation is VIEW, disable all fields of internal frame
-     
-     @param type The input data of operation type
-     
-     **/
-    private void showMlsaHeader(int type) {
-        mlsa = null;
-        mlsa = new MsaLibHeader(this.xmlmlh);
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mlsa, 1);
-        this.currentNodeType = IDefaultMutableTreeNode.MLSA_HEADER;
-        this.currentModuleType = 3;
-        if (type == FrameworkWizardUI.VIEW) {
-            setButtonEnable(false);
-            mlsa.setViewMode(true);
-        } else {
-            setButtonEnable(true);
-        }
-    }
-
-    /**
-     Show MlbdHeader
-     When the operation is VIEW, disable all fields of internal frame
-     
-     @param type The input data of operation type
-     
-     **/
-    private void showMlbdHeader(int type) {
-        mlbd = null;
-        mlbd = new MbdLibHeader(this.xmlmlbdh);
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mlbd, 1);
-        this.currentNodeType = IDefaultMutableTreeNode.MLBD_HEADER;
-        this.currentModuleType = 4;
-        if (type == FrameworkWizardUI.VIEW) {
-            setButtonEnable(false);
-            mlbd.setViewMode(true);
-        } else {
-            setButtonEnable(true);
-        }
-    }
-
-    /**
-     Show Libraries
-     When the operation is VIEW, disable all fields of internal frame
-     
-     @param type The input data of operation type
-     
-     **/
-    private void showLibraries(int operationType, int nodeType, int location) {
-        mlib = null;
-        if (operationType == FrameworkWizardUI.ADD) {
-            mlib = new MbdLibraries(this.xmllib, -1, -1, 1);
-        }
-        if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
-            mlib = new MbdLibraries(this.xmllib, nodeType, location, 2);
-        }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mlib, 1);
-        this.currentNodeType = nodeType;
-        if (operationType == FrameworkWizardUI.VIEW) {
-            setButtonEnable(false);
-            mlib.setViewMode(true);
         } else {
             setButtonEnable(true);
         }
@@ -4818,8 +3701,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mlcd = new ModuleLibraryClassDefinitions(this.xmllcd);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mlcd, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mlcd, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -4844,38 +3727,12 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             msf = new ModuleSourceFiles(this.xmlsf, nodeType, location, 2);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(msf, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(msf, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
             msf.setViewMode(true);
-        } else {
-            setButtonEnable(true);
-        }
-    }
-
-    /**
-     Show Includes
-     When the operation is VIEW, disable all fields of internal frame
-     
-     @param type The input data of operation type
-     
-     **/
-    private void showIncludes(int operationType, int nodeType, int location) {
-        mic = null;
-        if (operationType == FrameworkWizardUI.ADD) {
-            mic = new ModuleIncludes(this.xmlic, -1, -1, 1);
-        }
-        if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
-            mic = new ModuleIncludes(this.xmlic, nodeType, location, 2);
-        }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mic, 1);
-        this.currentNodeType = nodeType;
-        if (operationType == FrameworkWizardUI.VIEW) {
-            setButtonEnable(false);
-            mic.setViewMode(true);
         } else {
             setButtonEnable(true);
         }
@@ -4896,8 +3753,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mp = new ModuleProtocols(this.xmlpl, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mp, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mp, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -4922,8 +3779,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mev = new ModuleEvents(this.xmlen, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mev, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mev, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -4948,8 +3805,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mh = new ModuleHobs(this.xmlhob, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mh, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mh, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -4974,8 +3831,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mpp = new ModulePpis(this.xmlppi, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mpp, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mpp, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5000,8 +3857,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mv = new ModuleVariables(this.xmlvb, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mv, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mv, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5026,8 +3883,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mbm = new ModuleBootModes(this.xmlbm, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mbm, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mbm, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5052,8 +3909,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mst = new ModuleSystemTables(this.xmlst, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mst, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mst, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5078,8 +3935,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mdh = new ModuleDataHubs(this.xmldh, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mdh, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mdh, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5104,8 +3961,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mf = new ModuleFormsets(this.xmlfs, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mf, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mf, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5130,8 +3987,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mg = new ModuleGuids(this.xmlgu, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mg, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mg, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5156,8 +4013,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             met = new ModuleExterns(this.xmlet, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(met, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(met, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5182,8 +4039,8 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
         if (operationType == FrameworkWizardUI.UPDATE || operationType == FrameworkWizardUI.VIEW) {
             mpcd = new ModulePCDs(this.xmlpcd, nodeType, location);
         }
-        this.jDesktopPane.removeAll();
-        this.jDesktopPane.add(mpcd, 1);
+        this.jDesktopPaneModule.removeAll();
+        this.jDesktopPaneModule.add(mpcd, 1);
         this.currentNodeType = nodeType;
         if (operationType == FrameworkWizardUI.VIEW) {
             setButtonEnable(false);
@@ -5207,46 +4064,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             this.xmlmh = msa.getMsaHeader();
         }
 
-        if (this.currentNodeType == IDefaultMutableTreeNode.MBD_HEADER) {
-            if (!mbd.check()) {
-                return;
-            }
-            mbd.save();
-            mbd.setViewMode(true);
-            this.xmlmbdh = mbd.getMbdHeader();
-        }
-
-        if (this.currentNodeType == IDefaultMutableTreeNode.MLSA_HEADER) {
-            if (!mlsa.check()) {
-                return;
-            }
-            mlsa.save();
-            mlsa.setViewMode(true);
-            this.xmlmlh = mlsa.getMsaLibHeader();
-        }
-
-        if (this.currentNodeType == IDefaultMutableTreeNode.MLBD_HEADER) {
-            if (!mlbd.check()) {
-                return;
-            }
-            mlbd.save();
-            mlbd.setViewMode(true);
-            this.xmlmlbdh = mlbd.getMbdLibHeader();
-        }
-
-        if (this.currentNodeType == IDefaultMutableTreeNode.LIBRARIES
-            || this.currentNodeType == IDefaultMutableTreeNode.LIBRARIES_ARCH
-            || this.currentNodeType == IDefaultMutableTreeNode.LIBRARIES_ARCH_ITEM
-            || this.currentNodeType == IDefaultMutableTreeNode.LIBRARIES_LIBRARY
-            || this.currentNodeType == IDefaultMutableTreeNode.LIBRARIES_LIBRARY_ITEM) {
-            if (!mlib.check()) {
-                return;
-            }
-            mlib.save();
-            mlib.setViewMode(true);
-            this.xmllib = mlib.getLibraries();
-        }
-
         if (this.currentNodeType == IDefaultMutableTreeNode.LIBRARYCLASSDEFINITIONS
             || this.currentNodeType == IDefaultMutableTreeNode.LIBRARY_CLASS_DEFINITION) {
             if (!mlcd.check()) {
@@ -5268,19 +4085,6 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
             msf.save();
             msf.setViewMode(true);
             this.xmlsf = msf.getSourceFiles();
-        }
-
-        if (this.currentNodeType == IDefaultMutableTreeNode.INCLUDES
-            || this.currentNodeType == IDefaultMutableTreeNode.INCLUDES_ARCH
-            || this.currentNodeType == IDefaultMutableTreeNode.INCLUDES_ARCH_ITEM
-            || this.currentNodeType == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME
-            || this.currentNodeType == IDefaultMutableTreeNode.INCLUDES_PACKAGENAME_ITEM) {
-            if (!mic.check()) {
-                return;
-            }
-            mic.save();
-            mic.setViewMode(true);
-            this.xmlic = mic.getIncludes();
         }
 
         if (this.currentNodeType == IDefaultMutableTreeNode.PROTOCOLS
@@ -5437,10 +4241,30 @@ public class FrameworkWizardUI extends IFrame implements MouseListener, TreeSele
 		
 	}
 	
+	
+	/**
+	  Resize JDesktopPanel
+	  
+	 */
 	private void resizeDesktopPanel() {
-		JInternalFrame[] iif = this.jDesktopPane.getAllFrames();
+		resizeDesktopPanel(this.jDesktopPaneModule);
+		resizeDesktopPanel(this.jDesktopPanePackage);
+		resizeDesktopPanel(this.jDesktopPanePlatform);
+	}
+	
+	/**
+	  Resize JDesktopPanel
+	  
+	 */
+	private void resizeDesktopPanel(JDesktopPane jdk) {
+		JInternalFrame[] iif = jdk.getAllFrames();
 		for (int index = 0; index < iif.length; index++) {
-            iif[index].setSize(this.jDesktopPane.getWidth(), this.jDesktopPane.getHeight());
+            iif[index].setSize(jdk.getWidth(), jdk.getHeight());
         }
+	}
+
+	public void stateChanged(ChangeEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

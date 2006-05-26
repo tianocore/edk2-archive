@@ -98,10 +98,6 @@ public class ModulePpis extends IInternalFrame {
 
     private StarLabel jStarLabel2 = null;
 
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
-
     /**
      This method initializes jRadioButtonPpi 
      
@@ -272,20 +268,6 @@ public class ModulePpis extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 160, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -367,7 +349,6 @@ public class ModulePpis extends IInternalFrame {
             if (this.ppis.getPpiArray(index).getFeatureFlag() != null) {
                 this.jTextFieldFeatureFlag.setText(this.ppis.getPpiArray(index).getFeatureFlag());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.ppis.getPpiArray(index).getOverrideID()));
         } else if (type == IDefaultMutableTreeNode.PPIS_PPINOTIFY_ITEM) {
             initUsage(ModulePpis.PPI_NOTIFY);
             this.jRadioButtonPpi.setSelected(false);
@@ -386,7 +367,6 @@ public class ModulePpis extends IInternalFrame {
             if (this.ppis.getPpiNotifyArray(index).getFeatureFlag() != null) {
                 this.jTextFieldFeatureFlag.setText(this.ppis.getPpiNotifyArray(index).getFeatureFlag());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.ppis.getPpiNotifyArray(index).getOverrideID()));
         }
         this.jRadioButtonPpi.setEnabled(false);
         this.jRadioButtonPpiNotify.setEnabled(false);
@@ -422,7 +402,6 @@ public class ModulePpis extends IInternalFrame {
             this.jRadioButtonEnableFeature.setEnabled(!isView);
             this.jRadioButtonDisableFeature.setEnabled(!isView);
             this.jTextFieldFeatureFlag.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
         }
     }
@@ -435,9 +414,6 @@ public class ModulePpis extends IInternalFrame {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 160, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelPpiType = new JLabel();
             jLabelPpiType.setBounds(new java.awt.Rectangle(15, 10, 140, 20));
             jLabelPpiType.setText("Ppi Type");
@@ -483,8 +459,6 @@ public class ModulePpis extends IInternalFrame {
 
             jContentPane.add(jStarLabel1, null);
             jContentPane.add(jStarLabel2, null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
         }
         return jContentPane;
     }
@@ -622,11 +596,6 @@ public class ModulePpis extends IInternalFrame {
             Log.err("Incorrect data type for Feature Flag");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -653,9 +622,6 @@ public class ModulePpis extends IInternalFrame {
                 if (!isEmpty(this.jTextFieldFeatureFlag.getText())) {
                     ppi.setFeatureFlag(this.jTextFieldFeatureFlag.getText());
                 }
-                if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                    ppi.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-                }
                 if (location > -1) {
                     ppis.setPpiArray(location, ppi);
                 } else {
@@ -673,9 +639,6 @@ public class ModulePpis extends IInternalFrame {
                 ppiNotify.setEnableFeature(this.jRadioButtonEnableFeature.isSelected());
                 if (!isEmpty(this.jTextFieldFeatureFlag.getText())) {
                     ppiNotify.setFeatureFlag(this.jTextFieldFeatureFlag.getText());
-                }
-                if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                    ppiNotify.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
                 }
                 if (location > -1) {
                     ppis.setPpiNotifyArray(location, ppiNotify);

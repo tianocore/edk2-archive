@@ -90,10 +90,6 @@ public class ModuleProtocols extends IInternalFrame {
 
     private JButton jButtonGenerateGuid = null;
 
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
-
     private StarLabel jStarLabel1 = null;
 
     private StarLabel jStarLabel2 = null;
@@ -271,20 +267,6 @@ public class ModuleProtocols extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 160, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -360,12 +342,9 @@ public class ModuleProtocols extends IInternalFrame {
             if (this.protocols.getProtocolArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.protocols.getProtocolArray(index).getUsage().toString());
             }
-            this.jRadioButtonEnableFeature.setSelected(this.protocols.getProtocolArray(index).getEnableFeature());
-            this.jRadioButtonDisableFeature.setSelected(!this.protocols.getProtocolArray(index).getEnableFeature());
             if (this.protocols.getProtocolArray(index).getFeatureFlag() != null) {
                 this.jTextFieldFeatureFlag.setText(this.protocols.getProtocolArray(index).getFeatureFlag());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.protocols.getProtocolArray(index).getOverrideID()));
         } else if (type == IDefaultMutableTreeNode.PROTOCOLS_PROTOCOLNOTIFY_ITEM) {
             this.jRadioButtonProtocol.setSelected(false);
             this.jRadioButtonProtocolNotify.setSelected(true);
@@ -382,8 +361,6 @@ public class ModuleProtocols extends IInternalFrame {
             if (this.protocols.getProtocolNotifyArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.protocols.getProtocolNotifyArray(index).getUsage().toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.protocols.getProtocolNotifyArray(index)
-                                                                           .getOverrideID()));
         }
         this.jRadioButtonProtocol.setEnabled(false);
         this.jRadioButtonProtocolNotify.setEnabled(false);
@@ -420,7 +397,6 @@ public class ModuleProtocols extends IInternalFrame {
             this.jRadioButtonEnableFeature.setEnabled(!isView);
             this.jRadioButtonDisableFeature.setEnabled(!isView);
             this.jTextFieldFeatureFlag.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
         }
     }
@@ -436,9 +412,6 @@ public class ModuleProtocols extends IInternalFrame {
             jLabelProtocolType = new JLabel();
             jLabelProtocolType.setBounds(new java.awt.Rectangle(15, 10, 140, 20));
             jLabelProtocolType.setText("Protocol Type");
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 160, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelEnableFeature = new JLabel();
             jLabelEnableFeature.setText("Enable Feature");
             jLabelEnableFeature.setBounds(new java.awt.Rectangle(15, 110, 140, 20));
@@ -472,8 +445,6 @@ public class ModuleProtocols extends IInternalFrame {
             jContentPane.add(getJRadioButtonProtocol(), null);
             jContentPane.add(getJRadioButtonProtocolNotify(), null);
             jContentPane.add(getJButtonGenerateGuid(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
             jContentPane.add(jLabelProtocolType, null);
 
             jStarLabel1 = new StarLabel();
@@ -636,11 +607,6 @@ public class ModuleProtocols extends IInternalFrame {
             Log.err("Incorrect data type for Feature Flag");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -664,12 +630,8 @@ public class ModuleProtocols extends IInternalFrame {
                     protocol.setGuid(this.jTextFieldGuid.getText());
                 }
                 protocol.setUsage(ProtocolUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-                protocol.setEnableFeature(this.jRadioButtonEnableFeature.isSelected());
                 if (!isEmpty(this.jTextFieldFeatureFlag.getText())) {
                     protocol.setFeatureFlag(this.jTextFieldFeatureFlag.getText());
-                }
-                if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                    protocol.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
                 }
                 if (location > -1) {
                     protocols.setProtocolArray(location, protocol);
@@ -687,10 +649,6 @@ public class ModuleProtocols extends IInternalFrame {
                 }
                 protocolNofity
                               .setUsage(ProtocolNotifyUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-
-                if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                    protocolNofity.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-                }
                 if (location > -1) {
                     protocols.setProtocolNotifyArray(location, protocolNofity);
                 } else {

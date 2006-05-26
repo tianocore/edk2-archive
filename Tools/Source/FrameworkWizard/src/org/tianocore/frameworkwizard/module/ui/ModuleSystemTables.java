@@ -24,7 +24,6 @@ import javax.swing.JTextField;
 
 import org.tianocore.SystemTableUsage;
 import org.tianocore.SystemTablesDocument;
-import org.tianocore.frameworkwizard.common.DataValidation;
 import org.tianocore.frameworkwizard.common.Log;
 import org.tianocore.frameworkwizard.common.ui.IInternalFrame;
 import org.tianocore.frameworkwizard.common.ui.StarLabel;
@@ -63,10 +62,6 @@ public class ModuleSystemTables extends IInternalFrame {
     private JButton jButtonOk = null;
 
     private JButton jButtonCancel = null;
-
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
 
     private StarLabel jStarLabel1 = null;
 
@@ -128,20 +123,6 @@ public class ModuleSystemTables extends IInternalFrame {
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
-    }
-
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 60, 50, 20));
-        }
-        return jTextFieldOverrideID;
     }
 
     public static void main(String[] args) {
@@ -214,8 +195,6 @@ public class ModuleSystemTables extends IInternalFrame {
             if (this.systemTables.getSystemTableArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.systemTables.getSystemTableArray(index).getUsage().toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.systemTables.getSystemTableArray(index)
-                                                                              .getOverrideID()));
         }
     }
 
@@ -244,7 +223,6 @@ public class ModuleSystemTables extends IInternalFrame {
         if (isView) {
             this.jTextFieldEntry.setEnabled(!isView);
             this.jComboBoxUsage.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
         }
     }
 
@@ -256,9 +234,6 @@ public class ModuleSystemTables extends IInternalFrame {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 60, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelUsage = new JLabel();
             jLabelUsage.setText("Usage");
             jLabelUsage.setBounds(new java.awt.Rectangle(15, 35, 140, 20));
@@ -273,8 +248,6 @@ public class ModuleSystemTables extends IInternalFrame {
             jContentPane.add(getJComboBoxUsage(), null);
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
 
             jStarLabel1 = new StarLabel();
             jStarLabel1.setBounds(new java.awt.Rectangle(0, 10, 10, 20));
@@ -349,15 +322,6 @@ public class ModuleSystemTables extends IInternalFrame {
             return false;
         }
 
-        //
-        // Check if all fields have correct data types 
-        //
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
-
         return true;
     }
 
@@ -377,9 +341,6 @@ public class ModuleSystemTables extends IInternalFrame {
             systemTable.setEntry(this.jTextFieldEntry.getText());
 
             systemTable.setUsage(SystemTableUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                systemTable.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
             if (location > -1) {
                 systemTables.setSystemTableArray(location, systemTable);
             } else {

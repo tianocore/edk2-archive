@@ -72,10 +72,6 @@ public class ModuleDataHubs extends IInternalFrame {
 
     private JButton jButtonGenerateGuid = null;
 
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
-
     private StarLabel jStarLabel1 = null;
 
     /**
@@ -168,20 +164,6 @@ public class ModuleDataHubs extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 85, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -256,9 +238,6 @@ public class ModuleDataHubs extends IInternalFrame {
             if (this.dataHubs.getDataHubRecordArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.dataHubs.getDataHubRecordArray(index).getUsage().toString());
             }
-            this.jTextFieldOverrideID
-                                     .setText(String
-                                                    .valueOf(this.dataHubs.getDataHubRecordArray(index).getOverrideID()));
         }
     }
 
@@ -275,7 +254,6 @@ public class ModuleDataHubs extends IInternalFrame {
             this.jTextFieldDataHubRecord.setEnabled(!isView);
             this.jTextFieldGuid.setEnabled(!isView);
             this.jComboBoxUsage.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonCancel.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
             this.jButtonOk.setEnabled(!isView);
@@ -302,9 +280,6 @@ public class ModuleDataHubs extends IInternalFrame {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 85, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelDataHubRecord = new JLabel();
             jLabelDataHubRecord.setBounds(new java.awt.Rectangle(15, 10, 140, 20));
             jLabelDataHubRecord.setText("Data Hub Record");
@@ -325,9 +300,7 @@ public class ModuleDataHubs extends IInternalFrame {
             jContentPane.add(jLabelDataHubRecord, null);
             jContentPane.add(getJTextFieldDataHubRecord(), null);
             jContentPane.add(getJButtonGenerateGuid(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
-
+            
             jStarLabel1 = new StarLabel();
             jStarLabel1.setLocation(new java.awt.Point(0, 10));
 
@@ -412,11 +385,6 @@ public class ModuleDataHubs extends IInternalFrame {
             Log.err("Incorrect data type for Guid");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -441,9 +409,6 @@ public class ModuleDataHubs extends IInternalFrame {
                 dataHubRecord.setGuid(this.jTextFieldGuid.getText());
             }
             dataHubRecord.setUsage(DataHubUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                dataHubRecord.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
             if (location > -1) {
                 dataHubs.setDataHubRecordArray(location, dataHubRecord);
             } else {

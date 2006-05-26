@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.tianocore.GuidDocument;
 import org.tianocore.VariableUsage;
 import org.tianocore.VariablesDocument;
 import org.tianocore.frameworkwizard.common.DataValidation;
@@ -84,10 +83,6 @@ public class ModuleVariables extends IInternalFrame {
     private JButton jButtonCancel = null;
 
     private JButton jButtonGenerateGuid = null;
-
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
 
     private StarLabel jStarLabel1 = null;
 
@@ -236,20 +231,6 @@ public class ModuleVariables extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 160, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -317,8 +298,8 @@ public class ModuleVariables extends IInternalFrame {
             if (this.variables.getVariableArray(index).getString() != null) {
                 this.jTextFieldString.setText(this.variables.getVariableArray(index).getString());
             }
-            if (this.variables.getVariableArray(index).getGuid() != null) {
-                this.jTextFieldGuid.setText(this.variables.getVariableArray(index).getGuid().getStringValue());
+            if (this.variables.getVariableArray(index).getGuidValue() != null) {
+                this.jTextFieldGuid.setText(this.variables.getVariableArray(index).getGuidValue());
             }
             if (this.variables.getVariableArray(index).getByteOffset() != null) {
                 this.jTextFieldByteOffset
@@ -335,7 +316,6 @@ public class ModuleVariables extends IInternalFrame {
             if (this.variables.getVariableArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.variables.getVariableArray(index).getUsage().toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.variables.getVariableArray(index).getOverrideID()));
         }
     }
 
@@ -368,7 +348,6 @@ public class ModuleVariables extends IInternalFrame {
             this.jTextFieldOffsetBitSize.setEnabled(!isView);
             this.jComboBoxUsage.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
         }
     }
 
@@ -389,9 +368,6 @@ public class ModuleVariables extends IInternalFrame {
             jLabelBitOffsetHint = new JLabel();
             jLabelBitOffsetHint.setBounds(new java.awt.Rectangle(245,85,235,20));
             jLabelBitOffsetHint.setText("0~7");
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setText("Override ID");
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 160, 140, 20));
             jLabelUsage = new JLabel();
             jLabelUsage.setText("Usage");
             jLabelUsage.setBounds(new java.awt.Rectangle(15, 135, 140, 20));
@@ -430,8 +406,6 @@ public class ModuleVariables extends IInternalFrame {
             jContentPane.add(getJTextFieldOffsetBitSize(), null);
             jContentPane.add(jLabelUsage, null);
             jContentPane.add(getJComboBoxUsage(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
 
@@ -546,11 +520,6 @@ public class ModuleVariables extends IInternalFrame {
             Log.err("Incorrect data type for Bit Offset");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -571,9 +540,7 @@ public class ModuleVariables extends IInternalFrame {
                 variable.setString(this.jTextFieldString.getText());
             }
             if (!isEmpty(this.jTextFieldGuid.getText())) {
-                GuidDocument.Guid guid = GuidDocument.Guid.Factory.newInstance();
-                guid.setStringValue(this.jTextFieldGuid.getText());
-                variable.setGuid(guid);
+                variable.setGuidValue(this.jTextFieldGuid.getText());
             }
             if (!isEmpty(this.jTextFieldByteOffset.getText())) {
                 variable.setByteOffset(this.jTextFieldByteOffset.getText());
@@ -585,9 +552,6 @@ public class ModuleVariables extends IInternalFrame {
                 variable.setOffsetBitSize(Integer.parseInt(this.jTextFieldBitOffset.getText()));
             }
             variable.setUsage(VariableUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                variable.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
             if (location > -1) {
                 variables.setVariableArray(location, variable);
             } else {

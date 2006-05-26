@@ -31,8 +31,6 @@ import javax.swing.JTextField;
 
 import org.tianocore.FilenameDocument;
 import org.tianocore.SourceFilesDocument;
-import org.tianocore.SupportedArchitectures;
-import org.tianocore.ToolChains;
 import org.tianocore.frameworkwizard.common.DataType;
 import org.tianocore.frameworkwizard.common.DataValidation;
 import org.tianocore.frameworkwizard.common.Log;
@@ -61,7 +59,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
     //
     private SourceFilesDocument.SourceFiles sourceFiles = null;
 
-    private int location = -1;
+    //private int location = -1;
     
     private int intSelectedItemId = 0;
 
@@ -80,9 +78,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
 
     private Vector<String> vFileType = new Vector<String>();
 
-    private Vector<String> vToolChain = new Vector<String>();
-
-    private Vector<String> vOverrideID = new Vector<String>();
+    private Vector<String> vToolChainFamily = new Vector<String>();
 
     private JPanel jContentPane = null;
 
@@ -111,10 +107,6 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
     private JLabel jLabelFileType = null;
 
     private JTextField jTextFieldFileType = null;
-
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
 
     private StarLabel jStarLabel1 = null;
 
@@ -270,20 +262,6 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             jTextFieldFileType.setBounds(new java.awt.Rectangle(140, 85, 340, 20));
         }
         return jTextFieldFileType;
-    }
-
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(140, 135, 50, 20));
-        }
-        return jTextFieldOverrideID;
     }
 
     /**
@@ -473,7 +451,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
      **/
     private void init(SourceFilesDocument.SourceFiles inSourceFiles, int type, int index, int inOperation) {
         init(inSourceFiles);
-        this.location = index;
+        //this.location = index;
         this.operation = inOperation;
 
         //
@@ -491,67 +469,18 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
                         } else {
                             vFileName.addElement("");
                         }
-                        if (this.sourceFiles.getFilenameArray(indexI).getGuid() != null) {
-                            vGuid.addElement(this.sourceFiles.getFilenameArray(indexI).getGuid());
-                        } else {
-                            vGuid.addElement("");
-                        }
-                        if (this.sourceFiles.getFilenameArray(indexI).getPath() != null) {
-                            vPath.addElement(this.sourceFiles.getFilenameArray(indexI).getPath());
-                        } else {
-                            vPath.addElement("");
-                        }
                         if (this.sourceFiles.getFilenameArray(indexI).getFileType() != null) {
-                            vFileType.addElement(this.sourceFiles.getFilenameArray(indexI).getFileType());
+                            vFileType.addElement(this.sourceFiles.getFilenameArray(indexI).getFileType().toString());
                         } else {
                             vFileType.addElement("");
                         }
-                        if (this.sourceFiles.getFilenameArray(indexI).getToolChain() != null) {
-                            vToolChain.addElement(this.sourceFiles.getFilenameArray(indexI).getToolChain().toString());
+                        if (this.sourceFiles.getFilenameArray(indexI).getToolChainFamily() != null) {
+                        	vToolChainFamily.addElement(this.sourceFiles.getFilenameArray(indexI).getToolChainFamily().toString());
                         } else {
-                            vToolChain.addElement(DataType.EMPTY_SELECT_ITEM);
+                        	vToolChainFamily.addElement(DataType.EMPTY_SELECT_ITEM);
                         }
-                        vOverrideID.addElement(String.valueOf(this.sourceFiles.getFilenameArray(indexI).getOverrideID()));
                         jComboBoxFileList.addItem(this.sourceFiles.getFilenameArray(indexI).getStringValue());
                     }
-                }
-            }
-            if (type == IDefaultMutableTreeNode.SOURCEFILES_ARCH_ITEM) {
-                this.jCheckBoxArch.setSelected(true);
-                this.jComboBoxArch.setSelectedItem(this.sourceFiles.getArchArray(index).getArchType().toString());
-                for (int indexI = 0; indexI < this.sourceFiles.getArchArray(index).getFilenameList().size(); indexI++) {
-                    if (this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getStringValue() != null) {
-                        vFileName.addElement(this.sourceFiles.getArchArray(index).getFilenameArray(indexI)
-                                                             .getStringValue());
-                    } else {
-                        vFileName.addElement("");
-                    }
-                    if (this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getGuid() != null) {
-                        vGuid.addElement(this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getGuid());
-                    } else {
-                        vGuid.addElement("");
-                    }
-                    if (this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getPath() != null) {
-                        vPath.addElement(this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getPath());
-                    } else {
-                        vPath.addElement("");
-                    }
-                    if (this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getFileType() != null) {
-                        vFileType.addElement(this.sourceFiles.getArchArray(index).getFilenameArray(indexI)
-                                                             .getFileType());
-                    } else {
-                        vFileType.addElement("");
-                    }
-                    if (this.sourceFiles.getArchArray(index).getFilenameArray(indexI).getToolChain() != null) {
-                        vToolChain.addElement(this.sourceFiles.getArchArray(index).getFilenameArray(indexI)
-                                                              .getToolChain().toString());
-                    } else {
-                        vToolChain.addElement("");
-                    }
-                    vOverrideID.addElement(String.valueOf(this.sourceFiles.getArchArray(index).getFilenameArray(indexI)
-                                                           .getOverrideID()));
-                    jComboBoxFileList.addItem(this.sourceFiles.getArchArray(index).getFilenameArray(indexI)
-                                                              .getStringValue());
                 }
             }
             //
@@ -592,7 +521,6 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             this.jTextFieldPath.setEnabled(!isView);
             this.jTextFieldFileType.setEnabled(!isView);
             this.jComboBoxToolChain.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
 
             this.jButtonAdd.setEnabled(!isView);
             this.jButtonRemove.setEnabled(!isView);
@@ -612,9 +540,6 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             jLabelToolChain = new JLabel();
             jLabelToolChain.setBounds(new java.awt.Rectangle(15, 110, 120, 20));
             jLabelToolChain.setText("Tool Chain");
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 135, 120, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelFileType = new JLabel();
             jLabelFileType.setBounds(new java.awt.Rectangle(15, 85, 120, 20));
             jLabelFileType.setText("File Type");
@@ -643,8 +568,6 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             jContentPane.add(getJTextFieldPath(), null);
             jContentPane.add(jLabelFileType, null);
             jContentPane.add(getJTextFieldFileType(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
             jStarLabel1 = new StarLabel();
             jStarLabel1.setLocation(new java.awt.Point(0, 10));
 
@@ -741,8 +664,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
         vGuid.addElement(this.jTextFieldGuid.getText());
         vPath.addElement(this.jTextFieldPath.getText());
         vFileType.addElement(this.jTextFieldFileType.getText());
-        vToolChain.addElement(this.jComboBoxToolChain.getSelectedItem().toString());
-        vOverrideID.addElement(this.jTextFieldOverrideID.getText());
+        vToolChainFamily.addElement(this.jComboBoxToolChain.getSelectedItem().toString());
         jComboBoxFileList.addItem(this.jTextFieldFileName.getText());
         jComboBoxFileList.setSelectedItem(this.jTextFieldFileName.getText());
         
@@ -773,8 +695,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
         vGuid.removeElementAt(intTempIndex);
         vPath.removeElementAt(intTempIndex);
         vFileType.removeElementAt(intTempIndex);
-        vToolChain.removeElementAt(intTempIndex);
-        vOverrideID.removeElementAt(intTempIndex);
+        vToolChainFamily.removeElementAt(intTempIndex);
         
         //
         // Reload all fields of selected item
@@ -795,8 +716,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
         vGuid.setElementAt(this.jTextFieldGuid.getText(), intSelectedItemId);
         vPath.setElementAt(this.jTextFieldPath.getText(), intSelectedItemId);
         vFileType.setElementAt(this.jTextFieldFileType.getText(), intSelectedItemId);
-        vToolChain.setElementAt(this.jComboBoxToolChain.getSelectedItem().toString(), intSelectedItemId);
-        vOverrideID.setElementAt(this.jTextFieldOverrideID.getText(), intSelectedItemId);
+        vToolChainFamily.setElementAt(this.jComboBoxToolChain.getSelectedItem().toString(), intSelectedItemId);
         jComboBoxFileList.removeAllItems();
         for (int index = 0; index < vFileName.size(); index++) {
             jComboBoxFileList.addItem(vFileName.elementAt(index));
@@ -833,15 +753,13 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             this.jTextFieldGuid.setText(vGuid.elementAt(intSelectedItemId).toString());
             this.jTextFieldPath.setText(vPath.elementAt(intSelectedItemId).toString());
             this.jTextFieldFileType.setText(vFileType.elementAt(intSelectedItemId).toString());
-            this.jComboBoxToolChain.setSelectedItem(vToolChain.elementAt(intSelectedItemId).toString());
-            this.jTextFieldOverrideID.setText(vOverrideID.elementAt(intSelectedItemId).toString());    
+            this.jComboBoxToolChain.setSelectedItem(vToolChainFamily.elementAt(intSelectedItemId).toString());
         } else {
             this.jTextFieldFileName.setText("");
             this.jTextFieldGuid.setText("");
             this.jTextFieldPath.setText("");
             this.jTextFieldFileType.setText("");
             this.jComboBoxToolChain.setSelectedItem(DataType.EMPTY_SELECT_ITEM);
-            this.jTextFieldOverrideID.setText("");
         }
         
         reloadFileListArea();
@@ -925,11 +843,6 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             Log.err("Incorrect data type for Path");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -973,59 +886,10 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
                     if (!isEmpty(vFileType.elementAt(index).toString())) {
                         filename.setFileType(vFileType.elementAt(index).toString());
                     }
-                    if (!vToolChain.elementAt(index).toString().equals(DataType.EMPTY_SELECT_ITEM)) {
-                        filename.setToolChain(ToolChains.Enum.forString(vToolChain.elementAt(index).toString()));
-                    }
-                    if (!isEmpty(vOverrideID.elementAt(index).toString())) {
-                        filename.setOverrideID(Integer.parseInt(vOverrideID.elementAt(index).toString()));
+                    if (!vToolChainFamily.elementAt(index).toString().equals(DataType.EMPTY_SELECT_ITEM)) {
+                        //filename.set(ToolChains.Enum.forString(vToolChainFamily.elementAt(index).toString()));
                     }
                     sourceFiles.addNewFilename();
-                    sourceFiles.setFilenameArray(sourceFiles.getFilenameList().size() - 1, filename);
-                }
-            }
-            //
-            //Save as Arch
-            //
-            if (this.jCheckBoxArch.isSelected()) {
-                SourceFilesDocument.SourceFiles.Arch arch = SourceFilesDocument.SourceFiles.Arch.Factory.newInstance();
-                if (this.operation == 2) {
-                    //
-                    //First remove all existed filename
-                    //
-                    for (int index = sourceFiles.getArchArray(location).getFilenameList().size() - 1; index >= 0; index--) {
-                        sourceFiles.getArchArray(location).removeFilename(index);
-                    }
-                }
-                for (int index = 0; index < vFileName.size(); index++) {
-                    FilenameDocument.Filename filename = FilenameDocument.Filename.Factory.newInstance();
-                    if (!isEmpty(vFileName.elementAt(index).toString())) {
-                        filename.setStringValue(vFileName.elementAt(index).toString());
-                    }
-                    if (!isEmpty(vGuid.elementAt(index).toString())) {
-                        filename.setGuid(vGuid.elementAt(index).toString());
-                    }
-                    if (!isEmpty(vPath.elementAt(index).toString())) {
-                        filename.setPath(vPath.elementAt(index).toString());
-                    }
-                    if (!isEmpty(vFileType.elementAt(index).toString())) {
-                        filename.setFileType(vFileType.elementAt(index).toString());
-                    }
-                    if (!vToolChain.elementAt(index).toString().equals(DataType.EMPTY_SELECT_ITEM)) {
-                        filename.setToolChain(ToolChains.Enum.forString(vToolChain.elementAt(index).toString()));
-                    }
-                    if (!isEmpty(vOverrideID.elementAt(index).toString())) {
-                        filename.setOverrideID(Integer.parseInt(vOverrideID.elementAt(index).toString()));
-                    }
-                    arch.addNewFilename();
-                    arch.setFilenameArray(arch.getFilenameList().size() - 1, filename);
-                }
-                arch
-                    .setArchType(SupportedArchitectures.Enum.forString(this.jComboBoxArch.getSelectedItem().toString()));
-                if (location > -1) {
-                    sourceFiles.setArchArray(location, arch);
-                } else {
-                    sourceFiles.addNewArch();
-                    sourceFiles.setArchArray(sourceFiles.getArchList().size() - 1, arch);
                 }
             }
         } catch (Exception e) {

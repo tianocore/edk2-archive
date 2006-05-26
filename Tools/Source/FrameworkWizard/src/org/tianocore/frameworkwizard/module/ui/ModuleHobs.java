@@ -23,7 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import org.tianocore.GuidDocument;
 import org.tianocore.HobTypes;
 import org.tianocore.HobUsage;
 import org.tianocore.HobsDocument;
@@ -87,10 +86,6 @@ public class ModuleHobs extends IInternalFrame {
     private JButton jButtonCancel = null;
 
     private JButton jButtonGenerateGuid = null;
-
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
 
     private StarLabel jStarLabel1 = null;
 
@@ -245,20 +240,6 @@ public class ModuleHobs extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 160, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -329,15 +310,14 @@ public class ModuleHobs extends IInternalFrame {
             if (this.hobs.getHobArray(index).getCName() != null) {
                 this.jTextFieldC_Name.setText(this.hobs.getHobArray(index).getCName());
             }
-            if (this.hobs.getHobArray(index).getGuid() != null) {
-                this.jTextFieldGuid.setText(this.hobs.getHobArray(index).getGuid().getStringValue());
+            if (this.hobs.getHobArray(index).getGuidValue() != null) {
+                this.jTextFieldGuid.setText(this.hobs.getHobArray(index).getGuidValue());
             }
             if (this.hobs.getHobArray(index).getUsage() != null) {
                 this.jComboBoxUsage.setSelectedItem(this.hobs.getHobArray(index).getUsage().toString());
             }
             this.jRadioButtonHobEnable.setSelected(this.hobs.getHobArray(index).getHobEnabled());
             this.jRadioButtonHobDisable.setSelected(!this.hobs.getHobArray(index).getHobEnabled());
-            this.jTextFieldOverrideID.setText(String.valueOf(this.hobs.getHobArray(index).getOverrideID()));
         }
     }
 
@@ -370,7 +350,6 @@ public class ModuleHobs extends IInternalFrame {
             this.jComboBoxHobType.setEnabled(!isView);
             this.jRadioButtonHobEnable.setEnabled(!isView);
             this.jRadioButtonHobDisable.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonCancel.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
             this.jButtonOk.setEnabled(!isView);
@@ -385,9 +364,6 @@ public class ModuleHobs extends IInternalFrame {
      **/
     public JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 160, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelHobEnabled = new JLabel();
             jLabelHobEnabled.setText("Hob Enabled");
             jLabelHobEnabled.setBounds(new java.awt.Rectangle(15, 135, 140, 20));
@@ -424,8 +400,6 @@ public class ModuleHobs extends IInternalFrame {
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
             jContentPane.add(getJButtonGenerateGuid(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
 
             jStarLabel1 = new StarLabel();
             jStarLabel1.setLocation(new java.awt.Point(0, 10));
@@ -545,11 +519,6 @@ public class ModuleHobs extends IInternalFrame {
             Log.err("Incorrect data type for Guid");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -573,16 +542,11 @@ public class ModuleHobs extends IInternalFrame {
                 hob.setCName(this.jTextFieldC_Name.getText());
             }
             if (!isEmpty(this.jTextFieldGuid.getText())) {
-                GuidDocument.Guid guid = GuidDocument.Guid.Factory.newInstance();
-                guid.setStringValue(this.jTextFieldGuid.getText());
-                hob.setGuid(guid);
+                hob.setGuidValue(this.jTextFieldGuid.getText());
             }
             hob.setUsage(HobUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
             hob.setHobType(HobTypes.Enum.forString(jComboBoxHobType.getSelectedItem().toString()));
             hob.setHobEnabled(this.jRadioButtonHobEnable.isSelected());
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                hob.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
             if (location > -1) {
                 hobs.setHobArray(location, hob);
             } else {

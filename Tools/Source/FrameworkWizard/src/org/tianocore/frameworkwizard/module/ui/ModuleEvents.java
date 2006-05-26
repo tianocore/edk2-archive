@@ -27,7 +27,6 @@ import javax.swing.JTextField;
 import org.tianocore.EventTypes;
 import org.tianocore.EventUsage;
 import org.tianocore.EventsDocument;
-import org.tianocore.GuidDocument;
 import org.tianocore.frameworkwizard.common.DataValidation;
 import org.tianocore.frameworkwizard.common.Log;
 import org.tianocore.frameworkwizard.common.Tools;
@@ -89,10 +88,6 @@ public class ModuleEvents extends IInternalFrame {
     private JButton jButtonCancel = null;
 
     private JButton jButtonGenerateGuid = null;
-
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
 
     private StarLabel jStarLabel1 = null;
 
@@ -236,20 +231,6 @@ public class ModuleEvents extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 135, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -319,9 +300,8 @@ public class ModuleEvents extends IInternalFrame {
             if (this.events.getCreateEvents().getEventArray(index).getCName() != null) {
                 this.jTextFieldC_Name.setText(this.events.getCreateEvents().getEventArray(index).getCName());
             }
-            if (this.events.getCreateEvents().getEventArray(index).getGuid() != null) {
-                this.jTextFieldGuid.setText(this.events.getCreateEvents().getEventArray(index).getGuid()
-                                                       .getStringValue());
+            if (this.events.getCreateEvents().getEventArray(index).getGuidValue() != null) {
+                this.jTextFieldGuid.setText(this.events.getCreateEvents().getEventArray(index).getGuidValue());
             }
             if (this.events.getCreateEvents().getEventArray(index).getEventGroup() != null) {
                 this.jComboBoxEventGroup.setSelectedItem(this.events.getCreateEvents().getEventArray(index)
@@ -331,8 +311,6 @@ public class ModuleEvents extends IInternalFrame {
                 this.jComboBoxUsage.setSelectedItem(this.events.getCreateEvents().getEventArray(index).getUsage()
                                                                .toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.events.getCreateEvents().getEventArray(index)
-                                                                        .getOverrideID()));
         } else if (type == IDefaultMutableTreeNode.EVENTS_SIGNALEVENTS_ITEM) {
             this.jRadioButtonEventCreate.setSelected(false);
             this.jRadioButtonEventSignal.setSelected(true);
@@ -340,8 +318,8 @@ public class ModuleEvents extends IInternalFrame {
             if (this.events.getSignalEvents().getEventArray(index).getCName() != null) {
                 this.jTextFieldC_Name.setText(this.events.getSignalEvents().getEventArray(index).getCName());
             }
-            if (this.events.getSignalEvents().getEventArray(index).getGuid() != null) {
-                this.jTextFieldGuid.setText(this.events.getSignalEvents().getEventArray(index).getGuid().toString());
+            if (this.events.getSignalEvents().getEventArray(index).getGuidValue() != null) {
+                this.jTextFieldGuid.setText(this.events.getSignalEvents().getEventArray(index).getGuidValue());
             }
             if (this.events.getSignalEvents().getEventArray(index).getEventGroup() != null) {
                 this.jComboBoxEventGroup.setSelectedItem(this.events.getSignalEvents().getEventArray(index)
@@ -351,8 +329,6 @@ public class ModuleEvents extends IInternalFrame {
                 this.jComboBoxUsage.setSelectedItem(this.events.getSignalEvents().getEventArray(index).getUsage()
                                                                .toString());
             }
-            this.jTextFieldOverrideID.setText(String.valueOf(this.events.getSignalEvents().getEventArray(index)
-                                                                        .getOverrideID()));
         }
         this.jRadioButtonEventCreate.setEnabled(false);
         this.jRadioButtonEventSignal.setEnabled(false);
@@ -386,7 +362,6 @@ public class ModuleEvents extends IInternalFrame {
             this.jTextFieldGuid.setEnabled(!isView);
             this.jComboBoxEventGroup.setEnabled(!isView);
             this.jComboBoxUsage.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonCancel.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
             this.jButtonOk.setEnabled(!isView);
@@ -401,9 +376,6 @@ public class ModuleEvents extends IInternalFrame {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 135, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelUsage = new JLabel();
             jLabelUsage.setText("Usage");
             jLabelUsage.setBounds(new java.awt.Rectangle(15, 110, 140, 20));
@@ -435,8 +407,6 @@ public class ModuleEvents extends IInternalFrame {
             jContentPane.add(getJButton(), null);
             jContentPane.add(getJButtonCancel(), null);
             jContentPane.add(getJButtonGenerateGuid(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
 
             jStarLabel1 = new StarLabel();
             jStarLabel1.setBounds(new java.awt.Rectangle(0, 10, 10, 20));
@@ -541,11 +511,6 @@ public class ModuleEvents extends IInternalFrame {
             Log.err("Incorrect data type for Guid");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -580,15 +545,10 @@ public class ModuleEvents extends IInternalFrame {
                                                                                                                  .newInstance();
                 event.setCName(this.jTextFieldC_Name.getText());
                 if (!isEmpty(this.jTextFieldGuid.getText())) {
-                    GuidDocument.Guid guid = GuidDocument.Guid.Factory.newInstance();
-                    guid.setStringValue(this.jTextFieldGuid.getText());
-                    event.setGuid(guid);
+                    event.setGuidValue(this.jTextFieldGuid.getText());
                 }
                 event.setEventGroup(EventTypes.Enum.forString(jComboBoxEventGroup.getSelectedItem().toString()));
                 event.setUsage(EventUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-                if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                    event.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-                }
                 if (location > -1) {
                     createEvent.setEventArray(location, event);
                 } else {
@@ -602,15 +562,10 @@ public class ModuleEvents extends IInternalFrame {
                                                                                                                  .newInstance();
                 event.setCName(this.jTextFieldC_Name.getText());
                 if (!isEmpty(this.jTextFieldGuid.getText())) {
-                    GuidDocument.Guid guid = GuidDocument.Guid.Factory.newInstance();
-                    guid.setStringValue(this.jTextFieldGuid.getText());
-                    event.setGuid(guid);
+                    event.setGuidValue(this.jTextFieldGuid.getText());
                 }
                 event.setEventGroup(EventTypes.Enum.forString(jComboBoxEventGroup.getSelectedItem().toString()));
                 event.setUsage(EventUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
-                if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                    event.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-                }
                 if (location > -1) {
                     signalEvent.setEventArray(location, event);
                 } else {

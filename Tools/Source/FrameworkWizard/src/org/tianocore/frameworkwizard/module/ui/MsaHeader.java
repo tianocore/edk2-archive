@@ -26,10 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import org.tianocore.AbstractDocument;
-import org.tianocore.BaseNameDocument;
 import org.tianocore.FrameworkComponentTypes;
-import org.tianocore.GuidDocument;
 import org.tianocore.LicenseDocument;
 import org.tianocore.ModuleTypeDef;
 import org.tianocore.MsaHeaderDocument;
@@ -127,10 +124,6 @@ public class MsaHeader extends IInternalFrame {
     private StarLabel jStarLabel9 = null;
 
     private MsaHeaderDocument.MsaHeader msaHeader = null;
-
-    private JLabel jLabelURL = null;
-
-    private JTextField jTextFieldAbstractURL = null;
 
     private JTextField jTextFieldCopyright = null;
 
@@ -352,21 +345,6 @@ public class MsaHeader extends IInternalFrame {
     }
 
     /**
-     This method initializes jTextFieldAbstractURL 
-     
-     @return javax.swing.JTextField jTextFieldAbstractURL
-     
-     **/
-    private JTextField getJTextFieldAbstractURL() {
-        if (jTextFieldAbstractURL == null) {
-            jTextFieldAbstractURL = new JTextField();
-            jTextFieldAbstractURL.setBounds(new java.awt.Rectangle(160, 330, 320, 20));
-            jTextFieldAbstractURL.setPreferredSize(new java.awt.Dimension(320,20));
-        }
-        return jTextFieldAbstractURL;
-    }
-
-    /**
       This method initializes jTextFieldCopyright	
       	
       @return javax.swing.JTextField jTextFieldCopyright
@@ -426,7 +404,6 @@ public class MsaHeader extends IInternalFrame {
             this.jTextAreaDescription.setEnabled(!isView);
             this.jTextFieldSpecification.setEnabled(!isView);            
             this.jTextFieldAbstract.setEnabled(!isView);
-            this.jTextFieldAbstractURL.setEnabled(!isView);
             this.jComboBoxModuleType.setEnabled(!isView);
             this.jComboBoxCompontentType.setEnabled(!isView);
             this.jButtonCancel.setEnabled(!isView);
@@ -458,10 +435,10 @@ public class MsaHeader extends IInternalFrame {
         if (inMsaHeader != null) {
             setMsaHeader(inMsaHeader);
             if (this.msaHeader.getBaseName() != null) {
-                this.jTextFieldBaseName.setText(this.msaHeader.getBaseName().getStringValue());
+                this.jTextFieldBaseName.setText(this.msaHeader.getBaseName());
             }
-            if (this.msaHeader.getGuid() != null) {
-                this.jTextFieldGuid.setText(this.msaHeader.getGuid().getStringValue());
+            if (this.msaHeader.getGuidValue() != null) {
+                this.jTextFieldGuid.setText(this.msaHeader.getGuidValue());
             }
             if (this.msaHeader.getVersion() != null) {
                 this.jTextFieldVersion.setText(this.msaHeader.getVersion());
@@ -479,8 +456,7 @@ public class MsaHeader extends IInternalFrame {
                 this.jTextFieldSpecification.setText(this.msaHeader.getSpecification().getStringValue());
             }
             if (this.msaHeader.getAbstract() != null) {
-                this.jTextFieldAbstract.setText(this.msaHeader.getAbstract().getStringValue());
-                this.jTextFieldAbstractURL.setText(this.msaHeader.getAbstract().getURL());
+                this.jTextFieldAbstract.setText(this.msaHeader.getAbstract());
             }
             if (this.msaHeader.getModuleType() != null) {
                 this.jComboBoxModuleType.setSelectedItem(this.msaHeader.getModuleType().toString());
@@ -503,9 +479,6 @@ public class MsaHeader extends IInternalFrame {
             jContentPane.setLayout(null);
             jContentPane.setLocation(new java.awt.Point(0, 0));
             jContentPane.setSize(new java.awt.Dimension(500, 524));
-            jLabelURL = new JLabel();
-            jLabelURL.setBounds(new java.awt.Rectangle(15,330,140,20));
-            jLabelURL.setText("URL");
             jLabelCompontentType = new JLabel();
             jLabelCompontentType.setBounds(new java.awt.Rectangle(15, 380, 140, 20));
             jLabelCompontentType.setText("Compontent Type");
@@ -588,8 +561,6 @@ public class MsaHeader extends IInternalFrame {
             jContentPane.add(jStarLabel7, null);
             jContentPane.add(jStarLabel8, null);
             jContentPane.add(jStarLabel9, null);
-            jContentPane.add(jLabelURL, null);
-            jContentPane.add(getJTextFieldAbstractURL(), null);
             jContentPane.add(getJTextFieldCopyright(), null);
 
         }
@@ -688,20 +659,11 @@ public class MsaHeader extends IInternalFrame {
             if (this.msaHeader == null) {
                 msaHeader = MsaHeaderDocument.MsaHeader.Factory.newInstance();
             }
-            if (this.msaHeader.getBaseName() != null) {
-                this.msaHeader.getBaseName().setStringValue(this.jTextFieldBaseName.getText());
-            } else {
-                BaseNameDocument.BaseName mBaseName = BaseNameDocument.BaseName.Factory.newInstance();
-                mBaseName.setStringValue(this.jTextFieldBaseName.getText());
-                this.msaHeader.setBaseName(mBaseName);
+            if (!isEmpty(this.jTextFieldBaseName.getText())) {
+                this.msaHeader.setBaseName(this.jTextFieldBaseName.getText());
             }
-
-            if (this.msaHeader.getGuid() != null) {
-                this.msaHeader.getGuid().setStringValue(this.jTextFieldGuid.getText());
-            } else {
-                GuidDocument.Guid mGuid = GuidDocument.Guid.Factory.newInstance();
-                mGuid.setStringValue(this.jTextFieldGuid.getText());
-                this.msaHeader.setGuid(mGuid);
+            if (!isEmpty(this.jTextFieldGuid.getText())) {
+            	this.msaHeader.setGuidValue(this.jTextFieldGuid.getText());
             }
 
             this.msaHeader.setVersion(this.jTextFieldVersion.getText());
@@ -727,13 +689,7 @@ public class MsaHeader extends IInternalFrame {
             }
 
             if (this.msaHeader.getAbstract() != null) {
-                this.msaHeader.getAbstract().setStringValue(this.jTextFieldAbstract.getText());
-                this.msaHeader.getAbstract().setURL(this.jTextFieldAbstractURL.getText());
-            } else {
-                AbstractDocument.Abstract mAbstract = AbstractDocument.Abstract.Factory.newInstance();
-                mAbstract.setStringValue(this.jTextFieldAbstract.getText());
-                mAbstract.setURL(this.jTextFieldAbstractURL.getText());
-                this.msaHeader.setAbstract(mAbstract);
+                this.msaHeader.setAbstract(this.jTextFieldAbstract.getText());
             }
             this.msaHeader.setModuleType(ModuleTypeDef.Enum.forString(this.jComboBoxModuleType.getSelectedItem()
                                                                                               .toString()));
@@ -742,12 +698,9 @@ public class MsaHeader extends IInternalFrame {
                                                                         .forString(this.jComboBoxCompontentType
                                                                                                                .getSelectedItem()
                                                                                                                .toString()));
-            if (this.msaHeader.getCreated() == null) {
-                this.msaHeader.setCreated(Tools.getCurrentDateTime());
-            } else {
-                this.msaHeader.setUpdated(Tools.getCurrentDateTime());
+            if (this.msaHeader.getCreatedDate() == null) {
+                this.msaHeader.setCreatedDate(Tools.getCurrentDateTime());
             }
-
         } catch (Exception e) {
             Log.err("Save Module", e.getMessage());
         }
@@ -822,7 +775,6 @@ public class MsaHeader extends IInternalFrame {
 		resizeComponentWidth(this.jScrollPaneDescription, this.getWidth());
 		resizeComponentWidth(this.jTextFieldSpecification, this.getWidth());
 		resizeComponentWidth(this.jTextFieldAbstract, this.getWidth());
-		resizeComponentWidth(this.jTextFieldAbstractURL, this.getWidth());
 		resizeComponentWidth(this.jComboBoxModuleType, this.getWidth());
 		resizeComponentWidth(this.jComboBoxCompontentType, this.getWidth());
 		relocateComponentX(this.jButtonGenerateGuid, this.getWidth(), DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);

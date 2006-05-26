@@ -97,10 +97,6 @@ public class ModuleGuids extends IInternalFrame {
 
     private JButton jButtonGenerateGuid = null;
 
-    private JLabel jLabelOverrideID = null;
-
-    private JTextField jTextFieldOverrideID = null;
-
     /**
      This method initializes jTextFieldC_Name 
      
@@ -280,20 +276,6 @@ public class ModuleGuids extends IInternalFrame {
         return jButtonGenerateGuid;
     }
 
-    /**
-     This method initializes jTextFieldOverrideID 
-     
-     @return javax.swing.JTextField jTextFieldOverrideID
-     
-     **/
-    private JTextField getJTextFieldOverrideID() {
-        if (jTextFieldOverrideID == null) {
-            jTextFieldOverrideID = new JTextField();
-            jTextFieldOverrideID.setBounds(new java.awt.Rectangle(160, 210, 50, 20));
-        }
-        return jTextFieldOverrideID;
-    }
-
     public static void main(String[] args) {
 
     }
@@ -389,7 +371,6 @@ public class ModuleGuids extends IInternalFrame {
             }
             this.jRadioButtonEnableFeature.setSelected(this.guids.getGuidEntryArray(index).getEnableFeature());
             this.jRadioButtonDisableFeature.setSelected(!this.guids.getGuidEntryArray(index).getEnableFeature());
-            this.jTextFieldOverrideID.setText(String.valueOf(this.guids.getGuidEntryArray(index).getOverrideID()));
         }
     }
 
@@ -424,7 +405,6 @@ public class ModuleGuids extends IInternalFrame {
             this.jComboBoxUsage.setEnabled(!isView);
             this.jRadioButtonEnableFeature.setEnabled(!isView);
             this.jRadioButtonDisableFeature.setEnabled(!isView);
-            this.jTextFieldOverrideID.setEnabled(!isView);
             this.jButtonCancel.setEnabled(!isView);
             this.jButtonGenerateGuid.setEnabled(!isView);
             this.jButtonOk.setEnabled(!isView);
@@ -439,9 +419,6 @@ public class ModuleGuids extends IInternalFrame {
      **/
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            jLabelOverrideID = new JLabel();
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(15, 210, 140, 20));
-            jLabelOverrideID.setText("Override ID");
             jLabelUsage = new JLabel();
             jLabelUsage.setText("Usage");
             jLabelUsage.setBounds(new java.awt.Rectangle(15, 185, 140, 20));
@@ -488,8 +465,6 @@ public class ModuleGuids extends IInternalFrame {
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
             jContentPane.add(getJButtonGenerateGuid(), null);
-            jContentPane.add(jLabelOverrideID, null);
-            jContentPane.add(getJTextFieldOverrideID(), null);
 
             StarLabel jStarLabel1 = new StarLabel();
             jStarLabel1.setLocation(new java.awt.Point(0, 10));
@@ -604,11 +579,6 @@ public class ModuleGuids extends IInternalFrame {
             Log.err("Incorrect data type for Guid Value");
             return false;
         }
-        if (!isEmpty(this.jTextFieldOverrideID.getText())
-            && !DataValidation.isOverrideID(this.jTextFieldOverrideID.getText())) {
-            Log.err("Incorrect data type for Override ID");
-            return false;
-        }
 
         return true;
     }
@@ -658,9 +628,6 @@ public class ModuleGuids extends IInternalFrame {
             }
             guid.setUsage(GuidUsage.Enum.forString(jComboBoxUsage.getSelectedItem().toString()));
             guid.setEnableFeature(this.jRadioButtonEnableFeature.isSelected());
-            if (!isEmpty(this.jTextFieldOverrideID.getText())) {
-                guid.setOverrideID(Integer.parseInt(this.jTextFieldOverrideID.getText()));
-            }
 
             if (location > -1) {
                 guids.setGuidEntryArray(location, guid);
