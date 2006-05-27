@@ -654,6 +654,28 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element name="PackageDependencies">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">What Packages does this Module Depend on.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence minOccurs="1">
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="PackageName">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="ArbitraryName">
+                                <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
+                                <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
+                                <xs:attribute name="ModuleName" type="ArbitraryName" use="optional"/>
+                                <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
+                                <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="PackageHeaders">
         <xs:annotation>
             <xs:documentation xml:lang="en">This defines the minimum header file needed to support a given ModuleType.</xs:documentation>
