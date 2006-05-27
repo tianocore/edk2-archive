@@ -384,7 +384,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="C_Name"/>
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="KeywordString"/>
                         </xs:sequence>
                         <xs:attribute name="Name" type="xs:normalizedString" use="required"/>
                     </xs:complexType>
@@ -401,9 +401,9 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence minOccurs="0" maxOccurs="1">
-                            <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="Keyword"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="C_Name"/>
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="KeywordString"/>
                             <xs:element minOccurs="0" maxOccurs="unbounded" ref="ConditionalExpression"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="DefaultValue"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
@@ -474,6 +474,11 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="InstalledDate" type="DateType"/>
+    <xs:element name="Keyword" type="KeywordString">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">C_Name is valid for all Description Files</xs:documentation>
+        </xs:annotation>
+    </xs:element>
     <xs:element name="Libraries">
         <xs:annotation>
             <xs:documentation xml:lang="en">Different Instances of Libraries</xs:documentation>
@@ -594,7 +599,7 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence minOccurs="0" maxOccurs="1">
-                            <xs:element minOccurs="0" ref="Filename"/>
+                            <xs:element minOccurs="0" name="Filename" type="xs:anyURI"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="MsaAttributes"/>
                     </xs:complexType>
@@ -840,7 +845,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="C_Name"/>
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="KeywordString"/>
                         </xs:sequence>
                         <xs:attribute name="Name" type="xs:normalizedString" use="required"/>
                     </xs:complexType>
@@ -857,7 +862,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Ppi">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="KeywordString">
                                 <xs:attributeGroup ref="PpiAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -866,7 +871,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="PpiNotify">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="KeywordString">
                                 <xs:attributeGroup ref="PpiNotifyAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -883,7 +888,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="C_Name"/>
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="FeatureFlag" type="KeywordString"/>
                         </xs:sequence>
                         <xs:attribute name="Name" type="xs:normalizedString" use="required"/>
                     </xs:complexType>
@@ -900,10 +905,10 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Protocol">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="KeywordString">
                                 <xs:attribute name="Guid" type="GuidType" use="optional"/>
                                 <xs:attribute name="Usage" type="ProtocolUsage" use="required"/>
-                                <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+                                <xs:attribute name="FeatureFlag" type="KeywordString" use="optional"/>
                                 <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -912,10 +917,10 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="ProtocolNotify">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="KeywordString">
                                 <xs:attribute name="Guid" type="GuidType" use="optional"/>
                                 <xs:attribute name="Usage" type="ProtocolNotifyUsage" use="required"/>
-                                <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+                                <xs:attribute name="FeatureFlag" type="KeywordString" use="optional"/>
                                 <xs:attribute name="ArchType" type="SupportedArchitectures"/>
                             </xs:extension>
                         </xs:simpleContent>

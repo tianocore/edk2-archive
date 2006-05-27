@@ -27,7 +27,7 @@
         <xs:attribute name="Usage" type="BootModeUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ConvertAttributeString">
-        <xs:attribute name="SourceString" type="xs:string" use="optional"/>
+        <xs:attribute name="SourceString" type="xs:normalizedString" use="optional"/>
         <xs:attribute default="Unicode" name="OutputFiletype" type="xs:string" use="optional"/>
         <xs:attribute name="OutputFilename" type="FileNameConvention" use="optional"/>
     </xs:attributeGroup>
@@ -73,7 +73,7 @@
     <xs:attributeGroup name="IncludeAttributes">
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Path" type="DirectoryNamingConvention" use="optional"/>
-        <xs:attribute name="Class" type="xs:normalizedString" use="optional"/>
+        <xs:attribute name="Class" type="BaseNameConvention" use="optional"/>
         <xs:attribute name="Version" type="VersionDataType" use="optional"/>
         <xs:attribute name="ModuleType" type="ModuleTypeDef" use="optional"/>
     </xs:attributeGroup>
@@ -83,7 +83,7 @@
         <xs:attribute name="ClassGuid" type="GuidType" use="optional"/>
         <xs:attribute name="Version" type="VersionDataType" use="optional"/>
         <xs:attribute name="Usage" type="LibraryUsage" use="optional"/>
-        <xs:attribute name="Package" type="xs:string" use="optional"/>
+        <xs:attribute name="PackageName" type="ArbitraryName" use="optional"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
@@ -93,9 +93,9 @@
         <xs:attribute name="Version" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ModuleSaAttributes">
-        <xs:attribute name="PackageName" type="C_Name" use="required"/>
+        <xs:attribute name="PackageName" type="ArbitraryName" use="required"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
-        <xs:attribute name="ModuleName" type="C_Name" use="required"/>
+        <xs:attribute name="ModuleName" type="ArbitraryName" use="required"/>
         <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
@@ -105,13 +105,10 @@
         <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="MsaAttributes">
-        <xs:attribute name="ModuleName" type="C_Name" use="required"/>
+        <xs:attribute name="ModuleName" type="ArbitraryName" use="required"/>
         <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="Binary" type="xs:boolean" default="false" use="optional"/>
-        <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
-        <xs:attribute name="FvBinding" type="xs:string" use="optional"/>
-        <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="OptionAttributes">
         <xs:attribute name="ToolChainFamily" type="ToolChains" use="optional"/>
@@ -120,14 +117,14 @@
         <xs:attribute name="Command" type="CommandCode" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageAttributes">
-        <xs:attribute name="PackageName" type="BaseNameConvention" use="required"/>
+        <xs:attribute name="PackageName" type="ArbitraryName" use="required"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="required"/>
         <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
         <xs:attribute name="Type" type="PackageType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageDbAttributes">
-        <xs:attribute name="PackageName" type="BaseNameConvention" use="required"/>
+        <xs:attribute name="PackageName" type="ArbitraryName" use="required"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="required"/>
         <xs:attribute name="Type" type="PackageType" use="optional"/>
@@ -142,7 +139,7 @@
         <xs:attribute name="PcdIsDriver" type="PcdIsDriver" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PlatformAttributes">
-        <xs:attribute name="PlatformName" type="BaseNameConvention" use="required"/>
+        <xs:attribute name="PlatformName" type="ArbitraryName" use="required"/>
         <xs:attribute name="PlatformGuid" type="GuidType" use="required"/>
         <xs:attribute name="PlatformVersion" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
@@ -150,21 +147,21 @@
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Usage" type="PpiUsage" use="optional"/>
         <xs:attribute default="true" name="EnableFeature" type="xs:boolean" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="KeywordString" use="optional"/>
         <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiNotifyAttributes">
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Usage" type="PpiNotifyUsage" use="optional"/>
         <xs:attribute default="true" name="EnableFeature" type="xs:boolean" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="KeywordString" use="optional"/>
         <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolAttributes">
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Usage" type="ProtocolUsage" use="optional"/>
         <xs:attribute default="true" name="EnableFeature" type="xs:boolean" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="C_Name" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="KeywordString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolNotifyAttributes">
         <xs:attribute name="Guid" type="GuidType" use="optional"/>

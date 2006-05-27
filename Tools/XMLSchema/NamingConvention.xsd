@@ -15,6 +15,14 @@
     <xs:annotation>
         <xs:documentation xml:lang="en"> This schema defines various data types and naming conventions including: base name, filename and directory naming conventions. These are all simple data types.</xs:documentation>
     </xs:annotation>
+    <xs:simpleType name="ArbitraryName">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> An Arbitrary Name must start with one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="BaseNameConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en"> Base Names must start with an upper case character, followed by one or more alphanumeric characters and/or an optional underscore (_) character followed by one or more alphanumeric characters. Examples: Base_name3, BASE_NAME3, BaseName3 </xs:documentation>
@@ -142,6 +150,14 @@
         </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:pattern value="0x[a-fA-F0-9]{1,4}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="KeywordString">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Keywords must start with zero or more underscore (_) characters or alpha characters followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="LibraryNameConvention">
