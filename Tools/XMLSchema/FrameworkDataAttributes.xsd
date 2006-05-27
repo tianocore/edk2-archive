@@ -136,7 +136,6 @@
         </xs:annotation>
         <xs:attribute name="ItemType" type="PcdItemTypes" use="required"/>
         <xs:attribute name="PcdUsage" type="PcdUsage" use="optional"/>
-        <xs:attribute name="PcdIsDriver" type="PcdIsDriver" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PlatformAttributes">
         <xs:attribute name="PlatformName" type="ArbitraryName" use="required"/>

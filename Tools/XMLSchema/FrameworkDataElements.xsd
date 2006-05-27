@@ -648,7 +648,9 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="xs:normalizedString"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
-                        <xs:attributeGroup ref="PcdAttributes"/>
+                        <xs:attribute name="ItemType" type="PcdItemTypes" use="required"/>
+                        <xs:attribute name="PcdUsage" type="PcdUsage" use="optional"/>
+                        <xs:attribute name="PcdIsDriver" type="PcdIsDriver" use="optional"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
