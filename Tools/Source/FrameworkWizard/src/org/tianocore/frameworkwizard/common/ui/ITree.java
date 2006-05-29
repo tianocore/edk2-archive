@@ -56,6 +56,7 @@ public class ITree extends JTree {
      **/
     public ITree(IDefaultMutableTreeNode iDmtRoot) {
         super(iDmtRoot);
+        treeModel = (DefaultTreeModel)this.getModel();
     }
 
     /**
@@ -200,5 +201,14 @@ public class ITree extends JTree {
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
         rootNode.removeAllChildren();
         treeModel.reload();
+    }
+    
+    public IDefaultMutableTreeNode getSelectNode() {
+        TreePath treepath = this.getSelectionPath();
+        IDefaultMutableTreeNode selectionNode = null;
+        if (treepath != null) {
+            selectionNode = (IDefaultMutableTreeNode) treepath.getLastPathComponent();
+        }
+        return selectionNode;
     }
 }

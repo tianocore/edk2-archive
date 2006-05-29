@@ -767,16 +767,17 @@ public class MsaHeader extends IInternalFrame {
 	 * Override componentResized to resize all components when frame's size is changed
 	 */
 	public void componentResized(ComponentEvent arg0) {
-		resizeComponentWidth(this.jTextFieldBaseName, this.getWidth());
-		resizeComponentWidth(this.jTextFieldGuid, this.getWidth());
-		resizeComponentWidth(this.jTextFieldVersion, this.getWidth());
-		resizeComponentWidth(this.jScrollPaneLicense, this.getWidth());
-		resizeComponentWidth(this.jTextFieldCopyright, this.getWidth());
-		resizeComponentWidth(this.jScrollPaneDescription, this.getWidth());
-		resizeComponentWidth(this.jTextFieldSpecification, this.getWidth());
-		resizeComponentWidth(this.jTextFieldAbstract, this.getWidth());
-		resizeComponentWidth(this.jComboBoxModuleType, this.getWidth());
-		resizeComponentWidth(this.jComboBoxCompontentType, this.getWidth());
-		relocateComponentX(this.jButtonGenerateGuid, this.getWidth(), DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);
+        int intTempWidth = this.getWidth();
+		resizeComponentWidth(this.jTextFieldBaseName, intTempWidth);
+		resizeComponentWidth(this.jTextFieldGuid, intTempWidth);
+		resizeComponentWidth(this.jTextFieldVersion, intTempWidth);
+		resizeComponentWidth(this.jScrollPaneLicense, intTempWidth);
+		resizeComponentWidth(this.jTextFieldCopyright, intTempWidth);
+		resizeComponentWidth(this.jScrollPaneDescription, intTempWidth);
+		resizeComponentWidth(this.jTextFieldSpecification, intTempWidth);
+		resizeComponentWidth(this.jTextFieldAbstract, intTempWidth);
+		resizeComponentWidth(this.jComboBoxModuleType, intTempWidth);
+		resizeComponentWidth(this.jComboBoxCompontentType, intTempWidth);
+		relocateComponentX(this.jButtonGenerateGuid, intTempWidth, DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);
 	}
 }

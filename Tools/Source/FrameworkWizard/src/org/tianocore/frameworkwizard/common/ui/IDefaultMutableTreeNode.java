@@ -18,6 +18,8 @@ package org.tianocore.frameworkwizard.common.ui;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.tianocore.frameworkwizard.common.Identification;
+
 /**
  The class is used to override DefaultMutableTreeNode to provides customized interfaces
  It extends DefaultMutableTreeNode
@@ -142,6 +144,12 @@ public class IDefaultMutableTreeNode extends DefaultMutableTreeNode {
 
     public static final int LIBRARIES_ARCH_ITEM = 2321;
 
+    public static final int MODULE = 10000;
+
+    public static final int PACKAGE = 20000;
+
+    public static final int PLATFORM = 30000;
+
     //
     //Static final definitions for operation
     //
@@ -172,6 +180,10 @@ public class IDefaultMutableTreeNode extends DefaultMutableTreeNode {
 
     private String nodeName = "";
 
+    private boolean isOpening = false;
+
+    private Identification id = null;
+
     /**
      Main class, reserved for test
      
@@ -189,6 +201,25 @@ public class IDefaultMutableTreeNode extends DefaultMutableTreeNode {
      **/
     public IDefaultMutableTreeNode() {
         super();
+    }
+
+    /**
+     This is the overrided constructor
+     Init clase members with input data
+     
+     @param strNodeName The name of node
+     @param intCategory The category of node
+     @param bolIsOpened to identify if the node is opening or not
+     @param identification The Identification of node
+     
+     **/
+    public IDefaultMutableTreeNode(String strNodeName, int intCategory, boolean bolIsOpening,
+                                   Identification identification) {
+        super(strNodeName);
+        this.nodeName = strNodeName;
+        this.category = intCategory;
+        this.isOpening = bolIsOpening;
+        this.id = identification;
     }
 
     /**
@@ -303,5 +334,45 @@ public class IDefaultMutableTreeNode extends DefaultMutableTreeNode {
      **/
     public void setLocation(int location) {
         this.location = location;
+    }
+
+    /**
+     Get identification of node
+     
+     @return
+     
+     **/
+    public Identification getId() {
+        return id;
+    }
+
+    /**
+     Set identification of node
+     
+     @param id
+     
+     **/
+    public void setId(Identification id) {
+        this.id = id;
+    }
+
+    /**
+     get isOpening of node
+     
+     @return
+     
+     **/
+    public boolean isOpening() {
+        return isOpening;
+    }
+
+    /**
+     Set isOpening of node
+     
+     @param isOpening
+     
+     **/
+    public void setOpening(boolean isOpening) {
+        this.isOpening = isOpening;
     }
 }
