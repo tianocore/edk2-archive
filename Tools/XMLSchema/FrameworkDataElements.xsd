@@ -485,7 +485,15 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="unbounded" name="Library" type="BaseNameConvention"/>
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="Library">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                        <xs:extension base="BaseNameConvention">
+                            <xs:attributeGroup ref="ModuleSaAttributes"/>
+                        </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>                
+                </xs:element> 
             </xs:sequence>
         </xs:complexType>
     </xs:element>
