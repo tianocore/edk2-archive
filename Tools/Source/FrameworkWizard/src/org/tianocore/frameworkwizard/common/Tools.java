@@ -28,6 +28,10 @@ import java.util.UUID;
  **/
 public class Tools {
 
+    //
+    // The dir user selected to create new package in
+    //
+    public static String dirForNewSpd = null;
     /**
      Used for test
      
