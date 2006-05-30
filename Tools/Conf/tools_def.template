@@ -1,0 +1,104 @@
+IDENTIFIER = DEFAULT
+#
+# Filename: tools_def.txt
+#
+# This file is used to specify what tool chains are to be used for
+# compiling Framework Images
+
+# THIS FILE IS GENERATED DURING INITIAL INSTALLATION
+#
+# It is strongly suggested to use the FrameworkWizard tool to modify 
+# this file, however the user can modify the path setting manually.
+# Comment out any Architectural sections that do not apply (if the
+# user does not have a EBC compiler, the EBC section should be
+# commented out) by inserting a # character at the start of the line
+
+# The following are TagNames are pre-defined 
+# MSFT, INTC and GCC
+
+# The following Architectures are pre-defined
+# IA32, X64, IFP and EBC
+
+# The foolowing Tool Codes are used by Framework Tools:
+#  CC      = Compiler
+#  DLINK   = Dynamic Linker
+#  SLINK   = Static Linker
+#  PP      = Pre-Processor
+#  ASM     = Assembler
+#  ASMLINK = Assembly Linker
+#  
+# NOTE: Format for specifying tools is:
+#   AnyTagName_ARCH_TOOLCODE
+
+# When generating a User defined AnyTagName, the name of the AnyTagName
+# must be used for the name  of the file, AnyTagName.txt
+# Additionally, the User is should create a file, AnyTagName_tools.txt
+# specifying the options that will be used for the tools using the following
+# Format:
+#  ARCH_TOOLCODE = a single line of flags (upto 255 characters in length.)
+# The user may also need to add to or modify settings in the BuildOptions
+# sections of the Framework Platform Description (.fpd) files.
+ 
+#Host definitions
+HOST_ARCH       = IA32
+INTC_HOST_CC    = C:\Program Files\Intel\Compiler\c++\9.0\IA32\Bin\icl.exe
+INTC_HOST_DLINK = C:\Program Files\Intel\Compiler\c++\9.0\IA32\Bin\link.exe
+INTC_HOST_SLINK = C:\Program Files\Intel\Compiler\c++\9.0\IA32\Bin\lib.exe
+# NOTE: The Microsoft and Intel ACPI Assemblers are 32-bit programs that will
+# generate code for any architecture.  These programs will run on X64 and IPF
+# platforms provided the OPERATING SYSTEM supports 32bit execution. (Most do
+# although at a reduced performance rate.)
+INTC_HOST_ASL   = C:\TianoTools\Bin\iasl.exe
+
+#
+# IA32
+MSFT_IA32_FAMILY   = MSFT
+MSFT_IA32_ASM_EXT  = .asm
+MSFT_IA32_CC       = C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\cl.exe
+MSFT_IA32_DLINK    = C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\link.exe
+MSFT_IA32_SLINK    = C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\lib.exe
+MSFT_IA32_PP       = C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\cl.exe
+# Note: The standard Microsoft IA32 Compiler require a DLL that DLL that is outside of
+# the path of the cl.exe binary.  The DDK compilers have the DLL in the same path as
+# the compiler executable, and therefore, do not need the following setting.
+MSFT_IA32_DLL_PATH = C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\IDE
+MSFT_IA32_ASM      = C:\MASM611\BIN\ml.exe
+MSFT_IA32_ASMLINK  = C:\MASM611\BINR\link.exe
+INTC_IA32_FAMILY   = INTC
+INTC_IA32_ASM_EXT  = .asm
+INTC_IA32_CC       = C:\Program Files\Intel\Compiler\c++\9.0\IA32\Bin\icl.exe
+INTC_IA32_DLINK    = C:\Program Files\Intel\Compiler\c++\9.0\IA32\Bin\link.exe
+INTC_IA32_SLINK    = C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\lib.exe
+INTC_IA32_PP       = C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\icl.exe
+INTC_IA32_ASM      = C:\MASM611\BIN\ml.exe
+INTC_IA32_ASMLINK  = C:\MASM611\BINR\link.exe
+GCC_IA32_FAMILY    = GCC
+GCC_IA32_ASM_EXT   = .s
+GCC_IA32_CC        = /opt/tiano/i386-tiano-pe/bin/i386-tiano-pe-gcc
+GCC_IA32_PP        = /opt/tiano/i386-tiano-pe/bin/i386-tiano-pe-cpp
+GCC_IA32_SLINK     = /opt/tiano/i386-tiano-pe/bin/i386-tiano-pe-ar
+GCC_IA32_DLINK     = /opt/tiano/i386-tiano-pe/bin/i386-tiano-pe-ld
+GCC_IA32_ASM       = /opt/tiano/i386-tiano-pe/bin/i386-tiano-pe-as
+
+#define for x64
+MSFT_X64_FAMILY    = MSFT
+MSFT_X64_CC        = C:\WINDDK\3790.1830\bin\win64\x86\amd64\ml64.exe
+MSFT_X64_DLINK     = C:\WINDDK\3790.1830\bin\win64\x86\amd64\link.exe
+MSFT_X64_SLINK     = C:\WINDDK\3790.1830\bin\win64\x86\amd64\lib.exe
+MSFT_X64_ASM       = C:\WINDDK\3790.1830\bin\win64\x86\amd64\ml64.exe
+
+#define for IPF
+MSFT_IPF_FAMILY     = MSFT
+MSFT_IPF_CC        = C:\WINDDK\3790.1830\bin\win64\cl.exe
+MSFT_IPF_DLINK     = C:\WINDDK\3790.1830\bin\win64\link.exe
+MSFT_IPF_SLINK     = C:\WINDDK\3790.1830\bin\win64\lib.exe
+MSFT_IPF_ASM       = C:\WINDDK\3790.1830\bin\win64\ias.exe
+
+#define for EBC
+INTC_EBC_CC = C:\Program Files\Intel\EBC\Bin\iec.exe
+INTC_EBC_DLINK = C:\Program Files\Intel\EBC\Bin\link.exe
+INTC_EBC_LIB_PATH = C:\Program Files\Intel\EBC\Lib
+# The EBC compiler uses the provided libraries. All of the other
+# architectures do not require vendor provided libraries EXCEPT
+# as needed to build the Nt32 Platform Emulator.  The build options
+# in the Nt32.fpd file include Microsoft library paths
