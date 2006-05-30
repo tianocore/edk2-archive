@@ -331,7 +331,7 @@ public class ModulePpis extends IInternalFrame {
     private void init(PPIsDocument.PPIs inPpis, int type, int index) {
         init(inPpis);
         this.location = index;
-        if (type == IDefaultMutableTreeNode.PPIS_PPI_ITEM) {
+        if (type == IDefaultMutableTreeNode.MSA_PPIS) {
             initUsage(ModulePpis.PPI);
             this.jRadioButtonPpi.setSelected(true);
             this.jRadioButtonPpiNotify.setSelected(false);
@@ -349,7 +349,7 @@ public class ModulePpis extends IInternalFrame {
             if (this.ppis.getPpiArray(index).getFeatureFlag() != null) {
                 this.jTextFieldFeatureFlag.setText(this.ppis.getPpiArray(index).getFeatureFlag());
             }
-        } else if (type == IDefaultMutableTreeNode.PPIS_PPINOTIFY_ITEM) {
+        } else if (type == IDefaultMutableTreeNode.MSA_PPIS) {
             initUsage(ModulePpis.PPI_NOTIFY);
             this.jRadioButtonPpi.setSelected(false);
             this.jRadioButtonPpiNotify.setSelected(true);

@@ -340,8 +340,8 @@ public class ModuleGuids extends IInternalFrame {
         init(inGuids);
         this.location = index;
         if (this.guids.getGuidEntryList().size() > 0) {
-            if (this.guids.getGuidEntryArray(index).getCName() != null) {
-                this.jTextFieldC_Name.setText(this.guids.getGuidEntryArray(index).getCName());
+            if (this.guids.getGuidEntryArray(index).getKeyword() != null) {
+                this.jTextFieldC_Name.setText(this.guids.getGuidEntryArray(index).getKeyword());
             }
             if (this.guids.getGuidEntryArray(index).getGuidValue() != null) {
                 this.jTextFieldGuidValue.setText(this.guids.getGuidEntryArray(index).getGuidValue());
@@ -596,7 +596,7 @@ public class ModuleGuids extends IInternalFrame {
             }
             GuidsDocument.Guids.GuidEntry guid = GuidsDocument.Guids.GuidEntry.Factory.newInstance();
             if (!isEmpty(this.jTextFieldC_Name.getText())) {
-                guid.setCName(this.jTextFieldC_Name.getText());
+                guid.setKeyword(this.jTextFieldC_Name.getText());
             }
             if (!isEmpty(this.jTextFieldGuidValue.getText())) {
                 guid.setGuidValue(this.jTextFieldGuidValue.getText());

@@ -29,9 +29,8 @@ public class PackageIdentification extends Identification{
         super(name, guid, version);
     }
     
-    public PackageIdentification(String name, String guid, String version, String spdFilename){
-        super(name, guid, version);
-        this.spdFile = new File(spdFilename);
+    public PackageIdentification(String name, String guid, String version, String path){
+        super(name, guid, version, path);
     }
     
     public PackageIdentification(String name, String guid, String version, File spdFile){

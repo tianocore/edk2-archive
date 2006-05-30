@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 
 import org.tianocore.FrameworkComponentTypes;
 import org.tianocore.LicenseDocument;
+import org.tianocore.ModuleSurfaceAreaDocument;
 import org.tianocore.ModuleTypeDef;
 import org.tianocore.MsaHeaderDocument;
 import org.tianocore.SpecificationDocument;
@@ -124,6 +125,8 @@ public class MsaHeader extends IInternalFrame {
     private StarLabel jStarLabel9 = null;
 
     private MsaHeaderDocument.MsaHeader msaHeader = null;
+    
+    private ModuleSurfaceAreaDocument.ModuleSurfaceArea msa = null;
 
     private JTextField jTextFieldCopyright = null;
 
@@ -244,7 +247,7 @@ public class MsaHeader extends IInternalFrame {
         if (jButtonOk == null) {
             jButtonOk = new JButton();
             jButtonOk.setText("OK");
-            jButtonOk.setBounds(new java.awt.Rectangle(290, 445, 90, 20));
+            jButtonOk.setBounds(new java.awt.Rectangle(390, 445, 90, 20));
             jButtonOk.addActionListener(this);
         }
         return jButtonOk;
@@ -262,6 +265,7 @@ public class MsaHeader extends IInternalFrame {
             jButtonCancel.setText("Cancel");
             jButtonCancel.setBounds(new java.awt.Rectangle(390, 445, 90, 20));
             jButtonCancel.addActionListener(this);
+            jButtonCancel.setVisible(false);
         }
         return jButtonCancel;
     }
@@ -379,9 +383,10 @@ public class MsaHeader extends IInternalFrame {
      @param inMsaHeader The input data of MsaHeaderDocument.MsaHeader
      
      **/
-    public MsaHeader(MsaHeaderDocument.MsaHeader inMsaHeader) {
+    public MsaHeader(ModuleSurfaceAreaDocument.ModuleSurfaceArea inMsa) {
         super();
-        init(inMsaHeader);
+        this.msa = inMsa;
+        init(msa.getMsaHeader());
         this.setVisible(true);
         this.setViewMode(false);
     }
@@ -393,8 +398,8 @@ public class MsaHeader extends IInternalFrame {
      
      **/
     public void setViewMode(boolean isView) {
-        this.jButtonOk.setVisible(false);
-        this.jButtonCancel.setVisible(false);
+        //this.jButtonOk.setVisible(false);
+        //this.jButtonCancel.setVisible(false);
         if (isView) {
             this.jTextFieldBaseName.setEnabled(!isView);
             this.jTextFieldGuid.setEnabled(!isView);
@@ -701,6 +706,8 @@ public class MsaHeader extends IInternalFrame {
             if (this.msaHeader.getCreatedDate() == null) {
                 this.msaHeader.setCreatedDate(Tools.getCurrentDateTime());
             }
+            
+            msa.setMsaHeader(msaHeader);
         } catch (Exception e) {
             Log.err("Save Module", e.getMessage());
         }
@@ -779,5 +786,6 @@ public class MsaHeader extends IInternalFrame {
 		resizeComponentWidth(this.jComboBoxModuleType, intTempWidth);
 		resizeComponentWidth(this.jComboBoxCompontentType, intTempWidth);
 		relocateComponentX(this.jButtonGenerateGuid, intTempWidth, DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);
+        relocateComponentX(this.jButtonOk, intTempWidth, DataType.SPACE_TO_RIGHT_FOR_OK_BUTTON);
 	}
 }

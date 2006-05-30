@@ -32,6 +32,12 @@ public class Tools {
     // The dir user selected to create new package in
     //
     public static String dirForNewSpd = null;
+    
+    //
+    // Define file separator for current OS
+    //
+    public static String FIEL_SEPARATOR = System.getProperty("file.separator");
+    
     /**
      Used for test
      

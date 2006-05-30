@@ -294,7 +294,7 @@ public class ModuleEvents extends IInternalFrame {
     private void init(EventsDocument.Events inEvents, int type, int index) {
         init(inEvents);
         this.location = index;
-        if (type == IDefaultMutableTreeNode.EVENTS_CREATEEVENTS_ITEM) {
+        if (type == IDefaultMutableTreeNode.MSA_EVENTS) {
             this.jRadioButtonEventCreate.setSelected(true);
             this.jRadioButtonEventSignal.setSelected(false);
             if (this.events.getCreateEvents().getEventArray(index).getCName() != null) {
@@ -311,7 +311,7 @@ public class ModuleEvents extends IInternalFrame {
                 this.jComboBoxUsage.setSelectedItem(this.events.getCreateEvents().getEventArray(index).getUsage()
                                                                .toString());
             }
-        } else if (type == IDefaultMutableTreeNode.EVENTS_SIGNALEVENTS_ITEM) {
+        } else if (type == IDefaultMutableTreeNode.MSA_EVENTS) {
             this.jRadioButtonEventCreate.setSelected(false);
             this.jRadioButtonEventSignal.setSelected(true);
             this.jComboBoxUsage.setEnabled(false);

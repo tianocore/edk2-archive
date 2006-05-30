@@ -23,6 +23,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.tianocore.FrameworkDatabaseDocument;
 import org.tianocore.PackageSurfaceAreaDocument;
 import org.tianocore.frameworkwizard.common.Log;
+import org.tianocore.frameworkwizard.common.Tools;
 import org.tianocore.frameworkwizard.module.ModuleIdentification;
 import org.tianocore.frameworkwizard.packaging.PackageIdentification;
 import org.tianocore.frameworkwizard.platform.PlatformIdentification;
@@ -41,7 +42,7 @@ public class Workspace {
     private String currentWorkspace = null;
 
     private FrameworkDatabaseDocument xmlFrameworkDbDoc = null;
-    
+
     private PackageSurfaceAreaDocument xmlPackageSpdDoc = null;
 
     private Vector<ModuleIdentification> vModuleList = new Vector<ModuleIdentification>();
@@ -50,9 +51,8 @@ public class Workspace {
 
     private Vector<PlatformIdentification> vPlatformList = new Vector<PlatformIdentification>();
 
-    private String strWorkspaceDatabaseFile = System.getProperty("file.separator") + "Tools"
-                                              + System.getProperty("file.separator") + "Conf"
-                                              + System.getProperty("file.separator") + "FrameworkDatabase.db";
+    private String strWorkspaceDatabaseFile = Tools.FIEL_SEPARATOR + "Tools" + Tools.FIEL_SEPARATOR + "Conf"
+                                              + Tools.FIEL_SEPARATOR + "FrameworkDatabase.db";
 
     public static void main(String[] args) {
 
@@ -140,25 +140,25 @@ public class Workspace {
             return;
         }
     }
-    
+
     /**
-    
-    Open package file
-    
-    */
-   private void openPackageSpdFile(String name) {
-       String strFileName = this.getCurrentWorkspace() + System.getProperty("file.separator") + name;
-       File spdFile = new File(strFileName);
-       try {
-           xmlPackageSpdDoc = (PackageSurfaceAreaDocument) XmlObject.Factory.parse(spdFile);
-       } catch (XmlException e) {
-           Log.err("Open Pacakce File " + spdFile, e.getMessage());
-           return;
-       } catch (Exception e) {
-           Log.err("Open Package File " + spdFile, "Invalid file type");
-           return;
-       }
-   }
+     
+     Open package file
+     
+     */
+    private void openPackageSpdFile(String name) {
+        String strFileName = this.getCurrentWorkspace() + System.getProperty("file.separator") + name;
+        File spdFile = new File(strFileName);
+        try {
+            xmlPackageSpdDoc = (PackageSurfaceAreaDocument) XmlObject.Factory.parse(spdFile);
+        } catch (XmlException e) {
+            Log.err("Open Pacakce File " + spdFile, e.getMessage());
+            return;
+        } catch (Exception e) {
+            Log.err("Open Package File " + spdFile, "Invalid file type");
+            return;
+        }
+    }
 
     /**
      Get FrameworkDatabaseDocument
@@ -201,8 +201,10 @@ public class Workspace {
             guid = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getPackageGuid();
             version = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index)
                                        .getPackageVersion().toString();
-            path = this.getCurrentWorkspace() + System.getProperty("file.separator") + xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getFileList()
-                                    .get(0);
+            path = this.getCurrentWorkspace()
+                   + Tools.FIEL_SEPARATOR
+                   + xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getFileList()
+                                      .get(0);
             vPackageList.addElement(new PackageIdentification(name, guid, version, path));
         }
 
@@ -222,23 +224,31 @@ public class Workspace {
         String version = "";
         String packagePath = "";
         String modulePath = "";
-        
+
         openFrameworkDb();
 
         for (int index = 0; index < xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().sizeOfPackageArray(); index++) {
-            openPackageSpdFile(xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getFileList().get(0));
+            openPackageSpdFile(xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index)
+                                                .getFileList().get(0));
             name = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getPackageName();
             guid = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getPackageGuid();
-            version = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getPackageVersion().toString();
-            packagePath = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index).getFileList().get(0);
+            version = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index)
+                                       .getPackageVersion().toString();
+            packagePath = xmlFrameworkDbDoc.getFrameworkDatabase().getPackageList().getPackageArray(index)
+                                           .getFileList().get(0);
             packagePath = packagePath.substring(0, packagePath.lastIndexOf("/"));
-            packagePath = this.getCurrentWorkspace() + System.getProperty("file.separator") + packagePath + System.getProperty("file.separator");
+            packagePath = this.getCurrentWorkspace() + Tools.FIEL_SEPARATOR + packagePath + Tools.FIEL_SEPARATOR;
             packageID = new PackageIdentification(name, guid, version, packagePath);
-            for (int indexJ = 0; indexJ < xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().size(); indexJ++) {
-                name = xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ).getModuleName();
-                guid = xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ).getModuleGuid();
+            for (int indexJ = 0; indexJ < xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList()
+                                                          .size(); indexJ++) {
+                name = xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ)
+                                       .getModuleName();
+                guid = xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ)
+                                       .getModuleGuid();
                 //version = xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ).getModuleVersion().toString();
-                modulePath = packagePath + xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ).getFilename().getStringValue();
+                modulePath = packagePath
+                             + xmlPackageSpdDoc.getPackageSurfaceArea().getMsaFiles().getMsaFileList().get(indexJ)
+                                               .getFilename();
                 vModuleList.addElement(new ModuleIdentification(modulePath, guid, version, modulePath, packageID));
             }
         }
@@ -265,7 +275,8 @@ public class Workspace {
             guid = xmlFrameworkDbDoc.getFrameworkDatabase().getPlatformList().getPlatformArray(index).getPlatformGuid();
             version = xmlFrameworkDbDoc.getFrameworkDatabase().getPlatformList().getPlatformArray(index)
                                        .getPlatformVersion().toString();
-            path = this.getCurrentWorkspace() + System.getProperty("file.separator") + xmlFrameworkDbDoc.getFrameworkDatabase().getPlatformList().getPlatformArray(index).getFile();
+            path = this.getCurrentWorkspace() + Tools.FIEL_SEPARATOR
+                   + xmlFrameworkDbDoc.getFrameworkDatabase().getPlatformList().getPlatformArray(index).getFile();
             vPlatformList.addElement(new PlatformIdentification(name, guid, version, path));
         }
 

@@ -64,5 +64,6 @@ public class DataType {
     public static final int MAIN_FRAME_EDITOR_PANEL_LOCATION_X = 260;
     public static final int MAIN_FRAME_EDITOR_PANEL_LOCATION_Y = 1;
     
-    public static final int SPACE_TO_RIGHT_FOR_GENERATE_BUTTON = 83;
+    public static final int SPACE_TO_RIGHT_FOR_GENERATE_BUTTON = 82;
+    public static final int SPACE_TO_RIGHT_FOR_OK_BUTTON = 105;
 }

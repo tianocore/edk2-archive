@@ -34,121 +34,148 @@ public class IDefaultMutableTreeNode extends DefaultMutableTreeNode {
     private static final long serialVersionUID = -1947340717458069548L;
 
     //
-    //Static final definitions for all kinds of node
+    // Static final definitions for all kinds of node
     //
-    public static final int MSA_HEADER = 0;
+    
+    public static final int MSA_HEADER = 100;
 
-    public static final int LIBRARYCLASSDEFINITIONS = 1;
+    public static final int MSA_LIBRARYCLASSDEFINITIONS = 101;
+    
+    public static final int MSA_PACKAGEDEPENDENCIES = 102;
+    
+    public static final int MSA_SOURCEFILES = 103;
 
-    public static final int SOURCEFILES = 2;
+    public static final int MSA_PROTOCOLS = 104;
 
-    public static final int INCLUDES = 3;
+    public static final int MSA_EVENTS = 105;
 
-    public static final int PROTOCOLS = 4;
+    public static final int MSA_HOBS = 106;
 
-    public static final int EVENTS = 5;
+    public static final int MSA_PPIS = 107;
 
-    public static final int HOBS = 6;
+    public static final int MSA_VARIABLES = 108;
 
-    public static final int PPIS = 7;
+    public static final int MSA_BOOTMODES = 109;
 
-    public static final int VARIABLES = 8;
+    public static final int MSA_SYSTEMTABLES = 110;
 
-    public static final int BOOTMODES = 9;
+    public static final int MSA_DATAHUBS = 111;
 
-    public static final int SYSTEMTABLES = 10;
+    public static final int MSA_FORMSETS = 112;
 
-    public static final int DATAHUBS = 11;
+    public static final int MSA_GUIDS = 113;
 
-    public static final int FORMSETS = 12;
+    public static final int MSA_EXTERNS = 114;
 
-    public static final int GUIDS = 13;
+    public static final int MSA_PCDS = 115;
+    
+    public static final int SPD_HEADER = 200;
+    
+    public static final int SPD_LIBRARYCLASSDECLARATIONS = 201;
+    
+    public static final int SPD_MSAFILES = 202;
+    
+    public static final int SPD_PACKAGEHEADERS = 203;
+    
+    public static final int SPD_GUIDDECLARATIONS = 204;
+    
+    public static final int SPD_PROTOCOLDECLARATIONS = 205;
+    
+    public static final int SPD_PPIDECLARATIONS = 206;
+    
+    public static final int SPD_PCDDECLARATIONS = 207;
+    
+    public static final int FPD_PLATFORMHEADER = 300;
+    
+    public static final int FPD_FLASH = 301;
+    
+    public static final int FPD_FRAMEWORKMODULES = 302;
+    
+    public static final int FPD_PCDDYNAMICBUILDDECLARATIONS = 303;
+    
+    public static final int FPD_BUILDOPTIONS = 304;
 
-    public static final int EXTERNS = 14;
+//    public static final int MBD_HEADER = 20;
+//
+//    public static final int MLSA_HEADER = 21;
+//
+//    public static final int MLBD_HEADER = 22;
+//
+//    public static final int LIBRARIES = 23;
+//
+//    public static final int LIBRARY_CLASS_DEFINITION = 101;
+//
+//    public static final int SOURCEFILES_FILENAME = 210;
+//
+//    public static final int SOURCEFILES_FILENAME_ITEM = 211;
+//
+//    public static final int SOURCEFILES_ARCH = 220;
+//
+//    public static final int SOURCEFILES_ARCH_ITEM = 221;
+//
+//    public static final int INCLUDES_PACKAGENAME = 310;
+//
+//    public static final int INCLUDES_PACKAGENAME_ITEM = 311;
+//
+//    public static final int INCLUDES_ARCH = 320;
+//
+//    public static final int INCLUDES_ARCH_ITEM = 321;
+//
+//    public static final int PROTOCOLS_PROTOCOL = 410;
+//
+//    public static final int PROTOCOLS_PROTOCOL_ITEM = 411;
+//
+//    public static final int PROTOCOLS_PROTOCOLNOTIFY = 420;
+//
+//    public static final int PROTOCOLS_PROTOCOLNOTIFY_ITEM = 421;
+//
+//    public static final int EVENTS_CREATEEVENTS = 510;
+//
+//    public static final int EVENTS_CREATEEVENTS_ITEM = 511;
+//
+//    public static final int EVENTS_SIGNALEVENTS = 520;
+//
+//    public static final int EVENTS_SIGNALEVENTS_ITEM = 521;
+//
+//    public static final int HOBS_HOB_ITEM = 611;
+//
+//    public static final int PPIS_PPI = 710;
+//
+//    public static final int PPIS_PPI_ITEM = 711;
+//
+//    public static final int PPIS_PPINOTIFY = 720;
+//
+//    public static final int PPIS_PPINOTIFY_ITEM = 721;
+//
+//    public static final int VARIABLES_VARIABLE_ITEM = 811;
+//
+//    public static final int BOOTMODES_BOOTMODE_ITEM = 911;
+//
+//    public static final int SYSTEMTABLES_SYSTEMTABLE_ITEM = 1011;
+//
+//    public static final int DATAHUBS_DATAHUB_ITEM = 1111;
+//
+//    public static final int FORMSETS_FORMSET_ITEM = 1211;
+//
+//    public static final int GUIDS_GUIDENTRY_ITEM = 1311;
+//
+//    public static final int EXTERNS_EXTERN_ITEM = 1411;
+//
+//    public static final int PCDS_PCDDATA_ITEM = 1511;
+//
+//    public static final int LIBRARIES_LIBRARY = 2310;
+//
+//    public static final int LIBRARIES_LIBRARY_ITEM = 2311;
+//
+//    public static final int LIBRARIES_ARCH = 2320;
+//
+//    public static final int LIBRARIES_ARCH_ITEM = 2321;
 
-    public static final int PCDS = 15;
+    public static final int MODULE = 1;
 
-    public static final int MBD_HEADER = 20;
+    public static final int PACKAGE = 2;
 
-    public static final int MLSA_HEADER = 21;
-
-    public static final int MLBD_HEADER = 22;
-
-    public static final int LIBRARIES = 23;
-
-    public static final int LIBRARY_CLASS_DEFINITION = 101;
-
-    public static final int SOURCEFILES_FILENAME = 210;
-
-    public static final int SOURCEFILES_FILENAME_ITEM = 211;
-
-    public static final int SOURCEFILES_ARCH = 220;
-
-    public static final int SOURCEFILES_ARCH_ITEM = 221;
-
-    public static final int INCLUDES_PACKAGENAME = 310;
-
-    public static final int INCLUDES_PACKAGENAME_ITEM = 311;
-
-    public static final int INCLUDES_ARCH = 320;
-
-    public static final int INCLUDES_ARCH_ITEM = 321;
-
-    public static final int PROTOCOLS_PROTOCOL = 410;
-
-    public static final int PROTOCOLS_PROTOCOL_ITEM = 411;
-
-    public static final int PROTOCOLS_PROTOCOLNOTIFY = 420;
-
-    public static final int PROTOCOLS_PROTOCOLNOTIFY_ITEM = 421;
-
-    public static final int EVENTS_CREATEEVENTS = 510;
-
-    public static final int EVENTS_CREATEEVENTS_ITEM = 511;
-
-    public static final int EVENTS_SIGNALEVENTS = 520;
-
-    public static final int EVENTS_SIGNALEVENTS_ITEM = 521;
-
-    public static final int HOBS_HOB_ITEM = 611;
-
-    public static final int PPIS_PPI = 710;
-
-    public static final int PPIS_PPI_ITEM = 711;
-
-    public static final int PPIS_PPINOTIFY = 720;
-
-    public static final int PPIS_PPINOTIFY_ITEM = 721;
-
-    public static final int VARIABLES_VARIABLE_ITEM = 811;
-
-    public static final int BOOTMODES_BOOTMODE_ITEM = 911;
-
-    public static final int SYSTEMTABLES_SYSTEMTABLE_ITEM = 1011;
-
-    public static final int DATAHUBS_DATAHUB_ITEM = 1111;
-
-    public static final int FORMSETS_FORMSET_ITEM = 1211;
-
-    public static final int GUIDS_GUIDENTRY_ITEM = 1311;
-
-    public static final int EXTERNS_EXTERN_ITEM = 1411;
-
-    public static final int PCDS_PCDDATA_ITEM = 1511;
-
-    public static final int LIBRARIES_LIBRARY = 2310;
-
-    public static final int LIBRARIES_LIBRARY_ITEM = 2311;
-
-    public static final int LIBRARIES_ARCH = 2320;
-
-    public static final int LIBRARIES_ARCH_ITEM = 2321;
-
-    public static final int MODULE = 10000;
-
-    public static final int PACKAGE = 20000;
-
-    public static final int PLATFORM = 30000;
+    public static final int PLATFORM = 3;
 
     //
     //Static final definitions for operation

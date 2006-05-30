@@ -23,9 +23,8 @@ public class PlatformIdentification extends Identification{
     
     private File fpdFile;
     
-    public PlatformIdentification(String name, String guid, String version, String fpdFilename){
-        super(name, guid, version);
-        this.fpdFile = new File(fpdFilename);
+    public PlatformIdentification(String name, String guid, String version, String path){
+        super(name, guid, version, path);
     }
     
     public PlatformIdentification(String name, String guid, String version, File fpdFile){

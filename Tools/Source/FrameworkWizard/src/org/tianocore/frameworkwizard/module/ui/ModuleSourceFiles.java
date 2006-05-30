@@ -461,7 +461,7 @@ public class ModuleSourceFiles extends IInternalFrame implements ItemListener {
             this.jCheckBoxArch.setEnabled(false);
             this.jComboBoxArch.setEnabled(false);
 
-            if (type == IDefaultMutableTreeNode.SOURCEFILES_FILENAME) {
+            if (type == IDefaultMutableTreeNode.MSA_SOURCEFILES) {
                 if (this.sourceFiles.getFilenameList().size() > 0) {
                     for (int indexI = 0; indexI < this.sourceFiles.getFilenameList().size(); indexI++) {
                         if (this.sourceFiles.getFilenameArray(indexI).getStringValue() != null) {

@@ -330,7 +330,7 @@ public class ModuleProtocols extends IInternalFrame {
     private void init(ProtocolsDocument.Protocols inProtocol, int type, int index) {
         init(inProtocol);
         this.location = index;
-        if (type == IDefaultMutableTreeNode.PROTOCOLS_PROTOCOL_ITEM) {
+        if (type == IDefaultMutableTreeNode.MSA_PROTOCOLS) {
             this.jRadioButtonProtocol.setSelected(true);
             this.jRadioButtonProtocolNotify.setSelected(false);
             if (this.protocols.getProtocolArray(index).getStringValue() != null) {
@@ -345,7 +345,7 @@ public class ModuleProtocols extends IInternalFrame {
             if (this.protocols.getProtocolArray(index).getFeatureFlag() != null) {
                 this.jTextFieldFeatureFlag.setText(this.protocols.getProtocolArray(index).getFeatureFlag());
             }
-        } else if (type == IDefaultMutableTreeNode.PROTOCOLS_PROTOCOLNOTIFY_ITEM) {
+        } else if (type == IDefaultMutableTreeNode.MSA_PROTOCOLS) {
             this.jRadioButtonProtocol.setSelected(false);
             this.jRadioButtonProtocolNotify.setSelected(true);
             this.jTextFieldFeatureFlag.setEditable(false);

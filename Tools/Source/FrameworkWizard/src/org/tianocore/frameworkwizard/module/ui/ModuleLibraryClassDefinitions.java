@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import org.tianocore.LibraryClassDefinitionsDocument;
 import org.tianocore.LibraryClassDocument;
 import org.tianocore.LibraryUsage;
+import org.tianocore.ModuleSurfaceAreaDocument;
 import org.tianocore.frameworkwizard.common.DataValidation;
 import org.tianocore.frameworkwizard.common.Log;
 import org.tianocore.frameworkwizard.common.ui.IInternalFrame;
@@ -47,6 +48,8 @@ public class ModuleLibraryClassDefinitions extends IInternalFrame {
     ///
     private static final long serialVersionUID = -1743248695411382857L;
 
+    private ModuleSurfaceAreaDocument.ModuleSurfaceArea msa = null;
+    
     //
     //Define class members
     //
@@ -293,10 +296,10 @@ public class ModuleLibraryClassDefinitions extends IInternalFrame {
      @param inLibraryClassDefinitions The input data of LibraryClassDefinitionsDocument.LibraryClassDefinitions
      
      **/
-    public ModuleLibraryClassDefinitions(
-                                         LibraryClassDefinitionsDocument.LibraryClassDefinitions inLibraryClassDefinitions) {
+    public ModuleLibraryClassDefinitions(ModuleSurfaceAreaDocument.ModuleSurfaceArea inMsa) {
         super();
-        init(inLibraryClassDefinitions);
+        this.msa = inMsa;
+        init(msa.getLibraryClassDefinitions());
         this.setVisible(true);
     }
 
@@ -342,8 +345,8 @@ public class ModuleLibraryClassDefinitions extends IInternalFrame {
      
      **/
     public void setViewMode(boolean isView) {
-        this.jButtonOk.setVisible(false);
-        this.jButtonCancel.setVisible(false);
+        //this.jButtonOk.setVisible(false);
+        //this.jButtonCancel.setVisible(false);
         if (isView) {
             this.jRadioButtonAdd.setEnabled(!isView);
             this.jRadioButtonSelect.setEnabled(!isView);
@@ -447,7 +450,7 @@ public class ModuleLibraryClassDefinitions extends IInternalFrame {
      */
     public void actionPerformed(ActionEvent arg0) {
         if (arg0.getSource() == jButtonOk) {
-            this.dispose();
+            //this.dispose();
             this.setEdited(true);
             this.save();
         }
@@ -594,6 +597,7 @@ public class ModuleLibraryClassDefinitions extends IInternalFrame {
                     this.libraryClassDefinitions.addNewLibraryClass();
                     this.libraryClassDefinitions.setLibraryClassArray(index, mLibraryClass);
                 }
+                msa.setLibraryClassDefinitions(libraryClassDefinitions);
             } else {
                 this.libraryClassDefinitions.setNil();
             }
@@ -621,5 +625,13 @@ public class ModuleLibraryClassDefinitions extends IInternalFrame {
     public void setLibraryClassDefinitions(
                                            LibraryClassDefinitionsDocument.LibraryClassDefinitions libraryClassDefinitions) {
         this.libraryClassDefinitions = libraryClassDefinitions;
+    }
+
+    public ModuleSurfaceAreaDocument.ModuleSurfaceArea getMsa() {
+        return msa;
+    }
+
+    public void setMsa(ModuleSurfaceAreaDocument.ModuleSurfaceArea msa) {
+        this.msa = msa;
     }
 }
