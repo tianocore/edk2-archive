@@ -112,8 +112,8 @@
     </xs:attributeGroup>
     <xs:attributeGroup name="OptionAttributes">
         <xs:attribute name="ToolChainFamily" type="ToolChains" use="optional"/>
+        <xs:attribute name="ToolChainTag" type="xs:NCName" use="optional"/>
         <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
-        <xs:attribute name="UserDefinedToolChainTag" type="C_Name" use="optional"/>
         <xs:attribute name="Command" type="CommandCode" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageAttributes">
