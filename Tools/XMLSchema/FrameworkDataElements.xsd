@@ -488,12 +488,12 @@
                 <xs:element minOccurs="1" maxOccurs="unbounded" name="Library">
                     <xs:complexType>
                         <xs:simpleContent>
-                        <xs:extension base="BaseNameConvention">
-                            <xs:attributeGroup ref="ModuleSaAttributes"/>
-                        </xs:extension>
+                            <xs:extension base="BaseNameConvention">
+                                <xs:attributeGroup ref="ModuleSaAttributes"/>
+                            </xs:extension>
                         </xs:simpleContent>
-                    </xs:complexType>                
-                </xs:element> 
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -504,7 +504,7 @@
         <xs:complexType>
             <xs:simpleContent>
                 <xs:extension base="BaseNameConvention">
-                    <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
+                    <xs:attribute name="Usage" type="LibraryUsage" use="optional"/>
                 </xs:extension>
             </xs:simpleContent>
         </xs:complexType>

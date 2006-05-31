@@ -13,6 +13,7 @@
     
   -->
     <xs:include schemaLocation="FrameworkDataElements.xsd"/>
+    <xs:include schemaLocation="FrameworkPlatformDataElements.xsd"/>
     <xs:annotation>
         <xs:documentation xml:lang="en">This XML Schema defines the content of Framework XML files.</xs:documentation>
     </xs:annotation>

@@ -17,6 +17,50 @@
     </xs:annotation>
     <xs:include schemaLocation="NamingConvention.xsd"/>
     <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
+    <xs:include schemaLocation="FrameworkPlatformDataTypes.xsd"/>
+    <xs:attributeGroup name="BlockAttributes">
+        <xs:attribute name="Name" type="BlockNameType" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FlashDeviceImageAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FlashDeviceImageFileAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Region" type="xs:string" use="required"/>
+        <xs:attribute name="SubRegion" type="xs:string" use="optional"/>
+        <xs:attribute name="Optional" type="xs:boolean" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FlashDeviceInfoAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="BaseAddress" type="HexAddressType" use="required"/>
+        <xs:attribute name="ErasePolarity" type="Polarity" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="RawDataAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Region" type="xs:string" use="required"/>
+        <xs:attribute name="SubRegion" type="xs:string" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="RegionAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
+        <xs:attribute name="Alignment" type="HexAddressType" use="optional"/>
+        <xs:attribute name="Attributes" type="xs:string" use="required"/>
+        <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="SubRegionAttributes">
+        <xs:attribute name="CreateHob" type="xs:boolean" use="required"/>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="Attributes" type="xs:string" use="required"/>
+        <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
+        <xs:attribute name="NameGuid" type="xs:string" use="required"/>
+        <xs:attribute name="AreaTypeGuid" type="xs:string" use="optional"/>
+        <xs:attribute name="FileSystemGuid" type="xs:string" use="optional"/>
+    </xs:attributeGroup>
     <xs:attributeGroup name="BaseNameAttributes">
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Version" type="VersionDataType" use="optional"/>
@@ -71,10 +115,9 @@
         <xs:attribute name="Arch" type="SupportedArchitectures" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="IncludeAttributes">
-        <xs:attribute name="Guid" type="GuidType" use="optional"/>
+        <xs:attribute name="FileGuid" type="GuidType" use="optional"/>
         <xs:attribute name="Path" type="DirectoryNamingConvention" use="optional"/>
-        <xs:attribute name="Class" type="BaseNameConvention" use="optional"/>
-        <xs:attribute name="Version" type="VersionDataType" use="optional"/>
+        <xs:attribute name="FileVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="ModuleType" type="ModuleTypeDef" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryAttributes">
