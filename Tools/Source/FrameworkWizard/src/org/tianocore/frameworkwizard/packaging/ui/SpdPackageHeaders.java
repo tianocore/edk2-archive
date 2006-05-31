@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.Vector;
 
@@ -35,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
+import org.tianocore.frameworkwizard.common.DataType;
 import org.tianocore.frameworkwizard.common.Tools;
 import org.tianocore.frameworkwizard.common.ui.IInternalFrame;
 import org.tianocore.frameworkwizard.common.ui.StarLabel;
@@ -142,6 +144,7 @@ public class SpdPackageHeaders extends IInternalFrame{
         if (jTextFieldAdd == null) {
             jTextFieldAdd = new JTextField();
             jTextFieldAdd.setBounds(new java.awt.Rectangle(220, 35, 260, 20));
+            jTextFieldAdd.setPreferredSize(new java.awt.Dimension(260,20));
             jTextFieldAdd.setEnabled(false);
         }
         return jTextFieldAdd;
@@ -156,6 +159,7 @@ public class SpdPackageHeaders extends IInternalFrame{
         if (jComboBoxSelect == null) {
             jComboBoxSelect = new JComboBox();
             jComboBoxSelect.setBounds(new java.awt.Rectangle(220, 10, 260, 20));
+            jComboBoxSelect.setPreferredSize(new java.awt.Dimension(260,20));
             jComboBoxSelect.setEnabled(true);
         }
         return jComboBoxSelect;
@@ -233,6 +237,7 @@ public class SpdPackageHeaders extends IInternalFrame{
             jButtonCancel.setLocation(new java.awt.Point(390, 305));
             jButtonCancel.setText("Cancel");
             jButtonCancel.setSize(new java.awt.Dimension(90, 20));
+            jButtonCancel.setVisible(false);
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
@@ -249,6 +254,7 @@ public class SpdPackageHeaders extends IInternalFrame{
             jButtonOk.setSize(new java.awt.Dimension(90, 20));
             jButtonOk.setText("OK");
             jButtonOk.setLocation(new java.awt.Point(290, 305));
+            jButtonOk.setVisible(false);
             jButtonOk.addActionListener(this);
         }
         return jButtonOk;
@@ -273,7 +279,7 @@ public class SpdPackageHeaders extends IInternalFrame{
         this.setContentPane(getJContentPane());
         this.setTitle("Library Class Declarations");
         this.setBounds(new java.awt.Rectangle(0, 0, 500, 370));
-       
+        this.setVisible(true);
         initFrame();
     }
 
@@ -422,6 +428,7 @@ public class SpdPackageHeaders extends IInternalFrame{
         if (jTextField == null) {
             jTextField = new JTextField();
             jTextField.setBounds(new java.awt.Rectangle(13,90,346,21));
+            jTextField.setPreferredSize(new java.awt.Dimension(345,20));
         }
         return jTextField;
     }
@@ -436,7 +443,7 @@ public class SpdPackageHeaders extends IInternalFrame{
             jButtonBrowse = new JButton();
             jButtonBrowse.setBounds(new java.awt.Rectangle(374,89,92,21));
             jButtonBrowse.setText("Browse");
-            jButtonBrowse.setPreferredSize(new java.awt.Dimension(34,20));
+            jButtonBrowse.setPreferredSize(new java.awt.Dimension(92,20));
             jButtonBrowse.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     //
@@ -497,7 +504,7 @@ public class SpdPackageHeaders extends IInternalFrame{
     private JScrollPane getJScrollPane() {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
-            jScrollPane.setBounds(new java.awt.Rectangle(13,149,453,146));
+            jScrollPane.setBounds(new java.awt.Rectangle(13,149,453,165));
             jScrollPane.setViewportView(getJTable());
         }
         return jScrollPane;
@@ -519,6 +526,16 @@ public class SpdPackageHeaders extends IInternalFrame{
         return jTable;
     }
 
+    public void componentResized(ComponentEvent arg0) {
+        resizeComponentWidth(this.jComboBoxSelect, this.getWidth());
+        resizeComponentWidth(this.jTextFieldAdd, this.getWidth());
+        resizeComponentWidth(this.jTextField, this.getWidth());
+        resizeComponentWidth(this.jScrollPane, this.getWidth());
+        relocateComponentX(this.jButtonBrowse, this.getWidth(), jButtonBrowse.getWidth()+ 30);
+        
+        
+    }
+    
     public static void main(String[] args){
         new SpdPackageHeaders().setVisible(true);
     }

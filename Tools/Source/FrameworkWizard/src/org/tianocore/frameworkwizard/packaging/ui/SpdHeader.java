@@ -253,6 +253,7 @@ public class SpdHeader extends IInternalFrame {
             jButtonOk = new JButton();
             jButtonOk.setText("OK");
             jButtonOk.setBounds(new java.awt.Rectangle(290, 445, 90, 20));
+            jButtonOk.setVisible(false);
             jButtonOk.addActionListener(this);
         }
         return jButtonOk;
@@ -269,6 +270,7 @@ public class SpdHeader extends IInternalFrame {
             jButtonCancel = new JButton();
             jButtonCancel.setText("Cancel");
             jButtonCancel.setBounds(new java.awt.Rectangle(390, 445, 90, 20));
+            jButtonCancel.setVisible(false);
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
@@ -332,7 +334,7 @@ public class SpdHeader extends IInternalFrame {
         if (jComboBoxReadOnly == null) {
             jComboBoxReadOnly = new JComboBox();
             jComboBoxReadOnly.setBounds(new java.awt.Rectangle(160,380,80,20));
-            jComboBoxReadOnly.setPreferredSize(new java.awt.Dimension(60,20));
+            jComboBoxReadOnly.setPreferredSize(new java.awt.Dimension(80,20));
         }
         return jComboBoxReadOnly;
     }
@@ -341,7 +343,7 @@ public class SpdHeader extends IInternalFrame {
         if (jComboBoxRePackage == null) {
             jComboBoxRePackage = new JComboBox();
             jComboBoxRePackage.setBounds(new java.awt.Rectangle(160,405,80,20));
-            jComboBoxRePackage.setPreferredSize(new java.awt.Dimension(60,20));
+            jComboBoxRePackage.setPreferredSize(new java.awt.Dimension(80,20));
         }
         return jComboBoxRePackage;
     }

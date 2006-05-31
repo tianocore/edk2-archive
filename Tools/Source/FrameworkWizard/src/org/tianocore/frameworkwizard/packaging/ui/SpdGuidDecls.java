@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.Vector;
 
@@ -35,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
+import org.tianocore.frameworkwizard.common.DataType;
 import org.tianocore.frameworkwizard.common.Tools;
 import org.tianocore.frameworkwizard.common.ui.IInternalFrame;
 import org.tianocore.frameworkwizard.common.ui.StarLabel;
@@ -120,6 +122,7 @@ public class SpdGuidDecls extends IInternalFrame{
         if (jTextFieldAdd == null) {
             jTextFieldAdd = new JTextField();
             jTextFieldAdd.setBounds(new java.awt.Rectangle(137,35,337,20));
+            jTextFieldAdd.setPreferredSize(new java.awt.Dimension(335,20));
             
         }
         return jTextFieldAdd;
@@ -133,7 +136,7 @@ public class SpdGuidDecls extends IInternalFrame{
     protected JScrollPane getJScrollPane() {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
-            jScrollPane.setBounds(new java.awt.Rectangle(13,123,460,172));
+            jScrollPane.setBounds(new java.awt.Rectangle(6,123,472,196));
             jScrollPane.setViewportView(getJTable());
         }
         return jScrollPane;
@@ -214,6 +217,7 @@ public class SpdGuidDecls extends IInternalFrame{
             jButtonCancel.setLocation(new java.awt.Point(390, 305));
             jButtonCancel.setText("Cancel");
             jButtonCancel.setSize(new java.awt.Dimension(90, 20));
+            jButtonCancel.setVisible(false);
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
@@ -230,6 +234,7 @@ public class SpdGuidDecls extends IInternalFrame{
             jButtonOk.setSize(new java.awt.Dimension(90, 20));
             jButtonOk.setText("OK");
             jButtonOk.setLocation(new java.awt.Point(290, 305));
+            jButtonOk.setVisible(false);
             jButtonOk.addActionListener(this);
         }
         return jButtonOk;
@@ -254,7 +259,7 @@ public class SpdGuidDecls extends IInternalFrame{
         this.setContentPane(getJContentPane());
         
         this.setBounds(new java.awt.Rectangle(0, 0, 500, 370));
-       
+        this.setVisible(true);
         initFrame();
     }
 
@@ -330,7 +335,6 @@ public class SpdGuidDecls extends IInternalFrame{
         }
 
         if (arg0.getSource() == jButtonAdd) {
-            String strVer = jTextFieldVersion.getText();
             
             //ToDo: check before add
             String[] row = {"", "", ""};
@@ -361,6 +365,7 @@ public class SpdGuidDecls extends IInternalFrame{
         if (arg0.getSource() == jButtonGen) {
             guidDialog = new GenGuidDialog(this);
             guidDialog.setGuid(jTextFieldAdd.getText());
+            guidDialog.setVisible(true);
         }
         
         if (arg0.getActionCommand().equals("GenGuidValue")) {
@@ -386,7 +391,7 @@ public class SpdGuidDecls extends IInternalFrame{
             jButtonGen = new JButton();
             jButtonGen.setBounds(new java.awt.Rectangle(379,58,92,21));
             jButtonGen.setText("Gen GUID");
-            jButtonGen.setPreferredSize(new java.awt.Dimension(34,20));
+            jButtonGen.setPreferredSize(new java.awt.Dimension(80,20));
             jButtonGen.addActionListener(this);
         }
         return jButtonGen;
@@ -407,6 +412,7 @@ public class SpdGuidDecls extends IInternalFrame{
         if (jTextFieldName == null) {
             jTextFieldName = new JTextField();
             jTextFieldName.setBounds(new java.awt.Rectangle(138,10,337,20));
+            jTextFieldName.setPreferredSize(new java.awt.Dimension(335,20));
         }
         return jTextFieldName;
     }
@@ -420,10 +426,20 @@ public class SpdGuidDecls extends IInternalFrame{
         if (jTextFieldVersion == null) {
             jTextFieldVersion = new JTextField();
             jTextFieldVersion.setBounds(new java.awt.Rectangle(137,60,225,20));
+            jTextFieldVersion.setPreferredSize(new java.awt.Dimension(225,20));
         }
         return jTextFieldVersion;
     }
 
+    public void componentResized(ComponentEvent arg0) {
+        resizeComponentWidth(this.jTextFieldName, this.getWidth());
+        resizeComponentWidth(this.jTextFieldAdd, this.getWidth());
+        resizeComponentWidth(this.jTextFieldVersion, this.getWidth());
+        resizeComponentWidth(this.jScrollPane, this.getWidth());
+        relocateComponentX(this.jButtonGen, this.getWidth(), jButtonGen.getWidth()+ 25);
+        
+    }
+    
     public static void main(String[] args){
         new SpdGuidDecls().setVisible(true);
     }

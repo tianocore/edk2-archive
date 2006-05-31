@@ -16,6 +16,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -24,10 +25,11 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+
 import javax.swing.table.DefaultTableModel;
 
-import org.tianocore.frameworkwizard.common.Tools;
+import org.tianocore.frameworkwizard.common.DataType;
+
 import org.tianocore.frameworkwizard.common.ui.IInternalFrame;
 import org.tianocore.frameworkwizard.common.ui.StarLabel;
 import javax.swing.JScrollPane;
@@ -60,7 +62,7 @@ public class SpdPcdDefs extends IInternalFrame {
 
     private JComboBox jComboBoxDataType = null;
 
-    private JLabel jLabelOverrideID = null;
+    
 
     private StarLabel jStarLabel2 = null;
 
@@ -94,13 +96,13 @@ public class SpdPcdDefs extends IInternalFrame {
 
     private JButton jButtonClearAll = null;
 
-    private JScrollPane jScrollPane = null;
-
-    private JTable jTable = null;
-
     private JButton jButtonGen = null;
     
     private GenGuidDialog guidDialog = null;
+
+    private JScrollPane jScrollPane = null;
+
+    private JTable jTable = null;
 
     /**
      This method initializes this
@@ -120,7 +122,8 @@ public class SpdPcdDefs extends IInternalFrame {
     private JTextField getJTextFieldC_Name() {
         if (jTextFieldC_Name == null) {
             jTextFieldC_Name = new JTextField();
-            jTextFieldC_Name.setBounds(new java.awt.Rectangle(156,9,320,20));
+            jTextFieldC_Name.setBounds(new java.awt.Rectangle(156,9,317,20));
+            jTextFieldC_Name.setPreferredSize(new java.awt.Dimension(315,20));
         }
         return jTextFieldC_Name;
     }
@@ -133,7 +136,8 @@ public class SpdPcdDefs extends IInternalFrame {
     private JTextField getJTextFieldToken() {
         if (jTextFieldToken == null) {
             jTextFieldToken = new JTextField();
-            jTextFieldToken.setBounds(new java.awt.Rectangle(157,33,318,20));
+            jTextFieldToken.setBounds(new java.awt.Rectangle(157,33,315,20));
+            jTextFieldToken.setPreferredSize(new java.awt.Dimension(315,20));
         }
         return jTextFieldToken;
     }
@@ -147,7 +151,8 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jButtonOk == null) {
             jButtonOk = new JButton();
             jButtonOk.setText("OK");
-            jButtonOk.setBounds(new java.awt.Rectangle(279,247,90,20));
+            jButtonOk.setBounds(new java.awt.Rectangle(279,276,90,20));
+            jButtonOk.setVisible(false);
             jButtonOk.addActionListener(this);
         }
         return jButtonOk;
@@ -162,7 +167,8 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jButtonCancel == null) {
             jButtonCancel = new JButton();
             jButtonCancel.setText("Cancel");
-            jButtonCancel.setBounds(new java.awt.Rectangle(389,247,90,20));
+            jButtonCancel.setBounds(new java.awt.Rectangle(389,276,82,20));
+            jButtonCancel.setVisible(false);
             jButtonCancel.addActionListener(this);
         }
         return jButtonCancel;
@@ -199,7 +205,7 @@ public class SpdPcdDefs extends IInternalFrame {
     private void init() {
         this.setSize(500, 650);
         this.setContentPane(getJContentPane());
-        this.setTitle("Add PCDs");
+        
         
         this.getRootPane().setDefaultButton(jButtonOk);
         initFrame();
@@ -208,8 +214,7 @@ public class SpdPcdDefs extends IInternalFrame {
 
     private JPanel getJContentPane() {
   		if (jContentPane == null) {	
-            jLabelOverrideID.setBounds(new java.awt.Rectangle(14,197,140,20));
-            jLabelOverrideID.setText("Default Value");
+           
             jLabelDefVal = new JLabel();
             jLabelDefVal.setBounds(new java.awt.Rectangle(278,109,80,20));
             jLabelDefVal.setText("Default Value");
@@ -220,9 +225,7 @@ public class SpdPcdDefs extends IInternalFrame {
             jLabelC_Name.setText("C_Name");
             jLabelC_Name.setBounds(new java.awt.Rectangle(11,9,140,20));
             jLabelTokenSpace = new JLabel();
-            jLabelTokenSpace.setBounds(new java.awt.Rectangle(12,58,140,20));
- 
-            jLabelTokenSpace.setBounds(new java.awt.Rectangle(17,60,134,16));
+            jLabelTokenSpace.setBounds(new java.awt.Rectangle(11,58,140,20));
             jLabelTokenSpace.setText("Token Space");
             jLabelDataType = new JLabel();
             jLabelDataType.setText("Data Type");
@@ -252,7 +255,7 @@ public class SpdPcdDefs extends IInternalFrame {
             jContentPane.add(getJButtonOk(), null);
             jContentPane.add(getJButtonCancel(), null);
             jContentPane.add(getJComboBoxDataType(), null);
-            jContentPane.add(jLabelOverrideID, null);
+            
             jStarLabel = new StarLabel();
             jStarLabel1 = new StarLabel();
             jStarLabel1.setBounds(new java.awt.Rectangle(2,8,10,20));
@@ -263,6 +266,7 @@ public class SpdPcdDefs extends IInternalFrame {
             jStarLabel4.setLocation(new java.awt.Point(2, 109));
             jStarLabel2.setLocation(new java.awt.Point(2,33));
             jStarLabel3.setLocation(new java.awt.Point(2, 58));
+            jStarLabel3.setSize(new java.awt.Dimension(8,20));
             jContentPane.add(jStarLabel2, null);
             jContentPane.add(jStarLabel3, null);
             jContentPane.add(jStarLabel, null);
@@ -274,8 +278,8 @@ public class SpdPcdDefs extends IInternalFrame {
             jContentPane.add(getJButtonAdd(), null);
             jContentPane.add(getJButtonRemove(), null);
             jContentPane.add(getJButtonClearAll(), null);
-            jContentPane.add(getJScrollPane(), null);
             jContentPane.add(getJButtonGen(), null);
+            jContentPane.add(getJScrollPane(), null);
         }
         return jContentPane;
     }
@@ -340,6 +344,7 @@ public class SpdPcdDefs extends IInternalFrame {
             if (arg0.getSource() == jButtonGen) {
                 guidDialog = new GenGuidDialog(this);
                 guidDialog.setGuid(jTextFieldTsGuid.getText());
+                guidDialog.setVisible(true);
             }
             
             if (arg0.getActionCommand().equals("GenGuidValue")) {
@@ -365,6 +370,7 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jTextFieldTsGuid == null) {
             jTextFieldTsGuid = new JTextField();
             jTextFieldTsGuid.setBounds(new java.awt.Rectangle(158,58,249,20));
+            jTextFieldTsGuid.setPreferredSize(new java.awt.Dimension(250,20));
         }
         return jTextFieldTsGuid;
     }
@@ -378,6 +384,7 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jTextFieldVarVal == null) {
             jTextFieldVarVal = new JTextField();
             jTextFieldVarVal.setBounds(new java.awt.Rectangle(369,84,104,20));
+            jTextFieldVarVal.setPreferredSize(new java.awt.Dimension(104,20));
         }
         return jTextFieldVarVal;
     }
@@ -391,6 +398,7 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jTextField == null) {
             jTextField = new JTextField();
             jTextField.setBounds(new java.awt.Rectangle(158,108,109,20));
+            jTextField.setPreferredSize(new java.awt.Dimension(104,20));
         }
         return jTextField;
     }
@@ -404,6 +412,7 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jTextFieldDefaultValue == null) {
             jTextFieldDefaultValue = new JTextField();
             jTextFieldDefaultValue.setBounds(new java.awt.Rectangle(369,109,104,20));
+            jTextFieldDefaultValue.setPreferredSize(new java.awt.Dimension(104,20));
         }
         return jTextFieldDefaultValue;
     }
@@ -417,7 +426,9 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jButtonAdd == null) {
             jButtonAdd = new JButton();
             jButtonAdd.setBounds(new java.awt.Rectangle(195,136,71,20));
+            jButtonAdd.setPreferredSize(new java.awt.Dimension(56,20));
             jButtonAdd.setText("Add");
+            jButtonAdd.addActionListener(this);
         }
         return jButtonAdd;   
         
@@ -438,7 +449,9 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jButtonRemove == null) {
             jButtonRemove = new JButton();
             jButtonRemove.setBounds(new java.awt.Rectangle(278,136,81,20));
+            jButtonRemove.setPreferredSize(new java.awt.Dimension(80,20));
             jButtonRemove.setText("Remove");
+            jButtonRemove.addActionListener(this);
         }
         return jButtonRemove;
     }
@@ -451,10 +464,59 @@ public class SpdPcdDefs extends IInternalFrame {
     private JButton getJButtonClearAll() {
         if (jButtonClearAll == null) {
             jButtonClearAll = new JButton();
-            jButtonClearAll.setBounds(new java.awt.Rectangle(369,136,90,20));
+            jButtonClearAll.setBounds(new java.awt.Rectangle(382,136,90,20));
+            jButtonClearAll.setPreferredSize(new java.awt.Dimension(81,20));
             jButtonClearAll.setText("Clear All");
+            jButtonClearAll.addActionListener(this);
         }
         return jButtonClearAll;
+    }
+
+    /**
+     * This method initializes jTable	
+     * 	
+     * @return javax.swing.JTable	
+     */
+//    private JTable getJTable() {
+//        if (jTable == null) {
+//            DefaultTableModel model = new DefaultTableModel();
+//            model.addColumn("Token");
+//            model.addColumn("C_Name");
+//            model.addColumn("TokenSpace");
+//            model.addColumn("DatumType");
+//            model.addColumn("DataOffset");
+//        }
+//        return jTable;
+//    }
+
+    /**
+     * This method initializes jButtonGen	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getJButtonGen() {
+        if (jButtonGen == null) {
+            jButtonGen = new JButton();
+            jButtonGen.setBounds(new java.awt.Rectangle(414,57,58,20));
+            jButtonGen.setPreferredSize(new java.awt.Dimension(56,20));
+            jButtonGen.setText("Gen");
+            jButtonGen.addActionListener(this);
+        }
+        return jButtonGen;
+    }
+    
+    public void componentResized(ComponentEvent arg0) {
+        resizeComponentWidth(this.jTextFieldC_Name, this.getWidth());
+        resizeComponentWidth(this.jTextFieldToken, this.getWidth());
+        resizeComponentWidth(this.jTextFieldTsGuid, this.getWidth());
+        resizeComponentWidth(this.jScrollPane, this.getWidth());
+        
+        resizeComponentWidth(this.jTextFieldVarVal, this.getWidth());
+        resizeComponentWidth(this.jTextFieldDefaultValue, this.getWidth());
+//        relocateComponentX(this.jButtonClearAll, this.getWidth(), DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);
+//        relocateComponentX(this.jButtonRemove, this.getWidth(), DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);
+//        relocateComponentX(this.jButtonAdd, this.getWidth(), DataType.SPACE_TO_RIGHT_FOR_GENERATE_BUTTON);
+        relocateComponentX(this.jButtonGen, this.getWidth(), jButtonGen.getWidth()+ 25);
     }
 
     /**
@@ -465,7 +527,7 @@ public class SpdPcdDefs extends IInternalFrame {
     private JScrollPane getJScrollPane() {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
-            jScrollPane.setBounds(new java.awt.Rectangle(8,165,465,80));
+            jScrollPane.setBounds(new java.awt.Rectangle(5,169,473,137));
             jScrollPane.setViewportView(getJTable());
         }
         return jScrollPane;
@@ -480,7 +542,6 @@ public class SpdPcdDefs extends IInternalFrame {
         if (jTable == null) {
             model = new PcdDefTableModel();
             jTable = new JTable(model);
-            jTable.setRowHeight(20);
             model.addColumn("Token");
             model.addColumn("C_Name");
             model.addColumn("TokenSpace");
@@ -488,19 +549,5 @@ public class SpdPcdDefs extends IInternalFrame {
             model.addColumn("DataOffset");
         }
         return jTable;
-    }
-
-    /**
-     * This method initializes jButtonGen	
-     * 	
-     * @return javax.swing.JButton	
-     */
-    private JButton getJButtonGen() {
-        if (jButtonGen == null) {
-            jButtonGen = new JButton();
-            jButtonGen.setBounds(new java.awt.Rectangle(413,58,58,20));
-            jButtonGen.setText("Gen");
-        }
-        return jButtonGen;
     }
 } //  @jve:decl-index=0:visual-constraint="22,11"
