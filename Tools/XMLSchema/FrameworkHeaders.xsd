@@ -86,6 +86,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="CreatedDate"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ModifiedDate"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="BuildTarget"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Specification"/>
             </xs:sequence>
         </xs:complexType>

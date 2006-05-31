@@ -18,6 +18,15 @@
     <xs:include schemaLocation="NamingConvention.xsd"/>
     <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
     <xs:include schemaLocation="FrameworkDataElements.xsd"/>
+    <xs:element name="BuildTarget">
+        <xs:simpleType>
+            <xs:restriction base="xs:NCName">
+                <xs:enumeration value="DEBUG"/>
+                <xs:enumeration value="RELEASE"/>
+                <xs:enumeration value="BOTH"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
     <xs:element name="Disable" type="xs:string"/>
     <xs:element name="Enable" type="xs:string"/>
     <xs:element name="Flash">
