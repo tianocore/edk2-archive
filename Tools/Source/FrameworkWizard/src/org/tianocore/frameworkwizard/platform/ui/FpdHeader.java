@@ -347,7 +347,7 @@ public class FpdHeader extends IInternalFrame {
         super();
         init(inFpdHeader);
         this.setVisible(true);
-        this.setViewMode(false);
+        
     }
 
     /**

@@ -1,5 +1,5 @@
 /** @file
-  Java class FpdFlash is GUI for package installation.
+  Java class FpdFlash is GUI for Flash element operation in SPD file.
  
 Copyright (c) 2006, Intel Corporation
 All rights reserved. This program and the accompanying materials
@@ -181,11 +181,13 @@ public class FpdFlash extends IInternalFrame {
     private JPanel jPanel12 = null;
     private JPanel jPanel13 = null;
     private JPanel jPanel14 = null;
+    
     public FpdFlash() {
         super();
         // TODO Auto-generated constructor stub
 
         initialize();
+        this.setVisible(true);
     }
 
     
