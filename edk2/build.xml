@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2006, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution.  The full text of the license may be found at
+http://opensource.org/licenses/bsd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+-->
+<project name="mdk" default="all" basedir=".">
+  <description>
+This is the highest-level build file.
+It can build all packages or clean up the build products.
+  </description>
+  <property environment="env"/>
+  <!-- Note: this is an ordered list. The projects have dependencies between them. -->
+  <filelist
+      id="Pkg.Dirs"
+      dir="."
+      files="Tools,MdePkg,EdkModulePkg,EdkNt32Pkg"/>
+
+  <target name="all" description="Issue a warning.">
+    <echo>
+Top-level builds may not be functional.
+Please build each package individually from its own directory.
+If you would like to try anyway, type
+ant All
+    </echo>
+  </target>
+  <target name="All" description="Build all packages.">
+    <subant target="" inheritall="false">
+      <filelist refid="Pkg.Dirs"/>
+    </subant>
+  </target>
+
+  <target name="clean" description="Remove compile and assembly artifacts.">
+    <subant target="clean" inheritall="false">
+      <filelist refid="Pkg.Dirs"/>
+    </subant>
+  </target>
+
+  <target name="cleanall" description="Remove everything not in the distribution.">
+    <subant target="cleanall" inheritall="false">
+      <filelist refid="Pkg.Dirs"/>
+    </subant>
+  </target>
+</project>
