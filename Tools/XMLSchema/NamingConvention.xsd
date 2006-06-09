@@ -15,22 +15,6 @@
     <xs:annotation>
         <xs:documentation xml:lang="en"> This schema defines various data types and naming conventions including: base name, filename and directory naming conventions. These are all simple data types.</xs:documentation>
     </xs:annotation>
-    <xs:simpleType name="ArbitraryName">
-        <xs:annotation>
-            <xs:documentation xml:lang="en"> An Arbitrary Name must start with one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="BaseNameConvention">
-        <xs:annotation>
-            <xs:documentation xml:lang="en"> Base Names must start with an upper case character, followed by one or more alphanumeric characters and/or an optional underscore (_) character followed by one or more alphanumeric characters. Examples: Base_name3, BASE_NAME3, BaseName3 </xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="[A-Z]([a-zA-Z0-9])*(_)?([a-zA-Z0-9])*"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="C_Name">
         <xs:annotation>
             <xs:documentation xml:lang="en"> C_Names must start with either an underscore (_) character followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
@@ -43,7 +27,7 @@
         <xs:annotation>
             <xs:documentation xml:lang="en"> Directory naming convention is a UNION of DOS an UNIX directory path names </xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="Directory_DOS Directory_UNIX xs:anyURI"/>
+        <xs:union memberTypes="Directory_DOS Directory_UNIX"/>
     </xs:simpleType>
     <xs:simpleType name="Directory_DOS">
         <xs:annotation>
@@ -80,6 +64,14 @@
         </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:pattern value="0x[a-fA-F0-9]{1,8},( )*0x[a-fA-F0-9]{1,4},( )*0x[a-fA-F0-9]{1,4}(,( )*\{)?(,?( )*0x[a-fA-F0-9]{1,2}){8}( )*(\})?"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="GuidC_NameType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> C_Names must start with either an underscore (_) character followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="GuidNamingConvention">
@@ -152,14 +144,6 @@
             <xs:pattern value="0x[a-fA-F0-9]{1,4}"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="KeywordString">
-        <xs:annotation>
-            <xs:documentation xml:lang="en"> Keywords must start with zero or more underscore (_) characters or alpha characters followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="LibraryNameConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en"> This defines what a Library name is: alphanumeric characters and optional underscore (_) characters. </xs:documentation>
@@ -182,11 +166,17 @@
         </xs:annotation>
         <xs:restriction base="xs:normalizedString"/>
     </xs:simpleType>
+    <xs:simpleType name="PathAndFilename">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Naming convention for a path and file name</xs:documentation>
+        </xs:annotation>
+        <xs:union memberTypes="Directory_DOS Directory_UNIX xs:anyURI"/>
+    </xs:simpleType>
     <xs:simpleType name="PlatformNamingConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en"> This defines what a Platform Name is: Alphanumeric characters and optional underscore (_) or dash (-) characters, followed by a dot and more alphanumeric characters. </xs:documentation>
         </xs:annotation>
-        <xs:restriction base="xs:string">
+        <xs:restriction base="xs:NCName">
             <xs:pattern value="(([a-zA-Z][a-zA-Z0-9]*)(_)*(.)*)+"/>
         </xs:restriction>
     </xs:simpleType>
@@ -308,7 +298,9 @@
         <xs:annotation>
             <xs:documentation xml:lang="en"> Definition of a Version Number, which can be any combination of a number followed by zero or more alphanumeric-dot-alphanumeric characters </xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="xs:decimal xs:hexBinary xs:normalizedString"/>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="xs:normalizedString"/>
+        </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="Zero">
         <xs:annotation>

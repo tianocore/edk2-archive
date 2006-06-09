@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.TianoCore.org/2006/Edk2.0" xmlns="http://www.TianoCore.org/2006/Edk2.0">
-    <!--
-  Filename: FDPManifest.xsd
+<!--
+Filename: SurfaceArea.xsd
 
-  Copyright (c) 2006, Intel Corp.
-  All rights reserved. This program and the accompanying materials
-  are licensed and made available under the terms and conditions of the BSD License
-  which may be found at http://opensource.org/licenses/bsd-license.php
+Copyright (c) 2006, Intel Corp.
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which may be found at http://opensource.org/licenses/bsd-license.php
 
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.TianoCore.org/2006/Edk2.0"
+    xmlns="http://www.TianoCore.org/2006/Edk2.0">
     <xs:annotation>
         <xs:documentation xml:lang="en"> This schema defines FDP Manifest </xs:documentation>
     </xs:annotation>
@@ -19,7 +21,8 @@
     <xs:include schemaLocation="FrameworkDataElements.xsd"/>
     <xs:element name="FrameworkDevPkgManifest">
         <xs:annotation>
-            <xs:documentation xml:lang="en">At the top level of the Manifest we have four sections: Header, Private, Public and Contents.</xs:documentation>
+            <xs:documentation xml:lang="en">At the top level of the Manifest we have four sections:
+                Header, Private, Public and Contents.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
@@ -32,21 +35,26 @@
     </xs:element>
     <xs:element name="Header">
         <xs:annotation>
-            <xs:documentation xml:lang="en"> The Header contains some three elements that can uniquely identify this package (PackageName, Guid, Version) as well as several fields that identify the licensing and compyright status of the contents of the package. The rest of the fields are there to idenify who created the package and when it was made. The buid fields are here to identify when the package was created, not when the package was compiled. </xs:documentation>
+            <xs:documentation xml:lang="en"> The Header contains some three elements that can
+                uniquely identify this package (PackageName, Guid, Version) as well as several
+                fields that identify the licensing and compyright status of the contents of the
+                package. The rest of the fields are there to idenify who created the package and
+                when it was made. The buid fields are here to identify when the package was created,
+                not when the package was compiled. </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="PackageName"/>
-                <xs:element minOccurs="1" maxOccurs="1" name="Guid" type="GuidType"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <xs:element minOccurs="1" maxOccurs="1" name="PackageType" type="PackageType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="CreatedDate"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Created"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Creator"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Vendor"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="UpdatedDate"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Updated"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="Modifier"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="DefaultInstallDir"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildNumber"/>
@@ -59,12 +67,15 @@
     </xs:element>
     <xs:element name="BuildNumber" type="xs:integer">
         <xs:annotation>
-            <xs:documentation> The Build number is an integer that is meant to represent the exact build of the package. </xs:documentation>
+            <xs:documentation> The Build number is an integer that is meant to represent the exact
+                build of the package. </xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:element name="Type">
         <xs:annotation>
-            <xs:documentation> In the Type field we can record what kinds of modules are contained in the package. The possibilities are source, binary and mixed (both source and binary.) </xs:documentation>
+            <xs:documentation> In the Type field we can record what kinds of modules are contained
+                in the package. The possibilities are source, binary and mixed (both source and
+                binary.) </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:attributeGroup ref="attlist.Type"/>
@@ -86,12 +97,14 @@
     </xs:attributeGroup>
     <xs:element name="BuildTarget" type="SupportedArchitectures">
         <xs:annotation>
-            <xs:documentation> The build target is used to record what target architecture the modules within this package were compiled for. </xs:documentation>
+            <xs:documentation> The build target is used to record what target architecture the
+                modules within this package were compiled for. </xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:element name="Creator">
         <xs:annotation>
-            <xs:documentation> In the creator field, we can record the name, user id, and email address of the person who created this package. </xs:documentation>
+            <xs:documentation> In the creator field, we can record the name, user id, and email
+                address of the person who created this package. </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:attributeGroup ref="attlist.Creator"/>
@@ -104,7 +117,9 @@
     </xs:attributeGroup>
     <xs:element name="Modifier">
         <xs:annotation>
-            <xs:documentation> In the Modifier field, we can record the name, user id, and email address of the person who changed/updated or modified this package. </xs:documentation>
+            <xs:documentation> In the Modifier field, we can record the name, user id, and email
+                address of the person who changed/updated or modified this package.
+            </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:attributeGroup ref="attlist.Modifier"/>
@@ -115,15 +130,16 @@
         <xs:attribute name="UserId"/>
         <xs:attribute name="Email"/>
     </xs:attributeGroup>
-    <xs:element name="Updated" type="DateType"/>
     <xs:element name="Vendor" type="xs:token">
         <xs:annotation>
-            <xs:documentation> The name of the company, organization or individual that created or distributes the package. </xs:documentation>
+            <xs:documentation> The name of the company, organization or individual that created or
+                distributes the package. </xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:element name="BuildSystem">
         <xs:annotation>
-            <xs:documentation>This is the place to record the name and DNS name of the computer on which the package was created.</xs:documentation>
+            <xs:documentation>This is the place to record the name and DNS name of the computer on
+                which the package was created.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:attributeGroup ref="attlist.BuildSystem"/>
@@ -146,7 +162,8 @@
     </xs:element>
     <xs:element name="ReleaseType">
         <xs:annotation>
-            <xs:documentation> We may identify the quality level of the package here. </xs:documentation>
+            <xs:documentation> We may identify the quality level of the package here.
+            </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
@@ -163,7 +180,8 @@
     </xs:element>
     <xs:element name="DefaultInstallDir">
         <xs:annotation>
-            <xs:documentation> This is the directory, relative to the root of the workspace, where the package will be installed by default. </xs:documentation>
+            <xs:documentation> This is the directory, relative to the root of the workspace, where
+                the package will be installed by default. </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:attributeGroup ref="attlist.DefaultInstallDir"/>
@@ -174,7 +192,9 @@
     </xs:attributeGroup>
     <xs:element name="Dependencies">
         <xs:annotation>
-            <xs:documentation> We can track the pakages that this package provides (these are the packages contained in this pacakge.) We also record which packages are required by this package. </xs:documentation>
+            <xs:documentation> We can track the pakages that this package provides (these are the
+                packages contained in this pacakge.) We also record which packages are required by
+                this package. </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
@@ -185,18 +205,24 @@
     </xs:element>
     <xs:element name="Requires">
         <xs:annotation>
-            <xs:documentation> This is a list of the packages that this package requires to be installed in the workspace for package to function and/or build correctly. In the case of source packages, these are the necessary dependencies for successful build-time operation of the package. For binary packages these dependencies are necessary for successful runtime operation.</xs:documentation>
+            <xs:documentation> This is a list of the packages that this package requires to be
+                installed in the workspace for package to function and/or build correctly. In the
+                case of source packages, these are the necessary dependencies for successful
+                build-time operation of the package. For binary packages these dependencies are
+                necessary for successful runtime operation.</xs:documentation>
         </xs:annotation>
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="Package">
                     <xs:annotation>
-                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path to the SPD File.</xs:documentation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package
+                            Database File to track individual package information. The Path is a
+                            relative path to the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
                             <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                            <xs:element minOccurs="1" maxOccurs="1" name="Guid" type="GuidType"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
@@ -208,7 +234,7 @@
                 <xs:element name="Library">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="BaseNameConvention">
+                            <xs:extension base="xs:NCName">
                                 <xs:attributeGroup ref="LibraryAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -223,7 +249,7 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element ref="GuidValue"/>
+                <xs:element ref="Guid"/>
                 <xs:element ref="File"/>
             </xs:choice>
         </xs:complexType>
@@ -236,12 +262,14 @@
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="Package">
                     <xs:annotation>
-                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path to the SPD File.</xs:documentation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package
+                            Database File to track individual package information. The Path is a
+                            relative path to the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
                             <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                            <xs:element minOccurs="1" maxOccurs="1" name="Guid" type="GuidType"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
@@ -251,12 +279,12 @@
                 </xs:element>
                 <xs:element ref="Includes"/>
                 <xs:element name="Library">
-                    <xs:annotation>
-                        <xs:documentation> A library. It can be provided by or required by this or other packages. </xs:documentation>
-                    </xs:annotation>
+                    <xs:annotation><xs:documentation>
+                        A library. It can be provided by or required by this or other packages.
+                    </xs:documentation></xs:annotation>
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="BaseNameConvention">
+                            <xs:extension base="xs:NCName">
                                 <xs:attributeGroup ref="LibraryAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -264,7 +292,9 @@
                 </xs:element>
                 <xs:element name="Protocol">
                     <xs:annotation>
-                        <xs:documentation> A protocol. It can be provided by or required by this or other packages. </xs:documentation>
+                        <xs:documentation>
+                        A protocol. It can be provided by or required by this or other packages.
+                    </xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:simpleContent>
@@ -274,7 +304,7 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="Guid" type="GuidType"/>
+                <xs:element ref="Guid"/>
                 <xs:element ref="File"/>
             </xs:choice>
         </xs:complexType>
@@ -284,11 +314,12 @@
     </xs:attributeGroup>
     <xs:attributeGroup name="attlist.Protocol">
         <xs:attribute name="Name" use="required"/>
-        <xs:attribute name="Guid" use="required" type="GuidType"/>
+        <xs:attribute name="Guid" use="required" type="xs:NMTOKEN"/>
     </xs:attributeGroup>
     <xs:element name="Private">
         <xs:annotation>
-            <xs:documentation> The Private section is a place where the files are listed that should not be seen by the users of this package. </xs:documentation>
+            <xs:documentation> The Private section is a place where the files are listed that should
+                not be seen by the users of this package. </xs:documentation>
         </xs:annotation>
         <xs:complexType mixed="true">
             <xs:sequence>
@@ -298,7 +329,8 @@
     </xs:element>
     <xs:element name="Public">
         <xs:annotation>
-            <xs:documentation> The Public section is a list of files that are meant to be seen by the users of the package. </xs:documentation>
+            <xs:documentation> The Public section is a list of files that are meant to be seen by
+                the users of the package. </xs:documentation>
         </xs:annotation>
         <xs:complexType mixed="true">
             <xs:sequence>
@@ -308,7 +340,8 @@
     </xs:element>
     <xs:element name="Contents">
         <xs:annotation>
-            <xs:documentation>This is a list of all the files within this package. Each file is identified by its path relative to the workspace root.</xs:documentation>
+            <xs:documentation>This is a list of all the files within this package. Each file is
+                identified by its path relative to the workspace root.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>

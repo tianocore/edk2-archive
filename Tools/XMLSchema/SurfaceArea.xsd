@@ -15,10 +15,10 @@
     <xs:include schemaLocation="FrameworkHeaders.xsd"/>
     <xs:include schemaLocation="FrameworkDataElements.xsd"/>
     <xs:include schemaLocation="FrameworkPlatformDataElements.xsd"/>
+    <xs:annotation>
+        <xs:documentation xml:lang="en">The following defines the valid format for the Framework Database (DB) File.</xs:documentation>
+    </xs:annotation>
     <xs:element name="FrameworkDatabase">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is the valid format for the Package Database File. Note: MsaList is used for Modules that have not yet been included in a package.</xs:documentation>
-        </xs:annotation>
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="FdbHeader"/>
@@ -27,30 +27,32 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:annotation>
+        <xs:documentation xml:lang="en">The following describes the valid format for the Framework Platform Description (FPD) File.</xs:documentation>
+    </xs:annotation>
     <xs:element name="FrameworkPlatformDescription">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is the valid format for the Framework Platform Description (FPD) File.</xs:documentation>
-        </xs:annotation>
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="PlatformHeader"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="SkuInfo"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Flash"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="FrameworkModules"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PcdDynamicBuildDeclarations"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="BuildOptions"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="DynamicPcdBuildDefinitions"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserExtensions"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:annotation>
+        <xs:documentation xml:lang="en">This is the Module Surface Area Description (MSA) that contains the list of the module's source files, library classes that can or must be used by the module, the Include Paths, Protocols and Ppi's that are either produced or consued.</xs:documentation>
+    </xs:annotation>
     <xs:element name="ModuleSurfaceArea">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is the Module Surface Area Description that contains the list of the module's source files, library classes that can or must be used by the module, the Include Paths, Protocols and Ppi's that are either produced or consued.</xs:documentation>
-        </xs:annotation>
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="MsaHeader"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="LibraryClassDefinitions"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PackageDependencies"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="SourceFiles"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="PackageDependencies"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Protocols"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Events"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Hobs"/>
@@ -59,27 +61,31 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="BootModes"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="SystemTables"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="DataHubs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Formsets"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="HiiPackages"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Guids"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Externs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PCDs"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="PcdCoded"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserExtensions"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:annotation>
+        <xs:documentation xml:lang="en">This describes the valid content for a Package Surface Area Description (SPD) file.</xs:documentation>
+    </xs:annotation>
     <xs:element name="PackageSurfaceArea">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is valid content for a Package Surface Area Description (SPD) file.</xs:documentation>
-        </xs:annotation>
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" ref="SpdHeader"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="LibraryClassDeclarations"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="MsaFiles"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="IndustryStdIncludes"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="MsaFileList"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="PackageHeaders"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="GuidDeclarations"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ProtocolDeclarations"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="PpiDeclarations"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="PcdDefinitions"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="PcdDeclarations"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserExtensions"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
