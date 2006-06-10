@@ -62,6 +62,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildSystem"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="BuildType"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="ReleaseType"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="URL"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -71,6 +72,9 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                 build of the package. </xs:documentation>
         </xs:annotation>
     </xs:element>
+    <xs:element name="Created" type="DateType"/>
+    <xs:element name="Updated" type="DateType"/>
+    <xs:element name="URL" type="xs:anyURI"/>
     <xs:element name="Type">
         <xs:annotation>
             <xs:documentation> In the Type field we can record what kinds of modules are contained

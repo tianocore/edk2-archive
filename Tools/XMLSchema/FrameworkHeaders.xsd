@@ -19,7 +19,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="DatabaseName"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="DatabaseName" type="UiNameType" fixed="FrameworkDatabase"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
@@ -27,7 +27,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <!-- Specificatoin needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="0" maxOccurs="1" ref="Specification"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -41,7 +41,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="ModuleType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="ComponentType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                <xs:element minOccurs="1" maxOccurs="1" name="Version" type="xs:decimal"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
@@ -49,7 +49,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
                 <xs:element default="false" minOccurs="0" name="BinaryModule" type="xs:boolean"/>
                 <!-- Specification needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="0" maxOccurs="1" ref="Specification"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -61,13 +61,13 @@
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" name="PlatformName" type="UiNameType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                <xs:element minOccurs="1" maxOccurs="1" name="Version" type="xs:decimal"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <!-- Specification needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="1" maxOccurs="unbounded" ref="Specification"/>
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -81,7 +81,7 @@
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" name="PackageName" type="UiNameType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                <xs:element minOccurs="1" maxOccurs="1" name="Version" type="xs:decimal"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
@@ -89,7 +89,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="ReadOnly"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="RePackage"/>
                 <!-- Specification needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="Specification"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

@@ -26,21 +26,13 @@
     <xs:element name="Policy">
         <xs:complexType>
             <xs:sequence minOccurs="1">
-                <xs:element name="SpdCreation" minOccurs="1" maxOccurs="1">
+                <xs:element name="SpdCreation" minOccurs="1" maxOccurs="1" nillable="true">
                     <xs:complexType>
-                        <xs:sequence minOccurs="0">
-                            <xs:element name="File" minOccurs="0" maxOccurs="unbounded">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="FileNameConvention">
-                                            <xs:attribute name="GuidValue" type="GuidType" use="required"/>
-                                            <xs:attribute name="Version" type="VersionDataType" use="required"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attributeGroup ref="SpdCreatModeAttributes"/>
+                        <xs:choice minOccurs="0">
+                            <xs:element name="SpdFiles" minOccurs="0" maxOccurs="1"/>
+                            <xs:element name="SpdFile" minOccurs="0" maxOccurs="1"/>
+                        </xs:choice>
+                        <xs:attributeGroup ref="SpdCreateModeAttributes"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -49,17 +41,17 @@
     <xs:element name="Preferences">
         <xs:complexType>
             <xs:all minOccurs="0">
-                <xs:element name="Locale" type="xs:string"/>
-                <xs:element minOccurs="0" name="MostRecentFiles">
+                <xs:element minOccurs="0" maxOccurs="1" name="Locale" type="xs:string"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="MostRecentFiles">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="0" maxOccurs="1" default="0" name="NumberToTrack" type="xs:int"/>
                             <xs:element minOccurs="0" maxOccurs="1" default="0" name="LastOpened" type="xs:int"/>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="File">
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="DisplayName">
                                 <xs:complexType>
                                     <xs:simpleContent>
-                                        <xs:extension base="DirectoryNamingConvention">
-                                            <xs:attribute name="Seq" type="xs:int" use="required"/>
+                                        <xs:extension base="UiNameType">
+                                            <xs:attributeGroup ref="RecentFileAttributes"/>
                                         </xs:extension>
                                     </xs:simpleContent>
                                 </xs:complexType>
@@ -70,4 +62,53 @@
             </xs:all>
         </xs:complexType>
     </xs:element>
+    <xs:attributeGroup name="RecentFileAttributes">
+        <xs:attribute name="Seq" type="xs:int" use="required"/>
+        <xs:attribute name="Filename" type="PathAndFilename" use="optional"/>
+        <xs:attribute name="FrameworkFileType" type="FrameworkFileTypes" use="required"/>
+        <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="PackageVersion" type="xs:decimal" use="optional"/>
+        <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="ModuleVersion" type="xs:decimal" use="optional"/>
+        <xs:attribute name="PlatformGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="PlatformVersion" type="xs:decimal" use="optional"/>
+    </xs:attributeGroup>
+    <xs:simpleType name="FrameworkFileTypes">
+        <xs:restriction base="UCNameType">
+            <xs:enumeration value="MSA"/>
+            <xs:enumeration value="SPD"/>
+            <xs:enumeration value="FPD"/>
+            <xs:enumeration value="DB"/>
+            <xs:enumeration value="FDP"/>
+            <xs:enumeration value="LEGACY"/>
+            <xs:enumeration value="UNKNOWN"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="SpdFiles">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="1" maxOccurs="unbounded" ref="SpdFile"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SpdFile">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="PathAndFilename">
+                    <xs:attribute name="SpdModuleGuid" type="GuidType" use="required"/>
+                    <xs:attribute name="SpdModuleVersion" type="VersionDataType" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:attributeGroup name="SpdCreateModeAttributes">
+        <xs:attribute name="CreatePolicy" type="PolicyCreation" use="required"/>
+    </xs:attributeGroup>
+    <xs:simpleType name="PolicyCreation">
+        <xs:restriction base="UCNameType">
+            <xs:enumeration value="NO_RESTRICTION"/>
+            <xs:enumeration value="SINGLE_FILE"/>
+            <xs:enumeration value="MULTIPLE_FILES"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

@@ -25,7 +25,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="BootModeNames">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="FULL"/>
             <xs:enumeration value="MINIMAL"/>
             <xs:enumeration value="NO_CHANGE"/>
@@ -40,7 +40,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="BootModeUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -48,7 +48,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="BuildTargets">
-        <xs:restriction base="xs:NCName">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="DEBUG"/>
             <xs:enumeration value="RELEASE"/>
             <xs:enumeration value="BOTH"/>
@@ -73,7 +73,7 @@
         <xs:list itemType="C_Name"/>
     </xs:simpleType>
     <xs:simpleType name="DataHubUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -113,7 +113,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="EventTypes">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="EVENT_GROUP_EXIT_BOOT_SERVICES"/>
             <xs:enumeration value="EVENT_GROUP_VIRTUAL_ADDRESS_CHANGE"/>
             <xs:enumeration value="EVENT_GROUP_MEMORY_MAP_CHANGE"/>
@@ -122,7 +122,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="EventUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -144,13 +144,13 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ExternUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="FileNameUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -224,7 +224,7 @@
         <xs:list itemType="GuidTypes"/>
     </xs:simpleType>
     <xs:simpleType name="GuidUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -234,14 +234,14 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="HiiPackageUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_PRODUCED"/>
             <xs:enumeration value="SOMETIMES_PRODUCED"/>
             <xs:enumeration value="PRIVATE"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="HobTypes">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="PHIT"/>
             <xs:enumeration value="MEMORY_ALLOCATION"/>
             <xs:enumeration value="RESOURCE_DESCRIPTOR"/>
@@ -253,7 +253,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="HobUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -265,7 +265,7 @@
         <xs:list itemType="xs:positiveInteger"/>
     </xs:simpleType>
     <xs:simpleType name="LibraryUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -275,7 +275,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ModuleTypeDef">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="BASE"/>
             <xs:enumeration value="SEC"/>
             <xs:enumeration value="PEI_CORE"/>
@@ -291,7 +291,7 @@
             <xs:enumeration value="USER_DEFINED"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="ModuleTypeList">
+    <xs:simpleType name="ModuleListType">
         <xs:list itemType="FrameworkModuleTypes"/>
     </xs:simpleType>
     <xs:simpleType name="Module_Unified">
@@ -308,7 +308,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PackageUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
             <xs:enumeration value="DEFAULT"/>
@@ -318,7 +318,7 @@
         <xs:list itemType="PcdItemTypes"/>
     </xs:simpleType>
     <xs:simpleType name="PcdTypes">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="FIXED_AT_BUILD"/>
             <xs:enumeration value="FEATURE_FLAG"/>
             <xs:enumeration value="PATCHABLE_IN_MODULE"/>
@@ -327,7 +327,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PcdDriverTypes">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="PEI_PCD_DRIVER"/>
             <xs:enumeration value="DXE_PCD_DRIVER"/>
         </xs:restriction>
@@ -349,7 +349,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PcdItemTypes">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="FEATURE_FLAG"/>
             <xs:enumeration value="FIXED_AT_BUILD"/>
             <xs:enumeration value="PATCHABLE_IN_MODULE"/>
@@ -358,7 +358,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PcdUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -367,12 +367,12 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PpiNotifyUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PpiUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -381,12 +381,12 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ProtocolNotifyUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ProtocolUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -400,7 +400,7 @@
         <xs:list itemType="HexByteDataType"/>
     </xs:simpleType>
     <xs:simpleType name="SupportedArchitectures">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="ALL"/>
             <xs:enumeration value="EBC"/>
             <xs:enumeration value="ARM"/>
@@ -411,7 +411,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="SystemTableUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -419,10 +419,6 @@
             <xs:enumeration value="PRIVATE"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="Token">
-        <xs:union memberTypes="GuidArrayType GuidNamingConvention HexDoubleWordDataType"/>
-    </xs:simpleType>
-    <!-- TokenDataType is xs:nonNegativeInteger in final -->
     <xs:simpleType name="TokenDataType">
         <xs:union memberTypes="HexDoubleWordDataType  xs:nonNegativeInteger"/>
     </xs:simpleType>
@@ -448,7 +444,7 @@
         <xs:list itemType="HexWordDataType"/>
     </xs:simpleType>
     <xs:simpleType name="UsageTypes">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UCNameType">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>
@@ -465,7 +461,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="VariableUsage">
-        <xs:restriction base="NameConvention">
+        <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
             <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="ALWAYS_PRODUCED"/>

@@ -45,11 +45,6 @@
             <xs:pattern value="(\/)?(((_*-*.*[a-zA-Z0-9]*)*(_*-*.*[a-zA-Z0-9])*)+(\/)?)*"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="E-Mail">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="[a-zA-Z]+(( )*.?-?[a-zA-Z]*)*@[a-zA-Z]+(( )*.?-?[a-zA-Z]*)*"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="FileNameConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en"> This defines what a Filename is: Alphanumeric characters and optional underscore (_) or dash (-) characters, followed by a optional dot and more alphanumeric characters. </xs:documentation>
@@ -58,7 +53,7 @@
             <xs:pattern value="[a-zA-Z][a-zA-Z0-9]*((_)*(-)*(.)*[a-zA-Z0-9]*)*"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="GuidArrayType">
+    <xs:simpleType name="GuidType1">
         <xs:annotation>
             <xs:documentation xml:lang="en"> This defines the minimum specification for a GUID Array which is 8 Hex Digits - 4 Hex Digits - 4 Hex Digits - 8 Hex Bytes, the last 16 Hex Digits can be enclosed in sqiggle {} brackets.</xs:documentation>
         </xs:annotation>
@@ -74,7 +69,7 @@
             <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="GuidNamingConvention">
+    <xs:simpleType name="GuidType2">
         <xs:annotation>
             <xs:documentation xml:lang="en"> A GUID must contain five different Hexadecimal character sets that are separated by a dash (-) character. </xs:documentation>
         </xs:annotation>
@@ -84,9 +79,9 @@
     </xs:simpleType>
     <xs:simpleType name="GuidType">
         <xs:annotation>
-            <xs:documentation xml:lang="en"> The GUID data is union of GuidNaming Convetion and GuidArrayType. </xs:documentation>
+            <xs:documentation xml:lang="en"> The GUID data is union of GuidNaming Convetion and GuidType1. </xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="GuidArrayType GuidNamingConvention"/>
+        <xs:union memberTypes="GuidType1 GuidType2"/>
     </xs:simpleType>
     <xs:simpleType name="Hex64BitDataType">
         <xs:annotation>
@@ -144,14 +139,6 @@
             <xs:pattern value="0x[a-fA-F0-9]{1,4}"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="LibraryNameConvention">
-        <xs:annotation>
-            <xs:documentation xml:lang="en"> This defines what a Library name is: alphanumeric characters and optional underscore (_) characters. </xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="[A-Z][a-zA-Z0-9]*(_*[a-zA-Z0-9])*"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="NameConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en">What is a name, any series of alphanumeric characters and one or more underline characters that may occur in any position</xs:documentation>
@@ -170,7 +157,7 @@
         <xs:annotation>
             <xs:documentation xml:lang="en"> Naming convention for a path and file name</xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="Directory_DOS Directory_UNIX xs:anyURI"/>
+        <xs:union memberTypes="Directory_DOS Directory_UNIX FileNameConvention xs:anyURI"/>
     </xs:simpleType>
     <xs:simpleType name="PlatformNamingConvention">
         <xs:annotation>
@@ -217,7 +204,7 @@
             <xs:documentation xml:lang="en"> Definition of a UpperCase Name, which can be any combination of upper case characters followed by zero or more underscore and/or uppercase alphanumeric characters </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:pattern value="[A-Z]+(_*[A-Z0-9]*( )*)*"/>
+            <xs:pattern value="[A-Z]+(_*[A-Z0-9]*)*"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="UserName">
@@ -252,9 +239,9 @@
     </xs:simpleType>
     <xs:simpleType name="VariableGuidType">
         <xs:annotation>
-            <xs:documentation xml:lang="en"> The GUID data is union of GuidNaming Convetion and GuidArrayType. </xs:documentation>
+            <xs:documentation xml:lang="en"> The GUID data is union of GuidType1 and GuidType2. </xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="GuidArrayType GuidNamingConvention Zero"/>
+        <xs:union memberTypes="GuidType1 GuidType2 Zero"/>
     </xs:simpleType>
     <xs:simpleType name="VariableNamingConvention">
         <xs:annotation>
@@ -296,11 +283,9 @@
     </xs:simpleType>
     <xs:simpleType name="VersionDataType">
         <xs:annotation>
-            <xs:documentation xml:lang="en"> Definition of a Version Number, which can be any combination of a number followed by zero or more alphanumeric-dot-alphanumeric characters </xs:documentation>
+            <xs:documentation xml:lang="en"> Definition of a Version Number, which must be a decimal number (or Zero) </xs:documentation>
         </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="xs:normalizedString"/>
-        </xs:restriction>
+        <xs:union memberTypes="xs:decimal Zero"/>
     </xs:simpleType>
     <xs:simpleType name="Zero">
         <xs:annotation>
@@ -308,14 +293,6 @@
         </xs:annotation>
         <xs:restriction base="xs:int">
             <xs:pattern value="0"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="OldVersionDataType">
-        <xs:annotation>
-            <xs:documentation xml:lang="en"> Definition of a Version Number, which can be any combination of a number followed by zero or more alphanumeric-dot-alphanumeric characters </xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:pattern value="([0-9])+[a-zA-Z0-9]*(-?.?([a-zA-Z0-9])*)*"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

@@ -79,11 +79,13 @@
     </xs:element>
     <xs:element name="BuildOptions">
         <xs:annotation>
-            <xs:documentation xml:lang="en">BuildOptions is valid for MBD and FPD files.</xs:documentation>
+            <xs:documentation xml:lang="en">BuildOptions is valid for SPD and FPD files.</xs:documentation>
             <xs:documentation xml:lang="en">Specific Build Options, by Tool Chain, than should be applied, overriding any global options</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" name="SupportedBuildTargets" type="UCNameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="UserDefinedAntTasks"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="ImageEntryPoint"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
@@ -121,7 +123,6 @@
     </xs:element>
     <xs:element name="Constructor" type="C_Name"/>
     <xs:element name="Copyright" type="Sentence"/>
-    <xs:element name="Created" type="DateType"/>
     <xs:element name="CreatedDate" type="DateType"/>
     <xs:element name="CreatedBy" type="UserName"/>
     <xs:element name="DataHubs">
@@ -162,7 +163,6 @@
     <xs:element name="DriverBinding" type="C_Name"/>
     <xs:element name="DriverConfig" type="C_Name"/>
     <xs:element name="DriverDiag" type="C_Name"/>
-    <xs:element name="E-Mail" type="E-Mail"/>
     <xs:element name="Events">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is a list of MSA Events</xs:documentation>
@@ -316,11 +316,8 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-                            <xs:choice minOccurs="1">
-                                <xs:element minOccurs="0" maxOccurs="1" ref="Guid"/>
-                                <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
-                            </xs:choice>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" ref="HelpText"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
+                            <xs:element minOccurs="1" maxOccurs="unbounded" ref="HelpText"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="GuidDeclarationAttributes"/>
                     </xs:complexType>
@@ -497,38 +494,14 @@
     </xs:element>
     <xs:element name="Modified" type="DateType"/>
     <xs:element name="ModifiedDate" type="DateType"/>
-    <xs:element name="Module">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This is record format for a Module entry in the Framework Database file.</xs:documentation>
-            <xs:documentation xml:lang="en">This describes the fields in an Module record in the Framework Database. The Path field is relative to the workspace to Module Surface Area (MSA) files.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="ModuleName"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="ModuleEntryPoint" type="xs:normalizedString"/>
-    <xs:element name="ModuleList">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track package installation</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence maxOccurs="unbounded">
-                <xs:element minOccurs="1" maxOccurs="unbounded" ref="Module"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="ModuleName">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is the valid content of a Module Name</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:simpleContent>
-                <xs:extension base="xs:NCName">
+                <xs:extension base="UiNameType">
                     <xs:attributeGroup ref="ModuleNameAttributes"/>
                 </xs:extension>
             </xs:simpleContent>
@@ -868,7 +841,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="0" ref="Filenames"/>
                             <xs:element minOccurs="0" name="Args" type="ArgsType"/>
-                            <xs:element minOccurs="0" name="OutFile" type="FileNameConvention"/>
+                            <xs:element minOccurs="0" name="OutFile" type="PathAndFilename"/>
                             <xs:element minOccurs="0" name="OutputFileExtension" type="xs:string"/>
                             <xs:element minOccurs="0" name="ToolName" type="ToolType"/>
                         </xs:sequence>
@@ -883,7 +856,7 @@
                                     <xs:sequence>
                                         <xs:element minOccurs="0" ref="Filenames"/>
                                         <xs:element minOccurs="0" name="Args" type="ArgsType"/>
-                                        <xs:element minOccurs="0" name="OutFile" type="FileNameConvention"/>
+                                        <xs:element minOccurs="0" name="OutFile" type="PathAndFilename"/>
                                         <xs:element minOccurs="0" name="OutputFileExtension" type="xs:string"/>
                                         <xs:element minOccurs="0" name="ToolName" type="ToolType"/>
                                     </xs:sequence>
@@ -930,7 +903,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:simpleContent>
-                <xs:extension base="xs:normalizedString">
+                <xs:extension base="xs:string">
                     <xs:attribute name="Version" type="xs:normalizedString" use="optional"/>
                 </xs:extension>
             </xs:simpleContent>
@@ -953,10 +926,6 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="Updated" type="DateType"/>
-    <xs:element name="UpdatedDate" type="DateType"/>
-    <xs:element name="URL" type="xs:anyURI"/>
-    <xs:element name="URI" type="xs:anyURI"/>
     <xs:element name="UserDefinedAntTasks">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is a sub-element of BuildOptions</xs:documentation>
@@ -999,5 +968,5 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="Version" type="xs:decimal"/>
+    <xs:element name="Version" type="VersionDataType"/>
 </xs:schema>

@@ -73,12 +73,11 @@
             <xs:sequence>
                 <xs:choice>
                     <xs:element name="FlashDefinition" type="FlashData"/>
-                    <xs:element name="FlashDefinitionFile" type="FileNameConvention"/>
+                    <xs:element name="FlashDefinitionFile" type="PathAndFilename"/>
                 </xs:choice>
                 <xs:element minOccurs="0" maxOccurs="1" ref="FvImages"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Capsules"/>
             </xs:sequence>
-            <xs:attribute name="MicrocodeFile" type="FileNameConvention" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="FlashDeviceImage">
@@ -178,7 +177,6 @@
                 <xs:element default="512KB" minOccurs="0" maxOccurs="1" name="FlashSize" type="FlashSize"/>
                 <xs:element minOccurs="0" maxOccurs="1" name="BaseAddress" type="HexAddressType"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="MicrocodeFile" type="FileNameConvention"/>
                 <xs:element minOccurs="0" maxOccurs="255" name="Block" type="BlockNameType"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Region" type="RegionDataType"/>
             </xs:sequence>
@@ -320,40 +318,10 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:choice>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" maxOccurs="1" name="SEC" type="Components"/>
-                        <xs:element minOccurs="0" maxOccurs="1" name="PEI_CORE" type="Components"/>
-                        <xs:element minOccurs="0" maxOccurs="1" name="PEIM" type="Components"/>
-                        <xs:element minOccurs="0" maxOccurs="1" name="DXE_CORE" type="Components"/>
-                        <xs:element minOccurs="0" maxOccurs="1" name="DXE_DRIVERS" type="Components"/>
-                        <xs:element minOccurs="0" maxOccurs="1" name="OTHER_COMPONENTS" type="Components"/>
-                    </xs:sequence>
-                    <xs:element minOccurs="1" maxOccurs="unbounded" ref="ModuleSA"/>
-                </xs:choice>
+                <xs:element minOccurs="1" maxOccurs="unbounded" ref="ModuleSA"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="TianoImage">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">DO NOT USE - Use FrameworkModules Instead.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" name="SEC" type="Components"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="PEI_CORE" type="Components"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="PEIM" type="Components"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="DXE_CORE" type="Components"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="DXE_DRIVERS" type="Components"/>
-                <xs:element minOccurs="0" maxOccurs="1" name="OTHER_COMPONENTS" type="Components"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:complexType name="Components">
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element ref="ModuleSA"/>
-        </xs:sequence>
-    </xs:complexType>
     <xs:complexType name="FlashData">
         <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefinedFvRegion" type="NameConvention"/>
@@ -368,14 +336,14 @@
     </xs:complexType>
     <xs:complexType name="FvImageFileType">
         <xs:sequence>
-            <xs:element minOccurs="1" maxOccurs="1" name="Name" type="FileNameConvention"/>
+            <xs:element minOccurs="1" maxOccurs="1" name="Name" type="PathAndFilename"/>
             <xs:element minOccurs="1" maxOccurs="1" name="Region" type="FvRegionTypes"/>
             <xs:element minOccurs="1" maxOccurs="unbounded" name="RawData" type="RawDataType"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="FvImageOverrideFileType">
         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="1" name="Name" type="FileNameConvention"/>
+            <xs:element minOccurs="0" maxOccurs="1" name="Name" type="PathAndFilename"/>
             <xs:element minOccurs="0" maxOccurs="1" name="Region" type="FvRegionTypes"/>
             <xs:element minOccurs="0" maxOccurs="1" name="UserDefinedFvRegion" type="NameConvention"/>
             <xs:element minOccurs="0" maxOccurs="unbounded" name="RawData" type="RawDataType"/>

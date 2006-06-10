@@ -72,7 +72,7 @@
         <xs:attribute name="Usage" type="BootModeUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ConvertAttributeString">
-        <xs:attribute name="OutputFilename" type="FileNameConvention" use="optional"/>
+        <xs:attribute name="OutputFilename" type="PathAndFilename" use="optional"/>
         <xs:attribute name="SourceString" type="xs:string" use="optional"/>
         <xs:attribute default="Unicode" name="OutputFiletype" type="xs:string" use="optional"/>
     </xs:attributeGroup>
@@ -109,7 +109,7 @@
         <xs:attribute name="Name" type="xs:NCName" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="ModuleTypeList" type="ModuleTypeList" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
         <xs:attribute name="GuidTypeList" type="GuidListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="HiiPackageAttributes">
@@ -126,12 +126,12 @@
     <xs:attributeGroup name="IncludeHeaderAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="ModuleTypeList" type="ModuleTypeList" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="IndustryStdHeaderAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="ModuleTypeList" type="ModuleTypeList" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryAttributes">
         <!-- LibraryAttributes is used for Libraries / Library elements in FPD files -->
@@ -194,7 +194,6 @@
         <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
         <xs:attribute name="PackageType" type="PackageType" use="optional"/>
         <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
-        <xs:attribute name="UpdatedDate" type="DateType" use="optional"/>
         <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
     </xs:attributeGroup>
     <!-- PackageNameAttributres are only used in the Package Dependencies section of an SPD file. -->
@@ -221,7 +220,7 @@
     <xs:attributeGroup name="PcdDeclarationAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="SupModuleTypes" type="ModuleTypeList" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PlatformAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -233,7 +232,7 @@
         <xs:attribute name="Name" type="xs:NCName" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="ModuleTypeList" type="ModuleTypeList" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -254,7 +253,7 @@
         <xs:attribute name="Name" type="xs:NCName" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="ModuleTypeList" type="ModuleTypeList" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolNotifyAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
