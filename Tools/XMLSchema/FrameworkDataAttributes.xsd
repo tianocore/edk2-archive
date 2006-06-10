@@ -23,58 +23,11 @@
         <xs:attribute name="Size" type="HexAddressType" use="required"/>
         <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
     </xs:attributeGroup>
-    <xs:attributeGroup name="FlashDeviceImageAttributes">
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="FlashDeviceImageFileAttributes">
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-        <xs:attribute name="Region" type="xs:string" use="required"/>
-        <xs:attribute name="SubRegion" type="xs:string" use="optional"/>
-        <xs:attribute name="Optional" type="xs:boolean" use="optional"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="FlashDeviceInfoAttributes">
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-        <xs:attribute name="Size" type="HexAddressType" use="required"/>
-        <xs:attribute name="BaseAddress" type="HexAddressType" use="required"/>
-        <xs:attribute name="ErasePolarity" type="Polarity" use="required"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="RawDataAttributes">
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-        <xs:attribute name="Region" type="xs:string" use="required"/>
-        <xs:attribute name="SubRegion" type="xs:string" use="required"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="RegionAttributes">
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-        <xs:attribute name="Size" type="HexAddressType" use="required"/>
-        <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
-        <xs:attribute name="Alignment" type="HexAddressType" use="optional"/>
-        <xs:attribute name="Attributes" type="xs:string" use="required"/>
-        <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="SubRegionAttributes">
-        <xs:attribute name="CreateHob" type="xs:boolean" use="required"/>
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-        <xs:attribute name="Size" type="HexAddressType" use="required"/>
-        <xs:attribute name="Attributes" type="xs:string" use="required"/>
-        <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
-        <xs:attribute name="NameGuid" type="xs:string" use="required"/>
-        <xs:attribute name="AreaTypeGuid" type="xs:string" use="optional"/>
-        <xs:attribute name="FileSystemGuid" type="xs:string" use="optional"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="BaseNameAttributes">
-        <xs:attribute name="Guid" type="GuidType" use="optional"/>
-        <xs:attribute name="Version" type="VersionDataType" use="optional"/>
-    </xs:attributeGroup>
     <xs:attributeGroup name="BootModeAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="BootModeName" type="BootModeNames" use="required"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="Usage" type="BootModeUsage" use="required"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="ConvertAttributeString">
-        <xs:attribute name="OutputFilename" type="PathAndFilename" use="optional"/>
-        <xs:attribute name="SourceString" type="xs:string" use="optional"/>
-        <xs:attribute default="Unicode" name="OutputFiletype" type="xs:string" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="DataHubAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -96,9 +49,24 @@
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="FileType" type="xs:string" use="optional"/>
-        <xs:attribute name="TagName" type="xs:NCName" use="optional"/>
-        <xs:attribute name="ToolCode" type="xs:NCName" use="optional"/>
-        <xs:attribute name="ToolChainFamily" type="xs:NCName" use="optional"/>
+        <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
+        <xs:attribute name="ToolCode" type="ToolsNameConvention" use="optional"/>
+        <xs:attribute name="ToolChainFamily" type="ToolsNameConvention" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FlashDeviceImageAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FlashDeviceImageFileAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Region" type="xs:string" use="required"/>
+        <xs:attribute name="SubRegion" type="xs:string" use="optional"/>
+        <xs:attribute name="Optional" type="xs:boolean" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FlashDeviceInfoAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="BaseAddress" type="HexAddressType" use="required"/>
+        <xs:attribute name="ErasePolarity" type="Polarity" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="GuidAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -162,11 +130,6 @@
         <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
-    <xs:attributeGroup name="ModuleNameSaAttributes">
-        <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
-        <xs:attribute name="ModuleName" type="UiNameType" use="required"/>
-        <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
-    </xs:attributeGroup>
     <xs:attributeGroup name="MsaAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
@@ -182,9 +145,9 @@
         <!-- LAH Does an Option need to have FeatureFlag Attribute? -->
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="Platform" type="PlatformNamingConvention" use="optional"/>
-        <xs:attribute name="ToolChainFamily" type="xs:NCName" use="optional"/>
-        <xs:attribute name="TagName" type="xs:NCName" use="optional"/>
-        <xs:attribute name="ToolCommand" type="xs:NCName" use="optional"/>
+        <xs:attribute name="ToolChainFamily" type="ToolsNameConvention" use="optional"/>
+        <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
+        <xs:attribute name="ToolCommand" type="ToolsNameConvention" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageHeaderAttributes">
         <xs:attribute name="ModuleType" type="ModuleTypeDef" use="optional"/>
@@ -260,6 +223,19 @@
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="Usage" type="ProtocolNotifyUsage" use="required"/>
     </xs:attributeGroup>
+    <xs:attributeGroup name="RawDataAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Region" type="xs:string" use="required"/>
+        <xs:attribute name="SubRegion" type="xs:string" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="RegionAttributes">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
+        <xs:attribute name="Alignment" type="HexAddressType" use="optional"/>
+        <xs:attribute name="Attributes" type="xs:string" use="required"/>
+        <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
+    </xs:attributeGroup>
     <xs:attributeGroup name="SectionAttributes">
         <xs:annotation>
             <xs:documentation xml:lang="en">Attributes are either compressable and/or sequence order binding</xs:documentation>
@@ -276,6 +252,16 @@
         </xs:annotation>
         <xs:attribute name="EncapsulationType" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="EncapsulationTag" type="xs:string" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="SubRegionAttributes">
+        <xs:attribute name="CreateHob" type="xs:boolean" use="required"/>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Size" type="HexAddressType" use="required"/>
+        <xs:attribute name="Attributes" type="xs:string" use="required"/>
+        <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
+        <xs:attribute name="NameGuid" type="xs:string" use="required"/>
+        <xs:attribute name="AreaTypeGuid" type="xs:string" use="optional"/>
+        <xs:attribute name="FileSystemGuid" type="xs:string" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="SystemTableAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>

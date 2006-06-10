@@ -71,10 +71,7 @@
                 <xs:documentation xml:lang="en">We allow specifying the Flash layout in this directory, or we allow specifying a flashmap filename</xs:documentation>
             </xs:annotation>
             <xs:sequence>
-                <xs:choice>
-                    <xs:element name="FlashDefinition" type="FlashData"/>
-                    <xs:element name="FlashDefinitionFile" type="PathAndFilename"/>
-                </xs:choice>
+                <xs:element minOccurs="0" maxOccurs="1" name="FlashDefinition" type="FlashData"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="FvImages"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Capsules"/>
             </xs:sequence>
@@ -258,17 +255,6 @@
             </xs:simpleContent>
         </xs:complexType>
     </xs:element>
-    <xs:element name="Overrides">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">DO NOT USE! - Removing this from Schema</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceOverrideInfo"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceOverrideImage"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="Platform">
         <xs:annotation>
             <xs:documentation xml:lang="en">Database Entry to locate the Platform Build Tips - path to FPD file.</xs:documentation>
@@ -290,16 +276,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="Filename"/>
             </xs:sequence>
             <xs:attributeGroup ref="PlatformAttributes"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="PlatformDescriptions">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">DO NOT USE! - Use PlatformList instead</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence maxOccurs="unbounded">
-                <xs:element ref="Platform"/>
-            </xs:sequence>
         </xs:complexType>
     </xs:element>
     <xs:element name="PlatformList">
@@ -331,7 +307,6 @@
                     <xs:element minOccurs="1" maxOccurs="1" ref="FlashDeviceImage"/>
                 </xs:sequence>
             </xs:choice>
-            <xs:element minOccurs="0" maxOccurs="1" ref="Overrides"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="FvImageFileType">
