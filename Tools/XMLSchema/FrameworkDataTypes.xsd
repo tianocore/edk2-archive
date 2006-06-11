@@ -70,7 +70,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ConditionalTarget">
-        <xs:list itemType="C_Name"/>
+        <xs:list itemType="C_NameType"/>
     </xs:simpleType>
     <xs:simpleType name="DataHubUsage">
         <xs:restriction base="UsageTypes">
@@ -406,12 +406,11 @@
     </xs:simpleType>
     <xs:simpleType name="SupportedArchitectures">
         <xs:restriction base="UCNameType">
-            <xs:enumeration value="ALL"/>
             <xs:enumeration value="EBC"/>
-            <xs:enumeration value="ARM"/>
             <xs:enumeration value="IA32"/>
             <xs:enumeration value="X64"/>
             <xs:enumeration value="IPF"/>
+            <xs:enumeration value="ARM"/>
             <xs:enumeration value="PPC"/>
         </xs:restriction>
     </xs:simpleType>

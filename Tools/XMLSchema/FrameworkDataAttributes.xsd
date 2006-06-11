@@ -24,34 +24,34 @@
         <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="BootModeAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="BootModeName" type="BootModeNames" use="required"/>
-        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="Usage" type="BootModeUsage" use="required"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="DataHubAttributes">
+        <xs:attribute name="Usage" type="DataHubUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="DataHubUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="EventAttributes">
+        <xs:attribute name="Usage" type="EventUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="EventUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ExternAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="Guid" type="GuidType" use="optional"/>
         <xs:attribute name="Usage" type="ExternUsage" use="optional"/>
-    </xs:attributeGroup>
-    <xs:attributeGroup name="FilenameAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="FilenameAttributes">
         <xs:attribute name="FileType" type="xs:string" use="optional"/>
         <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
         <xs:attribute name="ToolCode" type="ToolsNameConvention" use="optional"/>
         <xs:attribute name="ToolChainFamily" type="ToolsNameConvention" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="FlashDeviceImageAttributes">
         <xs:attribute name="Name" type="xs:string" use="required"/>
@@ -69,27 +69,27 @@
         <xs:attribute name="ErasePolarity" type="Polarity" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="GuidAttributes">
+        <xs:attribute name="Usage" type="GuidUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="GuidUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="GuidDeclarationAttributes">
         <xs:attribute name="Name" type="xs:NCName" use="required"/>
+        <xs:attribute name="GuidTypeList" type="GuidListType" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
-        <xs:attribute name="GuidTypeList" type="GuidListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="HiiPackageAttributes">
+        <xs:attribute name="Usage" type="HiiPackageUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="HiiPackageUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="HobAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="HobType" type="HobTypes" use="required"/>
         <xs:attribute name="Usage" type="HobUsage" use="required"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="IncludeHeaderAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -103,8 +103,6 @@
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryAttributes">
         <!-- LibraryAttributes is used for Libraries / Library elements in FPD files -->
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="LibraryClass" type="xs:NCName" use="optional"/>
         <xs:attribute name="LibraryClassGuid" type="GuidType" use="optional"/>
         <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
@@ -113,57 +111,68 @@
         <xs:attribute name="PackageName" type="UiNameType" use="optional"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="Usage" type="LibraryUsage" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryClassAttributes">
+        <xs:attribute name="Name" type="xs:NCName" use="required"/>
+        <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
+        <xs:attribute name="RecommendedInstanceVersion" type="xs:decimal" use="optional"/>
+        <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="LibraryClassDeclarationAttributes">
+        <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="RecommendedInstanceVersion" type="xs:decimal" use="optional"/>
         <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
-        <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="MsaGuidAttributes">
+        <xs:attribute name="Usage" type="GuidUsage" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="GuidUsage" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ModuleNameAttributes">
         <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="MsaAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
         <xs:attribute name="FvBinding" type="xs:string" use="optional"/>
         <xs:attribute name="ModuleName" type="UiNameType" use="optional"/>
         <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
         <xs:attribute name="PackageName" type="UiNameType" use="optional"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="OptionAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="BuildTarget" type="BuildTargets" use="optional"/>
-        <!-- LAH Does an Option need to have FeatureFlag Attribute? -->
-        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="Platform" type="PlatformNamingConvention" use="optional"/>
         <xs:attribute name="ToolChainFamily" type="ToolsNameConvention" use="optional"/>
         <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
         <xs:attribute name="ToolCommand" type="ToolsNameConvention" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <!-- LAH Does an Option need to have FeatureFlag Attribute? -->
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageHeaderAttributes">
         <xs:attribute name="ModuleType" type="ModuleTypeDef" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
         <xs:attribute name="PackageType" type="PackageType" use="optional"/>
         <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
-        <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <!-- PackageNameAttributres are only used in the Package Dependencies section of an SPD file. -->
     <xs:attributeGroup name="PackageNameAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PcdAttributes">
         <xs:annotation>
@@ -171,14 +180,14 @@
             <xs:documentation xml:lang="en">PcdUsage is only valid for PcdItemTypes = FEATURE_FLAG</xs:documentation>
             <xs:documentation xml:lang="en">Only NON FEATURE_FLAG PCDS should have the FeatureFlag attribute set.</xs:documentation>
         </xs:annotation>
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
         <xs:attribute name="ItemType" type="PcdItemTypes" use="required"/>
         <xs:attribute name="PcdUsage" type="PcdUsage" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PcdBuildDefinitionAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="ItemType" type="PcdItemTypes" use="required"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PcdDeclarationAttributes">
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -186,10 +195,10 @@
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PlatformAttributes">
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="PlatformName" type="PlatformNamingConvention" use="optional"/>
         <xs:attribute name="PlatformGuid" type="GuidType" use="optional"/>
         <xs:attribute name="PlatformVersion" type="xs:string" use="optional"/>
+        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiDeclarationAttributes">
         <xs:attribute name="Name" type="xs:NCName" use="required"/>
@@ -198,19 +207,19 @@
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiAttributes">
+        <xs:attribute name="Usage" type="PpiUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="PpiUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiNotifyAttributes">
+        <xs:attribute name="Usage" type="PpiNotifyUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="PpiNotifyUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolAttributes">
+        <xs:attribute name="Usage" type="ProtocolUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="ProtocolUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolDeclarationAttributes">
         <xs:attribute name="Name" type="xs:NCName" use="required"/>
@@ -219,9 +228,9 @@
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolNotifyAttributes">
+        <xs:attribute name="Usage" type="ProtocolNotifyUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="ProtocolNotifyUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="RawDataAttributes">
         <xs:attribute name="Name" type="xs:string" use="required"/>
@@ -232,9 +241,9 @@
         <xs:attribute name="Name" type="xs:string" use="required"/>
         <xs:attribute name="Size" type="HexAddressType" use="required"/>
         <xs:attribute name="Flags" type="HexAddressType" use="optional"/>
-        <xs:attribute name="Alignment" type="HexAddressType" use="optional"/>
         <xs:attribute name="Attributes" type="xs:string" use="required"/>
         <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
+        <xs:attribute name="Alignment" type="HexAddressType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="SectionAttributes">
         <xs:annotation>
@@ -264,16 +273,16 @@
         <xs:attribute name="FileSystemGuid" type="xs:string" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="SystemTableAttributes">
+        <xs:attribute name="Usage" type="SystemTableUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="SystemTableUsage" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="UrlAttribute">
         <xs:attribute name="Url" type="xs:anyURI"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="VariableAttributes">
+        <xs:attribute name="Usage" type="VariableUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="Usage" type="VariableUsage" use="required"/>
     </xs:attributeGroup>
 </xs:schema>

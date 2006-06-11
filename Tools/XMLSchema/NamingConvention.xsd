@@ -15,7 +15,7 @@
     <xs:annotation>
         <xs:documentation xml:lang="en"> This schema defines various data types and naming conventions including: base name, filename and directory naming conventions. These are all simple data types.</xs:documentation>
     </xs:annotation>
-    <xs:simpleType name="C_Name">
+    <xs:simpleType name="C_NameType">
         <xs:annotation>
             <xs:documentation xml:lang="en"> C_Names must start with either an underscore (_) character followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
         </xs:annotation>
@@ -269,7 +269,9 @@
         <xs:annotation>
             <xs:documentation xml:lang="en"> Definition of a Version Number, which must be a decimal number (or Zero) </xs:documentation>
         </xs:annotation>
-        <xs:union memberTypes="xs:decimal Zero"/>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="(\d)+(.)?(\d)+"/>
+        </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="Zero">
         <xs:annotation>

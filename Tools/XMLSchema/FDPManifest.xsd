@@ -243,7 +243,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                 <xs:element name="Protocol">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="ProtocolAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -294,7 +294,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                     </xs:annotation>
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="ProtocolAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>

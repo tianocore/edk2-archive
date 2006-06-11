@@ -106,12 +106,12 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="C_Name" type="C_Name">
+    <xs:element name="C_Name" type="C_NameType">
         <xs:annotation>
             <xs:documentation xml:lang="en">C_Name is valid for all Description Files</xs:documentation>
         </xs:annotation>
     </xs:element>
-    <xs:element name="ComponentName" type="C_Name">
+    <xs:element name="ComponentName" type="C_NameType">
         <xs:annotation>
             <xs:documentation xml:lang="en">ComponentName is valid for all Description Files</xs:documentation>
         </xs:annotation>
@@ -121,8 +121,8 @@
             <xs:documentation xml:lang="en">Describe the valid Framework Component Type</xs:documentation>
         </xs:annotation>
     </xs:element>
-    <xs:element name="Constructor" type="C_Name"/>
-    <xs:element name="Copyright" type="Sentence"/>
+    <xs:element name="Constructor" type="C_NameType"/>
+    <xs:element name="Copyright" type="Paragraph"/>
     <xs:element name="DataHubs">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is a list of DataHubRecord elements.</xs:documentation>
@@ -157,10 +157,10 @@
             <xs:documentation xml:lang="en">This section is required for new modules and libraries and must contain more information than the Abstract.</xs:documentation>
         </xs:annotation>
     </xs:element>
-    <xs:element name="Destructor" type="C_Name"/>
-    <xs:element name="DriverBinding" type="C_Name"/>
-    <xs:element name="DriverConfig" type="C_Name"/>
-    <xs:element name="DriverDiag" type="C_Name"/>
+    <xs:element name="Destructor" type="C_NameType"/>
+    <xs:element name="DriverBinding" type="C_NameType"/>
+    <xs:element name="DriverConfig" type="C_NameType"/>
+    <xs:element name="DriverDiag" type="C_NameType"/>
     <xs:element name="DynamicPcdBuildDefinitions">
         <xs:annotation>
             <xs:documentation xml:lang="en">Child of Framework Platform Description (FPD)</xs:documentation>
@@ -235,7 +235,7 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="ExitBootServicesCallBack" type="C_Name"/>
+    <xs:element name="ExitBootServicesCallBack" type="C_NameType"/>
     <xs:element name="Externs">
         <xs:annotation>
             <xs:documentation xml:lang="en">This is a child of MSA files.</xs:documentation>
@@ -277,7 +277,7 @@
                                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="SetVirtualAddressMapCallBack"/>
                                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="ExitBootServicesCallBack"/>
                             </xs:sequence>
-                            <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefined" type="C_Name"/>
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefined" type="C_NameType"/>
                         </xs:choice>
                         <xs:attributeGroup ref="ExternAttributes"/>
                     </xs:complexType>
@@ -295,8 +295,8 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_Name"/>
-                            <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_Name"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_NameType"/>
+                            <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_NameType"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -337,7 +337,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="1" maxOccurs="unbounded" ref="HelpText"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="GuidDeclarationAttributes"/>
                     </xs:complexType>
@@ -373,7 +373,7 @@
                 <xs:element name="HiiPackage">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="HiiPackageAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -396,7 +396,7 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="ImageEntryPoint" type="C_Name"/>
+    <xs:element name="ImageEntryPoint" type="C_NameType"/>
     <xs:element name="IncludeHeader">
         <xs:complexType>
             <xs:simpleContent>
@@ -462,12 +462,12 @@
             <xs:sequence>
                 <xs:element minOccurs="1" maxOccurs="1" name="LibraryClass">
                     <xs:complexType>
-                        <xs:simpleContent>
-                            <xs:extension base="xs:NCName">
-                                <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
-                                <xs:attribute name="RecommendedInstanceVersion" type="xs:decimal" use="optional"/>
-                            </xs:extension>
-                        </xs:simpleContent>
+                        <xs:sequence>
+                            <xs:element minOccurs="1" maxOccurs="1" name="IncludeHeader" type="PathAndFilename"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="RecommendedInstanceGuid" type="GuidType"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="RecommendedInstanceVersion" type="VersionDataType"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+                        </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="1" maxOccurs="1" ref="IncludeHeader"/>
@@ -516,7 +516,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -556,7 +556,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="IncludePkgHeader">
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="IncludePkgHeader">
                     <xs:complexType>
                         <xs:simpleContent>
                             <xs:extension base="PathAndFilename">
@@ -665,7 +665,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValue"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
                         <!-- MSA file declares a single usage, and must match one of the entries in what the SPD file declares as the set of possible Item Types. -->
                         <xs:attribute name="PcdItemType" type="PcdItemTypes" use="required"/>
@@ -710,7 +710,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="PpiDeclarationAttributes"/>
                     </xs:complexType>
@@ -727,7 +727,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Ppi">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="PpiAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -736,7 +736,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="PpiNotify">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="PpiNotifyAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -756,7 +756,7 @@
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
                             <xs:element minOccurs="0" maxOccurs="1" ref="GuidValue"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="ProtocolDeclarationAttributes"/>
                     </xs:complexType>
@@ -773,7 +773,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="Protocol">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="ProtocolAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -782,7 +782,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" name="ProtocolNotify">
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="C_Name">
+                            <xs:extension base="C_NameType">
                                 <xs:attributeGroup ref="ProtocolNotifyAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
@@ -834,7 +834,7 @@
             <xs:attributeGroup ref="SectionsAttributes"/>
         </xs:complexType>
     </xs:element>
-    <xs:element name="SetVirtualAddressMapCallBack" type="C_Name"/>
+    <xs:element name="SetVirtualAddressMapCallBack" type="C_NameType"/>
     <xs:element name="SourceFiles">
         <xs:annotation>
             <xs:documentation xml:lang="en">Multiple Filenames may be specified, and they may also be scoped to a specific Architecture.</xs:documentation>
@@ -905,7 +905,7 @@
             <xs:complexContent mixed="true">
                 <xs:extension base="xs:anyType">
                     <xs:attribute name="UserID" type="xs:NCName" use="required"/>
-                    <xs:attribute name="Identifier" type="xs:integer" use="required"/>
+                    <xs:attribute name="Identifier" type="xs:nonNegativeInteger" use="required"/>
                 </xs:extension>
             </xs:complexContent>
         </xs:complexType>

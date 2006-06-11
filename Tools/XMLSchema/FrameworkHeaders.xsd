@@ -27,7 +27,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <!-- Specificatoin needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="0" maxOccurs="1" name="Specification" type="xs:string"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -49,7 +49,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
                 <xs:element minOccurs="1" maxOccurs="1" name="BinaryModule" type="xs:boolean" default="false"/>
                 <!-- Specification needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="0" maxOccurs="1" name="Specification" type="xs:string"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -67,7 +67,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <!-- Specification needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="1" maxOccurs="unbounded" name="Specification" type="xs:string"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -89,7 +89,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="ReadOnly"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="RePackage"/>
                 <!-- Specification needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="1" maxOccurs="unbounded" name="Specification" type="xs:string"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
