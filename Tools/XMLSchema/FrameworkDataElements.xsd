@@ -468,10 +468,9 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="RecommendedInstanceVersion" type="VersionDataType"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
                         </xs:sequence>
+                        <xs:attributeGroup ref="LibraryClassDeclarationAttributes"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="1" maxOccurs="1" ref="IncludeHeader"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
