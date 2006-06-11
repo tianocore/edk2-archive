@@ -127,8 +127,6 @@
         <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
-        <xs:attribute name="RecommendedInstanceVersion" type="xs:decimal" use="optional"/>
-        <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="MsaGuidAttributes">
         <xs:attribute name="Usage" type="GuidUsage" use="optional"/>
