@@ -453,14 +453,11 @@
             </xs:simpleContent>
         </xs:complexType>
     </xs:element>
-    <!-- LAH This is LibraryClassDeclaration SPD FINAL version -->
-    <xs:element name="LibraryClassDeclaration">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This SPD element defines a class of library, along with the path to the Include Header for this library</xs:documentation>
-        </xs:annotation>
+    <!-- LAH This is SPD LibraryClassDeclarations FINAL version -->
+    <xs:element name="LibraryClassDeclarations">
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" name="LibraryClass">
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="LibraryClass">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element minOccurs="1" maxOccurs="1" name="IncludeHeader" type="PathAndFilename"/>
@@ -471,14 +468,6 @@
                         <xs:attributeGroup ref="LibraryClassDeclarationAttributes"/>
                     </xs:complexType>
                 </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <!-- LAH This is LibraryClassDeclarations FINAL version -->
-    <xs:element name="LibraryClassDeclarations">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="unbounded" ref="LibraryClassDeclaration"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
