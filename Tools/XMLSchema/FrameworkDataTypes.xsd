@@ -158,6 +158,11 @@
             <xs:enumeration value="PRIVATE"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="FeatureFlagDataType">
+        <xs:restriction base="xs:normalizedString">
+            <xs:pattern value="(\w*\W)*"></xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="FrameworkComponentTypes">
         <xs:restriction base="UCNameType">
             <xs:enumeration value="APRIORI"/>
