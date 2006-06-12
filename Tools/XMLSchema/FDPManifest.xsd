@@ -48,7 +48,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" ref="PackageName"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="PackageName" type="UiNameType"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Copyright"/>
@@ -124,7 +124,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
         </xs:annotation>
         <xs:complexType>
             <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="PackageName"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="PackageName" type="UiNameType"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -221,7 +221,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="PackageName" type="UiNameType"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
@@ -266,7 +266,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="PackageName" type="UiNameType"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
                             <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>

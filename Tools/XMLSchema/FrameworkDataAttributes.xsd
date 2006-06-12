@@ -158,16 +158,16 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageHeaderAttributes">
-        <xs:attribute name="ModuleType" type="ModuleTypeDef" use="optional"/>
+        <xs:attribute name="ModuleType" type="ModuleTypeDef" use="required"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageAttributes">
-        <xs:attribute name="Usage" type="PackageUsage" use="optional"/>
-        <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
-        <xs:attribute name="PackageType" type="PackageType" use="optional"/>
-        <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
-        <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+        <!-- Used with the MSA File, PackageDependencies.PackageName -->
+        <xs:attribute name="Usage" type="PackageUsage" use="required"/>
+        <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
+        <xs:attribute name="PackageVersion" type="xs:string" use="required"/>
+        <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
-    <!-- PackageNameAttributres are only used in the Package Dependencies section of an SPD file. -->
+    <!--Used with the FrameworkDatabase PackageList.Packagename  -->
     <xs:attributeGroup name="PackageNameAttributes">
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
@@ -194,9 +194,6 @@
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PlatformAttributes">
-        <xs:attribute name="PlatformName" type="PlatformNamingConvention" use="optional"/>
-        <xs:attribute name="PlatformGuid" type="GuidType" use="optional"/>
-        <xs:attribute name="PlatformVersion" type="xs:string" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiDeclarationAttributes">

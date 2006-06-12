@@ -320,7 +320,7 @@
     <xs:simpleType name="PackageUsage">
         <xs:restriction base="UsageTypes">
             <xs:enumeration value="ALWAYS_CONSUMED"/>
-            <xs:enumeration value="ALWAYS_PRODUCED"/>
+            <xs:enumeration value="SOMETIMES_CONSUMED"/>
             <xs:enumeration value="DEFAULT"/>
         </xs:restriction>
     </xs:simpleType>

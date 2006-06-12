@@ -217,7 +217,6 @@
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvImage"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvImageName"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -261,21 +260,23 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" name="PlatformName">
+                <xs:element minOccurs="1" maxOccurs="1" name="PlatformName">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">Define the Name of a Platform</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:simpleContent>
-                            <xs:extension base="PlatformNamingConvention">
+                            <xs:extension base="UiNameType">
                                 <xs:attributeGroup ref="PlatformAttributes"/>
                             </xs:extension>
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Filename"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="PlatformGuid" type="GuidType"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="PlatformVersion" type="VersionDataType"/>
+                <xs:element minOccurs="1" maxOccurs="1" ref="Filename"/>
             </xs:sequence>
-            <xs:attributeGroup ref="PlatformAttributes"/>
+
         </xs:complexType>
     </xs:element>
     <xs:element name="PlatformList">

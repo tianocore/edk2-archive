@@ -19,18 +19,11 @@
     <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
     <xs:include schemaLocation="FrameworkPlatformDataTypes.xsd"/>
     <xs:include schemaLocation="FrameworkDataAttributes.xsd"/>
-    <xs:element name="Abstract">
+    <xs:element name="Abstract" type="Sentence">
         <xs:annotation>
             <xs:documentation xml:lang="en">Abstract is valid for all Description Files</xs:documentation>
             <xs:documentation xml:lang="en">This section is required. This is a single sentence to describe the module and will be used in sample files as the abstract data in the header comment section.</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="Sentence">
-                    <xs:attribute name="URL" type="xs:anyURI" use="optional"/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
     </xs:element>
     <xs:element name="AntCmd">
         <xs:annotation>
@@ -90,7 +83,6 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="ImageEntryPoint"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="Ffs"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Sections"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="Filenames"/>
                 <xs:sequence minOccurs="0">
                     <xs:element minOccurs="0" maxOccurs="unbounded" name="Option">
@@ -529,13 +521,21 @@
     </xs:element>
     <xs:element name="PackageDependencies">
         <xs:annotation>
-            <xs:documentation xml:lang="en">This tag is used in the Package Surface Area Description File (SPD) to track package dependencies for a module</xs:documentation>
+            <xs:documentation xml:lang="en">This tag is used in the Module Surface Area Description File (MSA) to track package dependencies for a module.</xs:documentation>
+            <xs:documentation xml:lang="en">Attributes to PackageName include Required: Usage PackageGuid PackageVesion, Optional: FeatureFlag</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:sequence maxOccurs="unbounded">
-                <xs:element minOccurs="1" maxOccurs="unbounded" ref="PackageName"/>
+            <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="PackageName">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="UiNameType">
+                                <xs:attributeGroup ref="PackageAttributes"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
-            <xs:attributeGroup ref="PackageNameAttributes"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="PackageHeaders">
@@ -558,37 +558,30 @@
     </xs:element>
     <xs:element name="PackageList">
         <xs:annotation>
-            <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track all packages installed in a workspace. (Database)</xs:documentation>
+            <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track all packages (SPD files) installed in a workspace. (Database)</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence maxOccurs="unbounded">
                 <xs:element minOccurs="1" name="Package">
                     <xs:annotation>
-                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a relative path to the SPD File.</xs:documentation>
+                        <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a WORKSPACE relative path to the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element minOccurs="0" maxOccurs="1" ref="PackageName"/>
-                            <xs:element minOccurs="0" maxOccurs="1" name="PackageGuid" type="GuidType"/>
-                            <xs:element minOccurs="0" maxOccurs="1" name="PackageVersion" type="VersionDataType"/>
-                            <xs:element minOccurs="0" maxOccurs="1" ref="Filename"/>
+                            <xs:element name="PackageName">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="UiNameType">
+                                            <xs:attributeGroup ref="PackageNameAttributes"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element minOccurs="1" maxOccurs="1" ref="Filename"/>
                         </xs:sequence>
-                        <xs:attributeGroup ref="PackageAttributes"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="PackageName">
-        <xs:annotation>
-            <xs:documentation xml:lang="en">This tag is used in the Package Surface Area Description File to track package dependencies for a module (SPD) </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="UiNameType">
-                    <xs:attributeGroup ref="PackageAttributes"/>
-                </xs:extension>
-            </xs:simpleContent>
         </xs:complexType>
     </xs:element>
     <xs:element name="Path" type="PathAndFilename"/>
