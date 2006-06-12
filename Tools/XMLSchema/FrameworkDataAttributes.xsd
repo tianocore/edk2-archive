@@ -124,9 +124,10 @@
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryClassDeclarationAttributes">
-        <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
+        <xs:attribute name="Name" type="xs:NCName" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="xs:normalizedString" use="optional"/>
+        <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="MsaGuidAttributes">
         <xs:attribute name="Usage" type="GuidUsage" use="optional"/>
