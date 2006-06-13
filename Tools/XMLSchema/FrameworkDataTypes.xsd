@@ -221,6 +221,7 @@
             <xs:enumeration value="EFI_EVENT"/>
             <xs:enumeration value="EFI_SYSTEM_CONFIGURATION_TABLE"/>
             <xs:enumeration value="EFI_VARIABLE"/>
+            <xs:enumeration value="GUID"/>
             <xs:enumeration value="HII_PACKAGE_LIST"/>
             <xs:enumeration value="HOB"/>
         </xs:restriction>

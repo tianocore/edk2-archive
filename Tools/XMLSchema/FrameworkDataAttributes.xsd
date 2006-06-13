@@ -167,8 +167,8 @@
         <xs:attribute name="PackageVersion" type="xs:string" use="required"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
-    <!--Used with the FrameworkDatabase PackageList.Packagename  -->
     <xs:attributeGroup name="PackageNameAttributes">
+        <!--Used with the FrameworkDatabase PackageList.Packagename  -->
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>

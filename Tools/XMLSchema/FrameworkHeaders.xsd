@@ -27,7 +27,7 @@
                 <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
                 <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
                 <!-- Specificatoin needs to be required - FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052 -->
-                <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="xs:string"/>
+                <xs:element fixed="FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052" minOccurs="1" maxOccurs="1" name="Specification" type="Sentence"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
