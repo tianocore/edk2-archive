@@ -135,6 +135,8 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ModuleNameAttributes">
+        <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
+        <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
