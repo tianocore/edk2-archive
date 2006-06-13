@@ -139,7 +139,7 @@
             <xs:pattern value="0x[a-fA-F0-9]{1,4}"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="Keyword">
+    <xs:simpleType name="KeywordType">
         <xs:restriction base="UCNameType"/>
     </xs:simpleType>
     <xs:simpleType name="NameConvention">

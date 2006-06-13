@@ -74,7 +74,7 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="GuidDeclarationAttributes">
-        <xs:attribute name="Name" type="Keyword" use="required"/>
+        <xs:attribute name="Name" type="KeywordType" use="required"/>
         <xs:attribute name="GuidTypeList" type="GuidListType" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
@@ -115,7 +115,7 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryClassAttributes">
-        <xs:attribute name="Name" type="Keyword" use="required"/>
+        <xs:attribute name="Name" type="KeywordType" use="required"/>
         <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
         <xs:attribute name="RecommendedInstanceVersion" type="xs:decimal" use="optional"/>
         <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
@@ -201,7 +201,7 @@
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiDeclarationAttributes">
-        <xs:attribute name="Name" type="Keyword" use="required"/>
+        <xs:attribute name="Name" type="KeywordType" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
@@ -222,7 +222,7 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolDeclarationAttributes">
-        <xs:attribute name="Name" type="Keyword" use="required"/>
+        <xs:attribute name="Name" type="KeywordType" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
