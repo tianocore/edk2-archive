@@ -294,6 +294,7 @@
                 </xs:element>
                 <xs:element minOccurs="0" maxOccurs="1" ref="Sections"/>
             </xs:sequence>
+            <xs:attributeGroup ref="FfsAttributes"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="Filename">
@@ -569,13 +570,13 @@
             <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track all packages (SPD files) installed in a workspace. (Database)</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:sequence maxOccurs="unbounded">
-                <xs:element minOccurs="1" name="Package">
+            <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Package">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track individual package information. The Path is a WORKSPACE relative path to the SPD File.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
-                        <xs:sequence maxOccurs="unbounded">
+                        <xs:sequence minOccurs="1" maxOccurs="1">
                             <xs:element name="PackageName">
                                 <xs:complexType>
                                     <xs:simpleContent>

@@ -160,8 +160,11 @@
     </xs:simpleType>
     <xs:simpleType name="FeatureFlagExpressionType">
         <xs:restriction base="xs:normalizedString">
-            <xs:pattern value="(\w*\W)*"></xs:pattern>
+            <xs:pattern value="(\w*\W)*"/>
         </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="FrameworkComponentListType">
+        <xs:list itemType="FrameworkComponentTypes"/>
     </xs:simpleType>
     <xs:simpleType name="FrameworkComponentTypes">
         <xs:restriction base="UCNameType">
