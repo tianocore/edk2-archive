@@ -139,6 +139,9 @@
             <xs:pattern value="0x[a-fA-F0-9]{1,4}"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="Keyword">
+        <xs:restriction base="UCNameType"/>
+    </xs:simpleType>
     <xs:simpleType name="NameConvention">
         <xs:annotation>
             <xs:documentation xml:lang="en">What is a name, any series of alphanumeric characters and one or more underline characters that may occur in any position</xs:documentation>

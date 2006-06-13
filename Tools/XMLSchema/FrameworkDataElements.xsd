@@ -490,13 +490,21 @@
     </xs:element>
     <xs:element name="ModuleUnloadImage" type="xs:normalizedString"/>
     <!-- Use in Final -->
-    <xs:element name="MsaFileList">
+    <xs:element name="MsaFiles">
         <xs:annotation>
             <xs:documentation xml:lang="en">Surface Area Package Description (SPD) list of Module Surface Area files</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
+                <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="PathAndFilename">
+                                <xs:attributeGroup ref="ModuleNameAttributes"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

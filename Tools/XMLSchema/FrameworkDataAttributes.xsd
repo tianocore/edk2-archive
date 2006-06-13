@@ -74,7 +74,7 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="GuidDeclarationAttributes">
-        <xs:attribute name="Name" type="xs:NCName" use="required"/>
+        <xs:attribute name="Name" type="Keyword" use="required"/>
         <xs:attribute name="GuidTypeList" type="GuidListType" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
@@ -105,9 +105,9 @@
         <!-- LibraryAttributes is used for Libraries / Library elements in FPD files -->
         <xs:attribute name="LibraryClass" type="xs:NCName" use="optional"/>
         <xs:attribute name="LibraryClassGuid" type="GuidType" use="optional"/>
-        <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
-        <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
         <xs:attribute name="PackageName" type="UiNameType" use="optional"/>
         <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="Usage" type="LibraryUsage" use="optional"/>
@@ -115,7 +115,7 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="LibraryClassAttributes">
-        <xs:attribute name="Name" type="xs:NCName" use="required"/>
+        <xs:attribute name="Name" type="Keyword" use="required"/>
         <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
         <xs:attribute name="RecommendedInstanceVersion" type="xs:decimal" use="optional"/>
         <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
@@ -139,12 +139,14 @@
         <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="MsaAttributes">
+        <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
+        <xs:attribute name="ModuleGuid" type="GuidType" use="required"/>
         <xs:attribute name="BuildSequence" type="xs:int" use="optional"/>
         <xs:attribute name="FvBinding" type="xs:string" use="optional"/>
         <xs:attribute name="ModuleName" type="UiNameType" use="optional"/>
-        <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="PackageName" type="UiNameType" use="optional"/>
-        <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="OptionAttributes">
@@ -164,7 +166,7 @@
         <!-- Used with the MSA File, PackageDependencies.PackageName -->
         <xs:attribute name="Usage" type="PackageUsage" use="required"/>
         <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
-        <xs:attribute name="PackageVersion" type="xs:string" use="required"/>
+        <xs:attribute name="PackageVersion" type="xs:string" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageNameAttributes">
@@ -194,10 +196,12 @@
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PlatformAttributes">
+        <xs:attribute name="PlatformGuid" type="GuidType" use="required"/>
+        <xs:attribute name="PlatformVersion" type="VersionDataType" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PpiDeclarationAttributes">
-        <xs:attribute name="Name" type="xs:NCName" use="required"/>
+        <xs:attribute name="Name" type="Keyword" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
@@ -218,7 +222,7 @@
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ProtocolDeclarationAttributes">
-        <xs:attribute name="Name" type="xs:NCName" use="required"/>
+        <xs:attribute name="Name" type="Keyword" use="required"/>
         <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
         <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
         <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>

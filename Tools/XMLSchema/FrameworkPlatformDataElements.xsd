@@ -272,11 +272,8 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element minOccurs="1" maxOccurs="1" name="PlatformGuid" type="GuidType"/>
-                <xs:element minOccurs="1" maxOccurs="1" name="PlatformVersion" type="VersionDataType"/>
-                <xs:element minOccurs="1" maxOccurs="1" ref="Filename"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="Filename" type="PathAndFilename"/>
             </xs:sequence>
-
         </xs:complexType>
     </xs:element>
     <xs:element name="PlatformList">
