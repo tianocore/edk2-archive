@@ -140,7 +140,9 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="KeywordType">
-        <xs:restriction base="UCNameType"/>
+        <xs:restriction base="xs:normalizedString">
+            <xs:pattern value="[a-zA-Z]+(_*[a-zA-Z0-9]*)*"/>
+        </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="NameConvention">
         <xs:annotation>

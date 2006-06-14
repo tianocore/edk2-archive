@@ -66,10 +66,10 @@
         <xs:attribute name="Seq" type="xs:int" use="required"/>
         <xs:attribute name="Filename" type="PathAndFilename" use="optional"/>
         <xs:attribute name="FrameworkFileType" type="FrameworkFileTypes" use="required"/>
-        <xs:attribute ref="PackageGuid" use="optional"/>
-        <xs:attribute ref="PackageVersion" use="optional"/>
-        <xs:attribute ref="ModuleGuid" use="optional"/>
-        <xs:attribute ref="ModuleVersion" use="optional"/>
+        <xs:attribute name="PackageGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
+        <xs:attribute name="ModuleGuid" type="GuidType" use="optional"/>
+        <xs:attribute name="ModuleVersion" type="VersionDataType" use="optional"/>
         <xs:attribute name="PlatformGuid" type="GuidType" use="optional"/>
         <xs:attribute name="PlatformVersion" type="VersionDataType" use="optional"/>
     </xs:attributeGroup>
