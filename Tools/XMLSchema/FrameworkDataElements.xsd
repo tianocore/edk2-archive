@@ -378,9 +378,9 @@
     <xs:element name="Hobs">
         <xs:complexType>
             <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Hob">
+                <xs:element name="Hob" >
                     <xs:complexType>
-                        <xs:sequence>
+                        <xs:sequence minOccurs="0" maxOccurs="1">
                             <xs:element minOccurs="0" maxOccurs="1" name="GuidC_Name" type="GuidC_NameType"/>
                         </xs:sequence>
                         <xs:attributeGroup ref="HobAttributes"/>

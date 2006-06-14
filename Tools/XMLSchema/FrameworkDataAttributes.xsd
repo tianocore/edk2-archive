@@ -151,10 +151,7 @@
         <xs:attribute ref="FeatureFlag" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="ModuleNameAttributes">
-        <xs:attribute ref="PackageGuid" use="required"/>
         <xs:attribute ref="ModuleGuid" use="required"/>
-        <xs:attribute ref="PackageName" use="optional"/>
-        <xs:attribute ref="PackageVersion" use="optional"/>
         <xs:attribute ref="ModuleName" use="optional"/>
         <xs:attribute ref="ModuleVersion" use="optional"/>
     </xs:attributeGroup>
@@ -184,9 +181,9 @@
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageAttributes">
         <!-- Used with the MSA File, PackageDependencies.PackageName -->
-        <xs:attribute name="Usage" type="PackageUsage" use="required"/>
         <xs:attribute ref="PackageGuid" use="required"/>
         <xs:attribute ref="PackageVersion" use="optional"/>
+        <xs:attribute ref="SupArchList" use="optional"/>
         <xs:attribute ref="FeatureFlag" use="optional"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="PackageNameAttributes">
