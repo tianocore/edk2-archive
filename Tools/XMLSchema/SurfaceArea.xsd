@@ -92,14 +92,15 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!-- This element is listed here, only because we are using elements from both the FrameworkDataElements and FrameworkPlatformDataElements files. -->
   <xs:element name="PlatformDefinitions">
     <xs:complexType>
       <xs:sequence>
         <!-- This is the list of ALL architectures that are supported by this Platform -->
         <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
         <xs:element minOccurs="1" maxOccurs="1" name="BuildTargets" type="BuildTargetList"/>
-        <!-- Permit binding the OutputDirectory to the SkuID just in case we want different output locations based on the Sku -->
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="OutputDirectory"/>
+        <xs:element default="UNIFIED" name="IntermediateDirectories" type="IntermediateOutputType"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="OutputDirectory" type="xs:anyURI"/>
         <!-- SkuInfo is only defined if Sku enabled -->
         <xs:element minOccurs="0" maxOccurs="1" ref="SkuInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceDefinitions"/>

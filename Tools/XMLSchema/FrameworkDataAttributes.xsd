@@ -49,10 +49,6 @@
     <xs:attribute name="FfsFormatKeyword" type="FfsNameType" use="required"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
-  <xs:attributeGroup name="FfsFormatDeclarationAttributes">
-    <xs:attribute name="FfsFormatKeyword" type="FfsNameType" use="required"/>
-    <xs:attribute name="ComponentTypes" type="FrameworkComponentListType" use="required"/>
-  </xs:attributeGroup>
   <xs:attributeGroup name="FilenameAttributes">
     <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
     <xs:attribute name="ToolCode" type="ToolsNameConvention" use="optional"/>
@@ -104,7 +100,7 @@
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="IndustryStdHeaderAttributes">
-    <xs:attribute name="Name" type="UiNameType" use="required"/>
+    <xs:attribute name="Name" type="KeywordType" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
@@ -118,16 +114,13 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="LibraryClassAttributes">
     <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
-    <!-- Note, RecommendedInstances must come from this package, you cannot recommend an instance from another package -->
     <xs:attribute name="RecommendedInstanceVersion" type="VersionDataType" use="optional"/>
     <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
-    <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="LibraryClassDeclarationAttributes">
     <xs:attribute name="Name" type="KeywordType" use="required"/>
-    <!-- Note, RecommendedInstances must come from this package, you cannot recommend an instance from another package -->
     <xs:attribute name="RecommendedInstanceVersion" type="VersionDataType" use="optional"/>
     <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -162,7 +155,7 @@
     <xs:attribute name="ModuleType" type="ModuleTypeDef" use="required"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="PackageAttributes">
-    <!-- Used with the MSA File, PackageDependencies.PackageName -->
+    <!-- Used with the MSA File, PackageDependencies.Package -->
     <xs:attribute name="PackageGuid" type="GuidType" use="required"/>
     <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -174,16 +167,11 @@
     <xs:attribute name="PackageVersion" type="VersionDataType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
   </xs:attributeGroup>
-  <xs:attributeGroup name="PcdAttributes">
+  <xs:attributeGroup name="DynamicBuildPcdAttributes">
     <xs:annotation>
       <xs:documentation xml:lang="en">These attributes are for the Pcds listed in PcdData, PcdEntry and/or PcdBuildData entries.</xs:documentation>
     </xs:annotation>
     <xs:attribute name="ItemType" type="PcdItemTypes" use="required"/>
-    <!-- PcdUsage is only valid for PcdItemTypes = FEATURE_FLAG -->
-    <xs:attribute name="PcdUsage" type="PcdUsage" use="optional"/>
-    <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <!-- Only NON FEATURE_FLAG PCDS should have the FeatureFlag attribute set.-->
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="PcdBuildDefinitionAttributes">
     <xs:attribute name="ItemType" type="PcdItemTypes" use="required"/>
@@ -274,7 +262,6 @@
     <xs:attribute name="FileSystemGuid" type="xs:string" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="SystemTableAttributes">
-    <xs:attribute name="Name" type="C_NameType" use="required"/>
     <xs:attribute name="Usage" type="SystemTableUsage" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>

@@ -36,7 +36,16 @@
       <xs:enumeration value="S4_RESUME"/>
       <xs:enumeration value="S5_RESUME"/>
       <xs:enumeration value="FLASH_UPDATE"/>
-      <xs:enumeration value="RECOVERY"/>
+      <xs:enumeration value="RECOVERY_FULL"/>
+      <xs:enumeration value="RECOVERY_MINIMAL"/>
+      <xs:enumeration value="RECOVERY_NO_CHANGE"/>
+      <xs:enumeration value="RECOVERY_DIAGNOSTICS"/>
+      <xs:enumeration value="RECOVERY_DEFAULT"/>
+      <xs:enumeration value="RECOVERY_S2_RESUME"/>
+      <xs:enumeration value="RECOVERY_S3_RESUME"/>
+      <xs:enumeration value="RECOVERY_S4_RESUME"/>
+      <xs:enumeration value="RECOVERY_S5_RESUME"/>
+      <xs:enumeration value="RECOVERY_FLASH_UPDATE"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="BootModeUsage">
@@ -125,7 +134,9 @@
       <xs:enumeration value="EVENT_GROUP_VIRTUAL_ADDRESS_CHANGE"/>
       <xs:enumeration value="EVENT_GROUP_MEMORY_MAP_CHANGE"/>
       <xs:enumeration value="EVENT_GROUP_READY_TO_BOOT"/>
+      <!-- Legacy is a Framework Extension -->
       <xs:enumeration value="EVENT_GROUP_LEGACY_BOOT"/>
+      <!-- MIKE TO PROVIDE -->
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="EventUsage">
@@ -459,7 +470,7 @@
   </xs:simpleType>
   <xs:simpleType name="UiNameType">
     <xs:restriction base="xs:string">
-      <xs:pattern value="[a-zA-Z][_\.\-a-zA-Z0-9]+"/>
+      <xs:pattern value="[a-zA-Z](\w*\W*)+"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="UnicodeString">

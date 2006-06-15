@@ -23,28 +23,6 @@
       <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="DirectoryNamingConvention">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Directory naming convention is a UNION of DOS an UNIX directory path names </xs:documentation>
-    </xs:annotation>
-    <xs:union memberTypes="Directory_DOS Directory_UNIX"/>
-  </xs:simpleType>
-  <xs:simpleType name="Directory_DOS">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Directory naming convention for Windows backslash (\) directory path name </xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="([a-zA-Z]:\\)?(((\\?_*-*.*[a-zA-Z0-9]*)*(_*-*.*[a-zA-Z0-9])*)+(\\)?)*"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="Directory_UNIX">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Directory naming convention for UNIX forwardslash (/) directory path name </xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="(\/)?(((_*-*.*[a-zA-Z0-9]*)*(_*-*.*[a-zA-Z0-9])*)+(\/)?)*"/>
-    </xs:restriction>
-  </xs:simpleType>
   <xs:simpleType name="FileNameConvention">
     <xs:annotation>
       <xs:documentation xml:lang="en"> This defines what a Filename is: Alphanumeric characters and optional underscore (_) or dash (-) characters, followed by a optional dot and more alphanumeric characters. </xs:documentation>
@@ -131,37 +109,26 @@
       <xs:pattern value="0x[a-fA-F0-9]{1,4}"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="KeyNumberType">
-    <xs:restriction base="xs:nonNegativeInteger"/>
-  </xs:simpleType>
   <xs:simpleType name="KeywordType">
     <xs:restriction base="xs:normalizedString">
       <xs:pattern value="[a-zA-Z]+(_*[a-zA-Z0-9]*)*"/>
     </xs:restriction>
   </xs:simpleType>
-   <xs:simpleType name="Paragraph">
+  <xs:simpleType name="Paragraph">
     <xs:annotation>
       <xs:documentation xml:lang="en">This describes the normal text of a paragraph that can be used in a license or description tag.</xs:documentation>
     </xs:annotation>
-    <xs:restriction base="xs:normalizedString"/>
+    <xs:restriction base="xs:string"/>
   </xs:simpleType>
   <xs:simpleType name="PathAndFilename">
     <xs:annotation>
       <xs:documentation xml:lang="en"> Naming convention for a path and file name</xs:documentation>
     </xs:annotation>
-    <xs:union memberTypes="Directory_DOS Directory_UNIX FileNameConvention xs:anyURI"/>
-  </xs:simpleType>
-  <xs:simpleType name="PlatformNamingConvention">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> This defines what a Platform Name is: Alphanumeric characters and optional underscore (_) or dash (-) characters, followed by a dot and more alphanumeric characters. </xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:NCName">
-      <xs:pattern value="(([a-zA-Z][a-zA-Z0-9]*)(_)*(.)*)+"/>
-    </xs:restriction>
+    <xs:union memberTypes="xs:normalizedString xs:anyURI"/>
   </xs:simpleType>
   <xs:simpleType name="Polarity">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Limit Polarity vaild values to -1, 0 and 1</xs:documentation>
+      <xs:documentation xml:lang="en">Limit Polarity vaild values to 0 and 1</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:int">
       <xs:pattern value="0|1"/>
@@ -191,71 +158,11 @@
       <xs:pattern value="[A-Z]+(_*[A-Z0-9]*)*"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="V1">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">%VAR%(Directory)*(File_Names)*</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="((%[A-Z](_*[A-Z0-9]*)*%)+((((\\)?_*-*.*[a-zA-Z0-9]*)*(_*-*.*[a-zA-Z0-9])*)+(\\)?)*)"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="V2">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">($VAR | $( VAR) | ${VAR})(Directory)*(File_Names)</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="(($[A-Z](_*[A-Z0-9]*)*)+||($\([A-Z](_*[A-Z0-9]*)*\))+||($\{[A-Z](_*[A-Z0-9]*)*\})+)+(\/)?(((((_*-*.*[a-zA-Z0-9]*)*(_*-*.*[a-zA-Z0-9])*)+(\/)?)*)*)"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="VariableConvention">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">VariableConvention is a UNION of: $VAR, $( VAR), ${VAR} and %VAR% and Directory and File Names</xs:documentation>
-    </xs:annotation>
-    <xs:union memberTypes="V1 V2"/>
-  </xs:simpleType>
   <xs:simpleType name="VariableGuidType">
     <xs:annotation>
       <xs:documentation xml:lang="en"> The GUID data is union of GuidType1 and GuidType2. </xs:documentation>
     </xs:annotation>
     <xs:union memberTypes="GuidType1 GuidType2 Zero"/>
-  </xs:simpleType>
-  <xs:simpleType name="VariableNamingConvention">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">VariableConvention is a UNION of: $VAR, $( VAR), ${VAR} and %VAR%</xs:documentation>
-    </xs:annotation>
-    <xs:union memberTypes="Variable_DOS Variable_UNIX Variable_UNIX_Scope1 Variable_UNIX_Scope2"/>
-  </xs:simpleType>
-  <xs:simpleType name="Variable_DOS">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Definition of a DOS Variable Name: %VAR% It must start with an Upper Case character.</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="%[A-Z](_*[A-Z0-9]*)*%"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="Variable_UNIX">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Definition of a UNIX Variable Name: $VAR It must start with an Upper Case character.</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="$[A-Z](_*[A-Z0-9]*)*"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="Variable_UNIX_Scope1">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Definition of a UNIX Variable Name: $( VAR1) It must start with an Upper Case character.</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="$\([A-Z](_*[A-Z0-9]*)*\)"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="Variable_UNIX_Scope2">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> Definition of a UNIX Variable Name: ${ VAR1} It must start with an Upper Case character.</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="$\{[A-Z](_*[A-Z0-9]*)*\}"/>
-    </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="VersionDataType">
     <xs:annotation>

@@ -85,8 +85,8 @@
       <xs:all>
         <xs:element minOccurs="0" maxOccurs="1" name="RawData">
           <xs:complexType>
-            <xs:sequence minOccurs="0" maxOccurs="1">
-              <xs:element name="Data" type="xs:string"/>
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Data" type="xs:string"/>
             </xs:sequence>
             <xs:attributeGroup ref="RawDataAttributes"/>
           </xs:complexType>
@@ -173,7 +173,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="Name" type="UCNameType"/>
         <xs:element default="512KB" minOccurs="0" maxOccurs="1" name="FlashSize" type="FlashSize"/>
         <xs:element minOccurs="0" maxOccurs="1" name="BaseAddress" type="HexAddressType"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="OutputDirectory" type="xs:anyURI"/>
         <xs:element minOccurs="0" maxOccurs="255" name="Block" type="BlockNameType"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Region" type="RegionDataType"/>
       </xs:sequence>
@@ -226,7 +226,7 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" ref="Libraries"/>
         <!-- Only specification is allow here. We need to let this be an addtion OR, if the WORD portion MATCHES, this entry takes precedence.</xs:documentation -->
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Specification"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="Specification" type="Sentence"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="PcdBuildDefinition"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="ModuleSaBuildOptions"/>
       </xs:sequence>

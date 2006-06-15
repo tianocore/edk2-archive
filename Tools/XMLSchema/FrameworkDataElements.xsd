@@ -69,8 +69,8 @@
       <xs:documentation xml:lang="en">This is a list of BootModes Supported by the Module</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="BootMode">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="BootMode">
           <xs:complexType>
             <xs:attributeGroup ref="BootModeAttributes"/>
           </xs:complexType>
@@ -97,11 +97,11 @@
       <xs:documentation xml:lang="en">This is a list of DataHubRecord elements.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="DataHubRecord">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="DataHubRecord">
           <xs:complexType>
             <xs:simpleContent>
-              <xs:extension base="xs:normalizedString">
+              <xs:extension base="C_NameType">
                 <xs:attributeGroup ref="DataHubAttributes"/>
               </xs:extension>
             </xs:simpleContent>
@@ -153,7 +153,7 @@
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
-            <xs:attributeGroup ref="PcdAttributes"/>
+            <xs:attributeGroup ref="DynamicBuildPcdAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -206,40 +206,40 @@
     <xs:complexType>
       <xs:sequence minOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="PcdIsDriver" type="PcdDriverTypes"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Specification"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="Specification" type="Sentence"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Extern">
           <xs:complexType>
             <xs:choice minOccurs="1">
-              <xs:sequence minOccurs="0" maxOccurs="1">
+              <xs:sequence>
                 <xs:annotation>
                   <xs:documentation xml:lang="en">Driver Module</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="ModuleEntryPoint" type="C_NameType"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="ModuleUnloadImage" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="ModuleEntryPoint" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="ModuleUnloadImage" type="C_NameType"/>
               </xs:sequence>
-              <xs:sequence minOccurs="0" maxOccurs="1">
+              <xs:sequence>
                 <xs:annotation>
                   <xs:documentation xml:lang="en">Library Module</xs:documentation>
                 </xs:annotation>
                 <xs:element minOccurs="0" maxOccurs="1" name="Constructor" type="C_NameType"/>
                 <xs:element minOccurs="0" maxOccurs="1" name="Destructor" type="C_NameType"/>
               </xs:sequence>
-              <xs:sequence minOccurs="0" maxOccurs="1">
+              <xs:sequence>
                 <xs:annotation>
                   <xs:documentation xml:lang="en">Allow multiple entries for DriverBinding, ComponentName, DriverConfig and DriverDiag elements. For ComponentName, DriverConfig and/or DriverDiag - you must have a 1:1 mapping to DriverBinding if the element is defined.</xs:documentation>
                   <xs:documentation xml:lang="en">Permit User Defined Extern Tags</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="DriverBinding" type="C_NameType"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="ComponentName" type="C_NameType"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="DriverConfig" type="C_NameType"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="DriverDiag" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="DriverBinding" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="ComponentName" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="DriverConfig" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="DriverDiag" type="C_NameType"/>
               </xs:sequence>
-              <xs:sequence minOccurs="0" maxOccurs="1">
+              <xs:sequence>
                 <xs:annotation>
                   <xs:documentation xml:lang="en"> Module Call Backs</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="SetVirtualAddressMapCallBack" type="C_NameType"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" name="ExitBootServicesCallBack" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="SetVirtualAddressMapCallBack" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="ExitBootServicesCallBack" type="C_NameType"/>
               </xs:sequence>
               <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefined" type="C_NameType"/>
             </xs:choice>
@@ -292,8 +292,8 @@
   </xs:element>
   <xs:element name="Guids">
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="GuidEntry">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="GuidEntry">
           <xs:annotation>
             <xs:documentation xml:lang="en">Describe the valid content of a GUID element in and MSA file.</xs:documentation>
           </xs:annotation>
@@ -313,8 +313,8 @@
       <xs:documentation xml:lang="en">Describe the list of a HiiPackage elements</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="HiiPackage">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="HiiPackage">
           <xs:complexType>
             <xs:simpleContent>
               <xs:extension base="C_NameType">
@@ -328,10 +328,10 @@
   </xs:element>
   <xs:element name="Hobs">
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="Hob">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Hob">
           <xs:complexType>
-            <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
             </xs:sequence>
             <xs:attributeGroup ref="HobAttributes"/>
@@ -370,14 +370,10 @@
       <xs:documentation xml:lang="en">Different (Module) Instances of Libraries used ONLY in FPD Files.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1">
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="Library">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Library">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="UiNameType">
-                <xs:attributeGroup ref="LibraryAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:attributeGroup ref="LibraryAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -432,17 +428,17 @@
   </xs:element>
   <xs:element name="ModuleBuildOptions">
     <xs:complexType>
-      <xs:complexContent mixed="true">
-        <xs:extension base="xs:anyType">
-          <xs:attribute name="attr" type="xs:anySimpleType" use="optional"/>
-        </xs:extension>
-      </xs:complexContent>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" namespace="##local"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="ModuleSaBuildOptions">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" name="FvBinding" type="FfsNameType"/>
+        <!-- If binding is specified, you MUST specify the FfsFormatKey -->
+        <xs:element minOccurs="0" maxOccurs="1" name="FfsFormatKey" type="FfsNameType"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -451,6 +447,7 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
         <xs:element minOccurs="1" maxOccurs="1" name="BinaryModule" type="xs:boolean" default="false"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="OutputFileBasename" type="FileNameConvention"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -483,19 +480,6 @@
       <xs:simpleContent>
         <xs:extension base="xs:normalizedString">
           <xs:attributeGroup ref="OptionAttributes"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="OutputDirectory">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">Define where we want our output to go. The Attribute, IntermediateDirectories, default MODULE, says that intermediate files will be local to the module, versus a unified directory structure.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="DirectoryNamingConvention">
-          <xs:attribute default="UNIFIED" name="IntermediateDirectories" type="IntermediateOutputType" use="optional"/>
-          <xs:attribute name="SkuID" type="xs:nonNegativeInteger" use="optional"/>
         </xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -604,8 +588,8 @@
       <xs:documentation xml:lang="en">Child of Module Surface Area Description (MSA)</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1">
-        <xs:element maxOccurs="unbounded" name="PcdEntry">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="PcdEntry">
           <xs:complexType>
             <xs:sequence>
               <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
@@ -650,26 +634,9 @@
           <!-- Required Attributes are the FfsFormatKeyword and SupModuleList -->
           <xs:complexType>
             <xs:sequence>
-              <!-- If ParentNode == MyNodeNumber == 1, this is the top of the graph -->
-              <xs:element minOccurs="1" maxOccurs="unbounded" ref="Section"/>
+              <xs:element minOccurs="1" maxOccurs="unbounded" ref="ProcessStep"/>
             </xs:sequence>
             <xs:attributeGroup ref="FfsAttributes"/>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-      <xs:attributeGroup ref="FfsFormatDeclarationAttributes"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="FfsSections">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="FfsSection">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="ParentNode" type="KeyNumberType"/>
-              <xs:element minOccurs="1" maxOccurs="1" name="MyNodeName" type="KeyNumberType"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="Section"/>
-            </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -767,27 +734,17 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Section">
+  <xs:element name="ProcessStep">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="1" name="ParentNode" type="NodeNumberType"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="MyNodeNumber" type="NodeNumberType"/>
-        <xs:element minOccurs="0" ref="Filenames"/>
-        <xs:element minOccurs="0" name="Args" type="ArgsType"/>
-        <xs:element minOccurs="0" name="OutFile" type="PathAndFilename"/>
-        <xs:element minOccurs="0" name="OutputFileExtension" type="xs:string"/>
-        <xs:element minOccurs="0" name="ToolName" type="ToolType"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribute"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="ToolName" type="xs:string"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="ToolArgs" type="xs:string"/>
+        <!-- Input patterns  to be processed by the tool above -->
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="InputPattern" type="xs:string"/>
+        <!-- A pattern to match for the output -->
+        <xs:element minOccurs="1" maxOccurs="1" name="OutputPattern" type="xs:string"/>
       </xs:sequence>
       <xs:attributeGroup ref="SectionAttributes"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="Sections">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" ref="Section"/>
-      </xs:sequence>
-      <xs:attributeGroup ref="SectionsAttributes"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="SourceFiles">
@@ -802,8 +759,8 @@
   </xs:element>
   <xs:element name="SkuInfo">
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="UiSkuName">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="UiSkuName">
           <xs:complexType>
             <xs:simpleContent>
               <xs:extension base="UiNameType">
@@ -815,30 +772,19 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Specification">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">This string is used to provide the name and version of the Specification that the component conforms to.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attribute name="Version" type="xs:normalizedString" use="optional"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="SystemTables">
     <xs:annotation>
       <xs:documentation xml:lang="en">This is list of System Table elements.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="SystemTable">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="SystemTable">
           <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
-            </xs:sequence>
-            <xs:attributeGroup ref="SystemTableAttributes"/>
+            <xs:simpleContent>
+              <xs:extension base="C_NameType">
+                <xs:attributeGroup ref="SystemTableAttributes"/>
+              </xs:extension>
+            </xs:simpleContent>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -857,12 +803,11 @@
   </xs:element>
   <xs:element name="UserExtensions">
     <xs:complexType>
-      <xs:complexContent mixed="true">
-        <xs:extension base="xs:anyType">
-          <xs:attribute name="UserID" type="xs:NCName" use="required"/>
-          <xs:attribute name="Identifier" type="xs:nonNegativeInteger" use="required"/>
-        </xs:extension>
-      </xs:complexContent>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" namespace="##local"/>
+      </xs:sequence>
+      <xs:attribute name="UserID" type="xs:NCName" use="required"/>
+      <xs:attribute name="Identifier" type="xs:nonNegativeInteger" use="required"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Variables">
@@ -870,8 +815,8 @@
       <xs:documentation xml:lang="en">An MSA FILE list of EFI Variables described by string pair.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="Variable">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Variable">
           <xs:annotation>
             <xs:documentation xml:lang="en">This is an EFI Variable Entry</xs:documentation>
           </xs:annotation>
