@@ -44,7 +44,6 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="ModuleName" type="UiNameType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="ModuleType"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="LibraryModule" type="xs:boolean" default="false"/>
         <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
