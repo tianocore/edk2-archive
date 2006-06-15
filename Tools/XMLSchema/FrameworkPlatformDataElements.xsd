@@ -159,7 +159,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="1" name="Name" type="NameConvention"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="Name" type="FfsNameType"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="File" type="FvImageOverrideFileType"/>
       </xs:sequence>
     </xs:complexType>
@@ -225,7 +225,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" ref="Libraries"/>
-        <!-- xml:lang="en">Only specification is allow here. We need to let this be an addtion OR, if the WORD portion MATCHES, this entry takes precedence.</xs:documentation -->
+        <!-- Only specification is allow here. We need to let this be an addtion OR, if the WORD portion MATCHES, this entry takes precedence.</xs:documentation -->
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="Specification"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="PcdBuildDefinition"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="ModuleSaBuildOptions"/>
@@ -265,7 +265,7 @@
   </xs:element>
   <xs:complexType name="FlashData">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefinedFvRegion" type="NameConvention"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefinedFvRegion" type="FfsNameType"/>
       <xs:choice minOccurs="0" maxOccurs="1">
         <xs:sequence>
           <xs:element minOccurs="1" maxOccurs="1" ref="FlashDeviceInfo"/>
@@ -285,15 +285,15 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Name" type="PathAndFilename"/>
       <xs:element minOccurs="0" maxOccurs="1" name="Region" type="FvRegionTypes"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="UserDefinedFvRegion" type="NameConvention"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="UserDefinedFvRegion" type="FfsNameType"/>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="RawData" type="RawDataType"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="RawDataType">
     <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="Name" type="NameConvention"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Name" type="FfsNameType"/>
       <xs:element minOccurs="0" maxOccurs="1" name="Region" type="FvRegionTypes"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="UserDefinedFvRegion" type="NameConvention"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="UserDefinedFvRegion" type="FfsNameType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="SubRegion" type="FvSubRegionTypes"/>
       <xs:element minOccurs="1" maxOccurs="1" name="Data" type="HexDataType"/>
     </xs:sequence>

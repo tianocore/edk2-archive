@@ -139,15 +139,7 @@
       <xs:pattern value="[a-zA-Z]+(_*[a-zA-Z0-9]*)*"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="NameConvention">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">What is a name, any series of alphanumeric characters and one or more underline characters that may occur in any position</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:normalizedString">
-      <xs:pattern value="(_*[a-zA-Z0-9]*_*)+"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="Paragraph">
+   <xs:simpleType name="Paragraph">
     <xs:annotation>
       <xs:documentation xml:lang="en">This describes the normal text of a paragraph that can be used in a license or description tag.</xs:documentation>
     </xs:annotation>

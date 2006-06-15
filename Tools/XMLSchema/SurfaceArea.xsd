@@ -36,7 +36,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" ref="PlatformHeader"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="PlatformDeclarations"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="PlatformDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FrameworkModules"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="DynamicPcdBuildDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>
@@ -51,6 +51,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" ref="MsaHeader"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="ModuleDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="LibraryClassDefinitions"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="SourceFiles"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="PackageDependencies"/>
@@ -78,7 +79,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" ref="SpdHeader"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="PackageDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="LibraryClassDeclarations"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="IndustryStdIncludes"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="MsaFiles"/>
@@ -91,11 +92,15 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="PlatformDeclarations">
+  <xs:element name="PlatformDefinitions">
     <xs:complexType>
       <xs:sequence>
+        <!-- This is the list of ALL architectures that are supported by this Platform -->
         <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
         <xs:element minOccurs="1" maxOccurs="1" name="BuildTargets" type="BuildTargetList"/>
+        <!-- Permit binding the OutputDirectory to the SkuID just in case we want different output locations based on the Sku -->
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="OutputDirectory"/>
+        <!-- SkuInfo is only defined if Sku enabled -->
         <xs:element minOccurs="0" maxOccurs="1" ref="SkuInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FfsFormatDeclarations"/>

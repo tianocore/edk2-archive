@@ -55,6 +55,14 @@
       <xs:attribute name="Id" type="xs:int" use="required"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="Attribute">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_NameType"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_NameType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="BootModes">
     <xs:annotation>
       <xs:documentation xml:lang="en">BootModes is valid for all Description Files</xs:documentation>
@@ -77,37 +85,12 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" ref="UserDefinedAntTasks"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="OutputDirectory"/>
-        <xs:sequence minOccurs="0">
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="Option">
-            <xs:complexType>
-              <xs:simpleContent>
-                <xs:extension base="xs:normalizedString">
-                  <xs:attributeGroup ref="OptionAttributes"/>
-                </xs:extension>
-              </xs:simpleContent>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
+        <!-- Options list the Flags available for each defined tool -->
+        <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserExtensions"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="C_Name" type="C_NameType">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">C_Name is valid for all Description Files</xs:documentation>
-    </xs:annotation>
-  </xs:element>
-  <xs:element name="ComponentName" type="C_NameType">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">ComponentName is valid for all Description Files</xs:documentation>
-    </xs:annotation>
-  </xs:element>
-  <xs:element name="ComponentType" type="FrameworkComponentTypes">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">Describe the valid Framework Component Type</xs:documentation>
-    </xs:annotation>
-  </xs:element>
-  <xs:element name="Constructor" type="C_NameType"/>
   <xs:element name="Copyright" type="Paragraph"/>
   <xs:element name="DataHubs">
     <xs:annotation>
@@ -127,7 +110,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="DatabaseName" type="xs:NCName"/>
   <xs:element name="DefaultValue">
     <xs:annotation>
       <xs:documentation xml:lang="en">The default setting of a PCD entry.</xs:documentation>
@@ -143,10 +125,6 @@
       <xs:documentation xml:lang="en">This section is required for new modules and libraries and must contain more information than the Abstract.</xs:documentation>
     </xs:annotation>
   </xs:element>
-  <xs:element name="Destructor" type="C_NameType"/>
-  <xs:element name="DriverBinding" type="C_NameType"/>
-  <xs:element name="DriverConfig" type="C_NameType"/>
-  <xs:element name="DriverDiag" type="C_NameType"/>
   <xs:element name="DynamicPcdBuildDefinitions">
     <xs:annotation>
       <xs:documentation xml:lang="en">Child of Framework Platform Description (FPD)</xs:documentation>
@@ -157,7 +135,7 @@
         <xs:element minOccurs="1" maxOccurs="unbounded" name="PcdBuildData">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="Token" type="TokenDataType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
@@ -221,7 +199,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="ExitBootServicesCallBack" type="C_NameType"/>
   <xs:element name="Externs">
     <xs:annotation>
       <xs:documentation xml:lang="en">This is a child of MSA files.</xs:documentation>
@@ -237,32 +214,32 @@
                 <xs:annotation>
                   <xs:documentation xml:lang="en">Driver Module</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="ModuleEntryPoint"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="ModuleUnloadImage"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="ModuleEntryPoint" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="ModuleUnloadImage" type="C_NameType"/>
               </xs:sequence>
               <xs:sequence minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                   <xs:documentation xml:lang="en">Library Module</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Constructor"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="Destructor"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="Constructor" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="Destructor" type="C_NameType"/>
               </xs:sequence>
               <xs:sequence minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                   <xs:documentation xml:lang="en">Allow multiple entries for DriverBinding, ComponentName, DriverConfig and DriverDiag elements. For ComponentName, DriverConfig and/or DriverDiag - you must have a 1:1 mapping to DriverBinding if the element is defined.</xs:documentation>
                   <xs:documentation xml:lang="en">Permit User Defined Extern Tags</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="DriverBinding"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="ComponentName"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="DriverConfig"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="DriverDiag"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="DriverBinding" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="ComponentName" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="DriverConfig" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="DriverDiag" type="C_NameType"/>
               </xs:sequence>
               <xs:sequence minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                   <xs:documentation xml:lang="en"> Module Call Backs</xs:documentation>
                 </xs:annotation>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="SetVirtualAddressMapCallBack"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="ExitBootServicesCallBack"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="SetVirtualAddressMapCallBack" type="C_NameType"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="ExitBootServicesCallBack" type="C_NameType"/>
               </xs:sequence>
               <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefined" type="C_NameType"/>
             </xs:choice>
@@ -270,25 +247,6 @@
           </xs:complexType>
         </xs:element>
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="Ffs">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">Define the FFS File attributes within a sections and containing sections information</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_NameType"/>
-              <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_NameType"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element minOccurs="0" maxOccurs="1" ref="Sections"/>
-      </xs:sequence>
-      <xs:attributeGroup ref="FfsAttributes"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Filename">
@@ -322,9 +280,9 @@
         <xs:element minOccurs="1" maxOccurs="unbounded" name="Entry">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <xs:attributeGroup ref="GuidDeclarationAttributes"/>
           </xs:complexType>
@@ -350,8 +308,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GuidValue" type="GuidType"/>
-  <xs:element name="HelpText" type="Paragraph"/>
   <xs:element name="HiiPackages">
     <xs:annotation>
       <xs:documentation xml:lang="en">Describe the list of a HiiPackage elements</xs:documentation>
@@ -384,7 +340,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="ImageEntryPoint" type="C_NameType"/>
   <xs:element name="IncludeHeader">
     <xs:complexType>
       <xs:simpleContent>
@@ -404,9 +359,8 @@
   <xs:element name="IndustryStdHeader">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="1" name="Header" type="UiNameType"/>
         <xs:element minOccurs="1" maxOccurs="1" name="IncludeHeader" type="PathAndFilename"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
       </xs:sequence>
       <xs:attributeGroup ref="IndustryStdHeaderAttributes"/>
     </xs:complexType>
@@ -420,7 +374,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Library">
           <xs:complexType>
             <xs:simpleContent>
-              <xs:extension base="xs:NCName">
+              <xs:extension base="UiNameType">
                 <xs:attributeGroup ref="LibraryAttributes"/>
               </xs:extension>
             </xs:simpleContent>
@@ -435,7 +389,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:simpleContent>
-        <xs:extension base="xs:NCName">
+        <xs:extension base="KeywordType">
           <xs:attributeGroup ref="LibraryClassAttributes"/>
         </xs:extension>
       </xs:simpleContent>
@@ -449,9 +403,7 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element minOccurs="1" maxOccurs="1" name="IncludeHeader" type="PathAndFilename"/>
-              <xs:element minOccurs="0" maxOccurs="1" name="RecommendedInstanceGuid" type="GuidType"/>
-              <xs:element minOccurs="0" maxOccurs="1" name="RecommendedInstanceVersion" type="VersionDataType"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <xs:attributeGroup ref="LibraryClassDeclarationAttributes"/>
           </xs:complexType>
@@ -494,30 +446,45 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="ModuleEntryPoint" type="xs:normalizedString"/>
+  <xs:element name="ModuleDefinitions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="BinaryModule" type="xs:boolean" default="false"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ModuleType" type="ModuleTypeDef">
     <xs:annotation>
       <xs:documentation xml:lang="en">Describe the valid EFI Phase that the Module is designed to execute under.</xs:documentation>
     </xs:annotation>
   </xs:element>
-  <xs:element name="ModuleUnloadImage" type="xs:normalizedString"/>
   <!-- Use in Final -->
   <xs:element name="MsaFiles">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Surface Area Package Description (SPD) list of Module Surface Area files</xs:documentation>
+      <xs:documentation xml:lang="en">MsaFiles is a child of Surface Area Package Description (SPD) files</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="PathAndFilename">
-                <xs:attributeGroup ref="ModuleNameAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Options">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="Option"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Option">
+    <!-- This element is used to store flags from the Tools -->
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:normalizedString">
+          <xs:attributeGroup ref="OptionAttributes"/>
+        </xs:extension>
+      </xs:simpleContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="OutputDirectory">
@@ -527,16 +494,18 @@
     <xs:complexType>
       <xs:simpleContent>
         <xs:extension base="DirectoryNamingConvention">
-          <xs:attribute default="MODULE" name="IntermediateDirectories">
-            <xs:simpleType>
-              <xs:restriction base="UCNameType">
-                <xs:enumeration value="MODULE"/>
-                <xs:enumeration value="UNIFIED"/>
-              </xs:restriction>
-            </xs:simpleType>
-          </xs:attribute>
+          <xs:attribute default="UNIFIED" name="IntermediateDirectories" type="IntermediateOutputType" use="optional"/>
+          <xs:attribute name="SkuID" type="xs:nonNegativeInteger" use="optional"/>
         </xs:extension>
       </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PackageDefinitions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="ReadOnly" type="xs:boolean" default="false"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="RePackage" type="xs:boolean" default="false"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="PackageDependencies">
@@ -556,7 +525,7 @@
   </xs:element>
   <xs:element name="PackageHeaders">
     <xs:annotation>
-      <xs:documentation xml:lang="en">This is a child of PackageSurfaceArea (SPD) </xs:documentation>
+      <xs:documentation xml:lang="en">PackageHeaders is a child of PackageSurfaceArea (SPD) </xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
@@ -588,11 +557,11 @@
       <xs:documentation xml:lang="en">Child of FPD ModuleSA element for FIXED_AT_BUILD, PATCHABLE_IN_MODULE, and FEATURE_FLAG PCDS Only!</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1">
-        <xs:element maxOccurs="unbounded" name="PcdData">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="PcdData">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="Token" type="TokenDataType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
@@ -637,15 +606,11 @@
     <xs:complexType>
       <xs:sequence minOccurs="1">
         <xs:element maxOccurs="unbounded" name="PcdEntry">
-          <xs:annotation>
-            <xs:documentation xml:lang="en">This is the valid content of the PCD table of a Module. The contents may not be wired at build time, and these only refer to Platform Build values, not modules.</xs:documentation>
-            <xs:documentation xml:lang="en">This element is valid for PcdInfo.xml and FPD files.</xs:documentation>
-          </xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
               <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValueType"/>
-              <xs:element minOccurs="0" maxOccurs="1" ref="HelpText"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <!-- MSA file declares a single usage, and must match one of the entries in what the SPD file declares as the set of possible Item Types. -->
             <xs:attributeGroup ref="PcdCodedAttributes"/>
@@ -657,21 +622,20 @@
   <!-- LAH This is PcdDeclarations FINAL version -->
   <xs:element name="PcdDeclarations">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Child of Package Surface Area Description (SPD)</xs:documentation>
-      <xs:documentation xml:lang="en">This section is for entering information about a package's PCDs</xs:documentation>
+      <xs:documentation xml:lang="en">PcdDeclaratins is a child of Package Surface Area Description (SPD)</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence minOccurs="1">
         <xs:element maxOccurs="unbounded" name="PcdEntry">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="Token" type="TokenDataType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="DatumType" type="PcdDataTypes"/>
               <xs:element minOccurs="1" maxOccurs="1" name="ValidUsage" type="PcdListType"/>
               <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValueType"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <xs:attributeGroup ref="PcdDeclarationAttributes"/>
           </xs:complexType>
@@ -681,11 +645,14 @@
   </xs:element>
   <xs:element name="FfsFormatDeclarations">
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="FfsFormatDeclaration">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="FfsFormatDeclaration">
           <!-- Required Attributes are the FfsFormatKeyword and SupModuleList -->
           <xs:complexType>
-            <xs:sequence> </xs:sequence>
+            <xs:sequence>
+              <!-- If ParentNode == MyNodeNumber == 1, this is the top of the graph -->
+              <xs:element minOccurs="1" maxOccurs="unbounded" ref="Section"/>
+            </xs:sequence>
             <xs:attributeGroup ref="FfsAttributes"/>
           </xs:complexType>
         </xs:element>
@@ -710,16 +677,16 @@
   </xs:element>
   <xs:element name="PpiDeclarations">
     <xs:annotation>
-      <xs:documentation xml:lang="en">This is a child of PackageSurfaceArea (SPD) </xs:documentation>
+      <xs:documentation xml:lang="en">PpiDeclarations is a child of PackageSurfaceArea (SPD) </xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="Entry">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <xs:attributeGroup ref="PpiDeclarationAttributes"/>
           </xs:complexType>
@@ -756,16 +723,16 @@
   </xs:element>
   <xs:element name="ProtocolDeclarations">
     <xs:annotation>
-      <xs:documentation xml:lang="en">This is a child of PackageSurfaceArea (SPD) </xs:documentation>
+      <xs:documentation xml:lang="en">ProtocolDeclarations is a child of PackageSurfaceArea (SPD) </xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="Entry">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" ref="C_Name"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="HelpText"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <xs:attributeGroup ref="ProtocolDeclarationAttributes"/>
           </xs:complexType>
@@ -800,70 +767,29 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element default="false" name="ReadOnly" type="xs:boolean"/>
-  <xs:element default="false" name="RePackage" type="xs:boolean"/>
   <xs:element name="Section">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="ParentNode" type="NodeNumberType"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="MyNodeNumber" type="NodeNumberType"/>
         <xs:element minOccurs="0" ref="Filenames"/>
         <xs:element minOccurs="0" name="Args" type="ArgsType"/>
         <xs:element minOccurs="0" name="OutFile" type="PathAndFilename"/>
         <xs:element minOccurs="0" name="OutputFileExtension" type="xs:string"/>
         <xs:element minOccurs="0" name="ToolName" type="ToolType"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_NameType"/>
-              <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_NameType"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribute"/>
       </xs:sequence>
       <xs:attributeGroup ref="SectionAttributes"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Sections">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">Sections refers to the Firmware Filesystem sections, PE32, UI, VER, DXS, etc. and how they are made</xs:documentation>
-    </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1">
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="Section">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="0" ref="Filenames"/>
-              <xs:element minOccurs="0" name="Args" type="ArgsType"/>
-              <xs:element minOccurs="0" name="OutFile" type="PathAndFilename"/>
-              <xs:element minOccurs="0" name="OutputFileExtension" type="xs:string"/>
-              <xs:element minOccurs="0" name="ToolName" type="ToolType"/>
-            </xs:sequence>
-            <xs:attributeGroup ref="SectionAttributes"/>
-          </xs:complexType>
-        </xs:element>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="Sections">
-          <xs:complexType>
-            <xs:sequence minOccurs="1" maxOccurs="unbounded">
-              <xs:element name="Section">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element minOccurs="0" ref="Filenames"/>
-                    <xs:element minOccurs="0" name="Args" type="ArgsType"/>
-                    <xs:element minOccurs="0" name="OutFile" type="PathAndFilename"/>
-                    <xs:element minOccurs="0" name="OutputFileExtension" type="xs:string"/>
-                    <xs:element minOccurs="0" name="ToolName" type="ToolType"/>
-                  </xs:sequence>
-                  <xs:attributeGroup ref="SectionAttributes"/>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-            <xs:attributeGroup ref="SectionsAttributes"/>
-          </xs:complexType>
-        </xs:element>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="Section"/>
       </xs:sequence>
       <xs:attributeGroup ref="SectionsAttributes"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="SetVirtualAddressMapCallBack" type="C_NameType"/>
   <xs:element name="SourceFiles">
     <xs:annotation>
       <xs:documentation xml:lang="en">Multiple Filenames may be specified, and they may also be scoped to a specific Architecture.</xs:documentation>

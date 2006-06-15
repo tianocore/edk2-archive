@@ -46,7 +46,8 @@
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="FfsAttributes">
-    <xs:attribute name="Type" type="xs:string" use="required"/>
+    <xs:attribute name="FfsFormatKeyword" type="FfsNameType" use="required"/>
+    <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="FfsFormatDeclarationAttributes">
     <xs:attribute name="FfsFormatKeyword" type="FfsNameType" use="required"/>
@@ -103,6 +104,7 @@
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="IndustryStdHeaderAttributes">
+    <xs:attribute name="Name" type="UiNameType" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
@@ -116,6 +118,7 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="LibraryClassAttributes">
     <xs:attribute name="Usage" type="LibraryUsage" use="required"/>
+    <!-- Note, RecommendedInstances must come from this package, you cannot recommend an instance from another package -->
     <xs:attribute name="RecommendedInstanceVersion" type="VersionDataType" use="optional"/>
     <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -124,6 +127,9 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="LibraryClassDeclarationAttributes">
     <xs:attribute name="Name" type="KeywordType" use="required"/>
+    <!-- Note, RecommendedInstances must come from this package, you cannot recommend an instance from another package -->
+    <xs:attribute name="RecommendedInstanceVersion" type="VersionDataType" use="optional"/>
+    <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
@@ -151,8 +157,6 @@
     <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
     <xs:attribute name="ToolCommand" type="ToolsNameConvention" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <!-- LAH Does an Option need to have FeatureFlag Attribute? -->
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="PackageHeaderAttributes">
     <xs:attribute name="ModuleType" type="ModuleTypeDef" use="required"/>
@@ -250,8 +254,6 @@
     </xs:annotation>
     <xs:attribute name="BindingOrder" type="xs:int" use="optional"/>
     <xs:attribute default="true" name="Compressible" type="xs:boolean" use="optional"/>
-    <!-- LAH Does a Section need to have FeatureFlag Attribute? -->
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SectionType" type="EfiSectionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="SectionsAttributes">

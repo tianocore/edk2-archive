@@ -87,11 +87,6 @@
       <xs:enumeration value="PRIVATE"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="DateType">
-    <xs:restriction base="xs:normalizedString">
-      <xs:pattern value="[1-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]"/>
-    </xs:restriction>
-  </xs:simpleType>
   <xs:simpleType name="DatumSizeLimitation">
     <xs:restriction base="xs:int">
       <xs:minInclusive value="1"/>
@@ -100,6 +95,12 @@
   </xs:simpleType>
   <xs:simpleType name="DefaultValueType">
     <xs:union memberTypes="xs:normalizedString Hex64BitDataType UnicodeString HexByteArrayType"/>
+  </xs:simpleType>
+  <xs:simpleType name="IntermediateOutputType">
+    <xs:restriction base="UCNameType">
+      <xs:enumeration value="MODULE"/>
+      <xs:enumeration value="UNIFIED"/>
+    </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="EfiSectionType">
     <xs:restriction base="UCNameType">
@@ -166,7 +167,7 @@
   </xs:simpleType>
   <xs:simpleType name="FeatureFlagExpressionType">
     <xs:restriction base="xs:normalizedString">
-      <xs:pattern value="(\w*\W)*"/>
+      <xs:pattern value="(\w*\W*)*"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="FrameworkComponentListType">
@@ -321,6 +322,12 @@
       <xs:enumeration value="UNIFIED"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="NodeNumberType">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="65536"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:simpleType name="PackageType">
     <xs:restriction base="UCNameType">
       <xs:enumeration value="SOURCE"/>
@@ -452,7 +459,7 @@
   </xs:simpleType>
   <xs:simpleType name="UiNameType">
     <xs:restriction base="xs:string">
-      <xs:pattern value="(([a-zA-Z][a-zA-Z0-9]*)(_)*(.)*)+"/>
+      <xs:pattern value="[a-zA-Z][_\.\-a-zA-Z0-9]+"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="UnicodeString">
@@ -463,6 +470,10 @@
   <xs:simpleType name="VariableNameDataType">
     <xs:list itemType="HexWordArrayType"/>
   </xs:simpleType>
+  <xs:simpleType name="UsageListType">
+    <xs:list itemType="UsageTypes"/>
+  </xs:simpleType>
+  <!-- UsageTypes describes all of the Usage Attributes that are defined in the Module Surface Area Specification -->
   <xs:simpleType name="UsageTypes">
     <xs:restriction base="UCNameType">
       <xs:enumeration value="ALWAYS_CONSUMED"/>
@@ -482,10 +493,15 @@
   </xs:simpleType>
   <xs:simpleType name="VariableUsage">
     <xs:restriction base="UsageTypes">
+      <!-- Module requires the variable entry to be set -->
       <xs:enumeration value="ALWAYS_CONSUMED"/>
+      <!-- Module will use the variable entry if it's set -->
       <xs:enumeration value="SOMETIMES_CONSUMED"/>
+      <!-- Module Always will write the variable -->
       <xs:enumeration value="ALWAYS_PRODUCED"/>
+      <!-- Module sometimes writes the variable -->
       <xs:enumeration value="SOMETIMES_PRODUCED"/>
+      <!-- Variable is produced and consumed only by this module -->
       <xs:enumeration value="PRIVATE"/>
     </xs:restriction>
   </xs:simpleType>

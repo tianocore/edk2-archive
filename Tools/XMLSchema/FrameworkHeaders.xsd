@@ -24,7 +24,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="DatabaseName" type="UiNameType" fixed="FrameworkDatabase"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
@@ -44,14 +44,12 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="ModuleName" type="UiNameType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="ModuleType"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="BinaryModule" type="xs:boolean" default="false"/>
         <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="Sentence" fixed="FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052"/>
       </xs:sequence>
     </xs:complexType>
@@ -65,7 +63,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="PlatformName" type="UiNameType"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
@@ -84,14 +82,12 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="PackageName" type="UiNameType"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="GuidValue"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="ReadOnly"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="RePackage"/>
         <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="Sentence" fixed="FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052"/>
       </xs:sequence>
     </xs:complexType>
