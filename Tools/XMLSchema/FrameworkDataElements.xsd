@@ -630,6 +630,16 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="FarList">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track all DISTRIBUTION packages (FAR files) installed in a workspace. (Database)</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="FfsFormatDeclarations">
     <xs:complexType>
       <xs:sequence>
