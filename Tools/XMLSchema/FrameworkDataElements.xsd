@@ -84,6 +84,8 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
+        <!-- This identifies which SKU ID Numbers are valid for this single build!  It may be overriden by some sort of environment setting-->
+        <xs:element minOccurs="0" maxOccurs="1" name="ValidSKUs" type="SkuListType"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="UserDefinedAntTasks"/>
         <!-- Options list the Flags available for each defined tool -->
         <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
