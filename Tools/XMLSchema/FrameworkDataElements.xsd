@@ -439,6 +439,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="FvBinding" type="FfsNameType"/>
         <!-- If binding is specified, you MUST specify the FfsFormatKey -->
         <xs:element minOccurs="0" maxOccurs="1" name="FfsFormatKey" type="FfsNameType"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

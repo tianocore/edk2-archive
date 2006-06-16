@@ -20,51 +20,6 @@
   <xs:include schemaLocation="FrameworkDataTypes.xsd"/>
   <xs:include schemaLocation="FrameworkDataElements.xsd"/>
   <xs:include schemaLocation="FrameworkPlatformDataTypes.xsd"/>
-  <xs:element name="Capsule">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="1" name="CapsuleId" type="xs:string"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="CapsuleOptions"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="CapsuleAttributes"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CapsuleAttributes">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">This element is used specify different name value pairs.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Enable"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Disable"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CapsuleOptions">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">This element is used specify different name value pairs.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="NameValue"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Enable"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Disable"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="Capsules">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">Permit multiple Capsule Sections</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element ref="Capsule"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="Disable" type="xs:string"/>
-  <xs:element name="Enable" type="xs:string"/>
   <xs:element name="FlashDeviceDefinitions">
     <xs:complexType>
       <xs:annotation>
@@ -73,7 +28,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" name="FlashDefinition" type="FlashData"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FvImages"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="Capsules"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
