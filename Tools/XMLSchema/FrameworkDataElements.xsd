@@ -85,7 +85,6 @@
     <xs:complexType>
       <xs:sequence>
         <!-- This identifies which SKU ID Numbers are valid for this single build!  It may be overriden by some sort of environment setting-->
-        <xs:element minOccurs="0" maxOccurs="1" name="ValidSKUs" type="SkuListType"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="UserDefinedAntTasks"/>
         <!-- Options list the Flags available for each defined tool -->
         <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
@@ -439,6 +438,8 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" name="FvBinding" type="FfsNameType"/>
+        <!-- The FfsFileNameGuid allows the Platform Integrator to specify a GUID for the FFS File Name GUID -->
+        <xs:element minOccurs="0" maxOccurs="1" name="FfsFileNameGuid" type="GuidType"/>
         <!-- If binding is specified, you MUST specify the FfsFormatKey -->
         <xs:element minOccurs="0" maxOccurs="1" name="FfsFormatKey" type="FfsNameType"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
@@ -573,7 +574,7 @@
     </xs:annotation>
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="VariableNameDataType"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="VariableGuid" type="VariableGuidType"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="VariableGuid" type="VariableGuidC_NameType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="VariableOffset" type="Hex64BitDataType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="HiiDefaultValue" type="DefaultValueType"/>
     </xs:sequence>
