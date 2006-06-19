@@ -39,7 +39,6 @@
           </xs:simpleType>
         </xs:element>
       </xs:sequence>
-      <xs:attributeGroup ref="SectionAttributes"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="AntTask">
@@ -53,14 +52,6 @@
         <xs:element ref="Filename"/>
       </xs:choice>
       <xs:attribute name="Id" type="xs:int" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="Attribute">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_NameType"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_NameType"/>
-      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="BootModes">
@@ -294,7 +285,7 @@
   <xs:element name="Guids">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="GuidEntry">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="GuidCName">
           <xs:annotation>
             <xs:documentation xml:lang="en">Describe the valid content of a GUID element in and MSA file.</xs:documentation>
           </xs:annotation>
@@ -372,7 +363,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="Library">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Instance">
           <xs:complexType>
             <xs:attributeGroup ref="LibraryAttributes"/>
           </xs:complexType>
@@ -574,7 +565,7 @@
     </xs:annotation>
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="VariableNameDataType"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="VariableGuid" type="VariableGuidC_NameType"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="VariableGuid" type="C_NameType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="VariableOffset" type="Hex64BitDataType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="HiiDefaultValue" type="DefaultValueType"/>
     </xs:sequence>
@@ -758,7 +749,7 @@
         <!-- A pattern to match for the output -->
         <xs:element minOccurs="1" maxOccurs="1" name="OutputPattern" type="xs:string"/>
       </xs:sequence>
-      <xs:attributeGroup ref="SectionAttributes"/>
+      <xs:attributeGroup ref="ProcessStepAttributes"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="SourceFiles">
@@ -792,7 +783,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="SystemTable">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="SystemTableCName">
           <xs:complexType>
             <xs:simpleContent>
               <xs:extension base="C_NameType">

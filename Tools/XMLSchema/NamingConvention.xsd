@@ -158,20 +158,6 @@
       <xs:pattern value="[A-Z]+(_*[A-Z0-9]*)*"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="VariableGuidC_NameType">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> VariableGuidC_Names must start with either an underscore (_) character followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="VariableGuidType">
-    <xs:annotation>
-      <xs:documentation xml:lang="en"> The GUID data is union of GuidType1 and GuidType2. </xs:documentation>
-    </xs:annotation>
-    <xs:union memberTypes="GuidType1 GuidType2 Zero"/>
-  </xs:simpleType>
   <xs:simpleType name="VersionDataType">
     <xs:annotation>
       <xs:documentation xml:lang="en"> Definition of a Version Number, which must be a decimal number (or Zero) </xs:documentation>

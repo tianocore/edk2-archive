@@ -47,6 +47,11 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="FfsAttributes">
     <xs:attribute name="FfsFormatKeyword" type="FfsNameType" use="required"/>
+    <xs:attribute name="FfsFileType" type="EfiFfsFileTypes" use="optional"/>
+    <xs:attribute name="FfsAttribTailPresent" type="xs:boolean" use="optional"/>
+    <xs:attribute name="FfsAttribRecovery" type="xs:boolean" use="optional" default="false"/>
+    <xs:attribute name="FfsAttribDataAlignment" type="FfsDataAlignmentType" use="optional"/>
+    <xs:attribute name="FfsAttribChecksumRequired" type="xs:boolean" use="optional" default="true"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="FilenameAttributes">
@@ -207,6 +212,14 @@
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
+  <xs:attributeGroup name="ProcessStepAttributes">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes are either compressable and/or sequence order binding</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="BindingOrder" type="xs:int" use="optional"/>
+    <xs:attribute default="true" name="Compressible" type="xs:boolean" use="optional"/>
+    <xs:attribute name="SectionType" type="EfiSectionType" use="optional"/>
+  </xs:attributeGroup>
   <xs:attributeGroup name="ProtocolAttributes">
     <xs:attribute name="Usage" type="ProtocolUsage" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -236,17 +249,9 @@
     <xs:attribute name="AreaType" type="EfiFvAreaType" use="required"/>
     <xs:attribute name="Alignment" type="HexAddressType" use="optional"/>
   </xs:attributeGroup>
-  <xs:attributeGroup name="SectionAttributes">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">Attributes are either compressable and/or sequence order binding</xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="BindingOrder" type="xs:int" use="optional"/>
-    <xs:attribute default="true" name="Compressible" type="xs:boolean" use="optional"/>
-    <xs:attribute name="SectionType" type="EfiSectionType" use="optional"/>
-  </xs:attributeGroup>
   <xs:attributeGroup name="SectionsAttributes">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Attributes for Sections, EncapsulationTag, EncapsulationType and FeatureFlag</xs:documentation>
+      <xs:documentation xml:lang="en">Attributes for Sections, EncapsulationTag and EncapsulationType</xs:documentation>
     </xs:annotation>
     <xs:attribute name="EncapsulationType" type="xs:normalizedString" use="optional"/>
     <xs:attribute name="EncapsulationTag" type="xs:string" use="optional"/>
