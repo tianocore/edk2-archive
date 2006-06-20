@@ -76,6 +76,10 @@
     <xs:attribute name="BaseAddress" type="HexAddressType" use="required"/>
     <xs:attribute name="ErasePolarity" type="Polarity" use="required"/>
   </xs:attributeGroup>
+  <xs:attributeGroup name="FvRegionNameAttributes">
+    <xs:attribute name="BaseAddressPcdCName" type="C_NameType" use="required"/>
+    <xs:attribute name="BaseAddressPcdTokenSpaceGuid" type="GuidType" use="optional"/>
+  </xs:attributeGroup>
   <xs:attributeGroup name="GuidAttributes">
     <xs:attribute name="Usage" type="GuidUsage" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
@@ -217,7 +221,6 @@
       <xs:documentation xml:lang="en">Attributes are either compressable and/or sequence order binding</xs:documentation>
     </xs:annotation>
     <xs:attribute name="BindingOrder" type="xs:int" use="optional"/>
-    <xs:attribute default="true" name="Compressible" type="xs:boolean" use="optional"/>
     <xs:attribute name="SectionType" type="EfiSectionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="ProtocolAttributes">
