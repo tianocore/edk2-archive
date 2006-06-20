@@ -77,8 +77,11 @@
     <xs:attribute name="ErasePolarity" type="Polarity" use="required"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="FvRegionNameAttributes">
-    <xs:attribute name="BaseAddressPcdCName" type="C_NameType" use="required"/>
-    <xs:attribute name="BaseAddressPcdTokenSpaceGuid" type="GuidType" use="optional"/>
+    <xs:attribute name="FvBaseAddressPcdCName" type="C_NameType" use="required"/>
+    <xs:attribute name="FvRegionSizePcdCName" type="C_NameType" use="required"/>
+    <xs:attribute name="FvRegionAlignmentPcdCName" type="C_NameType" use="optional"/>
+    <xs:attribute name="FvPcdTokenSpaceGuid" type="GuidType" use="optional"/>
+    <xs:attribute name="Alignment" type="xs:positiveInteger" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="GuidAttributes">
     <xs:attribute name="Usage" type="GuidUsage" use="required"/>
@@ -157,7 +160,7 @@
     <xs:attribute name="BuildTargets" type="BuildTargetList" use="optional"/>
     <xs:attribute name="ToolChainFamily" type="ToolsNameConvention" use="optional"/>
     <xs:attribute name="TagName" type="ToolsNameConvention" use="optional"/>
-    <xs:attribute name="ToolCommand" type="ToolsNameConvention" use="optional"/>
+    <xs:attribute name="ToolCode" type="ToolsNameConvention" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="PackageHeaderAttributes">

@@ -49,7 +49,7 @@
     <xs:complexType>
       <xs:choice>
         <xs:element ref="AntCmd"/>
-        <xs:element ref="Filename"/>
+        <xs:element name="Filename" type="PathAndFilename"/>
       </xs:choice>
       <xs:attribute name="Id" type="xs:int" use="required"/>
     </xs:complexType>

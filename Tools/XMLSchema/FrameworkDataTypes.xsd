@@ -261,6 +261,11 @@
   <xs:simpleType name="HexByteArrayType">
     <xs:list itemType="HexByteDataType"/>
   </xs:simpleType>
+  <xs:simpleType name="HexByteArrayListType">
+    <xs:restriction base="xs:normalizedString">
+      <xs:pattern value="((( )?0x[a-fA-F0-9]{2})(,)?)+( )?"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:simpleType name="HexWordArrayType">
     <xs:restriction base="xs:normalizedString">
       <xs:pattern value="((( )?0x[a-fA-F0-9]{4})(,)?)+( )?"/>

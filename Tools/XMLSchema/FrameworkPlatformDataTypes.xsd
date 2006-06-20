@@ -39,14 +39,28 @@
       <xs:documentation xml:lang="en">The list of valid EFI Area Types</xs:documentation>
     </xs:annotation>
     <xs:restriction base="UCNameType">
-      <xs:enumeration value="EFI_FLASH_AREA_EFI_VARIABLES"/>
-      <xs:enumeration value="EFI_FLASH_AREA_UNUSED"/>
-      <xs:enumeration value="EFI_FLASH_AREA_MAIN_BIOS"/>
-      <xs:enumeration value="EFI_FLASH_AREA_GUID_DEFINED"/>
-      <xs:enumeration value="EFI_FLASH_AREA_FTW_STATE"/>
-      <xs:enumeration value="EFI_FLASH_AREA_FTW_BACKUP"/>
       <xs:enumeration value="EFI_FLASH_AREA_RECOVERY_BIOS"/>
+      <xs:enumeration value="EFI_FLASH_AREA_MAIN_BIOS"/>
+      <xs:enumeration value="EFI_FLASH_AREA_PAL_B"/>
+      <xs:enumeration value="EFI_FLASH_AREA_RESERVED_03"/>
+      <xs:enumeration value="EFI_FLASH_AREA_RESERVED_04"/>
+      <xs:enumeration value="EFI_FLASH_AREA_DMI_FRU"/>
+      <xs:enumeration value="EFI_FLASH_AREA_OEM_BINARY"/>
+      <xs:enumeration value="EFI_FLASH_AREA_RESERVED_07"/>
+      <xs:enumeration value="EFI_FLASH_AREA_RESERVED_08"/>
+      <xs:enumeration value="EFI_FLASH_AREA_RESERVED_09"/>
+      <xs:enumeration value="EFI_FLASH_AREA_RESERVED_0A"/>
+      <xs:enumeration value="EFI_FLASH_AREA_EFI_VARIABLES"/>
+      <xs:enumeration value="EFI_FLASH_AREA_MCA_LOG"/>
+      <xs:enumeration value="EFI_FLASH_AREA_SMBIOS_LOG"/>
+      <xs:enumeration value="EFI_FLASH_AREA_FTW_BACKUP"/>
+      <xs:enumeration value="EFI_FLASH_AREA_FTW_STATE"/>
+      <xs:enumeration value="EFI_FLASH_AREA_UNUSED"/>
+      <xs:enumeration value="EFI_FLASH_AREA_GUID_DEFINED"/>
     </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="EfiFvAttributeListType">
+    <xs:list itemType="EfiFvAttributeType"/>
   </xs:simpleType>
   <xs:simpleType name="EfiFvAttributeType">
     <xs:annotation>
@@ -56,6 +70,7 @@
       <xs:enumeration value="EFI_FLASH_AREA_FV"/>
       <xs:enumeration value="EFI_FLASH_AREA_MEMMAPPED_FV"/>
       <xs:enumeration value="EFI_FLASH_AREA_SUBFV"/>
+      <xs:enumeration value="EFI_FLASH_AREA_REQUIRED"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="EfiNameGuidType">
@@ -93,7 +108,7 @@
       <xs:enumeration value="Attributes"/>
       <xs:enumeration value="Options"/>
       <xs:enumeration value="Components"/>
-      <xs:enumeration value="ValidImageNames"/>
+      <xs:enumeration value="ImageName"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="FvSubRegionTypes">
@@ -102,5 +117,8 @@
       <xs:enumeration value="MICROCODE"/>
       <xs:enumeration value="NV_FTW_WORKING"/>
     </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ValidRegionNameListType">
+    <xs:list itemType="KeywordType"/>
   </xs:simpleType>
 </xs:schema>
