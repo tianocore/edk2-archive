@@ -79,7 +79,7 @@
         <xs:choice>
           <xs:sequence>
             <!-- Use this sequence for a part with fixed block sizes -->
-            <xs:element name="NumBlocks" type="xs:nonNegativeInteger"/>
+            <xs:element name="NumBlocks" type="xs:positiveInteger"/>
             <xs:element name="BlockSize" type="HexAddressType"/>
           </xs:sequence>
           <xs:sequence>
