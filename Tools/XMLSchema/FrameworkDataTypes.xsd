@@ -517,6 +517,13 @@
     </xs:restriction>
   </xs:simpleType>
   <!-- Complex Data Types -->
+  <xs:complexType name="DbPathAndFilename">
+    <xs:simpleContent>
+      <xs:extension base="PathAndFilename">
+        <xs:attribute name="FarGuid" type="GuidType" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
   <xs:complexType name="ArgsType">
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="Arg" type="xs:string"/>

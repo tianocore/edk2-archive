@@ -524,12 +524,13 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="PackageList">
+    <!-- Valid for DB usage only! -->
     <xs:annotation>
       <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track all packages (SPD files) installed in a workspace. (Database)</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="DbPathAndFilename"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -626,12 +627,13 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="FarList">
+    <!-- Valid for DB usage only! -->
     <xs:annotation>
       <xs:documentation xml:lang="en">This tag is used in the Framework Package Database File to track all DISTRIBUTION packages (FAR files) installed in a workspace. (Database)</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="PathAndFilename"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Filename" type="DbPathAndFilename"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
