@@ -159,13 +159,14 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" name="CreateEvents">
           <xs:complexType>
-            <xs:sequence minOccurs="1" maxOccurs="unbounded">
-              <xs:element name="Event">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="Event">
                 <xs:complexType>
-                  <xs:sequence>
-                    <xs:element minOccurs="0" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
-                  </xs:sequence>
-                  <xs:attributeGroup ref="EventAttributes"/>
+                  <xs:simpleContent>
+                    <xs:extension base="C_NameType">
+                      <xs:attributeGroup ref="EventAttributes"/>
+                    </xs:extension>
+                  </xs:simpleContent>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -179,10 +180,11 @@
             <xs:sequence minOccurs="1" maxOccurs="unbounded">
               <xs:element name="Event">
                 <xs:complexType>
-                  <xs:sequence>
-                    <xs:element minOccurs="0" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
-                  </xs:sequence>
-                  <xs:attributeGroup ref="EventAttributes"/>
+                  <xs:simpleContent>
+                    <xs:extension base="C_NameType">
+                      <xs:attributeGroup ref="EventAttributes"/>
+                    </xs:extension>
+                  </xs:simpleContent>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -323,10 +325,11 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="Hob">
           <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="0" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
-            </xs:sequence>
-            <xs:attributeGroup ref="HobAttributes"/>
+            <xs:simpleContent>
+              <xs:extension base="C_NameType">
+                <xs:attributeGroup ref="HobAttributes"/>
+              </xs:extension>
+            </xs:simpleContent>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -493,8 +496,8 @@
       <xs:documentation xml:lang="en">Attributes to PackageName include Required: Usage PackageGuid PackageVesion, Optional: FeatureFlag</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="Package">
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Package">
           <xs:complexType>
             <xs:attributeGroup ref="PackageAttributes"/>
           </xs:complexType>
@@ -530,7 +533,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Path" type="PathAndFilename"/>
   <xs:element name="PcdBuildDefinition">
     <xs:annotation>
       <xs:documentation xml:lang="en">Child of FPD ModuleSA element for FIXED_AT_BUILD, PATCHABLE_IN_MODULE, and FEATURE_FLAG PCDS Only!</xs:documentation>
@@ -588,8 +590,9 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element minOccurs="1" maxOccurs="1" name="C_Name" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="TokenSpaceGuid" type="GuidType"/>
               <xs:element minOccurs="0" maxOccurs="1" name="DefaultValue" type="DefaultValueType"/>
-              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <!-- MSA file declares a single usage, and must match one of the entries in what the SPD file declares as the set of possible Item Types. -->
             <xs:attributeGroup ref="PcdCodedAttributes"/>
@@ -717,7 +720,7 @@
       <xs:documentation xml:lang="en">If either Protocol or ProtocolNotify sections are needed, one or more of them should be specified within this section</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+      <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Protocol">
           <xs:complexType>
             <xs:simpleContent>

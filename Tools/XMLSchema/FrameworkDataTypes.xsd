@@ -332,12 +332,6 @@
   <xs:simpleType name="ModuleListType">
     <xs:list itemType="FrameworkModuleTypes"/>
   </xs:simpleType>
-  <xs:simpleType name="Module_Unified">
-    <xs:restriction base="UCNameType">
-      <xs:enumeration value="MODULE"/>
-      <xs:enumeration value="UNIFIED"/>
-    </xs:restriction>
-  </xs:simpleType>
   <xs:simpleType name="NodeNumberType">
     <xs:restriction base="xs:nonNegativeInteger">
       <xs:minInclusive value="1"/>

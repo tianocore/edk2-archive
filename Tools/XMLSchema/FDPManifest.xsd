@@ -224,7 +224,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
               <xs:element minOccurs="0" maxOccurs="1" name="PackageName" type="UiNameType"/>
               <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
               <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="Path" type="PathAndFilename"/>
               <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
             </xs:sequence>
             <xs:attributeGroup ref="PackageAttributes"/>
@@ -269,7 +269,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
               <xs:element minOccurs="0" maxOccurs="1" name="PackageName" type="UiNameType"/>
               <xs:element minOccurs="1" maxOccurs="1" ref="Guid"/>
               <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
-              <xs:element minOccurs="1" maxOccurs="1" ref="Path"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="Path" type="PathAndFilename"/>
               <xs:element minOccurs="1" maxOccurs="1" ref="InstalledDate"/>
             </xs:sequence>
             <xs:attributeGroup ref="PackageAttributes"/>
