@@ -243,6 +243,7 @@
       <xs:enumeration value="GUID"/>
       <xs:enumeration value="HII_PACKAGE_LIST"/>
       <xs:enumeration value="HOB"/>
+      <xs:enumeration value="TOKEN_SPACE_GUID"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="GuidListType">
