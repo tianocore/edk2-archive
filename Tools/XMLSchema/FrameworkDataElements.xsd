@@ -177,8 +177,8 @@
             <xs:documentation xml:lang="en">Module has an event that is waiting to be signaled. Event is named by GUID.</xs:documentation>
           </xs:annotation>
           <xs:complexType>
-            <xs:sequence minOccurs="1" maxOccurs="unbounded">
-              <xs:element name="Event">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="Event">
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="C_NameType">

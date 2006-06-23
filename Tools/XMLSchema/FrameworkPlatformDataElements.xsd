@@ -78,12 +78,12 @@
       <xs:sequence>
         <xs:element name="PartNumber" type="xs:NCName"/>
         <xs:choice>
-          <xs:sequence>
+          <xs:sequence minOccurs="0">
             <!-- Use this sequence for a part with fixed block sizes -->
-            <xs:element name="NumBlocks" type="xs:positiveInteger"/>
-            <xs:element name="BlockSize" type="HexAddressType"/>
+            <xs:element minOccurs="1" maxOccurs="1" name="NumBlocks" type="xs:positiveInteger"/>
+            <xs:element minOccurs="1" maxOccurs="1" name="BlockSize" type="HexAddressType"/>
           </xs:sequence>
-          <xs:sequence>
+          <xs:sequence minOccurs="0">
             <!-- Use this sequence for a part with variable block sizes -->
             <xs:element maxOccurs="unbounded" name="VariableBlockSize">
               <xs:complexType>
