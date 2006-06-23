@@ -407,8 +407,8 @@
       <xs:documentation xml:lang="en">This section defines what Classes of Library that this library supports. A Library may belong to multiple different library classes.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element ref="LibraryClass"/>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="LibraryClass"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -534,6 +534,7 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!-- PcdBuildDefinition is a child of FPD ModuleSA element for FIXED_AT_BUILD, PATCHABLE_IN_MODULE, and FEATURE_FLAG PCDS Only! -->
   <xs:element name="PcdBuildDefinition">
     <xs:annotation>
       <xs:documentation xml:lang="en">Child of FPD ModuleSA element for FIXED_AT_BUILD, PATCHABLE_IN_MODULE, and FEATURE_FLAG PCDS Only!</xs:documentation>
@@ -748,9 +749,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="ToolName" type="xs:string"/>
-        <xs:element minOccurs="1" maxOccurs="1" name="ToolArgs" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="ToolArgs" type="xs:string"/>
         <!-- Input patterns  to be processed by the tool above -->
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="InputPattern" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="InputPattern" type="xs:string"/>
         <!-- A pattern to match for the output -->
         <xs:element minOccurs="1" maxOccurs="1" name="OutputPattern" type="xs:string"/>
       </xs:sequence>
@@ -806,8 +807,8 @@
       <xs:documentation xml:lang="en">Permit Users to define their own custom ANT tasks.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence maxOccurs="unbounded">
-        <xs:element minOccurs="1" ref="AntTask"/>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="AntTask"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
