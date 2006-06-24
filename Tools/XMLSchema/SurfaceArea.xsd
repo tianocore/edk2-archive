@@ -37,7 +37,10 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" ref="PlatformHeader"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="PlatformDefinitions"/>
+        <!-- This section will be for new definitions of how we put together the Framework Binary Images -->
+        <xs:element minOccurs="0" maxOccurs="1" ref="PlatformDefinitions"/>
+        <!-- The Flash section is the legacy implementation of Flash -->
+        <xs:element minOccurs="0" maxOccurs="1" ref="Flash"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FrameworkModules"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="DynamicPcdBuildDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="BuildOptions"/>

@@ -260,8 +260,13 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">Attributes for Sections, EncapsulationTag and EncapsulationType</xs:documentation>
     </xs:annotation>
+    <xs:attribute name="BindingOrder" type="xs:nonNegativeInteger" use="optional"/>
+    <xs:attribute name="Compressible" type="xs:boolean" default="true" use="optional"/>
+    <xs:attribute name="SectionType" type="EfiSectionType" use="optional"/>
     <xs:attribute name="EncapsulationType" type="xs:normalizedString" use="optional"/>
     <xs:attribute name="EncapsulationTag" type="xs:string" use="optional"/>
+    <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
+    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="SubRegionAttributes">
     <xs:attribute name="CreateHob" type="xs:boolean" use="required"/>
