@@ -181,7 +181,6 @@
   <xs:simpleType name="FeatureFlagExpressionType">
     <xs:restriction base="xs:normalizedString">
       <xs:minLength value="1"/>
-      <xs:pattern value="(\w*\W*){2,}"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="FrameworkComponentListType">
