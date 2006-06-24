@@ -568,7 +568,7 @@
       <xs:documentation xml:lang="en">If HiiEnable group is specified, then HiiEnable is default true</xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="VariableNameDataType"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="HexWordArrayType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="VariableGuid" type="C_NameType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="VariableOffset" type="Hex64BitDataType"/>
       <xs:element minOccurs="1" maxOccurs="1" name="HiiDefaultValue" type="DefaultValueType"/>
@@ -833,7 +833,7 @@
           </xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="VariableNameDataType"/>
+              <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="HexWordArrayType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
             </xs:sequence>
             <xs:attributeGroup ref="VariableAttributes"/>

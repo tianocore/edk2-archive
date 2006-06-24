@@ -130,6 +130,7 @@
     <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
+    <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="LibraryClassDeclarationAttributes">
     <xs:attribute name="Name" type="KeywordType" use="required"/>

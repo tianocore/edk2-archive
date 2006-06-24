@@ -20,7 +20,7 @@
       <xs:documentation xml:lang="en"> C_Names must start with either an underscore (_) character followed by one or more alpha characters, followed by any combination of underscore or alphanumeric characters.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:pattern value="((_)*([a-zA-Z])+((_)*[a-zA-Z0-9]*))*"/>
+      <xs:pattern value="(_)*[a-zA-Z]+((_)*[a-zA-Z0-9]*)*"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="FileNameConvention">

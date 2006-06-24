@@ -23,7 +23,7 @@
   <xs:element name="DataArray">
     <xs:complexType>
       <xs:simpleContent>
-        <xs:extension base="HexByteArrayListType">
+        <xs:extension base="HexByteArrayType">
           <xs:attribute name="Name" type="xs:normalizedString" use="required"/>
         </xs:extension>
       </xs:simpleContent>
