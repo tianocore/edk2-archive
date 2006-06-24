@@ -34,6 +34,23 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="FarHeader">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">This is the header for the Framework Archive Manifest file.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="FarName" type="UiNameType"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="GuidValue" type="GuidType"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="Version"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="Abstract"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="Description"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="Copyright"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="License"/>
+        <xs:element minOccurs="1" maxOccurs="1" name="Specification" type="Sentence" fixed="FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="MsaHeader">
     <xs:annotation>
       <xs:documentation xml:lang="en">This header is for the Module Surface Area Description (MSA) files</xs:documentation>

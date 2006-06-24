@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Filename: FarManifest.xsd
+
+Copyright (c) 2006, Intel Corp.
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which may be found at http://opensource.org/licenses/bsd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.TianoCore.org/2006/Edk2.0" xmlns="http://www.TianoCore.org/2006/Edk2.0">
+  <xs:include schemaLocation="FrameworkHeaders.xsd"/>  
+  <xs:annotation>
+    <xs:documentation xml:lang="en">This schema defines the Framework Archive Manifest.</xs:documentation>
+  </xs:annotation>
+  <xs:element name="FrameworkArchiveManifest">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" ref="FarHeader"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="FarPackageList"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="FarPlatformList"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="Contents"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserExtensions"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FarPackageList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="FarPackage"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FarPackage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Filename"></xs:element>
+        <xs:element ref="GuidValue"></xs:element>
+        <xs:element ref="Version"></xs:element>
+        <xs:element ref="DefaultPath"></xs:element>
+        <xs:element ref="Contents"></xs:element>
+        <xs:element ref="UserExtensions"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FarPlatform">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Filename"></xs:element>
+        <xs:element ref="GuidValue"></xs:element>
+        <xs:element ref="Version"></xs:element>
+        <xs:element ref="DefaultPath"></xs:element>
+        <xs:element ref="Contents"></xs:element>
+        <xs:element ref="UserExtensions"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DefaultPath"></xs:element>
+  <xs:element name="FarPlatformList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="FarPlatform">
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GuidValue" type="GuidType"/>
+  <xs:element name="Contents">
+    <xs:annotation>
+      <xs:documentation>This is a list of all the files within this package. Each file is identified by its path relative to the workspace root.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Filename"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Rules for handling Fars in the workspace.
+      1.      A far is a collection of spds and fpds.
+      2.      A far f is said to “depend on” a far g, iff there is a module in f that depends on a package in g.
+      3.      A far f is said to depend on a package p, iff there is a module in f that depends on p.
+      4.      A far f may be installed into the workspace w, iff for each module m in f, m’s dependencies are met by the packages in w.
+          a.      (If the dependencies are not met, then no part of far f will be installed. It is not legal to partially install a far into the workspace.)
+      5.      A far f may be removed from the workspace w, iff for each module m in w, and for each package p in f, m does not depend on p.
+          a.      (If there is some dependency on f, then no part of f may be uninstalled from w. It is not legal to partially uninstall a far from the workspace.)
+      6.      When installing a far f into workspace w, for each package p in f, allow the user to install in p’s default location, or choose a new location l (which must be unoccupied) within the workspace. Record this location l in the database. Each package p in f will be recorded in the database, associated with the GUID of f, as well as the actual install location l. (So we will know which far each package belongs to.)
+      7.      When installing a far f into workspace w, if there exists a package p in w, and p is in f, then the user must be prompted to choose a location that does not collide with the location of p in workspace w. We will end up with two instances of p in w at two distinct locations.
+      8.      A far f may replace a far g in the workspace w. It means that g is removed and f is installed, in one operation. In the UI we will call this action “Update”. If we find that the update is not permitted, the user can install f and keep g. Then he could port every module m that depends on g, to f and eventually remove g. The update is legal provided all of the following conditions are met:
+          a.      For each package p in g, f contains the same or updated version of p (f->p->version >= g->p->version), with the same package GUID (f->p->GUID == g->p->GUID). (The assumption is that this condition implies backwards compatibility.)
+          b.      For each package p in f, if g does not contain p, then p must not exist in w.
+          c.       No module m in w depends on g->p->version specifically. In other words, m is compatible with any version of p.
+      9.      A special case of the above rule is that a far f may be reinstalled into the workspace. (This would allow the user to get a fresh copy, or change the location in the workspace where one or more of the packages of f are installed.)
+      10.   When a far f is removed from the workspace w, for each package and platform p in f, we will remove p from w.
+      11.    If a package or platform p belongs to a far f, then it is not legal to remove p from the workspace w unless f is removed from w.
+      12.   A package p may be removed from the workspace, provided there does not exist a far f that contains p. (Newly created packages will not exist within a far, and thus may be removed from the workspace directly.)
+      13.   When a far f is removed from the workspace, the user has two options:
+          a.      Keep all the files in the workspace tree.
+          b.      Remove all the files from the workspace tree. If a file has been modified from the original as installed from the far (per md5sum) then the user should be asked if he is “sure” he wants to remove it.
+      14.   When a far is created, a GUID is generated and assigned to the far. If a far is created from the same components at a later time, it would have a different GUID.
+      15.   If a package p is marked with repackage=false, then p may not be added to a far.
+    </xs:documentation>
+  </xs:annotation>
+</xs:schema>
