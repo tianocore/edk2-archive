@@ -268,7 +268,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="CreateEvents">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="unbounded" name="Event">
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="EventCName">
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="C_NameType">
@@ -286,7 +286,7 @@
           </xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="unbounded" name="Event">
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="EventCName">
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="C_NameType">
@@ -431,7 +431,7 @@
   <xs:element name="Hobs">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="Hob">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="HobCName">
           <xs:complexType>
             <xs:simpleContent>
               <xs:extension base="C_NameType">
