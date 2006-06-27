@@ -92,7 +92,6 @@
     <xs:attribute name="Name" type="UiNameType" use="required"/>
     <xs:attribute name="GuidTypeList" type="GuidListType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="HiiPackageAttributes">
@@ -114,7 +113,6 @@
   <xs:attributeGroup name="IndustryStdHeaderAttributes">
     <xs:attribute name="Name" type="KeywordType" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="LibraryAttributes">
@@ -137,7 +135,6 @@
     <xs:attribute name="RecommendedInstanceVersion" type="VersionDataType" use="optional"/>
     <xs:attribute name="RecommendedInstanceGuid" type="GuidType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="MsaGuidAttributes">
@@ -196,7 +193,6 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="PcdDeclarationAttributes">
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="PlatformAttributes">
@@ -207,7 +203,6 @@
   <xs:attributeGroup name="PpiDeclarationAttributes">
     <xs:attribute name="Name" type="UiNameType" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="PpiAttributes">
@@ -235,7 +230,6 @@
   <xs:attributeGroup name="ProtocolDeclarationAttributes">
     <xs:attribute name="Name" type="UiNameType" use="required"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
-    <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
     <xs:attribute name="SupModuleList" type="ModuleListType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="ProtocolNotifyAttributes">
