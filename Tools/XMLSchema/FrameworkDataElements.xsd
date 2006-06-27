@@ -268,13 +268,13 @@
         <xs:element minOccurs="0" maxOccurs="1" name="CreateEvents">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="unbounded" name="EventCName">
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="EventTypes">
                 <xs:complexType>
-                  <xs:simpleContent>
-                    <xs:extension base="C_NameType">
-                      <xs:attributeGroup ref="EventAttributes"/>
-                    </xs:extension>
-                  </xs:simpleContent>
+                  <xs:sequence>
+                    <xs:element minOccurs="1" maxOccurs="1" name="EventType" type="EventTypes"/>
+                    <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+                  </xs:sequence>
+                  <xs:attributeGroup ref="EventAttributes"/>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -286,13 +286,13 @@
           </xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="unbounded" name="EventCName">
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="EventTypes">
                 <xs:complexType>
-                  <xs:simpleContent>
-                    <xs:extension base="C_NameType">
-                      <xs:attributeGroup ref="EventAttributes"/>
-                    </xs:extension>
-                  </xs:simpleContent>
+                  <xs:sequence>
+                    <xs:element minOccurs="1" maxOccurs="1" name="EventType" type="EventTypes"/>
+                    <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+                  </xs:sequence>
+                  <xs:attributeGroup ref="EventAttributes"/>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
