@@ -100,7 +100,7 @@
             </xs:simpleContent>
           </xs:complexType>
         </xs:element>
-        <xs:element minOccurs="0" maxOccurs="1" name="Ffs">
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="Ffs">
           <xs:complexType>
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Attribute">
@@ -150,9 +150,10 @@
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
+            <xs:attribute name="FfsKey" type="KeywordType" use="optional"/>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Sections">
+        <xs:element minOccurs="0" maxOccurs="1" name="Sections">
           <xs:complexType>
             <xs:sequence minOccurs="1">
               <xs:element name="Section" minOccurs="0" maxOccurs="unbounded">
