@@ -46,7 +46,7 @@
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="FfsAttributes">
-    <xs:attribute name="FfsFormatKeyword" type="FfsNameType" use="required"/>
+    <xs:attribute name="FfsFormatKeyword" type="KeywordType" use="required"/>
     <xs:attribute name="FfsFileType" type="EfiFfsFileTypes" use="optional"/>
     <xs:attribute name="FfsAttribTailPresent" type="xs:boolean" use="optional"/>
     <xs:attribute name="FfsAttribRecovery" type="xs:boolean" use="optional" default="false"/>

@@ -541,11 +541,11 @@
   <xs:element name="ModuleSaBuildOptions">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="1" name="FvBinding" type="FfsNameType"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="FvBinding" type="KeywordType"/>
         <!-- The FfsFileNameGuid allows the Platform Integrator to specify a GUID for the FFS File Name GUID -->
         <xs:element minOccurs="0" maxOccurs="1" name="FfsFileNameGuid" type="GuidType"/>
         <!-- If binding is specified, you MUST specify the FfsFormatKey -->
-        <xs:element minOccurs="0" maxOccurs="1" name="FfsFormatKey" type="FfsNameType"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="FfsFormatKey" type="KeywordType"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
       </xs:sequence>
     </xs:complexType>
