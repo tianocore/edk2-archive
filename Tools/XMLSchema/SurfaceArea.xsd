@@ -33,7 +33,7 @@
   <xs:annotation>
     <xs:documentation xml:lang="en">This describes the valid content of a Framework Platform Description (FPD) File.</xs:documentation>
   </xs:annotation>
-  <xs:element name="FrameworkPlatformDescription">
+  <xs:element name="PlatformSurfaceArea">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" ref="PlatformHeader"/>
