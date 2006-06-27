@@ -494,8 +494,8 @@
   </xs:simpleType>
   <xs:simpleType name="UiNameType">
     <xs:restriction base="xs:string">
-      <xs:minLength value="2"/>
-      <xs:pattern value="[a-zA-Z](\w*\W*)+"/>
+      <xs:minLength value="1"/>
+      <xs:pattern value="[^ ].*"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="UnicodeString">
