@@ -109,6 +109,20 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="SkuInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FlashDeviceDefinitions"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="FfsFormatDeclarations"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="ClonedFrom">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="Cloned">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element minOccurs="1" maxOccurs="1" name="PlatformGuid" type="GuidType"/>
+                    <xs:element minOccurs="1" maxOccurs="1" name="PlatformVersion" type="VersionDataType"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

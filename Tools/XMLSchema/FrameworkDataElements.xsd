@@ -556,6 +556,22 @@
         <xs:element minOccurs="1" maxOccurs="1" name="SupportedArchitectures" type="ArchListType"/>
         <xs:element minOccurs="1" maxOccurs="1" name="BinaryModule" type="xs:boolean" default="false"/>
         <xs:element minOccurs="1" maxOccurs="1" name="OutputFileBasename" type="FileNameConvention"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="ClonedFrom">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="Cloned">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element minOccurs="1" maxOccurs="1" name="PackageGuid" type="GuidType"/>
+                    <xs:element minOccurs="1" maxOccurs="1" name="PackageVersion" type="VersionDataType"/>
+                    <xs:element minOccurs="1" maxOccurs="1" name="ModuleGuid" type="GuidType"/>
+                    <xs:element minOccurs="1" maxOccurs="1" name="ModuleVersion" type="VersionDataType"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -597,6 +613,20 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="1" name="ReadOnly" type="xs:boolean" default="false"/>
         <xs:element minOccurs="1" maxOccurs="1" name="RePackage" type="xs:boolean" default="false"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="ClonedFrom">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="Cloned">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element minOccurs="1" maxOccurs="1" name="PackageGuid" type="GuidType"/>
+                    <xs:element minOccurs="1" maxOccurs="1" name="PackageVersion" type="VersionDataType"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
