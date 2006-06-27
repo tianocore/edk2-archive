@@ -63,6 +63,9 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="BootMode">
           <xs:complexType>
+            <xs:sequence minOccurs="0">
+              <xs:element name="HelpText" type="Paragraph"/>
+            </xs:sequence>
             <xs:attributeGroup ref="BootModeAttributes"/>
           </xs:complexType>
         </xs:element>
@@ -200,11 +203,11 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="DataHubRecord">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="DataHubAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="DataHubCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="DataHubAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -343,7 +346,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" name="SetVirtualAddressMapCallBack" type="C_NameType"/>
                 <xs:element minOccurs="0" maxOccurs="1" name="ExitBootServicesCallBack" type="C_NameType"/>
               </xs:sequence>
-              <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDefined" type="C_NameType"/>
             </xs:choice>
             <xs:attributeGroup ref="ExternAttributes"/>
           </xs:complexType>
@@ -395,16 +397,16 @@
   <xs:element name="Guids">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="GuidCName">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="GuidCNames">
           <xs:annotation>
             <xs:documentation xml:lang="en">Describe the valid content of a GUID element in and MSA file.</xs:documentation>
           </xs:annotation>
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="GuidAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="GuidCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="GuidAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -418,11 +420,11 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" name="HiiPackage">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="HiiPackageAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="HiiCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="HiiPackageAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -431,13 +433,13 @@
   <xs:element name="Hobs">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="HobCName">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="HobTypes">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="HobAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="HobType" type="HobTypes"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="HobAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -487,11 +489,11 @@
       <xs:documentation xml:lang="en">Used in MSA files. This defines what class of library is being supported = produced (library module) or consumed by a module.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="KeywordType">
-          <xs:attributeGroup ref="LibraryClassAttributes"/>
-        </xs:extension>
-      </xs:simpleContent>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="Keyword" type="KeywordType"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="LibraryClassAttributes"/>
     </xs:complexType>
   </xs:element>
   <!-- LAH This is SPD LibraryClassDeclarations FINAL version -->
@@ -788,20 +790,20 @@
       <xs:sequence minOccurs="1">
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Ppi">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="PpiAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="PpiCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="PpiAttributes"/>
           </xs:complexType>
         </xs:element>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="PpiNotify">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="PpiNotifyAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="PpiNotifyCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="PpiNotifyAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -834,20 +836,20 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Protocol">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="ProtocolAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="ProtocolCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="ProtocolAttributes"/>
           </xs:complexType>
         </xs:element>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="ProtocolNotify">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="ProtocolNotifyAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="ProtocolNotifyCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="ProtocolNotifyAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -897,13 +899,13 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="SystemTableCName">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="SystemTableCNames">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="C_NameType">
-                <xs:attributeGroup ref="SystemTableAttributes"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="SystemTableCName" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="SystemTableAttributes"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -943,6 +945,7 @@
             <xs:sequence>
               <xs:element minOccurs="1" maxOccurs="1" name="VariableName" type="HexWordArrayType"/>
               <xs:element minOccurs="1" maxOccurs="1" name="GuidC_Name" type="C_NameType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HelpText" type="Paragraph"/>
             </xs:sequence>
             <xs:attributeGroup ref="VariableAttributes"/>
           </xs:complexType>

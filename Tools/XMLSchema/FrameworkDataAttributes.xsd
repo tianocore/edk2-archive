@@ -100,8 +100,8 @@
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="HobAttributes">
-    <xs:attribute name="HobType" type="HobTypes" use="required"/>
     <xs:attribute name="Usage" type="HobUsage" use="required"/>
+    <xs:attribute name="HobGuidCName" type="C_NameType" use="optional"/>
     <xs:attribute name="SupArchList" type="ArchListType" use="optional"/>
     <xs:attribute name="FeatureFlag" type="FeatureFlagExpressionType" use="optional"/>
   </xs:attributeGroup>
