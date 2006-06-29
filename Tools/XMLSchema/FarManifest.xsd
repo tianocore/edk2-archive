@@ -157,10 +157,10 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
       Definitions and rules for creating, installing, updating and removing fars within the workspace.
     </xs:documentation>
     <xs:documentation>
-      1.  A far is a collection of packages (spd or psa files) and platforms (fpd files).
+      1.  A module m is said to depend upon a package p, iff there exists a tuple (PackageGuid, PackageVerion) in the set m->PackageDependencies for which p->Guid==PackageGuid, and if PackageVersion is not empty, then p->Version is == PackageVersion.
     </xs:documentation>
     <xs:documentation>
-      2.  A far f is said to depend on a far g, iff there is a module in f that depends on a package in g.
+      2.  A far f is said to depend on a far g, iff there is a module in a package in f that depends on a package in g.
     </xs:documentation>
     <xs:documentation>
       3.  A far f is said to depend on a package p, iff there is a module m contained in f that depends on p.
@@ -187,16 +187,10 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
       7.  When installing a far f into workspace w, if there exists a package p in w, and p is in f, then the user must be prompted to choose a location that does not collide with the location of p in workspace w. We will end up with two instances of p in w at two distinct locations.
     </xs:documentation>
     <xs:documentation>
-      8.  A far f may replace a far g in the workspace w. The net effect is that g is removed and f is installed, in one operation. In the UI we will call this action "Update". If we find that the update is not permitted, the user can install f and keep g. Then he could port every module m that depends on g, to f and eventually remove g. The update is legal provided all of the following conditions are met:
+      8.  A far f may replace a far g in the workspace w, iff for each module m contained in w, if m depends on a package p, and p is only contained in g, then there must exist a package q in f, such that m depends on q. The net effect is that g is removed and f is installed, in one operation. The normal rules for installing f still apply--the dependencies of the modules of f must be satisfied. After the replacement, it must be the case that all the modules dependencies in the workspace are satisfied. Note that it is possible to backrev a package in this way. 
     </xs:documentation>
     <xs:documentation>
-      a. For each package p in g, f contains the same or updated version of p (f->p->version >= g->p->version), with the same package GUID (f->p->GUID == g->p->GUID). (The assumption is that this condition implies backwards compatibility.)
-    </xs:documentation>
-    <xs:documentation>
-      b. For each package p in f, if g does not contain p, then p must not exist in w.
-    </xs:documentation>
-    <xs:documentation>
-      c. No module m in w depends on g->p->version specifically. In other words, m is compatible with any version of p.
+          (If we find that the replace is not permitted, then the user may install f and keep g. Next, he could _port_ every module m in w that depends on g, to f and eventually remove g.)
     </xs:documentation>
     <xs:documentation>
       9.  A special case of the above rule is that a far f may be reinstalled into the workspace. (This would allow the user to get a fresh copy, or change the location in the workspace where one or more of the packages of f are installed.)
