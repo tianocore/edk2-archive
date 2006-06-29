@@ -91,7 +91,7 @@
       <xs:documentation xml:lang="en"> This defines what an FFS Name can consist of.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:pattern value="[a-zA-Z][_\-a-zA-Z0-9]*(.)?[a-zA-Z0-9]*"/>
+      <xs:pattern value="[a-zA-Z][_\-a-zA-Z0-9]*(\.)?[a-zA-Z0-9]*"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="FlashSize">
