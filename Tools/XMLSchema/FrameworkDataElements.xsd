@@ -103,12 +103,10 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" name="Ffs">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="0" maxOccurs="1" name="Attribute">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
                 <xs:complexType>
-                  <xs:sequence>
-                    <xs:element minOccurs="1" maxOccurs="1" name="Name" type="C_NameType"/>
-                    <xs:element minOccurs="1" maxOccurs="1" name="Value" type="C_NameType"/>
-                  </xs:sequence>
+                    <xs:attribute name="Name" type="C_NameType"/>
+                    <xs:attribute name="Value" type="C_NameType"/>
                 </xs:complexType>
               </xs:element>
               <xs:element minOccurs="0" maxOccurs="1" name="Sections">
