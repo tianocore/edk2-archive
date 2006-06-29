@@ -25,32 +25,16 @@
       <xs:documentation xml:lang="en">This section is required. This is a single sentence to describe the module and will be used in sample files as the abstract data in the header comment section.</xs:documentation>
     </xs:annotation>
   </xs:element>
-  <xs:element name="AntCmd">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">This is a sub-element of AntTask</xs:documentation>
-      <xs:documentation xml:lang="en">This is an ant command that will be inserted into a biuld sequence. Since ant commands are valid XML statements, special care must be taken to use the correct tokens for reserved words and escape quote characters.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="Id" type="xs:int"/>
-        <xs:element name="ExecutionOrder">
-          <xs:simpleType>
-            <xs:list itemType="xs:normalizedString"/>
-          </xs:simpleType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="AntTask">
     <xs:annotation>
       <xs:documentation xml:lang="en">This is a sub-element of UserDefinedAntTasks</xs:documentation>
       <xs:documentation xml:lang="en">Define a file that contains one or more ant tasks that are to be added into or replacing of sequences of build steps. These files will be called using the ant-call task on a file name. These files must be valid apache-ant formatted task files.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:choice>
-        <xs:element ref="AntCmd"/>
-        <xs:element name="Filename" type="PathAndFilename"/>
-      </xs:choice>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="1" name="AntCmdOptions" type="xs:normalizedString"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="Filename" type="PathAndFilename"/>
+      </xs:sequence>
       <xs:attribute name="Id" type="xs:int" use="required"/>
     </xs:complexType>
   </xs:element>
@@ -78,9 +62,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <!-- This identifies which SKU ID Numbers are valid for this single build!  It may be overriden by some sort of environment setting-->
         <xs:element minOccurs="0" maxOccurs="1" ref="UserDefinedAntTasks"/>
-        <!-- Options list the Flags available for each defined tool -->
         <xs:element minOccurs="0" maxOccurs="1" ref="Options"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserExtensions"/>
         <!-- The following sections are legacy and will be removed -->
@@ -105,8 +87,8 @@
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
                 <xs:complexType>
-                    <xs:attribute name="Name" type="C_NameType"/>
-                    <xs:attribute name="Value" type="C_NameType"/>
+                  <xs:attribute name="Name" type="C_NameType"/>
+                  <xs:attribute name="Value" type="C_NameType"/>
                 </xs:complexType>
               </xs:element>
               <xs:element minOccurs="0" maxOccurs="1" name="Sections">
