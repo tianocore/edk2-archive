@@ -28,7 +28,7 @@
       <xs:documentation xml:lang="en"> This defines what a Filename is: Alphanumeric characters and optional underscore (_) or dash (-) characters, followed by a optional dot and more alphanumeric characters. </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:pattern value="[a-zA-Z][a-zA-Z0-9]*((_)*(-)*(.)*[a-zA-Z0-9]*)*"/>
+      <xs:pattern value="[a-zA-Z](\.?[-_a-zA-Z0-9]+)*"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="GuidType">
@@ -160,10 +160,13 @@
   </xs:simpleType>
   <xs:simpleType name="VersionDataType">
     <xs:annotation>
-      <xs:documentation xml:lang="en"> Definition of a Version Number, which must be a decimal number (or Zero) </xs:documentation>
+      <xs:documentation xml:lang="en"> Definition of a Version Number, which is one or more strings of decimal digits separated by dots. </xs:documentation>
+      <xs:documentation>
+        The algorithm to compare two versions A and B is as follows. if A==B, then A is the same version as B. Otherwise, say A is a1.a2.a3...an and B is b1.b2.b3...bn. For the first pair (ai, bi), for i less than n and i less than m, where ai is not equal to bi, if ai is less than bi, then A is less than B. If ai is greater than bi, then A is greater than B.   
+      </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:pattern value="(\d)+(.)?(\d)+"/>
+      <xs:pattern value="\d+(\.\d+)*"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="Zero">
