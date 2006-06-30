@@ -177,7 +177,7 @@
               <xs:complexType>
                 <xs:sequence>
                   <xs:element minOccurs="1" maxOccurs="unbounded" name="FvImageNames" type="xs:NCName"/>
-                  <xs:element minOccurs="0" maxOccurs="unbounded" name="FvImageOptions">
+                  <xs:element minOccurs="0" maxOccurs="1" name="FvImageOptions">
                     <xs:complexType>
                       <xs:sequence>
                         <xs:element minOccurs="0" maxOccurs="unbounded" name="NameValue">
@@ -191,15 +191,6 @@
                   </xs:element>
                 </xs:sequence>
                 <xs:attribute name="Type" type="FvImageTypes" use="optional"/>
-              </xs:complexType>
-            </xs:element>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="FvRegionName">
-              <xs:complexType>
-                <xs:simpleContent>
-                  <xs:extension base="KeywordType">
-                    <xs:attributeGroup ref="FvRegionNameAttributes"/>
-                  </xs:extension>
-                </xs:simpleContent>
               </xs:complexType>
             </xs:element>
           </xs:choice>
@@ -222,21 +213,6 @@
               <xs:attribute name="Name" type="FvRegionTypes" use="required"/>
             </xs:complexType>
           </xs:element>
-        </xs:sequence>
-        <xs:sequence minOccurs="0">
-          <!-- This is the new style -->
-          <xs:element minOccurs="1" maxOccurs="1" name="ValidFvImageNames" type="ValidRegionNameListType"/>
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="CommonDefinitions">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element minOccurs="1" maxOccurs="1" name="ValidFvImageNames" type="ValidRegionNameListType"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvOption"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="FvAttribute"/>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-          <xs:element minOccurs="1" maxOccurs="unbounded" ref="FwImage"/>
-          <!-- End of new style -->
         </xs:sequence>
       </xs:choice>
     </xs:complexType>
