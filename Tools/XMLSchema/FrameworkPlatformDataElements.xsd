@@ -385,7 +385,7 @@
                             <xs:attribute name="TagName" type=" ToolsNameConvention " use="optional"/>
                             <xs:attribute name="ToolCommand" type=" ToolsNameConvention " use="optional"/>
                             <xs:attribute name="SupArchList" type=" ArchListType " use="optional"/>
-                                  <xs:attribute name="Platform" type=" UiNameType " use="optional"/>
+                            <xs:attribute name="Platform" type=" UiNameType " use="optional"/>
                           </xs:extension>
                         </xs:simpleContent>
                       </xs:complexType>
@@ -394,10 +394,16 @@
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
+            <!-- Do not use ToolChain - it is a legacy value -->
             <xs:attribute name="ToolChain" type="ToolChains" use="optional"/>
+            <xs:attribute name="BuildTargets" type=" BuildTargetList " use="optional"/>
+            <xs:attribute name="ToolChainFamily" type=" ToolsNameConvention " use="optional"/>
+            <xs:attribute name="TagName" type=" ToolsNameConvention " use="optional"/>
+            <xs:attribute name="ToolCommand" type=" ToolsNameConvention " use="optional"/>
+            <xs:attribute name="SupArchList" type=" ArchListType " use="optional"/>
           </xs:complexType>
         </xs:element>
-     <!-- The following Externs Section is for Legacy Ffs  -->
+        <!-- The following Externs Section is for Legacy Ffs  -->
         <xs:element minOccurs="0" maxOccurs="1" name="Externs">
           <xs:complexType>
             <xs:sequence minOccurs="1">
@@ -424,7 +430,6 @@
                       <xs:element name=" SetVirtualAddressMapCallBack " type=" C_NameType " minOccurs="0" maxOccurs="unbounded"/>
                       <xs:element name=" ExitBootServicesCallBack " type=" C_NameType " minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
-                    <xs:element name="UserDefined" type=" C_NameType " minOccurs="0" maxOccurs="unbounded"/>
                   </xs:choice>
                   <xs:attributeGroup ref=" ExternAttributes "/>
                 </xs:complexType>
