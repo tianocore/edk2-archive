@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackageSurfaceArea  xmlns="http://www.TianoCore.org/2006/Edk2.0">
+  <SpdHeader>
+    <PackageName>EdkNt32Pkg</PackageName>
+    <GuidValue>0fb2aa2d-10d5-40a5-a9dc-060c12a4a3f3</GuidValue>
+    <Version>0.3</Version>
+    <Abstract>This is the NT32 Emulation Environment Platform</Abstract>
+    <Description>Reference platform implementation using an emulator.</Description>
+    <Copyright>Copyright (c) 2006,  Intel Corporation.</Copyright>
+    <License>All rights reserved.
+      This program and the accompanying materials are licensed and made available 
+      under the terms and conditions of the BSD License which accompanies this distribution.
+      The full text of the license may be found at http://opensource.org/licenses/bsd-license.php
+      THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS, WITHOUT WARRANTIES
+      OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.</License>
+    <Specification>FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052</Specification>
+  </SpdHeader>
+  <PackageDefinitions>
+    <ReadOnly>true</ReadOnly>
+    <RePackage>false</RePackage>
+  </PackageDefinitions>
+  <LibraryClassDeclarations>
+    <LibraryClass Name="EdkGenericBdsLib">
+      <IncludeHeader>Include/Library/EdkGenericBdsLib.h</IncludeHeader>
+      <HelpText/>
+    </LibraryClass>
+    <LibraryClass Name="WinNtLib">
+      <IncludeHeader>Include/Library/WinNtLib.h</IncludeHeader>
+      <HelpText/>
+    </LibraryClass>
+  </LibraryClassDeclarations>
+  <MsaFiles>
+    <!--<MsaFile>
+      <Filename>Build/AprioriList.msa</Filename>
+    </MsaFile>-->
+    <Filename>Dxe/ConPlatform/ConPlatform.msa</Filename>
+    <Filename>Dxe/Nt32Platform/MiscSubclass/MiscSubclassDriver.msa</Filename>
+    <Filename>Dxe/PlatformBds/PlatformBds.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Bus/BlockIo/WinNtBlockIo.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Bus/Console/WinNtConsole.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Bus/SerialIo/WinNtSerialIo.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Bus/SimpleFileSystem/WinNtSimpleFileSystem.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Bus/Uga/WinNtUga.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Bus/WinNtBusDriver/WinNtBusDriver.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Chipset/Metronome/Metronome.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Chipset/RealTimeClock/RealTimeClock.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Chipset/Reset/Reset.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Chipset/Timer/Timer.msa</Filename>
+    <Filename>Dxe/WinNtThunk/Cpu/Cpu.msa</Filename>
+    <Filename>Dxe/WinNtThunk/WinNtThunk/WinNtThunk.msa</Filename>
+    <Filename>Library/DxeWinNtLib/DxeWinNtLib.msa</Filename>
+    <Filename>Library/EdkGenericBdsLib/EdkGenericBdsLib.msa</Filename>
+    <Filename>Library/EdkNt32PeiPeCoffGetEntryPointLib/EdkNt32PeiPeCoffGetEntryPointLib.msa</Filename>
+    <Filename>Library/Nt32PeCoffLoaderLib/Nt32PeCoffLoaderLib.msa</Filename>
+    <Filename>Logo/Logo.msa</Filename>
+    <Filename>Pei/Autoscan/WinNtAutoScan.msa</Filename>
+    <Filename>Pei/BootMode/BootMode.msa</Filename>
+    <Filename>Pei/FirmwareVolume/WinNtFwh.msa</Filename>
+    <Filename>Pei/FlashMap/FlashMap.msa</Filename>
+    <Filename>Pei/MonoStatusCode/MonoStatusCode.msa</Filename>
+    <Filename>Pei/WinNtStuff/WinNtStuff.msa</Filename>
+    <Filename>RuntimeDxe/FvbServices/Nt32Fwh.msa</Filename>
+    <Filename>Sec/SecMain.msa</Filename>
+  </MsaFiles>
+  <PackageHeaders>
+    <IncludePkgHeader ModuleType="SEC">Include/WinNtPeim.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="PEIM">Include/WinNtPeim.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="DXE_DRIVER">Include/WinNtDxe.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="DXE_RUNTIME_DRIVER">Include/WinNtDxe.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="DXE_SMM_DRIVER">Include/WinNtDxe.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="DXE_SAL_DRIVER">Include/WinNtDxe.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="UEFI_DRIVER">Include/WinNtDxe.h</IncludePkgHeader>
+    <IncludePkgHeader ModuleType="USER_DEFINED">Include/WinNtPeim.h</IncludePkgHeader>
+  </PackageHeaders>
+  <GuidDeclarations>
+    <Entry Name="EdkNt32PkgTokenSpace">
+      <C_Name>gEfiEdkNt32PkgTokenSpaceGuid</C_Name>
+      <GuidValue>0D79A645-1D91-40a6-A81F-61E6982B32B4</GuidValue>
+      <HelpText>All PCD define in EdkNt32Pkg is in this token space scope</HelpText>
+    </Entry>  
+    <Entry Name="WinNtVirtualDisks">
+      <C_Name>gEfiWinNtVirtualDisksGuid</C_Name>
+      <GuidValue>0C95A928-A006-11D4-BCFA-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtPhysicalDisks">
+      <C_Name>gEfiWinNtPhysicalDisksGuid</C_Name>
+      <GuidValue>0C95A92F-A006-11D4-BCFA-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtFileSystem">
+      <C_Name>gEfiWinNtFileSystemGuid</C_Name>
+      <GuidValue>0C95A935-A006-11D4-BCFA-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtSerialPort">
+      <C_Name>gEfiWinNtSerialPortGuid</C_Name>
+      <GuidValue>0C95A93D-A006-11D4-BCFA-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtUga">
+      <C_Name>gEfiWinNtUgaGuid</C_Name>
+      <GuidValue>AB248E99-ABE1-11D4-BD0D-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtConsole">
+      <C_Name>gEfiWinNtConsoleGuid</C_Name>
+      <GuidValue>BA73672C-A5D3-11D4-BD00-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtMemory">
+      <C_Name>gEfiWinNtMemoryGuid</C_Name>
+      <GuidValue>99042912-122A-11D4-BD0D-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtCPUModel">
+      <C_Name>gEfiWinNtCPUModelGuid</C_Name>
+      <GuidValue>BEE9B6CE-2F8A-11D4-BD0D-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtCPUSpeed">
+      <C_Name>gEfiWinNtCPUSpeedGuid</C_Name>
+      <GuidValue>D4F29055-E1FB-11D4-BD0D-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNPassThrough">
+      <C_Name>gEfiWinNtPassThroughGuid</C_Name>
+      <GuidValue>CC664EB8-3C24-4086-B6F6-34E856BCE36E</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="PcdHob">
+      <C_Name>gPcdHobGuid</C_Name>
+      <GuidValue>582E7CA1-68CD-4D44-B43B-F298ED587BA6</GuidValue>
+      <HelpText/>
+    </Entry>
+  </GuidDeclarations>
+  <ProtocolDeclarations>
+    <Entry Name="WinNtIo">
+      <C_Name>gEfiWinNtIoProtocolGuid</C_Name>
+      <GuidValue>96EB4AD6-A32A-11D4-BCFD-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="WinNtThunk">
+      <C_Name>gEfiWinNtThunkProtocolGuid</C_Name>
+      <GuidValue>58C518B1-76F3-11D4-BCEA-0080C73C8881</GuidValue>
+      <HelpText/>
+    </Entry>
+  </ProtocolDeclarations>
+  <PpiDeclarations>
+    <Entry Name="NtAutoScan">
+      <C_Name>gPeiNtAutoScanPpiGuid</C_Name>
+      <GuidValue>0DCE384D-007C-4BA5-94BD-0F6EB64D2AA9</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="NtFwh">
+      <C_Name>gNtFwhPpiGuid</C_Name>
+      <GuidValue>4E76928F-50AD-4334-B06B-A84213108A57</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="NtPeiLoadFile">
+      <C_Name>gNtPeiLoadFilePpiGuid</C_Name>
+      <GuidValue>FD0C65EB-0405-4CD2-8AEE-F400EF13BAC2</GuidValue>
+      <HelpText/>
+    </Entry>
+    <Entry Name="NtThunk">
+      <C_Name>gPeiNtThunkPpiGuid</C_Name>
+      <GuidValue>98C281E5-F906-43DD-A92B-B003BF2765DA</GuidValue>
+      <HelpText/>
+    </Entry>
+  </PpiDeclarations>
+  <PcdDeclarations>
+    <PcdEntry>
+      <C_Name>PcdMaximumUnicodeStringLength</C_Name>
+      <Token>0x00000001</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdMaximumUnicodeStringLength</TokenSpaceGuidCName>
+      <DatumType>UINT32</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>1000000</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdMaximumAsciiStringLength</C_Name>
+      <Token>0x00000002</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdMaximumAsciiStringLength</TokenSpaceGuidCName>
+      <DatumType>UINT32</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>1000000</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdMaximumLinkedListLength</C_Name>
+      <Token>0x00000003</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdMaximumLinkedListLength</TokenSpaceGuidCName>
+      <DatumType>UINT32</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>1000000</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdSpinLockTimeout</C_Name>
+      <Token>0x00000004</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdSpinLockTimeout</TokenSpaceGuidCName>
+      <DatumType>UINT32</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>10000000</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdDebugPropertyMask</C_Name>
+      <Token>0x00000005</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdDebugPropertyMask</TokenSpaceGuidCName>
+      <DatumType>UINT8</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>0x0f</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdDebugPrintErrorLevel</C_Name>
+      <Token>0x00000006</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdDebugPrintErrorLevel</TokenSpaceGuidCName>
+      <DatumType>UINT32</DatumType>
+      <ValidUsage>PATCHABLE_IN_MODULE</ValidUsage>
+      <DefaultValue>0x80000000</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdReportStatusCodePropertyMask</C_Name>
+      <Token>0x00000007</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdReportStatusCodePropertyMask</TokenSpaceGuidCName>
+      <DatumType>UINT8</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>0x07</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdDebugClearMemoryValue</C_Name>
+      <Token>0x00000008</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdDebugClearMemoryValue</TokenSpaceGuidCName>
+      <DatumType>UINT8</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>0xAF</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdDebugClearMemoryValue</C_Name>
+      <Token>0x00000008</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdDebugClearMemoryValue</TokenSpaceGuidCName>
+      <DatumType>UINT8</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>0xAF</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdPerformanceLibraryPropertyMask</C_Name>
+      <Token>0x00000009</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdPerformanceLibraryPropertyMask</TokenSpaceGuidCName>
+      <DatumType>UINT8</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>0</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtPhysicalDisk</C_Name>
+      <Token>0x00001000</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtPhysicalDisk</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>DYNAMIC</ValidUsage>
+      <DefaultValue>L"FW;40960;512"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtVirtualDisk</C_Name>
+      <Token>0x00001001</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtVirtualDisk</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>DYNAMIC</ValidUsage>
+      <DefaultValue>L"FW;40960;512"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtSerialPort</C_Name>
+      <Token>0x00001002</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtSerialPort</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>DYNAMIC</ValidUsage>
+      <DefaultValue>L"COM1!COM2"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtUga</C_Name>
+      <Token>0x00001003</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtUga</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>DYNAMIC</ValidUsage>
+      <DefaultValue>L"UGA Window 1!UGA Window 2"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtFileSystem</C_Name>
+      <Token>0x00001004</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtFileSystem</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L".!C:\\D\\work\\Remodel\\mdk\\EdkShellBinPkg\\bin\\ia32\\Apps"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtMemorySize</C_Name>
+      <Token>0x00001005</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtMemorySize</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L"64!64"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtMemorySizeForSecMain</C_Name>
+      <Token>0x00001005</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtMemorySizeForSecMain</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L"64!64"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtBootMode</C_Name>
+      <Token>0x00001006</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtBootMode</TokenSpaceGuidCName>
+      <DatumType>UINT32</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>1</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtCpuModel</C_Name>
+      <Token>0x00001007</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtCpuModel</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L"Intel(R) Processor Model"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtCpuSpeed</C_Name>
+      <Token>0x00001008</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtCpuSpeed</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L"3000"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtFirmwareVolume</C_Name>
+      <Token>0x00001009</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtFirmwareVolume</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L"..\\..\\Fv\\Fv_Recovery.fd"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+    <PcdEntry>
+      <C_Name>PcdWinNtConsole</C_Name>
+      <Token>0x0000100a</Token>
+      <TokenSpaceGuidCName>FIX_ME_PcdWinNtConsole</TokenSpaceGuidCName>
+      <DatumType>VOID*</DatumType>
+      <ValidUsage>FIXED_AT_BUILD</ValidUsage>
+      <DefaultValue>L"Bus Driver Console Window"</DefaultValue>
+      <HelpText>HELP FIX ME!</HelpText>
+    </PcdEntry>
+  </PcdDeclarations>
+</PackageSurfaceArea>
