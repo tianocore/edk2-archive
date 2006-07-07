@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Copyright (c) 2006, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution.  The full text of the license may be found at
+http://opensource.org/licenses/bsd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.-->
+<ModuleSurfaceArea  xmlns="http://www.TianoCore.org/2006/Edk2.0">
+  <MsaHeader>
+    <ModuleName>BC</ModuleName>
+    <ModuleType>UEFI_DRIVER</ModuleType>
+    <GuidValue>A3f436EA-A127-4EF8-957C-8048606FF670</GuidValue>
+    <Version>1.0</Version>
+    <Abstract>Component description file for DiskIo module.</Abstract>
+    <Description>FIX ME!</Description>
+    <Copyright>Copyright (c) 2004-2006, Intel Corporation</Copyright>
+    <License>All rights reserved. This program and the accompanying materials
+      are licensed and made available under the terms and conditions of the BSD License
+      which accompanies this distribution.  The full text of the license may be found at
+      http://opensource.org/licenses/bsd-license.php
+      THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+      WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.</License>
+    <Specification>FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052</Specification>
+  </MsaHeader>
+  <ModuleDefinitions>
+    <SupportedArchitectures>IA32 X64 IPF EBC</SupportedArchitectures>
+    <BinaryModule>false</BinaryModule>
+    <OutputFileBasename>BC</OutputFileBasename>
+  </ModuleDefinitions>
+  <LibraryClassDefinitions>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>DebugLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiDriverModelLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiDriverEntryPoint</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>BaseLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>PrintLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>BaseMemoryLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>MemoryAllocationLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiBootServicesTableLib</Keyword>
+    </LibraryClass>
+  </LibraryClassDefinitions>
+  <SourceFiles>
+    <Filename>bc.c</Filename>
+    <Filename>pxe_bc_arp.c</Filename>
+    <Filename>pxe_bc_dhcp.c</Filename>
+    <Filename>pxe_bc_igmp.c</Filename>
+    <Filename>pxe_bc_ip.c</Filename>
+    <Filename>pxe_bc_mtftp.c</Filename>
+    <Filename>pxe_bc_udp.c</Filename>
+    <Filename>pxe_loadfile.c</Filename>
+    <Filename>dhcp.h</Filename>
+    <Filename>bc.h</Filename>
+    <Filename>ip.h</Filename>
+    <Filename>ComponentName.c</Filename>
+    <Filename>Print.c</Filename>
+  </SourceFiles>
+  <PackageDependencies>
+    <Package PackageGuid="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+    <Package PackageGuid="B6EC423C-21D2-490D-85C6-DD5864EAA674"/>
+  </PackageDependencies>
+  <Protocols>
+    <Protocol Usage="TO_START">
+      <ProtocolCName>Bis</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="BY_START">
+      <ProtocolCName>LoadFile</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="SOMETIMES_PRODUCED">
+      <ProtocolCName>PxeBaseCodeCallBack</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="TO_START">
+      <ProtocolCName>SimpleNetwork</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="TO_START">
+      <ProtocolCName>DevicePath</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="SOMETIMES_CONSUMED">
+      <ProtocolCName>NetworkInterfaceIdentifier</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="SOMETIMES_CONSUMED">
+      <ProtocolCName>NetworkInterfaceIdentifier2</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="BY_START">
+      <ProtocolCName>PxeBaseCode</ProtocolCName>
+    </Protocol>
+  </Protocols>
+  <SystemTables>
+    <SystemTableCNames Usage="SOMETIMES_CONSUMED">
+      <SystemTableCName>gEfiSmbiosTableGuid</SystemTableCName>
+    </SystemTableCNames>
+  </SystemTables>
+  <Guids>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>SmbiosTable</GuidCName>
+    </GuidCNames>
+  </Guids>
+  <Externs>
+    <Specification>EFI_SPECIFICATION_VERSION 0x00020000</Specification>
+    <Specification>EDK_RELEASE_VERSION 0x00000000</Specification>
+    <Extern>
+      <ModuleEntryPoint>InitializeBCDriver</ModuleEntryPoint>
+    </Extern>
+    <Extern>
+      <DriverBinding>gPxeBcDriverBinding</DriverBinding>
+    </Extern>
+    <Extern>
+      <ComponentName>gPxeBcComponentName</ComponentName>
+    </Extern>
+  </Externs>
+</ModuleSurfaceArea>

@@ -1,0 +1,11 @@
+# Relative to WORKSPACE
+TOOLS_DEFINITION_FILE = Tools/Conf/tools_def.txt
+
+# Relative to WORKSPACE
+# ACTIVE_PLATFORM       = MdePkg/MdePkg.fpd
+
+# Separate multiple targets with space, not not use comma 
+TARGET                = 
+TARGET_ARCH           = IA32
+TAGNAME               = MSFT
+
