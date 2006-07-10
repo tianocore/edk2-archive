@@ -1,0 +1,173 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2006, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution.  The full text of the license may be found at
+http://opensource.org/licenses/bsd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+-->
+<project name="SecMain" default="main" basedir="." >
+  <!-- Apply external ANT task -->
+  <taskdef resource="frameworktasks.tasks" /> 
+  <taskdef resource="cpptasks.tasks" /> 
+  <typedef resource="cpptasks.types" /> 
+  <taskdef resource="net/sf/antcontrib/antlib.xml" />
+  <property environment="env" />
+  <!-- All Properties --> 
+  <property name="BASE_NAME" value="SecMain" /> 
+  
+  <!-- Default target --> 
+  <target name="main" depends="libraries, sourcefiles, sections, output" /> 
+  <!-- Compile all dependency Library instances. --> 
+
+  <target name="libraries">
+    <GenBuild type="build">
+      <property name="ARCH" value="${ARCH}"/>
+      <property name="MODULE_GUID" value="27d67720-ea68-48ae-93da-a3a074c90e30"/>
+      <property name="MODULE_VERSION" value=""/>
+      <property name="PLATFORM" value="${PLATFORM}"/>
+      <property name="PACKAGE_GUID" value="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+      <property name="PACKAGE_VERSION" value=""/>
+    </GenBuild>
+    <GenBuild type="build">
+      <property name="ARCH" value="${ARCH}"/>
+      <property name="MODULE_GUID" value="fd44e603-002a-4b29-9f5f-529e815b6165"/>
+      <property name="MODULE_VERSION" value=""/>
+      <property name="PLATFORM" value="${PLATFORM}"/>
+      <property name="PACKAGE_GUID" value="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+      <property name="PACKAGE_VERSION" value=""/>
+    </GenBuild>
+    <GenBuild type="build">
+      <property name="ARCH" value="${ARCH}"/>
+      <property name="MODULE_GUID" value="a86fbfca-0183-4eeb-aa8a-762e3b7da1f3"/>
+      <property name="MODULE_VERSION" value=""/>
+      <property name="PLATFORM" value="${PLATFORM}"/>
+      <property name="PACKAGE_GUID" value="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+      <property name="PACKAGE_VERSION" value=""/>
+    </GenBuild>
+    <GenBuild type="build">
+      <property name="ARCH" value="${ARCH}"/>
+      <property name="MODULE_GUID" value="556f5d10-7309-4af4-b80a-8196bd60946f"/>
+      <property name="MODULE_VERSION" value=""/>
+      <property name="PLATFORM" value="${PLATFORM}"/>
+      <property name="PACKAGE_GUID" value="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+      <property name="PACKAGE_VERSION" value=""/>
+    </GenBuild>
+    <GenBuild type="build">
+      <property name="ARCH" value="${ARCH}"/>
+      <property name="MODULE_GUID" value="55c61087-7367-4546-bc32-4937c5e6aff3"/>
+      <property name="MODULE_VERSION" value=""/>
+      <property name="PLATFORM" value="${PLATFORM}"/>
+      <property name="PACKAGE_GUID" value="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+      <property name="PACKAGE_VERSION" value=""/>
+    </GenBuild>
+    <GenBuild type="build">
+      <property name="ARCH" value="${ARCH}"/>
+      <property name="MODULE_GUID" value="9ba1d976-0624-41a3-8650-28165e8d9ae8"/>
+      <property name="MODULE_VERSION" value=""/>
+      <property name="PLATFORM" value="${PLATFORM}"/>
+      <property name="PACKAGE_GUID" value="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+      <property name="PACKAGE_VERSION" value=""/>
+    </GenBuild>
+  </target>
+  <target name="sourcefiles">
+      <Build_AUTOGEN FILEEXT="c" FILENAME="AutoGen" FILEPATH=".">
+         <EXTRA.INC>
+            <includepath path="${WORKSPACE_DIR}"/>
+            <includepath path="${MODULE_DIR}"/>
+            <includepath path="${MODULE_DIR}\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include\${ARCH}"/>
+            <includepath path="${DEST_DIR_DEBUG}"/>
+         </EXTRA.INC>
+       </Build_AUTOGEN>
+       <var name="OBJECTS" value="${OBJECTS} ${DEST_DIR_OUTPUT}/AutoGen.obj" />
+      <Build_CCode FILEEXT="c" FILENAME="FwVol" FILEPATH=".">
+         <EXTRA.INC>
+            <includepath path="${WORKSPACE_DIR}"/>
+            <includepath path="${MODULE_DIR}"/>
+            <includepath path="${MODULE_DIR}\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include\${ARCH}"/>
+            <includepath path="${DEST_DIR_DEBUG}"/>
+         </EXTRA.INC>
+      </Build_CCode>
+      <var name="OBJECTS" value="${OBJECTS} ${DEST_DIR_OUTPUT}/FwVol.obj" />
+      <Build_CCode FILEEXT="c" FILENAME="WinNtThunk" FILEPATH=".">
+         <EXTRA.INC>
+            <includepath path="${WORKSPACE_DIR}"/>
+            <includepath path="${MODULE_DIR}"/>
+            <includepath path="${MODULE_DIR}\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include\${ARCH}"/>
+            <includepath path="${DEST_DIR_DEBUG}"/>
+         </EXTRA.INC>
+      </Build_CCode>
+      <var name="OBJECTS" value="${OBJECTS} ${DEST_DIR_OUTPUT}/WinNtThunk.obj" />
+      <Build_CCode FILEEXT="c" FILENAME="SecMain" FILEPATH=".">
+         <EXTRA.INC>
+            <includepath path="${WORKSPACE_DIR}"/>
+            <includepath path="${MODULE_DIR}"/>
+            <includepath path="${MODULE_DIR}\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\MdePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkModulePkg\Include\${ARCH}"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include"/>
+            <includepath path="${WORKSPACE_DIR}\EdkNt32Pkg\Include\${ARCH}"/>
+            <includepath path="${DEST_DIR_DEBUG}"/>
+         </EXTRA.INC>
+      </Build_CCode>
+      <var name="OBJECTS" value="${OBJECTS} ${DEST_DIR_OUTPUT}/SecMain.obj" />
+    </target>
+    <target name="sections" />
+    <target name="output" >
+      <OnDependency>
+        <sourcefiles>
+          <file list="${OBJECTS}"/>
+          <file list="${LIBS}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${BIN_DIR}\SecMain.exe"/>
+        </targetfiles>
+        
+        <sequential>
+          <shellscript shell="cmd.exe" tmpsuffix=".cmd" >
+            <arg line="/c"/>
+            <arg line="call"/>
+            "${DLINK}" /LIBPATH:"${env.MSVCDir}\Lib" /LIBPATH:"${env.MSVCDir}\PlatformSdk\Lib" /NOLOGO /SUBSYSTEM:CONSOLE /NODEFAULTLIB /IGNORE:4086 /MAP /OPT:REF /DEBUG /MACHINE:I386 /LTCG Kernel32.lib MsvcRt.lib Gdi32.lib User32.lib Winmm.lib ${OBJECTS} ${LIBS} /base:0x10000000 /out:${BIN_DIR}\SecMain.exe /pdb:${DEST_DIR_DEBUG}\SecMain.pdb
+          </shellscript>
+        </sequential>
+      </OnDependency>
+      <!--      
+      <cc userdefine="on">
+        <command type="LINK">
+          <argument value="/LIBPATH:&quot;${env.MSVCDir}\Lib&quot; /LIBPATH:&quot;${env.MSVCDir}\PlatformSdk\Lib&quot;" />
+          <argument value="/NOLOGO /SUBSYSTEM:CONSOLE /NODEFAULTLIB /IGNORE:4086 /MAP /OPT:REF /DEBUG /MACHINE:I386 /LTCG" />
+          <argument value="Kernel32.lib MsvcRt.lib Gdi32.lib User32.lib Winmm.lib" />
+          <argument value="${OBJECTS}" />
+          <argument value="${LIBS}" />
+          <argument value="/base:0x10000000 /out:${BIN_DIR}\SecMain.exe /pdb:${DEST_DIR_DEBUG}\SecMain.pdb" />
+      </command>
+    </cc>
+    -->
+  </target>
+  <target name="clean" ></target>
+
+  <target name="cleanAll"></target>
+</project>

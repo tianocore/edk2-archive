@@ -1,0 +1,1040 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2006, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution.  The full text of the license may be found at
+http://opensource.org/licenses/bsd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+-->
+<project name="common">
+  <!--
+    macro definitions for building files with different types
+    -->
+  <!--
+    C Code
+    -->
+  <macrodef name="Build_CCode">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="c"/>
+    
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+    
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <if>
+        <available type="file" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        <then>
+          <makedeps DepsFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep">
+            <input file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            <input file="${DEST_DIR_DEBUG}/AutoGen.h"/>
+            <EXTRA.INC/>
+          </makedeps>
+        </then>
+      </if>
+
+      <OnDependency>
+        <sourcefiles>
+          <file ListFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep"/>
+        </sourcefiles>
+        <targetfiles>
+          <file Name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="CC" cmd="${CC}" workdir="${DEST_DIR_OUTPUT}" family="${CC_FAMILY}"
+              outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj">
+              <EXTRA.INC/>
+              <argument value="${CC_FLAGS}"/>
+              <EXTRA.ARG/>
+              <fileset casesensitive="off" file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="Build_AUTOGEN">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="c"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <if>
+        <available type="file" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        <then>
+          <makedeps DepsFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep">
+            <input file="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            <input file="${DEST_DIR_DEBUG}/AutoGen.h"/>
+            <EXTRA.INC/>
+          </makedeps>
+        </then>
+      </if>
+
+      <OnDependency>
+        <sourcefiles>
+          <file ListFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep"/>
+        </sourcefiles>
+        <targetfiles>
+          <file Name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="CC" cmd="${CC}" workdir="${DEST_DIR_OUTPUT}" family="${CC_FAMILY}"
+                outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj">
+              <EXTRA.INC/>
+              <argument value="${CC_FLAGS}"/>
+              <EXTRA.ARG/>
+              <fileset casesensitive="off" file="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="Build_DPX">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="dxs"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+        
+
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <OnDependency>
+        <sourcefiles>
+          <file name="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/${BASE_NAME}.depex"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="CC" cmd="${CC}" workdir="${DEST_DIR_OUTPUT}/@{FILEPATH}" family="${CC_FAMILY}"
+                     outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i">
+              <EXTRA.INC/>
+              <argument value="${PP_FLAGS}"/>
+              <fileset casesensitive="off" file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            </command>
+          </cc>
+    
+          <gendepex inputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i" outputFile="${DEST_DIR_OUTPUT}/${BASE_NAME}.depex"/>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="Build_ASM">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="asm"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+    
+    <!-- Dispath ASM file, there are three type. 
+         asm     -   Build_Assembly
+         S       -   Build_Gcc_Assembly
+         s       -   Build_Ipf_Assembly -->
+    <sequential>
+	    <if>
+        <equals arg1="@{FILEEXT}" arg2="asm" />
+	      <then>
+	        <Build_Assembly FILEPATH="@{FILEPATH}" FILENAME="@{FILENAME}" FILEEXT="@{FILEEXT}">
+            <EXTRA.INC.1><EXTRA.INC /></EXTRA.INC.1>
+            <EXTRA.ARG.1><EXTRA.ARG /></EXTRA.ARG.1>
+          </Build_Assembly>
+	      </then>
+        <elseif>
+          <equals arg1="@{FILEEXT}" arg2="S" />
+          <then>
+            <Build_Gcc_Assembly FILEPATH="@{FILEPATH}" FILENAME="@{FILENAME}" FILEEXT="@{FILEEXT}">
+              <EXTRA.INC.1><EXTRA.INC /></EXTRA.INC.1>
+              <EXTRA.ARG.1><EXTRA.ARG /></EXTRA.ARG.1>
+            </Build_Gcc_Assembly>
+          </then>
+        </elseif>
+	      <elseif>
+	        <equals arg1="@{FILEEXT}" arg2="s" />
+	        <then>
+	          <Build_IPF_Assembly_Code FILEPATH="@{FILEPATH}" FILENAME="@{FILENAME}" FILEEXT="@{FILEEXT}">
+	            <EXTRA.INC.1><EXTRA.INC /></EXTRA.INC.1>
+              <EXTRA.ARG.1><EXTRA.ARG /></EXTRA.ARG.1>
+            </Build_IPF_Assembly_Code>
+	        </then>
+	      </elseif>
+	    </if>
+    </sequential>
+  </macrodef>
+  
+  <!--
+    IA32/x64 Assembly
+    -->
+  <macrodef name="Build_Assembly">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="asm"/>
+
+    <element name="EXTRA.INC.1" optional="yes"/>
+    <element name="EXTRA.ARG.1" optional="yes"/>
+
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <OnDependency>
+        <sourcefiles>
+          <file Name="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file Name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="PP" cmd="${PP}" workdir="${DEST_DIR_OUTPUT}/@{FILEPATH}" family="${PP_FAMILY}">
+              <EXTRA.INC.1/>
+              <argument value="${PP_FLAGS}"/>
+              <fileset casesensitive="off" file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            </command>
+          </cc>
+
+          <replaceregexp file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i"
+                         match="^(#line +1 +.*@{FILEPATH}/@{FILENAME}\.@{FILEEXT}&quot;).+\1"
+                         replace=";"
+                         flags="gs"/>
+          <replaceregexp file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i"
+                         match="^(#line .*)$"
+                         replace="; \1"
+                         byline="true"/>
+          <replaceregexp file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i"
+                         match="([^_a-zA-Z])0x([0-9a-fA-F]+)"
+                         replace="\10\2h"
+                         flags="g"
+                         byline="true"/>
+
+          <cc userdefine="on">
+            <command type="ASM" cmd="${ASM}" workdir="${DEST_DIR_OUTPUT}" family="${ASM_FAMILY}"
+                outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj">
+              <EXTRA.INC.1/>
+      
+              <argument value="${ASM_FLAGS}"/>
+              <EXTRA.ARG.1/>
+      
+              <fileset casesensitive="off" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <!--
+    Build GCC assembly code
+    -->
+  <macrodef name="Build_Gcc_Assembly">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="asm"/>
+
+    <element name="EXTRA.INC.1" optional="yes"/>
+    <element name="EXTRA.ARG.1" optional="yes"/>
+
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <OnDependency>
+        <sourcefiles>
+          <file Name="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file Name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="ASM" cmd="${ASM}" workdir="${DEST_DIR_OUTPUT}" family="${ASM_FAMILY}"
+                outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj">
+              <EXTRA.INC.1/>
+      
+              <argument value="${ASM_FLAGS}"/>
+              <EXTRA.ARG.1/>
+      
+              <fileset casesensitive="off" file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <!--
+    IPF Assembly
+    -->
+  <macrodef name="Build_IPF_Assembly_Code">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="s"/>
+
+    <element name="EXTRA.INC.1" optional="yes"/>
+    <element name="EXTRA.ARG.1" optional="yes"/>
+
+    <sequential>
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <if>
+        <available type="file" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        <then>
+          <makedeps DepsFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep">
+            <input file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            <EXTRA.INC.1/>
+          </makedeps>
+        </then>
+      </if>
+
+      <OnDependency>
+        <sourcefiles>
+          <file listfile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="PP" cmd="${PP}" workdir="${DEST_DIR_OUTPUT}/@{FILEPATH}" family="${PP_FAMILY}">
+              <EXTRA.INC.1/>
+              <argument value="${PP_FLAGS}"/>
+              <fileset casesensitive="off" file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            </command>
+          </cc>
+      
+          <cc userdefine="on">
+            <command type="ASM" cmd="${ASM}" workdir="${DEST_DIR_OUTPUT}" family="${ASM_FAMILY}"
+                includepathDelimiter="-I" outputDelimiter="-o"
+                outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj">
+              <EXTRA.INC.1/>
+              <argument value="${ASM_FLAGS}"/>
+              <EXTRA.ARG.1/>
+              <fileset casesensitive="off" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.i"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="Build_IPF_PP_Code">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="i"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+  
+      <cc userdefine="on">
+        <command type="ASM" includepathDelimiter="-I">
+          <includepath path="${WORKSPACE_DIR}"/>
+          <includepath path="${MODULE_DIR}"/>
+          <includepath path="${MODULE_DIR}/${ARCH}"/>
+          <EXTRA.INC/>
+  
+          <argument value="${ASM_FLAGS}"/>
+          <EXTRA.ARG/>
+          <OutputFile File="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+  
+          <fileset casesensitive="off" file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </command>
+      </cc>
+    </sequential>
+  </macrodef>
+  
+  
+    <!--
+    Library    private HashMap map = new HashMap();
+    -->
+  <macrodef name="Build_Library">
+    <attribute name="FILENAME" />
+    <attribute name="FILEEXT" default="obj"/>
+    
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="." />
+      <mkdir dir="${BIN_DIR}"/>
+
+      <OnDependency>
+        <sourcefiles>
+          <file list="${OBJECTS}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${BIN_DIR}/@{FILENAME}.lib"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="SLINK" cmd="${SLINK}" family="${SLINK_FAMILY}"
+                outputFile="${BIN_DIR}/@{FILENAME}.lib">
+              <argument value="${SLINK_FLAGS}"/>
+
+              <fileset casesensitive="off" dir="${DEST_DIR_OUTPUT}" includes="**/*.obj"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <!--
+    Unicode -> .sdb
+    -->
+  <macrodef name="Build_UNI">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="uni"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <mkdir dir="${DEST_DIR_OUTPUT}/@{FILEPATH}"/>
+
+      <OnDependency>
+        <sourcefiles>
+          <file name="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb"/>
+        </targetfiles>
+
+        <sequential>
+          <strgather commandtype="parse" newdatabase="true">
+            <database name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb"/>
+            <EXTRA.INC/>
+            <EXTRA.ARG/>
+            <inputfile name="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+          </strgather>
+        </sequential>
+      </OnDependency>
+
+      <var name="SDB_FILES" value="${SDB_FILES}, ${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb"/>
+    </sequential>
+  </macrodef>
+
+  <!--
+    .sdb(s) -> .c, .h -> .obj
+    -->
+  <macrodef name="Build_Unicode_Database">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="sdb"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <OnDependency>
+        <sourcefiles>
+          <file list="${SDB_FILES}"/>
+          <file list="${SOURCE_FILES}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb"/>
+        </targetfiles>
+        
+        <sequential>
+          <strgather commandtype="scan" outputdatabase="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb" verbose="read">
+            <skipext name=".uni"/>
+            <skipext name=".h"/>
+            <database list="${SDB_FILES}"/>
+            <inputfile name="${SOURCE_FILES}"/>
+          </strgather>
+        </sequential>
+      </OnDependency>
+
+      <OnDependency>
+        <sourcefiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}StrDefs.h"/>
+          <file name="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}Strings.hpk"/>
+          <file name="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}Strings.c"/>
+        </targetfiles>
+        
+        <sequential>
+          <strgather basename="@{FILENAME}Strings" commandtype="dump"
+                     outputdefines="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}StrDefs.h"
+                     outputhpk="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}Strings.hpk"
+                     outputstring="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}Strings.c">
+            <database name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.sdb"/>
+          </strgather>
+        </sequential>
+      </OnDependency>
+
+      <OnDependency>
+        <sourcefiles>
+          <file name="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}Strings.c"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}Strings.obj"/>
+        </targetfiles>
+        
+        <sequential>
+          <cc userdefine="on">
+            <command type="CC" cmd="${CC}" workdir="${DEST_DIR_OUTPUT}" family="${CC_FAMILY}"
+                     includepathDelimiter="-I"
+                     outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}Strings.obj">
+              <argument value="${CC_FLAGS}"/>
+              <EXTRA.INC />
+              <fileset casesensitive="off" file="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}Strings.c"/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+
+    </sequential>
+  </macrodef>
+
+  <!--
+    Vfr
+    -->
+  <macrodef name="Build_VFR">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="vfr"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <mkdir dir="${DEST_DIR_DEBUG}/@{FILEPATH}"/>
+
+      <if>
+        <available type="file" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        <then>
+          <makedeps DepsFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep">
+            <input file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+            <EXTRA.INC/>
+          </makedeps>
+        </then>
+      </if>
+
+      <OnDependency>
+        <sourcefiles>
+          <file listfile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}.dep"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj"/>
+        </targetfiles>
+
+        <sequential>
+          <vfrcompile createIfrBinFile="on" createListFile="on" outPutDir="${DEST_DIR_DEBUG}/@{FILEPATH}" vfrFile="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}">
+            <EXTRA.INC/>
+          </vfrcompile>
+    
+          <cc userdefine="on">
+            <command type="CC" cmd="${CC}" workdir="${DEST_DIR_OUTPUT}" 
+                     includepathDelimiter="-I" family="${CC_FAMILY}"
+                     outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.obj" >
+              <argument value="${CC_FLAGS}"/>
+              <EXTRA.INC/>
+              <EXTRA.ARG/>
+              <fileset casesensitive="off" file="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.c"/>
+            </command>
+          </cc>
+          <delete file="${PLATFORM_DIR}/@{FILENAME}.i" />
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+<!--############################################################################
+  Build Sections
+#############################################################################-->
+  <!--
+    DLL
+    -->
+  <macrodef name="GenDll">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT"/>
+
+    <element name="LIB.ARG" optional="yes"/>
+    <element name="LINK.ARG" optional="yes"/>
+
+    <sequential>
+      <var name="FILE_BASENAME" value="@{FILENAME}" />
+      <var name="FILE_PATH" value="@{FILEPATH}" />
+      <OnDependency>
+        <sourcefiles>
+          <file list="${LIBS}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.dll"/>
+        </targetfiles>
+
+        <sequential>
+          <cc userdefine="on">
+            <command type="SLINK" cmd="${SLINK}" family="${SLINK_FAMILY}"
+                outputFile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}Local.lib">
+              <argument value="${SLINK_FLAGS}"/>
+
+              <fileset casesensitive="off" dir="${DEST_DIR_OUTPUT}" includes="**/*.obj"/>
+            </command>
+          </cc>
+          <cc userdefine="on">
+            <command type="DLINK" cmd="${DLINK}" family="${DLINK_FAMILY}"
+                     outputFile="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.dll" >
+              <argument value="${DLINK_FLAGS}"/>
+              <libset libs="${LIBS}"/>
+              <libset libs="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}Local.lib"/>
+              <libset libs="${DLINK_SPATH}" />
+              <LINK.ARG/>
+            </command>
+          </cc>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <!--
+    EFI
+    -->
+  <macrodef name="GenEfi">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="dll"/>
+
+    <sequential>
+      <OnDependency>
+        <sourcefiles>
+          <file name="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.efi"/>
+        </targetfiles>
+
+        <sequential>
+          <fwimage componentType="${MODULE_TYPE}" outImage="${DEST_DIR_OUTPUT}/@{FILENAME}.efi" 
+                   peImage="${DEST_DIR_DEBUG}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" time="0"/>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+<!--
+  EFI_SECTION_FREEFORM_SUBTYPE_GUID
+  EFI_SECTION_VERSION
+  EFI_SECTION_USER_INTERFACE
+  EFI_SECTION_DXE_DEPEX
+  EFI_SECTION_PEI_DEPEX
+  EFI_SECTION_PE32
+  EFI_SECTION_PIC
+  EFI_SECTION_TE
+  EFI_SECTION_RAW
+  EFI_SECTION_COMPRESSION
+  EFI_SECTION_GUID_DEFINED
+  EFI_SECTION_COMPATIBILITY16
+  EFI_SECTION_FIRMWARE_VOLUME_IMAGE
+  -->
+  <!--
+    EFI_SECTION_PE32
+    -->
+
+  <macrodef name="EFI_SECTION_TE">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="" />
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <PRE.PROCESS/>
+      <if>
+        <not>
+          <equals arg1="${LIBS}" arg2=""/>
+        </not>
+
+        <then>
+          <GenDll FILEPATH="." FILENAME="@{FILENAME}" FILEEXT="">
+            <LIB.ARG></LIB.ARG>
+            <LINK.ARG></LINK.ARG>
+          </GenDll>
+
+          <GenEfi FILEPATH="." FILENAME="@{FILENAME}" FILEEXT="dll"/>
+        </then>
+      </if>
+
+      <OnDependency>
+        <sourcefiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.efi"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.tes"/>
+        </targetfiles>
+
+        <sequential>
+          <copy file="${DEST_DIR_OUTPUT}/@{FILENAME}.efi" tofile="${BIN_DIR}/@{FILENAME}.efi" />
+          <copy file="${DEST_DIR_OUTPUT}/@{FILENAME}.efi" tofile="${DEST_DIR_DEBUG}/@{FILENAME}.efi" />          
+          <genteimage Dump="false" Verbose="false" OutputDir="" OutputFile="${DEST_DIR_OUTPUT}/@{FILENAME}.te" InputFile="${DEST_DIR_OUTPUT}/@{FILENAME}.efi"/>
+          <copy file="${DEST_DIR_OUTPUT}/@{FILENAME}.te" tofile="${BIN_DIR}/@{FILENAME}.te" />
+          <gensection inputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.te" 
+                      outputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.tes" 
+                      sectiontype="EFI_SECTION_TE"/>
+          <POST.PROCESS/>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="EFI_SECTION_PE32">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="" />
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <PRE.PROCESS/>
+      <if>
+        <not>
+          <!-- TBD ${OBJECTS} -->
+          <equals arg1="${LIBS}" arg2=""/>
+        </not>
+
+        <then>
+          <GenDll FILEPATH="." FILENAME="@{FILENAME}" FILEEXT="">
+            <LIB.ARG></LIB.ARG>
+            <LINK.ARG></LINK.ARG>
+          </GenDll>
+
+          <GenEfi FILEPATH="." FILENAME="@{FILENAME}" FILEEXT="dll"/>
+        </then>
+      </if>
+      
+      <OnDependency>
+        <sourcefiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.efi"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.pe32"/>
+        </targetfiles>
+
+        <sequential>
+          <copy file="${DEST_DIR_OUTPUT}/@{FILENAME}.efi" tofile="${BIN_DIR}/@{FILENAME}.efi" />
+          
+          <gensection inputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.efi" 
+                      outputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.pe32" 
+                      sectiontype="EFI_SECTION_PE32"/>
+    
+          <POST.PROCESS/>
+        </sequential>
+      </OnDependency>
+      <copy file="${DEST_DIR_OUTPUT}/@{FILENAME}.efi" tofile="${DEST_DIR_DEBUG}/@{FILENAME}.efi" />
+    </sequential>
+  </macrodef>
+
+  <!--
+    EFI_SECTION_VERSION
+    -->
+  <macrodef name="EFI_SECTION_VERSION">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="" />
+    <attribute name="VERSION" default="0000"/>
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <if>
+        <not>
+          <available type="file" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.ver"/>
+        </not>
+
+        <then>
+          <PRE.PROCESS/>
+          <gensection outputfile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.ver" 
+                      versionnum="@{VERSION}"
+                      sectiontype="EFI_SECTION_VERSION"/>
+          <POST.PROCESS/>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <!--
+    EFI_SECTION_USER_INTERFACE
+    -->
+  <macrodef name="EFI_SECTION_USER_INTERFACE">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="" />
+    <attribute name="UI" default="${BASE_NAME}"/>
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <if>
+        <not>
+          <available type="file" file="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.ui"/>
+        </not>
+
+        <then>
+          <PRE.PROCESS/>
+          <gensection interfacestring="@{UI}"
+                      outputfile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.ui" 
+                      sectiontype="EFI_SECTION_USER_INTERFACE"/>
+          <POST.PROCESS/>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <!--
+    EFI_SECTION_DXE_DEPEX
+    -->
+  <macrodef name="EFI_SECTION_DXE_DEPEX">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="dxs"/>
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <PRE.PROCESS/>
+
+      <if>
+        <available type="file" file="${DEST_DIR_OUTPUT}/@{FILENAME}.depex"/>
+        <then>
+          <OnDependency>
+            <sourcefiles>
+              <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.depex"/>
+            </sourcefiles>
+            <targetfiles>
+              <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx"/>
+            </targetfiles>
+            <sequential>
+              <gensection inputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.depex" 
+                          outputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx" 
+                          sectiontype="EFI_SECTION_DXE_DEPEX"/>
+            </sequential>
+          </OnDependency>
+        </then>
+        <else>
+          <if>
+            <not>
+              <available type="file" file="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx"/>
+            </not>
+            <then>
+              <touch file="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx"/>
+            </then>
+          </if>
+        </else>
+      </if>
+
+      <POST.PROCESS/>
+    </sequential>
+  </macrodef>
+
+  <!--
+    EFI_SECTION_PEI_DEPEX
+    -->
+  <macrodef name="EFI_SECTION_PEI_DEPEX">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="dxs"/>
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+    <sequential>
+      <PRE.PROCESS/>
+      <if>
+        <available type="file" file="${DEST_DIR_OUTPUT}/@{FILENAME}.depex"/>
+        <then>
+          <OnDependency>
+            <sourcefiles>
+              <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.depex"/>
+            </sourcefiles>
+            <targetfiles>
+              <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx"/>
+            </targetfiles>
+
+            <sequential>
+              <gensection inputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.depex" 
+                          outputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx" 
+                          sectiontype="EFI_SECTION_PEI_DEPEX"/>
+            </sequential>
+          </OnDependency>
+          
+        </then>
+        <else>
+          <if>
+            <not>
+              <available type="file" file="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx"/>
+            </not>
+            <then>
+              <touch file="${DEST_DIR_OUTPUT}/@{FILENAME}.dpx"/>
+            </then>
+          </if>
+        </else>
+      </if>
+      <POST.PROCESS/>
+    </sequential>
+  </macrodef>
+
+
+  <!--
+    EFI_SECTION_RAW
+    -->
+  <macrodef name="EFI_SECTION_RAW">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="bin"/>
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <OnDependency>
+        <sourcefiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILENAME}.sec"/>
+        </targetfiles>
+
+        <sequential>
+          <PRE.PROCESS/>
+          <gensection inputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.@{FILEEXT}" 
+                      outputfile="${DEST_DIR_OUTPUT}/@{FILENAME}.sec" 
+                      sectiontype="EFI_SECTION_RAW"/>
+          <POST.PROCESS/>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <!--
+    EFI_SECTION_FIRMWARE_VOLUME_IMAGE
+    -->
+  <macrodef name="EFI_SECTION_FIRMWARE_VOLUME_IMAGE">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="fv"/>
+
+    <element name="PRE.PROCESS" optional="yes"/>
+    <element name="POST.PROCESS" optional="yes"/>
+
+    <sequential>
+      <OnDependency>
+        <sourcefiles>
+          <file name="${FV_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}"/>
+        </sourcefiles>
+        <targetfiles>
+          <file name="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}fv.sec"/>
+        </targetfiles>
+
+        <sequential>
+          <PRE.PROCESS/>
+    
+          <copy file="${FV_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" 
+                tofile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" 
+                overwrite="true"/>
+          <gensection inputfile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" 
+                      outputfile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}fv.sec" 
+                      sectiontype="EFI_SECTION_FIRMWARE_VOLUME_IMAGE"/>
+    
+          <POST.PROCESS/>
+        </sequential>
+      </OnDependency>
+    </sequential>
+  </macrodef>
+
+  <!--
+    Binary
+    -->
+  <macrodef name="Build_Binary">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="bin"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <copy file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" 
+            tofile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.bin"/>
+    </sequential>
+  </macrodef>
+
+  <!--
+    Graphics (bmp, ...)
+    -->
+  <macrodef name="Build_Graphics">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="bmp"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <mkdir dir="${MODULE_DIR}/@{FILEPATH}" /> 
+      <copy file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" 
+            tofile="${DEST_DIR_OUTPUT}/@{FILEPATH}/@{FILENAME}.bin"/>
+    </sequential>
+  </macrodef> 
+  <macrodef name="Build_EFI">
+    <attribute name="FILEPATH"/>
+    <attribute name="FILENAME"/>
+    <attribute name="FILEEXT" default="efi"/>
+
+    <element name="EXTRA.INC" optional="yes"/>
+    <element name="EXTRA.ARG" optional="yes"/>
+
+    <sequential>
+      <mkdir dir="${MODULE_DIR}/@{FILEPATH}" /> 
+      <copy file="${MODULE_DIR}/@{FILEPATH}/@{FILENAME}.@{FILEEXT}" 
+        tofile="${DEST_DIR_OUTPUT}/${BASE_NAME}.efi"/>
+    </sequential>
+  </macrodef>
+</project>
