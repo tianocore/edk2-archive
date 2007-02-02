@@ -1,7 +1,7 @@
 /** @file
-  Timer Library functions for EBC.
+  Timer Library functions for runtime drivers.
 
-  Copyright (c) 2006, Intel Corporation<BR>
+  Copyright (c) 2007, Intel Corporation<BR>
   All rights reserved. This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
@@ -10,7 +10,7 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-  Module Name:  EbcTimerLib.c
+  Module Name:  RuntimeTimerLib.c
 
 **/
 
@@ -30,9 +30,6 @@ MicroSecondDelay (
   IN      UINTN                     MicroSeconds
   )
 {
-  //
-  // EBC architecture does not support local APIC timer.
-  //
   ASSERT (FALSE);
   return MicroSeconds;
 }
@@ -53,11 +50,8 @@ NanoSecondDelay (
   IN      UINTN                     NanoSeconds
   )
 {
-  //
-  // EBC architecture does not support local APIC timer.
-  //
   ASSERT (FALSE);
-  return NanoSeconds;
+  return 0;
 }
 
 /**
@@ -78,9 +72,6 @@ GetPerformanceCounter (
   VOID
   )
 {
-  //
-  // EBC architecture does not support local APIC timer.
-  //
   ASSERT (FALSE);
   return 0;
 }
@@ -115,9 +106,6 @@ GetPerformanceCounterProperties (
   OUT      UINT64                    *EndValue     OPTIONAL
   )
 {
-  //
-  // EBC architecture does not support local APIC timer.
-  //
   ASSERT (FALSE);
   return 0;
 }
