@@ -35,6 +35,40 @@ if /I "%1"=="build" goto build
 if /I "%1"=="rebuild" goto rebuild
 if NOT "%1"=="" goto Usage
 
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\antlr.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\CompressDll.dll" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\CreateMtFile.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\dlg.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\EfiCompress.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\EfiRom.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\FlashMap.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\FwImage.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenAcpiTable.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenBsfFixup.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenBsfImage.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenCapsuleHdr.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenCRC32Section.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenDepex.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenFfsFile.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenFvImage.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenFvMap.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenSection.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GenTEImage.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\GuidChk.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\MakeDeps.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\ModifyInf.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\PeiRebase_Ia32.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\PeiRebase_Ipf.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\PeiRebase_X64.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\SecApResetVectorFixup.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\SecFixup.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\SetStamp.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\SplitFile.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\StrGather.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\Strip.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\VfrCompile.exe" goto build
+IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\ZeroDebugData.exe" goto build
+
 :skipbuild
 goto end
 
