@@ -118,6 +118,8 @@ echo ###########################################################
 echo.
 
 call %EDK_TOOLS_PATH%\tool_setup.bat
+
+@echo off
 REM
 REM Done!!!
 REM
