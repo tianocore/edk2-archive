@@ -31,8 +31,6 @@ if /I "%1"=="--help" goto Usage
 if /I "%1"=="/h" goto Usage
 if /I "%1"=="/?" goto Usage
 if /I "%1"=="/help" goto Usage
-if /I "%1"=="build" goto build
-if /I "%1"=="rebuild" goto rebuild
 if NOT "%1"=="" goto Usage
 
 IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\antlr.exe" goto build
@@ -72,19 +70,14 @@ IF NOT EXIST "%EDK_TOOLS_PATH%\Bin\Win32\ZeroDebugData.exe" goto build
 :skipbuild
 goto end
 
-:rebuild
-call nmake -f %TOOLS_INSTALL_PATH%\MsMakefile cleanall
-
 :build
 REM
 REM Start to build the Framework Tools
 REM
 
 echo.
-echo Building the Framework Tools
+echo You have in-complete tools. Please re-build BaseTools!
 echo.
-
-call nmake -f %TOOLS_INSTALL_PATH%\MsMakefile
 
 @REM
 @REM Done!!!
@@ -99,9 +92,7 @@ goto end
 
 :Usage
 echo.
-echo  Usage: %0 [build] [rebuild]
-echo         build:    Incremental build, only build those updated tools; 
-echo         rebuild:  Rebuild all tools neither updated or not; 
+echo  Usage: %0
 echo.
 
 :end
