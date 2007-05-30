@@ -1,0 +1,185 @@
+#/** @file
+# Generic BDS library
+#
+# Do generic action.
+# Copyright (c) 2007, Intel Corporation
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+################################################################################
+#
+# Defines Section - statements that will be processed to create a Makefile.
+#
+################################################################################
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = EdkGenericPlatformBdsLib
+  FILE_GUID                      = f392b762-8985-11db-be87-0040d02b1835
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = EdkGenericPlatformBdsLib 
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+################################################################################
+#
+# Sources Section - list of files that are required for the build to succeed.
+#
+################################################################################
+
+[Sources.common]
+  DeviceMngr/DeviceManagerVfr.Vfr
+  DeviceMngr/DeviceManagerStrings.uni
+  DeviceMngr/DeviceManager.c
+  DeviceMngr/DeviceManager.h
+  BootMngr/BootManagerVfr.Vfr
+  BootMngr/BootManagerStrings.uni
+  BootMngr/BootManager.c
+  BootMngr/BootManager.h
+  BootMaint/FE.vfr
+  BootMaint/FileExplorer.c
+  BootMaint/BootMaint.c
+  BootMaint/BBSsupport.c
+  BootMaint/UpdatePage.c
+  BootMaint/Variable.c
+  BootMaint/Data.c
+  BootMaint/ConsoleOption.c
+  BootMaint/BootOption.c
+  BootMaint/BmLib.c
+  BootMaint/FormGuid.h
+  BootMaint/BootMaint.h
+  BootMaint/BBSsupport.h
+  BootMaint/Bm.vfr
+  BootMaint/BmString.uni
+  MemoryTest.c
+  Capsules.c
+  Strings.uni
+  String.c
+  String.h
+  Language.c
+  Language.h
+  FrontPageVfr.Vfr
+  FrontPageStrings.uni
+  FrontPage.c
+  FrontPage.h
+  BdsBoot.c
+  BdsEntry.c
+  Bds.h
+
+
+################################################################################
+#
+# Includes Section - list of Include locations that are required for
+#                    this module.
+#
+################################################################################
+
+[Includes]
+  $(WORKSPACE)/EdkModulePkg\Include/Library
+  $(WORKSPACE)/MdePkg\Include/Library
+  $(WORKSPACE)/EdkNt32Pkg\Include/Library
+
+################################################################################
+#
+# Package Dependency Section - list of Package files that are required for
+#                              this module.
+#
+################################################################################
+
+[Packages]
+  EdkModulePkg/EdkModulePkg.dec
+  MdePkg/MdePkg.dec
+
+
+################################################################################
+#
+# Library Class Section - list of Library Classes that are required for
+#                         this module.
+#
+################################################################################
+
+[LibraryClasses]
+  PeCoffLib
+  HiiLib
+  DevicePathLib
+  UefiRuntimeServicesTableLib
+  UefiBootServicesTableLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  EdkGenericBdsLib
+  HobLib
+  ReportStatusCodeLib
+  EdkIfrSupportLib
+  PrintLib
+  PerformanceLib
+  DxeServicesTableLib
+  EdkGraphicsLib
+  BaseLib
+  UefiDriverEntryPoint
+  UefiLib
+  DebugLib
+
+
+################################################################################
+#
+# Guid C Name Section - list of Guids that this module uses or produces.
+#
+################################################################################
+
+[Guids]
+  SerialIoPort                                  # SOMETIMES_CONSUMED  Data Hub
+  SerialIoDevice                                # SOMETIMES_CONSUMED  Data Hub
+  MemoryArray                                   # SOMETIMES_CONSUMED  Data Hub
+  ProcessorFrequency                            # SOMETIMES_CONSUMED  Data Hub
+  ProcessorVersion                              # SOMETIMES_CONSUMED  Data Hub
+  SystemManufacturer                            # SOMETIMES_CONSUMED  Data Hub
+  BiosVendor                                    # SOMETIMES_CONSUMED  Data Hub
+  gEfiFileInfoGuid                              # ALWAYS_CONSUMED
+  gEfiFileSystemVolumeLabelInfoIdGuid           # ALWAYS_CONSUMED
+  gEfiFlashMapHobGuid                           # ALWAYS_CONSUMED
+  gEfiGlobalVariableGuid                        # ALWAYS_CONSUMED
+  gEfiBootStateGuid                             # ALWAYS_CONSUMED
+
+
+################################################################################
+#
+# Protocol C Name Section - list of Protocol and Protocol Notify C Names
+#                           that this module uses or produces.
+#
+################################################################################
+
+[Protocols]
+  gEfiDriverBindingProtocolGuid                 # PROTOCOL SOMETIMES_CONSUMED
+  gEfiCpuArchProtocolGuid                       # PROTOCOL SOMETIMES_CONSUMED
+  gEfiGenericMemTestProtocolGuid                # PROTOCOL ALWAYS_CONSUMED
+  gEfiSerialIoProtocolGuid                      # PROTOCOL ALWAYS_CONSUMED
+  gEfiBlockIoProtocolGuid                       # PROTOCOL ALWAYS_CONSUMED
+  gEfiDevicePathProtocolGuid                    # PROTOCOL ALWAYS_CONSUMED
+  gEfiSimpleFileSystemProtocolGuid              # PROTOCOL ALWAYS_CONSUMED
+  gEfiLoadFileProtocolGuid                      # PROTOCOL ALWAYS_CONSUMED
+  gEfiUgaDrawProtocolGuid                       # PROTOCOL ALWAYS_CONSUMED
+  gEfiCpuIoProtocolGuid                         # PROTOCOL ALWAYS_CONSUMED
+  gEfiConsoleControlProtocolGuid                # PROTOCOL ALWAYS_CONSUMED
+  gEfiFormBrowserProtocolGuid                   # PROTOCOL ALWAYS_CONSUMED
+  gEfiDataHubProtocolGuid                       # PROTOCOL ALWAYS_CONSUMED
+  gEfiFormCallbackProtocolGuid                  # PROTOCOL ALWAYS_CONSUMED
+  gEfiHiiProtocolGuid                           # PROTOCOL ALWAYS_CONSUMED
+  gEfiUgaSplashProtocolGuid                     # PROTOCOL ALWAYS_CONSUMED
+  gEfiLegacyBiosProtocolGuid                    # PROTOCOL ALWAYS_CONSUMED
+  gEfiBdsArchProtocolGuid                       # PROTOCOL ALWAYS_PRODUCED
+
