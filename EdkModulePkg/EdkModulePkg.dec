@@ -37,7 +37,7 @@
 #  SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER
 #
 ################################################################################
-[Include.common]
+[Includes.common]
   Include/Protocol               # AcpiS3Save Capsule ConsoleControl CustomizedDecompress DebugAssert DebugLevel DiskInfo EdkDecompress ExtendedSalBootService FaultTolerantWriteLite FvbExtension GenericMemoryTest IsaAcpi IsaIo LoadPe32Image OEMBadging PciHotPlugRequest Performance Print PxeDhcp4 PxeDhcp4CallBack ScsiIo UgaIo UgaSplash usbatapi
   Include/Guid                   # AlternateFvBlock Bmp BootState CapsuleVendor CompatibleMemoryTested ConsoleInDevice ConsoleOutDevice ExtendedSalGuid FlashMapHob HotPlugDevice MemoryTypeInformation MiniShellFile PciHotplugDevice PciOptionRomTable PeiPeCoffLoader PeiPerformanceHob PrimaryConsoleInDevice PrimaryConsoleOutDevice PrimaryStandardErrorDevice ShellFile StandardErrorDevice StatusCode StatusCodeCallerId SystemNvDataGuid
   Include/Library                # CustomDecompressLib EdkDxeSalLib EdkFvbServiceLib EdkGraphicsLib EdkIfrSupportLib EdkPeCoffLoaderLib EdkScsiLib EdkUsbLib TianoDecompressLib
@@ -53,7 +53,7 @@
 #                                provided by this package.
 #
 ################################################################################
-[LibraryClass.common]
+[LibraryClasses.common]
   PciIncompatibleDeviceSupportLib|Include/Library/PciIncompatibleDeviceSupportLib.h
   EdkGenericPlatformBdsLib|Include/Library/EdkGenericPlatformBdsLib.h
   EdkGenericBdsLib|Include/Library/EdkGenericBdsLib.h
@@ -180,7 +180,7 @@
 #
 ################################################################################
 
-[PcdFeatureFlag.common]
+[PcdsFeatureFlag.common]
   PcdSupportUpdateCapsuleRest|0x0001001d|gEfiEdkModulePkgTokenSpaceGuid|BOOLEAN|FALSE
   PcdPeiPcdDatabaseTraverseEnabled|0x00010020|gEfiEdkModulePkgTokenSpaceGuid|BOOLEAN|TRUE
   PcdDxePcdDatabaseTraverseEnabled|0x00010021|gEfiEdkModulePkgTokenSpaceGuid|BOOLEAN|TRUE
@@ -210,7 +210,7 @@
   PcdPciBusHotplugDeviceSupport|0x0001003d|gEfiGenericPlatformTokenSpaceGuid|BOOLEAN|TRUE
   PcdNtEmulatorEnable|0x0001003e|gEfiEdkModulePkgTokenSpaceGuid|BOOLEAN|FALSE
 
-[PcdFixedAtBuild.common]
+[PcdsFixedAtBuild.common]
   PcdMaxPeiPcdCallBackNumberPerPcdEntry|0x0001000f|gEfiEdkModulePkgTokenSpaceGuid|UINT32|0x08
   PcdVpdBaseAddress|0x00010010|gEfiEdkModulePkgTokenSpaceGuid|UINT32|0x0
   PcdMaxSizePopulateCapsule|0x0001001e|gEfiEdkModulePkgTokenSpaceGuid|UINT32|0x0
@@ -226,7 +226,7 @@
   PcdFlashNvStorageFtwWorkingSize|0x30000011|gEfiGenericPlatformTokenSpaceGuid|UINT32|0x0
   PcdPciIncompatibleDeviceSupportMask|0x0001003f|gEfiEdkModulePkgTokenSpaceGuid|UINT8|0x0
 
-[PcdDynamic.common]
+[PcdsDynamic.common]
   PcdStatusCodeMemorySize|0x00010025|gEfiEdkModulePkgTokenSpaceGuid|UINT16|1
   PcdStatusCodeRuntimeMemorySize|0x0001002e|gEfiEdkModulePkgTokenSpaceGuid|UINT16|4
   PcdFlashNvStorageVariableBase|0x30000001|gEfiGenericPlatformTokenSpaceGuid|UINT32|0x0
@@ -236,7 +236,7 @@
   PcdFlashNvStorageFtwWorkingBase|0x30000010|gEfiGenericPlatformTokenSpaceGuid|UINT32|0x0
   PcdFlashNvStorageFtwWorkingSize|0x30000011|gEfiGenericPlatformTokenSpaceGuid|UINT32|0x0
 
-[PcdPatchableInModule.common]
+[PcdsPatchableInModule.common]
   PcdStatusCodeMemorySize|0x00010025|gEfiEdkModulePkgTokenSpaceGuid|UINT16|1
   PcdStatusCodeRuntimeMemorySize|0x0001002e|gEfiEdkModulePkgTokenSpaceGuid|UINT16|4
   PcdMaxPeiPerformanceLogEntries|0x0001002f|gEfiEdkModulePkgTokenSpaceGuid|UINT8|28
@@ -248,7 +248,7 @@
   PcdFlashNvStorageFtwWorkingSize|0x30000011|gEfiGenericPlatformTokenSpaceGuid|UINT32|0x0
 
 
-[PcdFeatureFlag.IA32]
+[PcdsFeatureFlag.IA32]
   PcdDxeIplSwitchToLongMode|0x0001003b|gEfiEdkModulePkgTokenSpaceGuid|BOOLEAN|TRUE
 
 

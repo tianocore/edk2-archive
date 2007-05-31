@@ -39,7 +39,7 @@
 #  BASE SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER UEFI_APPLICATION
 #
 ################################################################################
-[Include.common]
+[Includes.common]
   Include                        # Base Dxe DxeCore DxeDepex PeiCore Peim PeimDepex PiwgDxe PiwgPeim Uefi
   Include/Peim                   # PeiCis
   Include/Common                 # BaseTypes BootMode BootScript Capsule DataHubRecords Dependency EfiImage FirmwareFileSystem FirmwareVolumeHeader FirmwareVolumeImageFormat Hob InternalFormRepresentation Legacy16 MultiPhase StatusCode StatusCodeDataTypeId UefiBaseTypes
@@ -64,7 +64,7 @@
 #                                provided by this package.
 #
 ################################################################################
-[LibraryClass.common]
+[LibraryClasses.common]
   UefiApplicationEntryPoint|Include/Library/UefiApplicationEntryPoint.h # UEFI_APPLICATION
   UefiRuntimeServicesTableLib|Include/Library/UefiRuntimeServicesTableLib.h
   UefiLib|Include/Library/UefiLib.h
@@ -104,7 +104,7 @@
   CacheMaintenanceLib|Include/Library/CacheMaintenanceLib.h
   BaseMemoryLib|Include/Library/BaseMemoryLib.h
   BaseLib|Include/Library/BaseLib.h
-[LibraryClass.IPF]
+[LibraryClasses.IPF]
   PalCallLib|Include/Library/PalCallLib.h
 
 
@@ -317,11 +317,11 @@
 #
 ################################################################################
 
-[PcdFeatureFlag.common]
+[PcdsFeatureFlag.common]
   PcdComponentNameDisable|0x0000000d|gEfiMdePkgTokenSpaceGuid|BOOLEAN|FALSE
   PcdDriverDiagnosticsDisable|0x0000000e|gEfiMdePkgTokenSpaceGuid|BOOLEAN|FALSE
 
-[PcdFixedAtBuild.common]
+[PcdsFixedAtBuild.common]
   PcdMaximumUnicodeStringLength|0x00000001|gEfiMdePkgTokenSpaceGuid|UINT32|1000000
   PcdMaximumAsciiStringLength|0x00000002|gEfiMdePkgTokenSpaceGuid|UINT32|1000000
   PcdMaximumLinkedListLength|0x00000003|gEfiMdePkgTokenSpaceGuid|UINT32|1000000
@@ -336,13 +336,13 @@
   PcdFSBClock|0x0000000c|gEfiMdePkgTokenSpaceGuid|UINT32|200000000
   PcdUefiLibMaxPrintBufferSize|0x101|gEfiMdePkgTokenSpaceGuid|UINT32|320
 
-[PcdPatchableInModule.common]
+[PcdsPatchableInModule.common]
   PcdDebugPrintErrorLevel|0x00000006|gEfiMdePkgTokenSpaceGuid|UINT32|0x80000000
   PcdPciExpressBaseAddress|0x0000000a|gEfiMdePkgTokenSpaceGuid|UINT64|0xE0000000
   PcdFSBClock|0x0000000c|gEfiMdePkgTokenSpaceGuid|UINT32|200000000
 
 
-[PcdFixedAtBuild.IPF]
+[PcdsFixedAtBuild.IPF]
   PcdIoBlockBaseAddressForIpf|0x0000000c|gEfiMdePkgTokenSpaceGuid|UINT64|0x0ffffc000000
 
 

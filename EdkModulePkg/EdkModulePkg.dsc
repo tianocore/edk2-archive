@@ -38,47 +38,47 @@
 #
 ################################################################################
 
-[LibraryClass.IA32.DXE_CORE]
+[LibraryClasses.IA32.DXE_CORE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IA32]
+[LibraryClasses.IA32]
   IoLib|${WORKSPACE}\MdePkg\Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
 
-[LibraryClass.IA32.DXE_SAL_DRIVER]
+[LibraryClasses.IA32.DXE_SAL_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IA32.DXE_SMM_DRIVER]
+[LibraryClasses.IA32.DXE_SMM_DRIVER]
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IA32.PEIM]
+[LibraryClasses.IA32.PEIM]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IA32.PEI_CORE]
+[LibraryClasses.IA32.PEI_CORE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IA32.DXE_RUNTIME_DRIVER]
+[LibraryClasses.IA32.DXE_RUNTIME_DRIVER]
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IA32.BASE]
+[LibraryClasses.IA32.BASE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IA32.SEC]
+[LibraryClasses.IA32.SEC]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IA32.UEFI_DRIVER]
-  TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
-  EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
-
-[LibraryClass.IA32.DXE_DRIVER]
+[LibraryClasses.IA32.UEFI_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IA32.UEFI_APPLICATION]
+[LibraryClasses.IA32.DXE_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.common.DXE_CORE]
+[LibraryClasses.IA32.UEFI_APPLICATION]
+  TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
+  EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
+
+[LibraryClasses.common.DXE_CORE]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   UefiDecompressLib|${WORKSPACE}\EdkModulePkg\Library/DxeCoreUefiDecompressLibFromHob/DxeCoreUefiDecompressLibFromHob.inf
   HobLib|${WORKSPACE}\MdePkg\Library/DxeCoreHobLib/DxeCoreHobLib.inf
@@ -92,7 +92,7 @@
   ReportStatusCodeLib|${WORKSPACE}\MdePkg\Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
   TianoDecompressLib|${WORKSPACE}\EdkModulePkg\Library/DxeCoreTianoDecompressLibFromHob/DxeCoreTianoDecompressLibFromHob.inf
 
-[LibraryClass.common]
+[LibraryClasses.common]
   TimerLib|${WORKSPACE}\MdePkg\Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
   PrintLib|${WORKSPACE}\MdePkg\Library/BasePrintLib/BasePrintLib.inf
   UefiDecompressLib|${WORKSPACE}\EdkModulePkg\Library/BaseUefiTianoDecompressLib/BaseUefiTianoDecompressLib.inf
@@ -109,7 +109,7 @@
   OemHookStatusCodeLib|${WORKSPACE}\EdkModulePkg\Library/EdkOemHookStatusCodeLibNull/EdkOemHookStatusCodeLibNull.inf
   CacheMaintenanceLib|${WORKSPACE}\MdePkg\Library/BaseCacheMaintenanceLib/BaseCacheMaintenanceLib.inf
 
-[LibraryClass.common.PEIM]
+[LibraryClasses.common.PEIM]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   PeiServicesTablePointerLib|${WORKSPACE}\MdePkg\Library/PeiServicesTablePointerLib/PeiServicesTablePointerLib.inf
   PcdLib|${WORKSPACE}\MdePkg\Library/PeiPcdLib/PeiPcdLib.inf
@@ -122,7 +122,7 @@
   MemoryAllocationLib|${WORKSPACE}\MdePkg\Library/PeiMemoryAllocationLib/PeiMemoryAllocationLib.inf
   ReportStatusCodeLib|${WORKSPACE}\MdePkg\Library/PeiReportStatusCodeLib/PeiReportStatusCodeLib.inf
 
-[LibraryClass.common.DXE_SMM_DRIVER]
+[LibraryClasses.common.DXE_SMM_DRIVER]
   EdkUsbLib|${WORKSPACE}\EdkModulePkg\Library/EdkUsbLib/EdkUsbLib.inf
   HobLib|${WORKSPACE}\MdePkg\Library/DxeHobLib/DxeHobLib.inf
   DxeServicesTableLib|${WORKSPACE}\MdePkg\Library/DxeServicesTableLib/DxeServicesTableLib.inf
@@ -144,7 +144,7 @@
   TianoDecompressLib|${WORKSPACE}\EdkModulePkg\Library/DxeCoreTianoDecompressLibFromHob/DxeCoreTianoDecompressLibFromHob.inf
   EdkScsiLib|${WORKSPACE}\EdkModulePkg\Library/EdkScsiLib/EdkScsiLib.inf
 
-[LibraryClass.common.DXE_SAL_DRIVER]
+[LibraryClasses.common.DXE_SAL_DRIVER]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   UefiRuntimeServicesTableLib|${WORKSPACE}\MdePkg\Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   PrintLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxePrintLib/EdkDxePrintLib.inf
@@ -168,7 +168,7 @@
   EdkUsbLib|${WORKSPACE}\EdkModulePkg\Library/EdkUsbLib/EdkUsbLib.inf
   EdkScsiLib|${WORKSPACE}\EdkModulePkg\Library/EdkScsiLib/EdkScsiLib.inf
 
-[LibraryClass.common.PEI_CORE]
+[LibraryClasses.common.PEI_CORE]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   PeiServicesTablePointerLib|${WORKSPACE}\MdePkg\Library/PeiServicesTablePointerLib/PeiServicesTablePointerLib.inf
   PcdLib|${WORKSPACE}\MdePkg\Library/PeiPcdLib/PeiPcdLib.inf
@@ -179,7 +179,7 @@
   PeiCoreEntryPoint|${WORKSPACE}\MdePkg\Library/PeiCoreEntryPoint/PeiCoreEntryPoint.inf
   ReportStatusCodeLib|${WORKSPACE}\MdePkg\Library/PeiReportStatusCodeLib/PeiReportStatusCodeLib.inf
 
-[LibraryClass.common.DXE_RUNTIME_DRIVER]
+[LibraryClasses.common.DXE_RUNTIME_DRIVER]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   UefiRuntimeServicesTableLib|${WORKSPACE}\MdePkg\Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   PrintLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxePrintLib/EdkDxePrintLib.inf
@@ -204,7 +204,7 @@
   EdkScsiLib|${WORKSPACE}\EdkModulePkg\Library/EdkScsiLib/EdkScsiLib.inf
   UefiDriverModelLib|${WORKSPACE}\MdePkg\Library/UefiDriverModelLib/UefiDriverModelLib.inf
 
-[LibraryClass.common.UEFI_DRIVER]
+[LibraryClasses.common.UEFI_DRIVER]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   UefiRuntimeServicesTableLib|${WORKSPACE}\MdePkg\Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   PrintLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxePrintLib/EdkDxePrintLib.inf
@@ -228,7 +228,7 @@
   EdkScsiLib|${WORKSPACE}\EdkModulePkg\Library/EdkScsiLib/EdkScsiLib.inf
   UefiDriverModelLib|${WORKSPACE}\MdePkg\Library/UefiDriverModelLib/UefiDriverModelLib.inf
 
-[LibraryClass.common.DXE_DRIVER]
+[LibraryClasses.common.DXE_DRIVER]
   DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   UefiRuntimeServicesTableLib|${WORKSPACE}\MdePkg\Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   PrintLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxePrintLib/EdkDxePrintLib.inf
@@ -252,7 +252,7 @@
   EdkScsiLib|${WORKSPACE}\EdkModulePkg\Library/EdkScsiLib/EdkScsiLib.inf
   UefiDriverModelLib|${WORKSPACE}\MdePkg\Library/UefiDriverModelLib/UefiDriverModelLib.inf
 
-[LibraryClass.common.UEFI_APPLICATION]
+[LibraryClasses.common.UEFI_APPLICATION]
   EdkUsbLib|${WORKSPACE}\EdkModulePkg\Library/EdkUsbLib/EdkUsbLib.inf
   HobLib|${WORKSPACE}\MdePkg\Library/DxeHobLib/DxeHobLib.inf
   DxeServicesTableLib|${WORKSPACE}\MdePkg\Library/DxeServicesTableLib/DxeServicesTableLib.inf
@@ -275,85 +275,85 @@
   TianoDecompressLib|${WORKSPACE}\EdkModulePkg\Library/DxeCoreTianoDecompressLibFromHob/DxeCoreTianoDecompressLibFromHob.inf
   EdkScsiLib|${WORKSPACE}\EdkModulePkg\Library/EdkScsiLib/EdkScsiLib.inf
 
-[LibraryClass.IPF.DXE_CORE]
+[LibraryClasses.IPF.DXE_CORE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IPF]
+[LibraryClasses.IPF]
   IoLib|${WORKSPACE}\MdePkg\Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
 
-[LibraryClass.IPF.DXE_SAL_DRIVER]
+[LibraryClasses.IPF.DXE_SAL_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkDxeSalLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxeRuntimeSalLib/EdkDxeRuntimeSalLib.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IPF.DXE_SMM_DRIVER]
+[LibraryClasses.IPF.DXE_SMM_DRIVER]
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IPF.PEIM]
+[LibraryClasses.IPF.PEIM]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IPF.PEI_CORE]
+[LibraryClasses.IPF.PEI_CORE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IPF.DXE_RUNTIME_DRIVER]
+[LibraryClasses.IPF.DXE_RUNTIME_DRIVER]
   EdkDxeSalLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxeRuntimeSalLib/EdkDxeRuntimeSalLib.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IPF.BASE]
+[LibraryClasses.IPF.BASE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IPF.SEC]
+[LibraryClasses.IPF.SEC]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.IPF.UEFI_DRIVER]
-  TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
-  EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
-
-[LibraryClass.IPF.DXE_DRIVER]
+[LibraryClasses.IPF.UEFI_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.IPF.UEFI_APPLICATION]
+[LibraryClasses.IPF.DXE_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.X64.DXE_CORE]
+[LibraryClasses.IPF.UEFI_APPLICATION]
+  TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
+  EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
+
+[LibraryClasses.X64.DXE_CORE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.X64]
+[LibraryClasses.X64]
   IoLib|${WORKSPACE}\MdePkg\Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
 
-[LibraryClass.X64.DXE_SAL_DRIVER]
+[LibraryClasses.X64.DXE_SAL_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.X64.DXE_SMM_DRIVER]
+[LibraryClasses.X64.DXE_SMM_DRIVER]
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.X64.PEIM]
+[LibraryClasses.X64.PEIM]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.X64.PEI_CORE]
+[LibraryClasses.X64.PEI_CORE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.X64.DXE_RUNTIME_DRIVER]
+[LibraryClasses.X64.DXE_RUNTIME_DRIVER]
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.X64.BASE]
+[LibraryClasses.X64.BASE]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.X64.SEC]
+[LibraryClasses.X64.SEC]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
-[LibraryClass.X64.UEFI_DRIVER]
-  TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
-  EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
-
-[LibraryClass.X64.DXE_DRIVER]
+[LibraryClasses.X64.UEFI_DRIVER]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
-[LibraryClass.X64.UEFI_APPLICATION]
+[LibraryClasses.X64.DXE_DRIVER]
+  TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
+  EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
+
+[LibraryClasses.X64.UEFI_APPLICATION]
   TimerLib|${WORKSPACE}\MdePkg\Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
   EdkFvbServiceLib|${WORKSPACE}\EdkModulePkg\Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
 
@@ -363,7 +363,7 @@
 #
 ################################################################################
 
-[PcdFixedAtBuild.IA32]
+[PcdsFixedAtBuild.Ia32]
   PcdVpdBaseAddress|gEfiEdkModulePkgTokenSpaceGuid|0
   PcdMaximumUnicodeStringLength|gEfiMdePkgTokenSpaceGuid|1000000
   PcdMaximumAsciiStringLength|gEfiMdePkgTokenSpaceGuid|1000000
@@ -832,7 +832,7 @@
   PcdMaximumLinkedListLength|gEfiMdePkgTokenSpaceGuid|1000000
   PcdSpinLockTimeout|gEfiMdePkgTokenSpaceGuid|10000000
 
-[PcdFixedAtBuild.IPF]
+[PcdsFixedAtBuild.IPF]
   PcdReportStatusCodePropertyMask|gEfiMdePkgTokenSpaceGuid|0x06
   PcdDebugPropertyMask|gEfiMdePkgTokenSpaceGuid|0x0f
   PcdDebugClearMemoryValue|gEfiMdePkgTokenSpaceGuid|0xAF
@@ -1302,7 +1302,7 @@
   PcdDebugClearMemoryValue|gEfiMdePkgTokenSpaceGuid|0xAF
   PcdDebugPrintErrorLevel|gEfiMdePkgTokenSpaceGuid|0x80000000
 
-[PcdFixedAtBuild.X64]
+[PcdsFixedAtBuild.X64]
   PcdReportStatusCodePropertyMask|gEfiMdePkgTokenSpaceGuid|0x06
   PcdDebugPropertyMask|gEfiMdePkgTokenSpaceGuid|0x0f
   PcdDebugClearMemoryValue|gEfiMdePkgTokenSpaceGuid|0xAF
@@ -1781,7 +1781,7 @@
   PcdDebugPrintErrorLevel|gEfiMdePkgTokenSpaceGuid|0x80000000
   PcdReportStatusCodePropertyMask|gEfiMdePkgTokenSpaceGuid|0x06
 
-[PcdFixedAtBuild.EBC]
+[PcdsFixedAtBuild.EBC]
   PcdStatusCodeRuntimeMemorySize|gEfiEdkModulePkgTokenSpaceGuid|4
   PcdDebugPropertyMask|gEfiMdePkgTokenSpaceGuid|0x0f
   PcdDebugClearMemoryValue|gEfiMdePkgTokenSpaceGuid|0xAF
@@ -2196,7 +2196,7 @@
   PcdDebugPrintErrorLevel|gEfiMdePkgTokenSpaceGuid|0x80000000
   PcdReportStatusCodePropertyMask|gEfiMdePkgTokenSpaceGuid|0x06
 
-[PcdFeatureFlag.IA32]
+[PcdsFeatureFlag.IA32]
   PcdDxePcdDatabaseTraverseEnabled|gEfiEdkModulePkgTokenSpaceGuid|TRUE
   PcdPeiPcdDatabaseTraverseEnabled|gEfiEdkModulePkgTokenSpaceGuid|TRUE
   PcdPeiPcdDatabaseCallbackOnSetEnabled|gEfiEdkModulePkgTokenSpaceGuid|FALSE
@@ -2270,7 +2270,7 @@
   PcdDriverDiagnosticsDisable|gEfiMdePkgTokenSpaceGuid|FALSE
   PcdNtEmulatorEnable|gEfiEdkModulePkgTokenSpaceGuid|FALSE
 
-[PcdFeatureFlag.IPF]
+[PcdsFeatureFlag.IPF]
   PcdDevicePathSupportDevicePathToText|gEfiEdkModulePkgTokenSpaceGuid|TRUE
   PcdDevicePathSupportDevicePathFromText|gEfiEdkModulePkgTokenSpaceGuid|TRUE
   PcdComponentNameDisable|gEfiMdePkgTokenSpaceGuid|FALSE
@@ -2352,7 +2352,7 @@
   PcdStatusCodeReplayInRuntimeMemory|gEfiEdkModulePkgTokenSpaceGuid|FALSE
   PcdStatusCodeReplayInOEM|gEfiEdkModulePkgTokenSpaceGuid|FALSE
 
-[PcdFeatureFlag.X64]
+[PcdsFeatureFlag.X64]
   PcdDevicePathSupportDevicePathToText|gEfiEdkModulePkgTokenSpaceGuid|TRUE
   PcdDevicePathSupportDevicePathFromText|gEfiEdkModulePkgTokenSpaceGuid|TRUE
   PcdComponentNameDisable|gEfiMdePkgTokenSpaceGuid|FALSE
@@ -2434,7 +2434,7 @@
   PcdDriverDiagnosticsDisable|gEfiMdePkgTokenSpaceGuid|FALSE
   PcdNtEmulatorEnable|gEfiEdkModulePkgTokenSpaceGuid|FALSE
 
-[PcdFeatureFlag.EBC]
+[PcdsFeatureFlag.EBC]
   PcdStatusCodeUseHardSerial|gEfiEdkModulePkgTokenSpaceGuid|FALSE
   PcdStatusCodeUseEfiSerial|gEfiEdkModulePkgTokenSpaceGuid|FALSE
   PcdStatusCodeUseRuntimeMemory|gEfiEdkModulePkgTokenSpaceGuid|FALSE
@@ -2518,7 +2518,7 @@
 #
 ################################################################################
 
-[PcdDynamic.DEFAULT]
+[PcdsDynamic.DEFAULT]
   PcdFlashNvStorageFtwSpareBase|gEfiGenericPlatformTokenSpaceGuid|0x0
   PcdFlashNvStorageVariableSize|gEfiGenericPlatformTokenSpaceGuid|0x0
   PcdFlashNvStorageVariableBase|gEfiGenericPlatformTokenSpaceGuid|0x0
@@ -2532,7 +2532,7 @@
 #
 ################################################################################
 
-[Components.IA32]
+[Components.Ia32]
   ${WORKSPACE}\EdkModulePkg\Universal/Network/Snp32_64/Dxe/SNP.inf
   ${WORKSPACE}\EdkModulePkg\Universal/Variable/RuntimeDxe/Variable.inf
   ${WORKSPACE}\EdkModulePkg\Universal/FirmwareVolume/GuidedSectionExtraction/Crc32SectionExtract/Dxe/Crc32SectionExtract.inf
