@@ -44,7 +44,6 @@
 
 [Sources.common]
   CheckSum.c
-  CheckSum.c
   SwitchStack.c
   SwapBytes64.c
   SwapBytes32.c
