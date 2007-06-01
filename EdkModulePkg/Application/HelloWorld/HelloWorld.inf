@@ -79,6 +79,7 @@
 ################################################################################
 
 [LibraryClasses]
+  BaseLib
   UefiBootServicesTableLib
   UefiApplicationEntryPoint
   UefiLib
