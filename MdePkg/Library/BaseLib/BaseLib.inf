@@ -291,7 +291,6 @@
   x86DisablePaging32.c
   Synchronization.c
   SynchronizationMsc.c
-  SynchronizationGcc.c
 
 [Sources.X64]
   X64/Thunk16.asm
