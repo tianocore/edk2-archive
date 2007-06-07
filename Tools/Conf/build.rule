@@ -54,6 +54,10 @@ Makefile = {
 '$(OUTPUT_DIR)\\%(fdir)s\\%(fbase)s.obj : $(MODULE_DIR)\\%(fdir)s\\%(fname)s $(DEPS)\n'\
 '\t"$(CC)" $(CC_FLAGS) $(INC) /Fo$@ $(MODULE_DIR)\\%(fdir)s\\%(fname)s\n',
 
+"AutoGen-Code"    : 
+'$(OUTPUT_DIR)\\%(fdir)s\\%(fbase)s.obj : $(DEBUG_DIR)\\%(fdir)s\\%(fname)s $(DEPS)\n'\
+'\t"$(CC)" $(CC_FLAGS) $(INC) /Fo$@ $(DEBUG_DIR)\\%(fdir)s\\%(fname)s\n',
+
 "Masm-Code" : 
 '$(OUTPUT_DIR)\\%(fdir)s\\%(fbase)s.obj : $(MODULE_DIR)\\%(fdir)s\\%(fname)s $(DEPS)\n'\
 '\t"$(PP)" $(PP_FLAGS) $(INC) $? > $(@D)\\%(fbase)s.i\n'\
