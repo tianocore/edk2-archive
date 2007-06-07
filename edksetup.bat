@@ -93,22 +93,22 @@ REM
 if NOT exist %EDK_TOOLS_PATH%\Conf mkdir %EDK_TOOLS_PATH%\Conf
 if NOT exist %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db (
   echo copying ... FrameworkDatabase.template to %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db
-  copy %WORKSPACE%\Conf\FrameworkDatabase.template %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db > nul
+  copy %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.template %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db > nul
 )
 if NOT exist %EDK_TOOLS_PATH%\Conf\target.txt (
   echo copying ... target.template to %EDK_TOOLS_PATH%\Conf\target.txt
-  copy %WORKSPACE%\Conf\target.template %EDK_TOOLS_PATH%\Conf\target.txt > nul
+  copy %EDK_TOOLS_PATH%\Conf\target.template %EDK_TOOLS_PATH%\Conf\target.txt > nul
 )
 if NOT exist %EDK_TOOLS_PATH%\Conf\tools_def.txt (
   echo copying ... tools_def.template to %EDK_TOOLS_PATH%\Conf\tools_def.txt
-  copy %WORKSPACE%\Conf\tools_def.template %EDK_TOOLS_PATH%\Conf\tools_def.txt > nul
+  copy %EDK_TOOLS_PATH%\Conf\tools_def.template %EDK_TOOLS_PATH%\Conf\tools_def.txt > nul
 )
 
 REM
 REM copy XMLSchema to %EDK_TOOLS_PATH%\Conf\XMLSchema
 REM
 REM echo copying ... XMLSchema to %EDK_TOOLS_PATH%\Conf\XMLSchema
-xcopy %WORKSPACE%\Conf\XMLSchema %EDK_TOOLS_PATH%\Conf\XMLSchema /S /I /D /F /Q > nul
+REM xcopy %WORKSPACE%\Conf\XMLSchema %EDK_TOOLS_PATH%\Conf\XMLSchema /S /I /D /F /Q > nul
 
 :tool_setup
 echo.
