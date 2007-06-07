@@ -256,13 +256,13 @@
   EdkUsbLib|${WORKSPACE}\EdkModulePkg\Library/EdkUsbLib/EdkUsbLib.inf
   HobLib|${WORKSPACE}\MdePkg\Library/DxeHobLib/DxeHobLib.inf
   DxeServicesTableLib|${WORKSPACE}\MdePkg\Library/DxeServicesTableLib/DxeServicesTableLib.inf
-  PrintLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxePrintLib/EdkDxePrintLib.inf
+#  PrintLib|${WORKSPACE}\EdkModulePkg\Library/EdkDxePrintLib/EdkDxePrintLib.inf
   EdkIfrSupportLib|${WORKSPACE}\EdkModulePkg\Library/EdkIfrSupportLib/EdkIfrSupportLib.inf
   UefiRuntimeServicesTableLib|${WORKSPACE}\MdePkg\Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   HiiLib|${WORKSPACE}\MdePkg\Library/HiiLib/HiiLib.inf
   UefiApplicationEntryPoint|${WORKSPACE}\MdePkg\Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
   UefiBootServicesTableLib|${WORKSPACE}\MdePkg\Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf
-  DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
+#  DebugLib|${WORKSPACE}\MdePkg\Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   DevicePathLib|${WORKSPACE}\MdePkg\Library/UefiDevicePathLib/UefiDevicePathLib.inf
   UefiDecompressLib|${WORKSPACE}\EdkModulePkg\Library/DxeCoreUefiDecompressLibFromHob/DxeCoreUefiDecompressLibFromHob.inf
   BaseMemoryLib|${WORKSPACE}\MdePkg\Library/DxeMemoryLib/DxeMemoryLib.inf
