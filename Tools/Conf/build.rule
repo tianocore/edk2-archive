@@ -111,11 +111,11 @@ if __name__ == '__main__':
     for ext in FileTypeMapping:
         print ext,":",FileTypeMapping[ext]
 
-    for type in MakeRule["nmake"]:
-        print "[",type,"]\n",MakeRule["nmake"][type]
+    for type in Makefile["nmake"]:
+        print "[",type,"]\n",Makefile["nmake"][type]
         print
 
-    for type in MakeRule["gmake"]:
-        print "[",type,"]\n",MakeRule["gmake"][type]
+    for type in Makefile["gmake"]:
+        print "[",type,"]\n",Makefile["gmake"][type]
         print
 
