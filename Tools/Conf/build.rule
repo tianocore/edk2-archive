@@ -43,8 +43,8 @@ FileTypeMapping = {
 ## Build rules for makefile
 # Placeholders for string substitution
 # 	%(fdir)s		File relative directory within a module
-#   %(fbase)s		File name without extension and path
 #		%(fname)s		File full name without path
+#   %(fbase)s		File name without extension and path
 #		%(fext)s		File extension
 #
 Makefile = {
@@ -55,7 +55,7 @@ Makefile = {
 '\t"$(CC)" $(CC_FLAGS) $(INC) /Fo$@ $(MODULE_DIR)\\%(fdir)s\\%(fname)s\n',
 
 "AutoGen-Code"    : 
-'$(OUTPUT_DIR)\\%(fdir)s\\%(fbase)s.obj : $(DEBUG_DIR)\\%(fdir)s\\%(fname)s $(DEPS)\n'\
+'$(OUTPUT_DIR)\\%(fbase)s.obj : $(DEBUG_DIR)\\%(fname)s $(DEPS)\n'\
 '\t"$(CC)" $(CC_FLAGS) $(INC) /Fo$@ $(DEBUG_DIR)\\%(fdir)s\\%(fname)s\n',
 
 "Masm-Code" : 
