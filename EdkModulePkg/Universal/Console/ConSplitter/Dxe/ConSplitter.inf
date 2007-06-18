@@ -68,7 +68,7 @@
 ################################################################################
 
 [Includes]
-  $(WORKSPACE)/OldMdePkg\Include/Library
+  $(WORKSPACE)/MdePkg\Include/Library
 
 ################################################################################
 #
@@ -79,7 +79,7 @@
 
 [Packages]
   EdkModulePkg/EdkModulePkg.dec
-  OldMdePkg/MdePkg.dec
+  MdePkg/MdePkg.dec
 
 
 ################################################################################
