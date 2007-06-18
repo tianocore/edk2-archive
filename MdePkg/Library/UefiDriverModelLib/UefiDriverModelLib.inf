@@ -46,6 +46,7 @@
 
 [Sources.common]
   UefiDriverModelLib.c
+  CommonHeader.h
 
 
 ################################################################################

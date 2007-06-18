@@ -13,6 +13,11 @@
 **/
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
 
   Prints a debug message to the debug output device if the specified error level is enabled.

@@ -16,6 +16,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Returns the pointer to the HOB list.
 

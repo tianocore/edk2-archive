@@ -17,6 +17,11 @@
 #ifndef __PEI_SERVICES_TABLE_POINTER_LIB_INTERTALS_H__
 #define __PEI_SERVICES_TABLE_POINTER_LIB_INTERTALS_H__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Reads the current value of Kr1.
 

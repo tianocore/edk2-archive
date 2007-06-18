@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 STATIC EFI_DEVICE_PATH_UTILITIES_PROTOCOL          *mDevicePathUtilities = NULL;
 
 /**

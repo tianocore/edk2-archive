@@ -17,6 +17,11 @@ Module Name: PeiPcdLib.c
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   The constructor function retrieve the PCD_PPI pointer.
 

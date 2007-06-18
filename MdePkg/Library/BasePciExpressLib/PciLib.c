@@ -20,6 +20,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Assert the validity of a PCI address. A valid PCI address should contain 1's
   only in the low 28 bits.

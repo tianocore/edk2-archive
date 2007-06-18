@@ -1,3 +1,8 @@
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 //++
 //
 // Copyright (c) 2006 Intel Corporation. All rights reserved

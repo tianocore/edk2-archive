@@ -13,6 +13,11 @@
 **/
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Sends an 32-bit value to a POST card.
 

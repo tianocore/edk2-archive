@@ -13,6 +13,11 @@
 **/
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Global pointer to the Status Code Protocol
 //
 static EFI_STATUS_CODE_PROTOCOL  *gStatusCode = NULL;

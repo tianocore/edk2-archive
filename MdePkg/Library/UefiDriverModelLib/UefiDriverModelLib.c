@@ -16,6 +16,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   The constructor function installs the standard EFI Driver Model Protocols.
 

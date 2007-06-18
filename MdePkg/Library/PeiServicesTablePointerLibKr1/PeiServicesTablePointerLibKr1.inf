@@ -47,6 +47,7 @@
 [Sources.common]
   PeiServicesTablePointerLibInternals.h
   PeiServicesTablePointer.c
+  CommonHeader.h
 
 [Sources.IPF]
   Ipf/WriteKr1.s

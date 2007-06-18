@@ -18,6 +18,11 @@
 #define __BASE_UEFI_DECOMPRESS_LIB_INTERNALS_H__
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Decompression algorithm begins here
 //
 #define BITBUFSIZ 32

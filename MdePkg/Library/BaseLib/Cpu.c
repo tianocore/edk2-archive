@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Disables CPU interrupts and returns the interrupt state prior to the disable
   operation.

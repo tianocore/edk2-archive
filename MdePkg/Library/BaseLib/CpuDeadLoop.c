@@ -12,6 +12,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Executes an infinite loop.
 

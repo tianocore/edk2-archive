@@ -12,6 +12,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Invalidates the entire instruction cache in cache coherency domain of the
   calling CPU.

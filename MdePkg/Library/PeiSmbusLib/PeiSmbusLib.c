@@ -15,6 +15,11 @@ Module Name: PeiSmbusLib.c
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "InternalSmbusLib.h"
 
 /**

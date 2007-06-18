@@ -16,6 +16,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 STATIC VOID  *mHobList = NULL;
 
 /**

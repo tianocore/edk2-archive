@@ -2,17 +2,22 @@
   Mde UEFI library functions.
 
   Copyright (c) 2006 - 2007, Intel Corporation<BR>
-  All rights reserved. This program and the accompanying materials
-  are licensed and made available under the terms and conditions of the BSD License
-  which accompanies this distribution.  The full text of the license may be found at
-  http://opensource.org/licenses/bsd-license.php
+  All rights reserved. This program and the accompanying materials                          
+  are licensed and made available under the terms and conditions of the BSD License         
+  which accompanies this distribution.  The full text of the license may be found at        
+  http://opensource.org/licenses/bsd-license.php                                            
 
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
 
   Module Name:  UefiLib.c
 
 **/
+
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
 
 /**
   Compare whether two names of languages are identical.
@@ -41,9 +46,9 @@ CompareIso639LanguageCode (
 }
 
 /**
-  This function searches the list of configuration tables stored in the EFI System
-  Table for a table with a GUID that matches TableGuid.  If a match is found,
-  then a pointer to the configuration table is returned in Table, and EFI_SUCCESS
+  This function searches the list of configuration tables stored in the EFI System 
+  Table for a table with a GUID that matches TableGuid.  If a match is found, 
+  then a pointer to the configuration table is returned in Table, and EFI_SUCCESS 
   is returned.  If a matching GUID is not found, then EFI_NOT_FOUND is returned.
 
   @param  TableGuid       Pointer to table's GUID type..
@@ -55,7 +60,7 @@ CompareIso639LanguageCode (
 **/
 EFI_STATUS
 EFIAPI
-EfiGetSystemConfigurationTable (
+EfiGetSystemConfigurationTable (  
   IN  EFI_GUID  *TableGuid,
   OUT VOID      **Table
   )
@@ -79,9 +84,9 @@ EfiGetSystemConfigurationTable (
 }
 
 /**
-  This function causes the notification function to be executed for every protocol
-  of type ProtocolGuid instance that exists in the system when this function is
-  invoked.  In addition, every time a protocol of type ProtocolGuid instance is
+  This function causes the notification function to be executed for every protocol 
+  of type ProtocolGuid instance that exists in the system when this function is 
+  invoked.  In addition, every time a protocol of type ProtocolGuid instance is 
   installed or reinstalled, the notification function is also executed.
 
   @param  ProtocolGuid    Supplies GUID of the protocol upon whose installation the event is fired.
@@ -90,7 +95,7 @@ EfiGetSystemConfigurationTable (
   @param  NotifyContext   The context parameter to pass to NotifyFunction.
   @param  Registration    A pointer to a memory location to receive the registration value.
 
-  @return The notification event that was created.
+  @return The notification event that was created. 
 
 **/
 EFI_EVENT
@@ -142,13 +147,13 @@ EfiCreateProtocolNotifyEvent(
 
 /**
   This function creates an event using NotifyTpl, NoifyFunction, and NotifyContext.
-  This event is signaled with EfiNamedEventSignal().  This provide the ability for
+  This event is signaled with EfiNamedEventSignal().  This provide the ability for 
   one or more listeners on the same event named by the GUID specified by Name.
 
   @param  Name                  Supplies GUID name of the event.
   @param  NotifyTpl             Supplies the task priority level of the event notifications.
   @param  NotifyFunction        Supplies the function to notify when the event is signaled.
-  @param  NotifyContext         The context parameter to pass to NotifyFunction.
+  @param  NotifyContext         The context parameter to pass to NotifyFunction. 
   @param  Registration          A pointer to a memory location to receive the registration value.
 
   @retval EFI_SUCCESS           A named event was created.
@@ -206,7 +211,7 @@ EfiNamedEventListen (
 }
 
 /**
-  This function signals the named event specified by Name.  The named event must
+  This function signals the named event specified by Name.  The named event must 
   have been created with EfiNamedEventListen().
 
   @param  Name                  Supplies GUID name of the event.
@@ -243,13 +248,13 @@ EfiNamedEventSignal (
   return EFI_SUCCESS;
 }
 
-/**
+/** 
   Returns the current TPL.
 
-  This function returns the current TPL.  There is no EFI service to directly
-  retrieve the current TPL. Instead, the RaiseTPL() function is used to raise
-  the TPL to TPL_HIGH_LEVEL.  This will return the current TPL.  The TPL level
-  can then immediately be restored back to the current TPL level with a call
+  This function returns the current TPL.  There is no EFI service to directly 
+  retrieve the current TPL. Instead, the RaiseTPL() function is used to raise 
+  the TPL to TPL_HIGH_LEVEL.  This will return the current TPL.  The TPL level 
+  can then immediately be restored back to the current TPL level with a call 
   to RestoreTPL().
 
   @param  VOID
@@ -265,7 +270,7 @@ EfiGetCurrentTpl (
 {
   EFI_TPL Tpl;
 
-  Tpl = gBS->RaiseTPL (EFI_TPL_HIGH_LEVEL);
+  Tpl = gBS->RaiseTPL (EFI_TPL_HIGH_LEVEL); 
   gBS->RestoreTPL (Tpl);
 
   return Tpl;
@@ -273,8 +278,8 @@ EfiGetCurrentTpl (
 
 
 /**
-  This function initializes a basic mutual exclusion lock to the released state
-  and returns the lock.  Each lock provides mutual exclusion access at its task
+  This function initializes a basic mutual exclusion lock to the released state 
+  and returns the lock.  Each lock provides mutual exclusion access at its task 
   priority level.  Since there is no preemption or multiprocessor support in EFI,
   acquiring the lock only consists of raising to the locks TPL.
 
@@ -301,8 +306,8 @@ EfiInitializeLock (
 }
 
 /**
-  This function raises the system's current task priority level to the task
-  priority level of the mutual exclusion lock.  Then, it places the lock in the
+  This function raises the system's current task priority level to the task 
+  priority level of the mutual exclusion lock.  Then, it places the lock in the 
   acquired state.
 
   @param  Priority  The task priority level of the lock.
@@ -322,8 +327,8 @@ EfiAcquireLock (
 }
 
 /**
-  This function raises the system's current task priority level to the task
-  priority level of the mutual exclusion lock.  Then, it attempts to place the
+  This function raises the system's current task priority level to the task 
+  priority level of the mutual exclusion lock.  Then, it attempts to place the 
   lock in the acquired state.
 
   @param  Lock              A pointer to the lock to acquire.
@@ -357,8 +362,8 @@ EfiAcquireLockOrFail (
 }
 
 /**
-  This function transitions a mutual exclusion lock from the acquired state to
-  the released state, and restores the system's task priority level to its
+  This function transitions a mutual exclusion lock from the acquired state to 
+  the released state, and restores the system's task priority level to its 
   previous level.
 
   @param  Lock  A pointer to the lock to release.
@@ -376,7 +381,7 @@ EfiReleaseLock (
   ASSERT (Lock->Lock == EfiLockAcquired);
 
   Tpl = Lock->OwnerTpl;
-
+  
   Lock->Lock = EfiLockReleased;
 
   gBS->RestoreTPL (Tpl);
@@ -389,7 +394,7 @@ EfiReleaseLock (
   currently managing the controller specified by ControllerHandle.  This test
   is performed by evaluating if the the protocol specified by ProtocolGuid is
   present on ControllerHandle and is was opened by DriverBindingHandle with an
-  attribute of EFI_OPEN_PROTOCOL_BY_DRIVER.
+  attribute of EFI_OPEN_PROTOCOL_BY_DRIVER. 
   If ProtocolGuid is NULL, then ASSERT().
 
   @param  ControllerHandle     A handle for a controller to test.
@@ -452,10 +457,10 @@ EfiTestManagedDevice (
   ChildHandle with an attribute of EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER.
   If ProtocolGuid is NULL, then ASSERT().
 
-  @param  ControllerHandle     A handle for a (parent) controller to test.
+  @param  ControllerHandle     A handle for a (parent) controller to test. 
   @param  ChildHandle          A child handle to test.
   @param  ConsumsedGuid        Supplies the protocol that the child controller
-                               opens on its parent controller.
+                               opens on its parent controller. 
 
   @retval EFI_SUCCESS          ChildHandle is a child of the ControllerHandle.
   @retval EFI_UNSUPPORTED      ChildHandle is not a child of the
@@ -502,37 +507,37 @@ EfiTestChildHandle (
       break;
     }
   }
-
+  
   FreePool (OpenInfoBuffer);
   return Status;
 }
 
 /**
-  This function looks up a Unicode string in UnicodeStringTable.  If Language is
+  This function looks up a Unicode string in UnicodeStringTable.  If Language is 
   a member of SupportedLanguages and a Unicode string is found in UnicodeStringTable
-  that matches the language code specified by Language, then it is returned in
+  that matches the language code specified by Language, then it is returned in 
   UnicodeString.
 
-  @param  Language                A pointer to the ISO 639-2 language code for the
+  @param  Language                A pointer to the ISO 639-2 language code for the 
                                   Unicode string to look up and return.
-  @param  SupportedLanguages      A pointer to the set of ISO 639-2 language codes
-                                  that the Unicode string table supports.  Language
+  @param  SupportedLanguages      A pointer to the set of ISO 639-2 language codes 
+                                  that the Unicode string table supports.  Language 
                                   must be a member of this set.
   @param  UnicodeStringTable      A pointer to the table of Unicode strings.
   @param  UnicodeString           A pointer to the Unicode string from UnicodeStringTable
                                   that matches the language specified by Language.
 
-  @retval  EFI_SUCCESS            The Unicode string that matches the language
+  @retval  EFI_SUCCESS            The Unicode string that matches the language 
                                   specified by Language was found
-                                  in the table of Unicoide strings UnicodeStringTable,
+                                  in the table of Unicoide strings UnicodeStringTable, 
                                   and it was returned in UnicodeString.
   @retval  EFI_INVALID_PARAMETER  Language is NULL.
   @retval  EFI_INVALID_PARAMETER  UnicodeString is NULL.
   @retval  EFI_UNSUPPORTED        SupportedLanguages is NULL.
   @retval  EFI_UNSUPPORTED        UnicodeStringTable is NULL.
-  @retval  EFI_UNSUPPORTED        The language specified by Language is not a
+  @retval  EFI_UNSUPPORTED        The language specified by Language is not a 
                                   member of SupportedLanguages.
-  @retval  EFI_UNSUPPORTED        The language specified by Language is not
+  @retval  EFI_UNSUPPORTED        The language specified by Language is not 
                                   supported by UnicodeStringTable.
 
 **/
@@ -593,13 +598,13 @@ LookupUnicodeString (
 
 /**
   This function adds a Unicode string to UnicodeStringTable.
-  If Language is a member of SupportedLanguages then UnicodeString is added to
-  UnicodeStringTable.  New buffers are allocated for both Language and
-  UnicodeString.  The contents of Language and UnicodeString are copied into
-  these new buffers.  These buffers are automatically freed when
+  If Language is a member of SupportedLanguages then UnicodeString is added to 
+  UnicodeStringTable.  New buffers are allocated for both Language and 
+  UnicodeString.  The contents of Language and UnicodeString are copied into 
+  these new buffers.  These buffers are automatically freed when 
   FreeUnicodeStringTable() is called.
 
-  @param  Language                A pointer to the ISO 639-2 language code for the Unicode
+  @param  Language                A pointer to the ISO 639-2 language code for the Unicode 
                                   string to add.
   @param  SupportedLanguages      A pointer to the set of ISO 639-2 language codes
                                   that the Unicode string table supports.
@@ -607,19 +612,19 @@ LookupUnicodeString (
   @param  UnicodeStringTable      A pointer to the table of Unicode strings.
   @param  UnicodeString           A pointer to the Unicode string to add.
 
-  @retval EFI_SUCCESS             The Unicode string that matches the language
-                                  specified by Language was found in the table of
-                                  Unicode strings UnicodeStringTable, and it was
+  @retval EFI_SUCCESS             The Unicode string that matches the language 
+                                  specified by Language was found in the table of 
+                                  Unicode strings UnicodeStringTable, and it was 
                                   returned in UnicodeString.
   @retval EFI_INVALID_PARAMETER   Language is NULL.
   @retval EFI_INVALID_PARAMETER   UnicodeString is NULL.
   @retval EFI_INVALID_PARAMETER   UnicodeString is an empty string.
   @retval EFI_UNSUPPORTED         SupportedLanguages is NULL.
-  @retval EFI_ALREADY_STARTED     A Unicode string with language Language is
+  @retval EFI_ALREADY_STARTED     A Unicode string with language Language is 
                                   already present in UnicodeStringTable.
-  @retval EFI_OUT_OF_RESOURCES    There is not enough memory to add another
+  @retval EFI_OUT_OF_RESOURCES    There is not enough memory to add another 
                                   Unicode string to UnicodeStringTable.
-  @retval EFI_UNSUPPORTED         The language specified by Language is not a
+  @retval EFI_UNSUPPORTED         The language specified by Language is not a 
                                   member of SupportedLanguages.
 
 **/
@@ -760,7 +765,7 @@ AddUnicodeString (
 /**
   This function frees the table of Unicode strings in UnicodeStringTable.
   If UnicodeStringTable is NULL, then EFI_SUCCESS is returned.
-  Otherwise, each language code, and each Unicode string in the Unicode string
+  Otherwise, each language code, and each Unicode string in the Unicode string 
   table are freed, and EFI_SUCCESS is returned.
 
   @param  UnicodeStringTable  A pointer to the table of Unicode strings.
@@ -809,191 +814,3 @@ FreeUnicodeStringTable (
   return EFI_SUCCESS;
 }
 
-/**
-  Intialize a driver by installing the Driver Binding Protocol onto the
-  driver's DriverBindingHandle.  This is typically the same as the driver's
-  ImageHandle, but it can be different if the driver produces multiple
-  DriverBinding Protocols.  This function also initializes the EFI Driver
-  Library that initializes the global variables gST, gBS, gRT.
-
-  @param  ImageHandle          The image handle of the driver
-  @param  SystemTable          The EFI System Table that was passed to the driver's entry point
-  @param  DriverBinding        A Driver Binding Protocol instance that this driver is producing
-  @param  DriverBindingHandle  The handle that DriverBinding is to be installe onto.  If this
-                               parameter is NULL, then a new handle is created.
-
-  @retval EFI_SUCCESS          DriverBinding is installed onto DriverBindingHandle
-  @retval Other                Status from gBS->InstallProtocolInterface()
-
-**/
-EFI_STATUS
-EfiLibInstallDriverBinding (
-  IN const EFI_HANDLE             ImageHandle,
-  IN const EFI_SYSTEM_TABLE       *SystemTable,
-  IN EFI_DRIVER_BINDING_PROTOCOL  *DriverBinding,
-  IN EFI_HANDLE                   DriverBindingHandle
-  )
-{
-  EFI_STATUS  Status;
-
-  Status = gBS->InstallMultipleProtocolInterfaces (
-                  &DriverBindingHandle,
-                  &gEfiDriverBindingProtocolGuid, DriverBinding,
-                  NULL
-                  );
-  //
-  // ASSERT if the call to InstallMultipleProtocolInterfaces() failed
-  //
-  ASSERT_EFI_ERROR (Status);
-
-  //
-  // Update the ImageHandle and DriverBindingHandle fields of the Driver Binding Protocol
-  //
-  DriverBinding->ImageHandle         = ImageHandle;
-  DriverBinding->DriverBindingHandle = DriverBindingHandle;
-
-  return Status;
-}
-
-/**
-  Intialize a driver by installing the Driver Binding Protocol onto the
-  driver's DriverBindingHandle.  This is typically the same as the driver's
-  ImageHandle, but it can be different if the driver produces multiple
-  DriverBinding Protocols.  This function also initializes the EFI Driver
-  Library that initializes the global variables gST, gBS, gRT.
-
-  @ImageHandle                 The image handle of the driver
-  @SystemTable                 The EFI System Table that was passed to the driver's entry point
-  @DriverBinding               A Driver Binding Protocol instance that this driver is producing
-  @DriverBindingHandle         The handle that DriverBinding is to be installe onto.  If this
-                               parameter is NULL, then a new handle is created.
-  @ComponentName               A Component Name Protocol instance that this driver is producing
-  @DriverConfiguration         A Driver Configuration Protocol instance that this driver is producing
-  @DriverDiagnostics           A Driver Diagnostics Protocol instance that this driver is producing
-
-  @retval EFI_SUCCESS          DriverBinding is installed onto DriverBindingHandle
-  @retval Other                Status from gBS->InstallProtocolInterface()
-
-**/
-EFI_STATUS
-EfiLibInstallAllDriverProtocols (
-  IN const EFI_HANDLE                         ImageHandle,
-  IN const EFI_SYSTEM_TABLE                   *SystemTable,
-  IN EFI_DRIVER_BINDING_PROTOCOL              *DriverBinding,
-  IN EFI_HANDLE                               DriverBindingHandle,
-  IN const EFI_COMPONENT_NAME_PROTOCOL        *ComponentName,       OPTIONAL
-  IN const EFI_DRIVER_CONFIGURATION_PROTOCOL  *DriverConfiguration, OPTIONAL
-  IN const EFI_DRIVER_DIAGNOSTICS_PROTOCOL    *DriverDiagnostics    OPTIONAL
-  )
-{
-  EFI_STATUS  Status;
-
-  if (DriverDiagnostics == NULL || FeaturePcdGet(PcdDriverDiagnosticsDisable)) {
-    if (DriverConfiguration == NULL) {
-      if (ComponentName == NULL || FeaturePcdGet(PcdComponentNameDisable)) {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid, DriverBinding,
-                        NULL
-                        );
-      } else {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid, DriverBinding,
-                        &gEfiComponentNameProtocolGuid, ComponentName,
-                        NULL
-                        );
-      }
-    } else {
-      if (ComponentName == NULL || FeaturePcdGet(PcdComponentNameDisable)) {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid,       DriverBinding,
-                        &gEfiDriverConfigurationProtocolGuid, DriverConfiguration,
-                        NULL
-                        );
-      } else {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid,       DriverBinding,
-                        &gEfiComponentNameProtocolGuid,       ComponentName,
-                        &gEfiDriverConfigurationProtocolGuid, DriverConfiguration,
-                        NULL
-                        );
-      }
-    }
-  } else {
-    if (DriverConfiguration == NULL) {
-      if (ComponentName == NULL || FeaturePcdGet(PcdComponentNameDisable)) {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid,     DriverBinding,
-                        &gEfiDriverDiagnosticsProtocolGuid, DriverDiagnostics,
-                        NULL
-                        );
-      } else {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid,     DriverBinding,
-                        &gEfiComponentNameProtocolGuid,     ComponentName,
-                        &gEfiDriverDiagnosticsProtocolGuid, DriverDiagnostics,
-                        NULL
-                        );
-      }
-    } else {
-      if (ComponentName == NULL || FeaturePcdGet(PcdComponentNameDisable)) {
-       Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid,       DriverBinding,
-                        &gEfiDriverConfigurationProtocolGuid, DriverConfiguration,
-                        &gEfiDriverDiagnosticsProtocolGuid,   DriverDiagnostics,
-                        NULL
-                        );
-      } else {
-        Status = gBS->InstallMultipleProtocolInterfaces (
-                        &DriverBindingHandle,
-                        &gEfiDriverBindingProtocolGuid,       DriverBinding,
-                        &gEfiComponentNameProtocolGuid,       ComponentName,
-                        &gEfiDriverConfigurationProtocolGuid, DriverConfiguration,
-                        &gEfiDriverDiagnosticsProtocolGuid,   DriverDiagnostics,
-                        NULL
-                        );
-      }
-    }
-  }
-
-  //
-  // ASSERT if the call to InstallMultipleProtocolInterfaces() failed
-  //
-  ASSERT_EFI_ERROR (Status);
-
-  //
-  // Update the ImageHandle and DriverBindingHandle fields of the Driver Binding Protocol
-  //
-  DriverBinding->ImageHandle         = ImageHandle;
-  DriverBinding->DriverBindingHandle = DriverBindingHandle;
-
-  return Status;
-}
-
-// The following Need to uncommnet after EFI_COMPONENT_NAME2_PROTOCOL and EFI_DRIVER_DIAGNOSTICS2_PROTOCOL
-// have been defined in MdePkg
-//
-//EFI_STATUS
-//EfiLibInstallAllDriverProtocols2 (
-//  IN const EFI_HANDLE                         ImageHandle,
-//  IN const EFI_SYSTEM_TABLE                   *SystemTable,
-//  IN EFI_DRIVER_BINDING_PROTOCOL              *DriverBinding,
-//  IN EFI_HANDLE                               DriverBindingHandle,
-//  IN const EFI_COMPONENT_NAME_PROTOCOL        *ComponentName,       OPTIONAL
-//  IN const EFI_COMPONENT_NAME2_PROTOCOL       *ComponentName2,      OPTIONAL
-//  IN const EFI_DRIVER_CONFIGURATION_PROTOCOL  *DriverConfiguration, OPTIONAL
-//  IN const EFI_DRIVER_DIAGNOSTICS_PROTOCOL    *DriverDiagnostics    OPTIONAL
-//  IN const EFI_DRIVER_DIAGNOSTICS2_PROTOCOL   *DriverDiagnostics2   OPTIONAL
-//  )
-//{
-//  // no any code now, need fixing ...
-//  ASSERT (FALSE);
-//
-//  return EFI_SUCCESS;
-//}

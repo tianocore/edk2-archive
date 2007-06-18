@@ -17,6 +17,11 @@
 #ifndef __DXE_CPUIO_LIB_INTERNAL_H__
 #define __DXE_CPUIO_LIB_INTERNAL_H__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Reads registers in the EFI CPU I/O space.
 

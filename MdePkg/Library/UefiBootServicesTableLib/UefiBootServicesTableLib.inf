@@ -45,6 +45,7 @@
 
 [Sources.common]
   UefiBootServicesTableLib.c
+  CommonHeader.h
 
 
 ################################################################################

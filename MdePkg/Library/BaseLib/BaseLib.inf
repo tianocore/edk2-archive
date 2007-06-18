@@ -77,6 +77,7 @@
   LinkedList.c
   String.c
   BaseLibInternals.h
+  CommonHeader.h
 
 [Sources.Ia32]
   Ia32/Wbinvd.c
@@ -291,6 +292,7 @@
   x86DisablePaging32.c
   Synchronization.c
   SynchronizationMsc.c
+  SynchronizationGcc.c
 
 [Sources.X64]
   X64/Thunk16.asm

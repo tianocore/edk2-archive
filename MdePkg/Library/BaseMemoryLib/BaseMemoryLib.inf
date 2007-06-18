@@ -1,8 +1,8 @@
-﻿#/** @file
-# Component description file for Base Library
+#/** @file
+# Component description file for Base Memory Library
 #
-# Base Library implementation.
-# Copyright (c) 2007 - 2007, Intel Corporation.
+# Base Memory Library implementation - no ASM.
+# Copyright (c) 2007, Intel Corporation
 #
 #  All rights reserved. This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -28,30 +28,69 @@
   LIBRARY_CLASS                  = BaseMemoryLib 
   EDK_RELEASE_VERSION            = 0x00020000
   EFI_SPECIFICATION_VERSION      = 0x00020000
-	OutputFileBasename						 = BaseMemoryLib
-	
-	
-[Sources.common]
-  MemLibInternals.h
-  CopyMem.c
-  MemLibGuid.c
-  MemLibGeneric.c
-  CopyMemWrapper.c
-  SetMemWrapper.c
-  SetMem16Wrapper.c
-  SetMem32Wrapper.c
-  SetMem64Wrapper.c
-  CompareMemWrapper.c
-  ZeroMemWrapper.c
-  ScanMem8Wrapper.c
-  ScanMem16Wrapper.c
-  ScanMem32Wrapper.c
-  ScanMem64Wrapper.c
-  SetMem.c
 
-[LibraryClasses]
-  BaseLib
-  DebugLib
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+################################################################################
+#
+# Sources Section - list of files that are required for the build to succeed.
+#
+################################################################################
+
+[Sources.common]
+  SetMem.c
+  ScanMem64Wrapper.c
+  ScanMem32Wrapper.c
+  ScanMem16Wrapper.c
+  ScanMem8Wrapper.c
+  ZeroMemWrapper.c
+  CompareMemWrapper.c
+  SetMem64Wrapper.c
+  SetMem32Wrapper.c
+  SetMem16Wrapper.c
+  SetMemWrapper.c
+  CopyMemWrapper.c
+  MemLibGeneric.c
+  MemLibGuid.c
+  CopyMem.c
+  MemLibInternals.h
+  CommonHeader.h
+
+
+################################################################################
+#
+# Includes Section - list of Include locations that are required for
+#                    this module.
+#
+################################################################################
+
+[Includes]
+  $(WORKSPACE)/MdePkg\Include/Library
+
+################################################################################
+#
+# Package Dependency Section - list of Package files that are required for
+#                              this module.
+#
+################################################################################
 
 [Packages]
   MdePkg/MdePkg.dec
+
+
+################################################################################
+#
+# Library Class Section - list of Library Classes that are required for
+#                         this module.
+#
+################################################################################
+
+[LibraryClasses]
+  DebugLib
+  BaseLib
+

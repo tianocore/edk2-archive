@@ -16,6 +16,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Retrieves and returns a pointer to the entry point to a PE/COFF image that has been loaded
   into system memory with the PE/COFF Loader Library functions.

@@ -1,3 +1,8 @@
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /// @file
 ///  Contains an implementation of longjmp for the Itanium-based architecture.
 ///

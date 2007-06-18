@@ -21,6 +21,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Returns the size of a device path in bytes.
 

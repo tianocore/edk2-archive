@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_HANDLE         gImageHandle = NULL;
 EFI_SYSTEM_TABLE   *gST         = NULL;
 EFI_BOOT_SERVICES  *gBS         = NULL;

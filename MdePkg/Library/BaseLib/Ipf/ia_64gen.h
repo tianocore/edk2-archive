@@ -15,6 +15,11 @@
 #ifndef _IA64GEN_H
 #define _IA64GEN_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define TT_UNAT           0
 #define C_PSR             0
 #define J_UNAT            0

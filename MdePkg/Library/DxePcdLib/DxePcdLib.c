@@ -15,6 +15,11 @@ Module Name: DxePcdLib.c
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 static PCD_PROTOCOL  *mPcd;
 
 /**

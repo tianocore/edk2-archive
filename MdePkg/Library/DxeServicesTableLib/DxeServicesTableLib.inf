@@ -46,6 +46,7 @@
 
 [Sources.common]
   DxeServicesTableLib.c
+  CommonHeader.h
 
 
 ################################################################################

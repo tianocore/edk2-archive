@@ -59,6 +59,7 @@
   MemLibGuid.c
   MemLib.c
   MemLibInternals.h
+  CommonHeader.h
 
 
 ################################################################################

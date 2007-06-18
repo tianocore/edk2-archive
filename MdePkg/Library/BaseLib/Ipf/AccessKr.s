@@ -1,3 +1,8 @@
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /// @file
 ///  IPF specific AsmReadKrX() and AsmWriteKrX functions, 'X' is from '0' to '7'
 ///

@@ -1,3 +1,8 @@
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /// @file
 ///   Contains an implementation of CallPalProcStacked on Itanium-based
 ///   architecture.

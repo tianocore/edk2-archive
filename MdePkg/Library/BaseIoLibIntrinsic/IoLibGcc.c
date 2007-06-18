@@ -23,6 +23,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Reads an 8-bit MMIO register.
 

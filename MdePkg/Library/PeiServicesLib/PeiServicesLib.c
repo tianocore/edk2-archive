@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   This service enables a given PEIM to register an interface into the PEI Foundation. 
 

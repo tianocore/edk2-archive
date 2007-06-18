@@ -14,6 +14,11 @@
 
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Microsoft Visual Studio 7.1 Function Prototypes for I/O Intrinsics
 //
 void __debugbreak ();

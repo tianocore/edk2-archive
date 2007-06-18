@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "BaseLibInternals.h"
 
 #define SPIN_LOCK_RELEASED          ((UINTN) 1)

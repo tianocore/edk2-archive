@@ -23,6 +23,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Copies a source GUID to a destination GUID.
 

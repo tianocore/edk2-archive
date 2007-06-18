@@ -15,6 +15,11 @@
 **/
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   The function returns the pointer to PeiServices.
 

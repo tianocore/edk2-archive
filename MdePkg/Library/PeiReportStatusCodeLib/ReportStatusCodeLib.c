@@ -13,6 +13,11 @@
 **/
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Define the maximum extended data size that is supported in the PEI phase
 //
 #define MAX_EXTENDED_DATA_SIZE  0x200

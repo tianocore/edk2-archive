@@ -17,6 +17,11 @@
 #ifndef __BASE_PECOFF_LIB_INTERNALS__
 #define __BASE_PECOFF_LIB_INTERNALS__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Performs an Itanium-based specific relocation fixup and is a no-op on other
   instruction sets.

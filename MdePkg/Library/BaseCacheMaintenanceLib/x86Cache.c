@@ -15,6 +15,11 @@
 **/
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // This size must be at or below the smallest cache size possible among all
 // supported processors
 //

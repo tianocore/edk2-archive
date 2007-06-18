@@ -23,6 +23,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Reads an 8-bit I/O port, performs a bitwise inclusive OR, and writes the
   result back to the 8-bit I/O port.

@@ -47,6 +47,7 @@
   IoHighLevel.c
   IoLib.c
   IoLibMmioBuffer.c
+  CommonHeader.h
 
 
 ################################################################################

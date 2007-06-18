@@ -15,6 +15,11 @@
 **/
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // The following array is used in calculating the frequency of local APIC
 // timer. Refer to IA-32 developers' manual for more details.
 //

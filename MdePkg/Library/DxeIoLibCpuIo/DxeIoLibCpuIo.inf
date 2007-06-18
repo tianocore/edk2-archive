@@ -49,6 +49,7 @@
   DxeCpuIoLibInternal.h
   IoHighLevel.c
   IoLib.c
+  CommonHeader.h
 
 
 ################################################################################

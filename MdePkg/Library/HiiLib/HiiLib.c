@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   This function allocates pool for an EFI_HII_PACKAGES structure
   with enough space for the variable argument list of package pointers.

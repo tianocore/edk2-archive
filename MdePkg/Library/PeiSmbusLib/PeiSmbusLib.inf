@@ -46,6 +46,7 @@
   SmbusLib.c
   PeiSmbusLib.c
   InternalSmbusLib.h
+  CommonHeader.h
 
 
 ################################################################################

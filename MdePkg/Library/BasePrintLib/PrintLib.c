@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "PrintLibInternal.h"
 
 #define WARNING_STATUS_NUMBER         4

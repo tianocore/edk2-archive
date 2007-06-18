@@ -46,6 +46,7 @@
 [Sources.common]
   MemoryAllocationLibInternals.h
   MemoryAllocationLib.c
+  CommonHeader.h
 
 
 ################################################################################

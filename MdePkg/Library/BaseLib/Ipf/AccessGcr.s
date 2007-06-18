@@ -1,3 +1,8 @@
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /// @file
 ///  IPF specific Global Control Registers accessing functions
 ///

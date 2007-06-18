@@ -44,6 +44,7 @@
 
 [Sources.common]
   UefiDevicePathLib.c
+  CommonHeader.h
 
 
 ################################################################################

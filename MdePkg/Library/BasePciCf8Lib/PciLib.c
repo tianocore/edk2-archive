@@ -15,6 +15,11 @@
 **/
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Declare I/O Ports used to perform PCI Confguration Cycles
 //
 #define PCI_CONFIGURATION_ADDRESS_PORT  0xCF8

@@ -16,6 +16,11 @@
 
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Cache copy of the DXE Services Table
 //
 EFI_DXE_SERVICES  *gDS      = NULL;

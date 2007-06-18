@@ -17,6 +17,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Performs a delay measured as number of ticks.
 

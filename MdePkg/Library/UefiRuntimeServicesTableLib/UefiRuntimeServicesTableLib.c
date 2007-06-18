@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_RUNTIME_SERVICES  *gRT = NULL;
 
 /**

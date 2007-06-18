@@ -15,6 +15,11 @@
 #ifndef _ASM_H
 #define _ASM_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define TRUE  1
 #define FALSE 0
 #define PROCEDURE_ENTRY(name)   .##text;            \

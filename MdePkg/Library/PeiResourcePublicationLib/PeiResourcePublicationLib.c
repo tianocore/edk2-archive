@@ -15,6 +15,11 @@
 **/
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   
   Declares the presence of permanent system memory in the platform.

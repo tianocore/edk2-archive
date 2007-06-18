@@ -44,6 +44,7 @@
 
 [Sources.common]
   DxeCoreEntryPoint.c
+  CommonHeader.h
 
 
 ################################################################################

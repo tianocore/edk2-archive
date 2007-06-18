@@ -18,6 +18,11 @@
 #define __PRINT_LIB_INTERNAL_H
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Print primitives
 //
 //#define LEFT_JUSTIFY      0x01

@@ -12,6 +12,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Converts POST code value to status code value.
 

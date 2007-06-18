@@ -12,6 +12,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 extern
 UINT64
 _break (

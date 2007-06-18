@@ -1,3 +1,8 @@
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /// @file
 ///   Retrieve of the interrupt state of the running processor for the Itanium
 ///   architecture.

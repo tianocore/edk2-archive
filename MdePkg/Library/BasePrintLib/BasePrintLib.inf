@@ -46,6 +46,7 @@
   PrintLibInternal.h
   PrintLibInternal.c
   PrintLib.c
+  CommonHeader.h
 
 
 ################################################################################

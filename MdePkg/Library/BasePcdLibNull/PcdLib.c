@@ -16,6 +16,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 /**
   Sets the current SKU in the PCD database to the value specified by SkuId.  SkuId is returned.
 

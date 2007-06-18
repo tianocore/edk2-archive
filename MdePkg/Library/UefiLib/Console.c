@@ -16,6 +16,11 @@
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 typedef struct {
   CHAR16  WChar;
   UINT32  Width;

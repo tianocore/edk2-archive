@@ -14,6 +14,11 @@
 
 **/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <BaseLibInternals.h>
 
 /**
@@ -52,7 +57,8 @@ SwitchStack (
 {
   VA_LIST    Marker;
 
-  ASSERT (EntryPoint != NULL && NewStack != NULL);
+  ASSERT (EntryPoint != NULL);
+  ASSERT (NewStack != NULL);
 
   VA_START (Marker, NewStack);
 
