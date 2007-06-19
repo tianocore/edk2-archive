@@ -25,6 +25,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_STATUS
 EFIAPI
 FvbLibInitialize (

@@ -20,6 +20,11 @@ Abstract:
 --*/
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <Common/FlashMap.h>
 
 VOID

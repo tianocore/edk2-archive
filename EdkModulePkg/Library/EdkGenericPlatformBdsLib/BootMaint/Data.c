@@ -21,6 +21,11 @@ Revision History
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "BootMaint.h"
 
 EFI_HII_UPDATE_DATA *UpdateData;

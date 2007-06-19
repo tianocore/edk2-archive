@@ -24,6 +24,11 @@ Revision History
 #ifndef _FRONT_PAGE_H
 #define _FRONT_PAGE_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "DeviceMngr/DeviceManager.h"
 #include "BootMaint/BootMaint.h"
 #include "BootMngr/BootManager.h"

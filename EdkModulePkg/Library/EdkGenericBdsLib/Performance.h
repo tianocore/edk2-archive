@@ -23,6 +23,11 @@ Abstract:
 #ifndef _PERF_H_
 #define _PERF_H_
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define PERF_TOKEN_LENGTH       28
 #define PERF_PEI_ENTRY_MAX_NUM  50
 

@@ -53,6 +53,7 @@
   BdsConnect.c
   BdsConsole.c
   BdsBoot.c
+  CommonHeader.h
 
 [Sources.IPF]
   Ipf/ShadowRom.c

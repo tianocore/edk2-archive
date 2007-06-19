@@ -47,6 +47,7 @@
 
 [Sources.common]
   DxeCoreUefiDecompressLibFromHob.c
+  CommonHeader.h
 
 
 ################################################################################

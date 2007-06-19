@@ -15,6 +15,11 @@ Intel Corporation.
 #ifndef _EFI_INCOMPATIBLE_PCI_DEVICE_LIST_H
 #define _EFI_INCOMPATIBLE_PCI_DEVICE_LIST_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <IndustryStandard/pci22.h>
 #include <IndustryStandard/Acpi.h>
 

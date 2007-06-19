@@ -51,6 +51,7 @@
   IfrOpCodeCreation.c
   IfrOnTheFly.c
   IfrCommon.c
+  CommonHeader.h
 
 
 ################################################################################

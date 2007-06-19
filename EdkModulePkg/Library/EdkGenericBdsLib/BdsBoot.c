@@ -19,6 +19,11 @@ Abstract:
   option.
 
 --*/
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "Performance.h"
 
 BOOLEAN mEnumBootDevice = FALSE;

@@ -44,6 +44,7 @@
 
 [Sources.common]
   SerialPortLibNull.c
+  CommonHeader.h
 
 
 ################################################################################

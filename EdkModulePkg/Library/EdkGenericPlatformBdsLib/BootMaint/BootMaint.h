@@ -22,6 +22,11 @@ Revision History
 #ifndef _BOOT_MAINT_H
 #define _BOOT_MAINT_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "EdkGenericPlatformBdsLibStrDefs.h"
 #include "BootMaint/BBSsupport.h"
 

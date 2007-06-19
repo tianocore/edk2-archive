@@ -12,6 +12,11 @@ http://opensource.org/licenses/bsd-license.php
 #ifndef __FVB_H__
 #define __FVB_H__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define MAX_FVB_COUNT 16
 
 typedef struct {

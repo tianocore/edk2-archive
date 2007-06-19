@@ -47,6 +47,7 @@
 
 [Sources.common]
   RuntimeLibInternal.h
+  CommonHeader.h
 
 [Sources.Ia32]
   Common/RuntimeService.c
@@ -73,8 +74,8 @@
 ################################################################################
 
 [Includes]
-  $(WORKSPACE)/EdkModulePkg\Include/Library
   $(WORKSPACE)/MdePkg\Include/Library
+  $(WORKSPACE)/EdkModulePkg\Include/Library
 
 ################################################################################
 #

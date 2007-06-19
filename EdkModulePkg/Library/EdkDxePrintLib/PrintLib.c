@@ -21,6 +21,11 @@ Abstract:
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 static EFI_PRINT_PROTOCOL  *gPrintProtocol = NULL;
 
 UINTN

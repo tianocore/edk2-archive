@@ -24,6 +24,11 @@ Revision History
 #ifndef _LANGUAGE_H
 #define _LANGUAGE_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define ISO_639_2_ENTRY_SIZE  3
 
 VOID

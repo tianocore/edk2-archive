@@ -19,6 +19,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 static DECOMPRESS_LIBRARY  mEfiDecompress;
 
 EFI_STATUS

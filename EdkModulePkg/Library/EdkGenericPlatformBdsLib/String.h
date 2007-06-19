@@ -25,6 +25,11 @@ Revision History
 #define _STRING_H_
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // This is the VFR compiler generated header file which defines the
 // string identifiers.
 //

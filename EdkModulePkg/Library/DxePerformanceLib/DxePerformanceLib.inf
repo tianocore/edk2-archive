@@ -44,6 +44,7 @@
 
 [Sources.common]
   DxePerformanceLib.c
+  CommonHeader.h
 
 
 ################################################################################

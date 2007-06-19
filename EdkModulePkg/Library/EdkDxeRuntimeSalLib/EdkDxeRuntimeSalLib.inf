@@ -44,6 +44,9 @@
 #
 ################################################################################
 
+[Sources.common]
+  CommonHeader.h
+
 [Sources.IPF]
   Ipf/AsmEsalServiceLib.s
   Ipf/EsalServiceLib.c

@@ -21,6 +21,11 @@ Revision History
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 UINT8 mShadowRomFlag = 0;
 
 VOID

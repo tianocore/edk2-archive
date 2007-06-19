@@ -24,6 +24,11 @@ Revision History
 #ifndef _EFI_BDS_BBS_SUPPORT_H
 #define _EFI_BDS_BBS_SUPPORT_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "BootMaint/BootMaint.h"
 
 #if   defined (MDE_CPU_IA32)

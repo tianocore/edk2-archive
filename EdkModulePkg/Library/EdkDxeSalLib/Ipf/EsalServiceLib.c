@@ -17,6 +17,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <Ipf/IpfDefines.h>
 
 EXTENDED_SAL_BOOT_SERVICE_PROTOCOL  *mEsalBootService = NULL;

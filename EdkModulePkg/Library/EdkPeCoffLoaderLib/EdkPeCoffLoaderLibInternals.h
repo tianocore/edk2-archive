@@ -17,6 +17,11 @@
 #ifndef __PECOFF_LOADER_LIB_INTERNALS__
 #define __PECOFF_LOADER_LIB_INTERNALS__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_STATUS
 EFIAPI
 TianoPeCoffLoaderLibGetImageInfo (

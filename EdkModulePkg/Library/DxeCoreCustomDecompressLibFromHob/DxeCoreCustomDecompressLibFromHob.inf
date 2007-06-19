@@ -47,6 +47,7 @@
 
 [Sources.common]
   DxeCoreCustomDecompressLibFromHob.c
+  CommonHeader.h
 
 
 ################################################################################

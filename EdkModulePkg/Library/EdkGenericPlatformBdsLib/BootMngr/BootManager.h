@@ -24,6 +24,11 @@ Revision History
 #ifndef _EFI_BOOT_MANAGER_H
 #define _EFI_BOOT_MANAGER_H
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "Bds.h"
 //#include "EdkGenericPlatformBdsLib.h"
 #include "String.h"

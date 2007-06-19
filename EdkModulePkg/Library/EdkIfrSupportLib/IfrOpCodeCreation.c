@@ -20,6 +20,11 @@ Revision History:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_STATUS
 CreateSubTitleOpCode (
   IN      STRING_REF          StringToken,

@@ -47,6 +47,7 @@
 
 [Sources.common]
   Fvb.h
+  CommonHeader.h
 
 [Sources.Ia32]
   Ia32/Fvb.c
@@ -66,8 +67,8 @@
 ################################################################################
 
 [Includes]
-  $(WORKSPACE)/EdkModulePkg\Include/Library
   $(WORKSPACE)/MdePkg\Include/Library
+  $(WORKSPACE)/EdkModulePkg\Include/Library
 
 ################################################################################
 #

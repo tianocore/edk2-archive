@@ -45,6 +45,7 @@
 [Sources.common]
   BaseUefiTianoDecompressLibInternals.h
   BaseUefiTianoDecompressLib.c
+  CommonHeader.h
 
 
 ################################################################################

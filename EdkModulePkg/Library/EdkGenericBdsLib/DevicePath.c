@@ -20,6 +20,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_GUID  mEfiUnixThunkProtocolGuid  = EFI_UNIX_THUNK_PROTOCOL_GUID;
 EFI_GUID  mEfiUnixUgaGuid            = EFI_UNIX_UGA_GUID;
 EFI_GUID  mEfiMsgPcAnsiGuid           = DEVICE_PATH_MESSAGING_PC_ANSI;

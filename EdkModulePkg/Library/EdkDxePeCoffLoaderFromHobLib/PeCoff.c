@@ -21,6 +21,11 @@ Abstract:
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 EFI_PEI_PE_COFF_LOADER_PROTOCOL *
 EFIAPI
 GetPeCoffLoaderProtocol (

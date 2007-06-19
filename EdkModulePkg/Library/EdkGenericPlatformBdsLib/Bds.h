@@ -26,6 +26,11 @@ Revision History
 
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Prototypes
 //
 EFI_STATUS

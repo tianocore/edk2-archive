@@ -45,6 +45,7 @@
 [Sources.common]
   EdkPeCoffLoaderLibInternals.h
   EdkPeCoffLoader.c
+  CommonHeader.h
 
 
 ################################################################################

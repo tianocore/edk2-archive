@@ -45,6 +45,7 @@
 [Sources.common]
   IncompatiblePciDeviceList.h
   EdkPciIncompatibleDeviceSupportLib.c
+  CommonHeader.h
 
 
 ################################################################################

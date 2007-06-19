@@ -80,6 +80,7 @@
   BdsBoot.c
   BdsEntry.c
   Bds.h
+  CommonHeader.h
 
 
 ################################################################################
@@ -90,8 +91,8 @@
 ################################################################################
 
 [Includes]
-  $(WORKSPACE)/EdkModulePkg\Include/Library
   $(WORKSPACE)/MdePkg\Include/Library
+  $(WORKSPACE)/EdkModulePkg\Include/Library
   $(WORKSPACE)/EdkNt32Pkg\Include/Library
 
 ################################################################################

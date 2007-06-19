@@ -47,6 +47,7 @@
 
 [Sources.common]
   DxeCoreTianoDecompressLibFromHob.c
+  CommonHeader.h
 
 
 ################################################################################

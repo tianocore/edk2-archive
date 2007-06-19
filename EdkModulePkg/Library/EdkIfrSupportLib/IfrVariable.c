@@ -17,6 +17,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 VOID
 EfiLibHiiVariablePackGetMap (
   IN    EFI_HII_VARIABLE_PACK       *Pack,  
