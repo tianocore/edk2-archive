@@ -23,6 +23,11 @@ Abstract:
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define DISK_IO_PRIVATE_DATA_SIGNATURE  EFI_SIGNATURE_32 ('d', 's', 'k', 'I')
 
 #define DATA_BUFFER_BLOCK_NUM           (64)

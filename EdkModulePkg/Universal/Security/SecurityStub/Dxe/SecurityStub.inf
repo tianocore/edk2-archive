@@ -46,6 +46,7 @@
   SecurityStub.c
   SecurityStub.h
   SecurityStub.dxs
+  CommonHeader.h
 
 
 ################################################################################
