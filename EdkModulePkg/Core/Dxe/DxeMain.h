@@ -23,6 +23,11 @@ Revision History
 #define _DXE_MAIN_H_
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include "DebugImageInfo.h"
 #include "Library.h"
 #include "FwVolBlock.h"

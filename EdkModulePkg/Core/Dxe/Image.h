@@ -25,6 +25,11 @@ Revision History
 
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define LOADED_IMAGE_PRIVATE_DATA_SIGNATURE   EFI_SIGNATURE_32('l','d','r','i')
 
 typedef struct {

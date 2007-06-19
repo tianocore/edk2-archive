@@ -23,6 +23,11 @@ Abstract:
 #ifndef __DEBUG_IMAGE_INFO_H__
 #define __DEBUG_IMAGE_INFO_H__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define FOUR_MEG_PAGES  0x400  
 #define FOUR_MEG_MASK   ((FOUR_MEG_PAGES * EFI_PAGE_SIZE) - 1)
 

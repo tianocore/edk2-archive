@@ -22,6 +22,11 @@ Abstract:
 #ifndef _EXEC_H_
 #define _EXEC_H_
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define VALID_TPL(a)            ((a) <= EFI_TPL_HIGH_LEVEL)
 
 //

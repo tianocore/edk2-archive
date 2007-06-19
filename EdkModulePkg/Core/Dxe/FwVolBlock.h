@@ -27,6 +27,11 @@ Abstract:
 #define _FWVOL_BLOCK_H_
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define FVB_DEVICE_SIGNATURE       EFI_SIGNATURE_32('_','F','V','B')
 
 typedef struct {

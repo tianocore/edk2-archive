@@ -21,6 +21,11 @@ Revision History
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <DxeMain.h>
 
 #define POOL_FREE_SIGNATURE   EFI_SIGNATURE_32('p','f','r','0')

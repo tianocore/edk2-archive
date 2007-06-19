@@ -20,6 +20,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <DxeMain.h>
 
 #define MINIMUM_INITIAL_MEMORY_SIZE 0x10000

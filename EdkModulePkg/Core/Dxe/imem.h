@@ -25,6 +25,11 @@ Revision History
 #ifndef _IMEM_H_
 #define _IMEM_H_
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #if defined (MDE_CPU_IPF)
 //
 // For Itanium machines make the default allocations 8K aligned

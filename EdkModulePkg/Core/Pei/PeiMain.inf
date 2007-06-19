@@ -57,6 +57,7 @@
   Dependency/dependency.h
   BootMode/BootMode.c
   PeiMain.h
+  CommonHeader.h
 
 [Sources.Ia32]
   Dispatcher/Stack.c

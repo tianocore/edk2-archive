@@ -22,6 +22,11 @@ Revision History
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <DxeMain.h>
 
 #define EFI_DEFAULT_PAGE_ALLOCATION_ALIGNMENT  (EFI_PAGE_SIZE)

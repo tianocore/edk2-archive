@@ -28,6 +28,11 @@ Revision History
 
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // IHANDLE - contains a list of protocol handles
 //
 

@@ -24,6 +24,11 @@ Revision History
 #ifndef _PEI_MAIN_H_
 #define _PEI_MAIN_H_
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 extern EFI_GUID gEfiPeiCorePrivateGuid;
 
 //

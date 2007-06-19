@@ -78,6 +78,7 @@
   Dispatcher/Dispatcher.c
   DxeMain/DxeProtocolNotify.c
   DxeMain/DxeMain.c
+  CommonHeader.h
 
 
 ################################################################################
@@ -88,8 +89,8 @@
 ################################################################################
 
 [Includes]
-  $(WORKSPACE)/EdkModulePkg\Include/Library
   $(WORKSPACE)/MdePkg\Include/Library
+  $(WORKSPACE)/EdkModulePkg\Include/Library
 
 ################################################################################
 #

@@ -20,6 +20,11 @@ Abstract:
 --*/
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <DxeMain.h>
 
 #define PHYSICAL_ADDRESS_TO_POINTER(Address) ((VOID *)((UINTN)(Address)))

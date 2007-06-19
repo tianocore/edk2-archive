@@ -25,6 +25,11 @@ Abstract:
 
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // Used to track all non-deleted files
 //
 typedef struct {

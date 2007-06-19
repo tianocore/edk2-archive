@@ -23,6 +23,11 @@ Revision History
 #define _GCD_H
 
 //
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
+//
 // GCD Operations
 //
 #define GCD_MEMORY_SPACE_OPERATION 0x20

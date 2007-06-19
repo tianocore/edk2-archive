@@ -23,6 +23,11 @@ Abstract:
   
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <PeiMain.h>
 #include "dependency.h"
 

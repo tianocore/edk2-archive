@@ -20,6 +20,11 @@ Abstract:
 #ifndef __PEI_DXEIPL_H__
 #define __PEI_DXEIPL_H__
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define STACK_SIZE      0x20000
 #define BSP_STORE_SIZE  0x4000
 

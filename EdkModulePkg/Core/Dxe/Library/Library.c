@@ -19,6 +19,11 @@ Abstract:
 
 --*/
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <DxeMain.h>
 
 UINTN mErrorLevel = EFI_D_ERROR | EFI_D_LOAD;

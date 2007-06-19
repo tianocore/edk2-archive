@@ -46,6 +46,7 @@
   DxeIpl.dxs
   DxeIpl.h
   DxeLoad.c
+  CommonHeader.h
 
 [Sources.Ia32]
   Ia32/VirtualMemory.h
@@ -74,8 +75,8 @@
 ################################################################################
 
 [Includes]
-  $(WORKSPACE)/EdkModulePkg\Include/Library
   $(WORKSPACE)/MdePkg\Include/Library
+  $(WORKSPACE)/EdkModulePkg\Include/Library
 
 ################################################################################
 #

@@ -23,6 +23,11 @@ Revision History
 #define _DXE_LIBRARY_H_
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 VOID
 CoreReportProgressCode (
   IN  EFI_STATUS_CODE_VALUE   Value

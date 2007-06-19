@@ -26,6 +26,11 @@ Abstract:
 #define _VIRTUAL_MEMORY_H_
 
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #define SYS_CODE64_SEL 0x38
 
 #pragma pack(1)

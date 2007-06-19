@@ -24,6 +24,11 @@ Revision History
 #ifndef _IPF_PEI_MAIN_H_
 #define _IPF_PEI_MAIN_H_
 
+//
+// Include common header file for this module.
+//
+#include "CommonHeader.h"
+
 #include <PeiMain.h>
 
 SAL_RETURN_REGS
