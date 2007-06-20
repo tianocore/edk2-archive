@@ -103,6 +103,12 @@
   gEfiEventLegacyBootGuid                       # ALWAYS_CONSUMED
 
 
+[Protocols]
+  gEfiDriverBindingProtocolGuid                 # ALWAYS_CONSUMED
+  gEfiComponentNameProtocolGuid                 # SOMETIMES_CONSUMED
+  gEfiDriverConfigurationProtocolGuid           # SOMETIMES_CONSUMED
+  gEfiDriverDiagnosticsProtocolGuid             # SOMETIMES_CONSUMED
+
 ################################################################################
 #
 # Pcd FIXED_AT_BUILD - list of PCDs that this module is coded for.
