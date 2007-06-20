@@ -111,4 +111,6 @@
 
 [PcdsFixedAtBuild.common]
   PcdUefiLibMaxPrintBufferSize|gEfiMdePkgTokenSpaceGuid
+  PcdDriverDiagnosticsDisable|gEfiMdePkgTokenSpaceGuid
+  PcdComponentNameDisable|gEfiMdePkgTokenSpaceGuid
 
