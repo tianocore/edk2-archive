@@ -18,7 +18,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 //
 #include "CommonHeader.h"
 
-EFI_EVENT  _mDriverExitBootServicesNotifyEvent;
 
 /**
   Unload function that is registered in the LoadImage protocol.  It un-installs
@@ -50,13 +49,6 @@ _DriverUnloadHandler (
   // unloaded, and the library destructors should not be called
   //
   if (!EFI_ERROR (Status)) {
-    //
-    // Close our ExitBootServices () notify function
-    //
-    if (_gDriverExitBootServicesEvent[0] != NULL) {
-      Status = gBS->CloseEvent (_mDriverExitBootServicesNotifyEvent);
-      ASSERT_EFI_ERROR (Status);
-    }
 
     ProcessLibraryDestructorList (ImageHandle, gST);
   }
@@ -69,7 +61,7 @@ _DriverUnloadHandler (
 
 
 /**
-  Notification Entry of ExitBootService event. In the entry, all notifications in _gDriverExitBootServicesEvent[] 
+  Notification Entry of ExitBootService event. In the entry, all notifications in _gDriverExitBootServicesEvent[]
   would be invoked.
 
   @param Event   The Event that is being processed.
@@ -123,26 +115,6 @@ _ModuleEntryPoint (
   }
 
   //
-  // Call constructor for all libraries
-  //
-  ProcessLibraryConstructorList (ImageHandle, SystemTable);
-
-  //
-  // Register our ExitBootServices () notify function
-  //
-  if (_gDriverExitBootServicesEvent[0] != NULL) {
-    Status = gBS->CreateEvent (
-                    EFI_EVENT_SIGNAL_EXIT_BOOT_SERVICES,
-                    EFI_TPL_NOTIFY,
-                    _DriverExitBootServices,
-                    NULL,
-                    &_mDriverExitBootServicesNotifyEvent
-                    );
-
-    ASSERT_EFI_ERROR (Status);
-  }
-
-  //
   //  Install unload handler...
   //
   if (_gDriverUnloadImageCount != 0) {
@@ -156,6 +128,11 @@ _ModuleEntryPoint (
   }
 
   //
+  // Call constructor for all libraries
+  //
+  ProcessLibraryConstructorList (ImageHandle, SystemTable);
+
+  //
   // Call the driver entry point
   //
   Status = ProcessModuleEntryPointList (ImageHandle, SystemTable);
@@ -164,14 +141,6 @@ _ModuleEntryPoint (
   // If all of the drivers returned errors, then invoke all of the library destructors
   //
   if (EFI_ERROR (Status)) {
-    //
-    // Close our ExitBootServices () notify function
-    //
-    if (_gDriverExitBootServicesEvent[0] != NULL) {
-      Status = gBS->CloseEvent (_mDriverExitBootServicesNotifyEvent);
-      ASSERT_EFI_ERROR (Status);
-    }
-
     ProcessLibraryDestructorList (ImageHandle, SystemTable);
   }
 
