@@ -51,8 +51,8 @@
   E100b.c
   Decode.c
   Init.c
-  CommonHeader.h
-  EntryPoint.c
+#  CommonHeader.h
+#  EntryPoint.c
 
 
 ################################################################################

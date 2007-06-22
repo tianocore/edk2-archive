@@ -56,8 +56,8 @@
   ComponentName.c
   ConSplitter.h
   ConSplitter.c
-  CommonHeader.h
-  EntryPoint.c
+#  CommonHeader.h
+#  EntryPoint.c
 
 
 ################################################################################

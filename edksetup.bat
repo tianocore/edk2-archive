@@ -22,8 +22,6 @@ if /I "%1"=="/h" goto usage
 if /I "%1"=="/?" goto usage
 if /I "%1"=="/help" goto usage
 
-if NOT "%1"=="" set EDK_TOOLS_PATH=%~f1
-
 REM
 REM Check the required system environment variables
 REM
@@ -47,68 +45,7 @@ REM
 REM Set the WORKSPACE to the current working directory
 REM
 set WORKSPACE=%CD%
-
-REM
-REM check the EDK_TOOLS_PATH
-REM
-if not defined EDK_TOOLS_PATH goto no_tools_path
-if exist %EDK_TOOLS_PATH% goto set_path
-echo.
-echo !!!WARNING!!! %EDK_TOOLS_PATH% doesn't exist. %WORKSPACE%\Tools will be used !!!
-echo.
-
-:no_tools_path
-if exist %WORKSPACE%\Tools (
-  set EDK_TOOLS_PATH=%WORKSPACE%\Tools
-) else (
-  echo.
-  echo !!!WARNING!!! No tools path found. Please set EDK_TOOLS_PATH !!!
-  echo.
-  goto end
-)
-
-:set_path
-if defined WORKSPACE_TOOLS_PATH goto check_path
-set PATH=%EDK_TOOLS_PATH%\Bin;%EDK_TOOLS_PATH%\Bin\Win32;%PATH%
-set WORKSPACE_TOOLS_PATH=%EDK_TOOLS_PATH%
-echo Setting the PATH variable to include the EDK_TOOLS_PATH for this WORKSPACE
-goto path_ok
-
-:check_path
-if "%EDK_TOOLS_PATH%"=="%WORKSPACE_TOOLS_PATH%" goto path_ok
-set PATH=%EDK_TOOLS_PATH%\Bin;%EDK_TOOLS_PATH%\Bin\Win32;%PATH%
-set WORKSPACE_TOOLS_PATH=%EDK_TOOLS_PATH%
-echo Resetting the PATH variable to include the EDK_TOOLS_PATH for this WORKSPACE
-
-:path_ok
-echo           PATH = %PATH%
-echo.
-echo      WORKSPACE = %WORKSPACE%
-echo EDK_TOOLS_PATH = %EDK_TOOLS_PATH%
-echo.
-
-REM
-REM copy *.template to %EDK_TOOLS_PATH%\Conf
-REM
-if NOT exist %EDK_TOOLS_PATH%\Conf mkdir %EDK_TOOLS_PATH%\Conf
-if NOT exist %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db (
-  echo copying ... FrameworkDatabase.template to %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db
-  copy %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.template %EDK_TOOLS_PATH%\Conf\FrameworkDatabase.db > nul
-)
-if NOT exist %EDK_TOOLS_PATH%\Conf\target.txt (
-  echo copying ... target.template to %EDK_TOOLS_PATH%\Conf\target.txt
-  copy %EDK_TOOLS_PATH%\Conf\target.template %EDK_TOOLS_PATH%\Conf\target.txt > nul
-)
-if NOT exist %EDK_TOOLS_PATH%\Conf\tools_def.txt (
-  echo copying ... tools_def.template to %EDK_TOOLS_PATH%\Conf\tools_def.txt
-  copy %EDK_TOOLS_PATH%\Conf\tools_def.template %EDK_TOOLS_PATH%\Conf\tools_def.txt > nul
-)
-
-REM
-REM copy XMLSchema to %EDK_TOOLS_PATH%\Conf\XMLSchema
-REM
-REM echo copying ... XMLSchema to %EDK_TOOLS_PATH%\Conf\XMLSchema
-REM xcopy %WORKSPACE%\Conf\XMLSchema %EDK_TOOLS_PATH%\Conf\XMLSchema /S /I /D /F /Q > nul
+set EDK_TOOLS_PATH=%WORKSPACE%\BaseTools
 
 :tool_setup
 echo.
@@ -117,7 +54,7 @@ echo  Setup Framework Tools
 echo ###########################################################
 echo.
 
-call %EDK_TOOLS_PATH%\tool_setup.bat
+call %EDK_TOOLS_PATH%\toolsetup.bat
 
 @echo off
 REM

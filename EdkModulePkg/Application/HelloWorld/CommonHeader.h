@@ -15,7 +15,6 @@
 #ifndef __COMMON_HEADER_H_
 #define __COMMON_HEADER_H_
 
-
 //
 // The package level header files this module uses
 //
