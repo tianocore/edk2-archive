@@ -19,7 +19,8 @@
 //
 // The package level header files this module uses
 //
-#include <Peim.h>
+#include <PiPei.h>
+#include <IndustryStandard/PeImage.h>
 #include <WinNtPeim.h>
 //
 // The protocols, PPI and GUID defintions for this module
