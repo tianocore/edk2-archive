@@ -19,8 +19,7 @@
 //
 // The package level header files this module uses
 //
-#include <Peim.h>
-#include <EdkPeim.h>
+#include <PiPei.h>
 //
 // The protocols, PPI and GUID defintions for this module
 //
@@ -28,6 +27,6 @@
 //
 // The Library classes this module consumes
 //
-#include <Library/EdkPeCoffLoaderLib.h>
+#include <Library/PeCoffLoaderLib.h>
 
 #endif
