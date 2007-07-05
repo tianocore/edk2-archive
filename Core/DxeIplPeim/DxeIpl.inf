@@ -95,7 +95,7 @@
   CustomDecompressLib
   TianoDecompressLib
   UefiDecompressLib
-  EdkPeCoffLoaderLib
+  PeCoffLoaderLib
   CacheMaintenanceLib
   ReportStatusCodeLib
   PeiServicesLib
