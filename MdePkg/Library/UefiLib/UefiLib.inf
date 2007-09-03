@@ -70,7 +70,7 @@
   gEfiFirmwareVolume2ProtocolGuid               # ALWAYS_CONSUMED
 
 
-[FixedPcd.common]
+[Pcd.common]
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize
 
 [FeaturePcd.common]
