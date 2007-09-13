@@ -1,0 +1,65 @@
+#/** @file
+# Component description file for Intrinsic Base Io Library
+#
+# I/O Library that uses compiler intrinsics to perform IN and OUT instructions
+#  for IA-32 and x64. It also performs direct memory access for MMIO services.
+# Copyright (c) 2007, Intel Corporation.
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BaseIoLibIntrinsic
+  FILE_GUID                      = 926c9cd0-4bb8-479b-9ac4-8a2a23f85307
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = IoLib 
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF
+#
+
+[Sources.common]
+  IoLibMmioBuffer.c
+  BaseIoLibIntrinsicInternal.h
+
+[Sources.Ia32]
+  IoHighLevel.c
+  IoLibGcc.c    | GCC
+  IoLibMsc.c    | MSFT
+  IoLib.c
+
+[Sources.X64]
+  IoHighLevel.c
+  IoLibGcc.c    | GCC
+  IoLibMsc.c    | MSFT
+  IoLib.c
+
+[Sources.IPF]
+  IoHighLevel.c
+  IoLibIpf.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  DebugLib
+  BaseLib
+
+[LibraryClasses.IPF]
+  PcdLib
+
+[FixedPcd.IPF]
+  gEfiMdePkgTokenSpaceGuid.PcdIoBlockBaseAddressForIpf
+

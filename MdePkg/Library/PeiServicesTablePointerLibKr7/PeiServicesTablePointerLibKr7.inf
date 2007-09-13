@@ -1,0 +1,41 @@
+#/** @file
+#
+# PEI Services Table Library implementation that retrieves a pointer to the PEI
+# Copyright (c) 2006 - 2007, Intel Corporation.
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PeiServicesTablePointerLibKr7
+  FILE_GUID                      = E0E7D776-E7EB-4e5f-9AA8-54CF3AA64A43
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PeiServicesTablePointerLib|PEIM PEI_CORE
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+  CONSTRUCTOR                    = PeiServicesTablePointerLibConstructor
+
+#
+#  VALID_ARCHITECTURES           = IPF
+#
+
+[Sources.Ipf]
+  PeiServicesTablePointer.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  DebugLib
+  BaseLib
+
