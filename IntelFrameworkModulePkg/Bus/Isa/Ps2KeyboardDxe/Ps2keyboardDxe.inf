@@ -1,0 +1,60 @@
+#/** @file
+# Ps2 Keyboard Driver
+#
+# This dirver directly uses IsaIo protocol service to support KeyBoard work.
+# Copyright (c) 2006 - 2007, Intel Corporation.
+#
+# Copyright (c) 2006 - 2007, Intel Corporation
+# All rights reserved. This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Ps2KeyboardDxe
+  FILE_GUID                      = 3DC82376-637B-40a6-A8FC-A565417F2C38
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+  ENTRY_POINT                    = InitializePs2Keyboard
+
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+
+[Sources.common]
+  ComponentName.c
+  Ps2Keyboard.h
+  Ps2KbdCtrller.c
+  Ps2KbdTextIn.c
+  Ps2Keyboard.c
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+
+[LibraryClasses]
+  MemoryAllocationLib
+  UefiRuntimeServicesTableLib
+  DebugLib
+  ReportStatusCodeLib
+  UefiBootServicesTableLib
+  UefiLib
+  UefiDriverEntryPoint
+
+[Protocols]
+  gEfiPs2PolicyProtocolGuid                     # PROTOCOL TO_START
+  gEfiIsaIoProtocolGuid                         # PROTOCOL TO_START
+  gEfiSimpleTextInProtocolGuid                  # PROTOCOL BY_START
+  gEfiDevicePathProtocolGuid                    # PROTOCOL TO_START
+
