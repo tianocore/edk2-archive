@@ -1,0 +1,76 @@
+#/** @file
+# Component description file for Pcd Database PEIM module
+#
+# This PEIM driver implement and produce PCD PPI.
+# Copyright (c) 2006 - 2007, Intel Corporation
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PcdPeim
+  FILE_GUID                      = 9B3ADA4F-AE56-4c24-8DEA-F03B7558AE50
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  PCD_IS_DRIVER                  = PEI_PCD_DRIVER
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+  ENTRY_POINT                    = PcdPeimInit
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources.common]
+  Service.c
+  Service.h
+  Pcd.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  PeiServicesTablePointerLib
+  PcdLib
+  PeiServicesLib
+  HobLib
+  BaseLib
+  PeimEntryPoint
+  DebugLib
+
+[Guids]
+  gPcdPeiCallbackFnTableHobGuid                 # ALWAYS_PRODUCED  Hob: GUID_EXTENSION
+  gPcdDataBaseHobGuid                           # ALWAYS_PRODUCED  Hob: GUID_EXTENSION
+
+
+[Ppis]
+  gEfiPeiReadOnlyVariable2PpiGuid               # PPI ALWAYS_CONSUMED
+  gPcdPpiGuid                                   # PPI ALWAYS_PRODUCED
+
+[FeaturePcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiPcdDatabaseSetEnabled
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiPcdDatabaseGetSizeEnabled
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiPcdDatabaseExEnabled
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiPcdDatabaseCallbackOnSetEnabled
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiPcdDatabaseTraverseEnabled
+
+[FixedPcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVpdBaseAddress
+  gEfiMdeModulePkgTokenSpaceGuid.PcdMaxPeiPcdCallBackNumberPerPcdEntry
+
+[Depex]
+  TRUE
+

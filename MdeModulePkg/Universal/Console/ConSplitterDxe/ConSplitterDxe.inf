@@ -1,0 +1,77 @@
+#/** @file
+# Component description file for ConSplitter module.
+#
+# Any Handle that attatched EFI_CONSOLE_IDENTIFIER_PROTOCOL can be bound by this driver.
+# Copyright (c) 2006 - 2007, Intel Corporation
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ConSplitterDxe
+  FILE_GUID                      = 408edcec-cf6d-477c-a5a8-b4844e3de281
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+  ENTRY_POINT                    = InitializeConSplitter
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+#  DRIVER_BINDING                =  gConSplitterConInDriverBinding               
+#  COMPONENT_NAME                =  gConSplitterConInComponentName               
+#  DRIVER_BINDING                =  gConSplitterSimplePointerDriverBinding       
+#  COMPONENT_NAME                =  gConSplitterSimplePointerComponentName       
+#  DRIVER_BINDING                =  gConSplitterConOutDriverBinding              
+#  COMPONENT_NAME                =  gConSplitterConOutComponentName              
+#  DRIVER_BINDING                =  gConSplitterStdErrDriverBinding              
+#  COMPONENT_NAME                =  gConSplitterStdErrComponentName              
+#
+
+[Sources.common]
+  ConSplitterGraphics.c
+  ComponentName.c
+  ConSplitter.h
+  ConSplitter.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  BaseLib
+  UefiLib
+  UefiDriverEntryPoint
+  DebugLib
+
+[Guids]
+  gEfiConsoleInDeviceGuid                       # ALWAYS_CONSUMED
+  gEfiStandardErrorDeviceGuid                   # ALWAYS_CONSUMED
+  gEfiConsoleOutDeviceGuid                      # ALWAYS_CONSUMED
+  gEfiPrimaryConsoleOutDeviceGuid               # ALWAYS_PRODUCED
+  gEfiPrimaryConsoleInDeviceGuid                # ALWAYS_PRODUCED
+  gEfiPrimaryStandardErrorDeviceGuid            # ALWAYS_PRODUCED
+
+[Protocols]
+  gEfiConsoleControlProtocolGuid                # PROTOCOL ALWAYS_PRODUCED
+  gEfiSimplePointerProtocolGuid                 # PROTOCOL ALWAYS_PRODUCED
+  gEfiSimpleTextInProtocolGuid                  # PROTOCOL ALWAYS_PRODUCED
+  gEfiSimpleTextOutProtocolGuid                 # PROTOCOL ALWAYS_PRODUCED
+  gEfiGraphicsOutputProtocolGuid                # PROTOCOL ALWAYS_PRODUCED
+  gEfiUgaDrawProtocolGuid                       # PROTOCOL ALWAYS_PRODUCED
+

@@ -1,0 +1,62 @@
+#/** @file
+# Memory-only library functions with no library constructor/destructor
+#
+# This module provides the performance measurement interfaces in PEI phase, it is one instance of Performance Libarary.
+# Copyright (c) 2006, Intel Corporation
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PeiPerformanceLib
+  FILE_GUID                      = F72DE735-B24F-4ef6-897F-70A85D01A047
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PerformanceLib|PEIM PEI_CORE
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources.common]
+  PeiPerformanceLib.c
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+
+[LibraryClasses]
+  BaseMemoryLib
+  PcdLib
+  TimerLib
+  BaseLib
+  HobLib
+  DebugLib
+
+
+[Guids]
+  gPeiPerformanceHobGuid                        # SOMETIMES_CONSUMED
+
+
+[FixedPcd.common]
+  gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask
+
+
+[Pcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdMaxPeiPerformanceLogEntries
+
