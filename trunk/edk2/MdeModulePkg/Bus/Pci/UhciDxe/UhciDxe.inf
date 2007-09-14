@@ -1,0 +1,68 @@
+#/** @file
+# Component name for module Uhci
+#
+# Copyright (c) 2006, Intel Corporation. 
+#
+#  All rights reserved. This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = UhciDxe
+  FILE_GUID                      = 2FB92EFA-2EE0-4bae-9EB6-7464125E1EF7
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+  ENTRY_POINT                    = UhciDriverEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources.common]
+  UhciSched.c
+  UhciDebug.c
+  UsbHcMem.h
+  UhciDebug.h
+  UhciQueue.c
+  UhciReg.c
+  UsbHcMem.c
+  UhciQueue.h
+  Uhci.c
+  Uhci.h
+  UhciReg.h
+  UhciSched.h
+  ComponentName.c
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+
+[LibraryClasses]
+  MemoryAllocationLib
+  BaseLib
+  UefiLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  BaseMemoryLib
+  DebugLib
+
+
+[Protocols]
+  gEfiPciIoProtocolGuid                         # PROTOCOL ALWAYS_CONSUMED
+  gEfiUsbHcProtocolGuid                         # PROTOCOL ALWAYS_CONSUMED
+  gEfiUsb2HcProtocolGuid                        # PROTOCOL ALWAYS_CONSUMED
+
