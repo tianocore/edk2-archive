@@ -32,6 +32,7 @@ Abstract:
 #include <Ppi/FvLoadFile.h>
 #include <Ppi/RecoveryModule.h>
 #include <Ppi/MemoryDiscovered.h>
+#include <Ppi/Decompress.h>
 #include <Library/DebugLib.h>
 #include <Library/PeimEntryPoint.h>
 #include <Library/BaseLib.h>

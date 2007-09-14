@@ -94,6 +94,7 @@
   gEfiPeiFvFileLoaderPpiGuid                    # PPI SOMETIMES_PRODUCED
   gEfiDxeIplPpiGuid                             # PPI SOMETIMES_PRODUCED
   gEfiPeiPeCoffLoaderGuid                       
+  gEfiPeiDecompressPpiGuid
 
 
 [FeaturePcd.common]

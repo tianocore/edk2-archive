@@ -61,20 +61,21 @@ static EFI_PEI_SERVICES  mPS = {
   PeiFfsFindNextFile,
   PeiFfsFindSectionData,
 
-  PeiInstallPeiMemory,
+  PeiInstallPeiMemory,      
   PeiAllocatePages,
   PeiAllocatePool,
   (EFI_PEI_COPY_MEM)CopyMem,
   (EFI_PEI_SET_MEM)SetMem,
 
   PeiReportStatusCode,
-
   PeiResetSystem,
+
   NULL,
   NULL,
-  NULL,
-  NULL,
-  NULL,
+
+  PeiFfsFindFileByName,
+  PeiFfsGetFileInfo,
+  PeiFfsGetVolumeInfo,
   PeiRegisterForShadow
 };
 
@@ -117,12 +118,13 @@ Returns:
   PEI_CORE_INSTANCE                                     PrivateData;
   EFI_STATUS                                            Status;
   PEI_CORE_TEMP_POINTERS                                TempPtr;
-  PEI_CORE_DISPATCH_DATA                                *DispatchData;
   UINT64                                                mTick;
   PEI_CORE_INSTANCE                                     *OldCoreData;
 
   mTick = 0;
   OldCoreData = (PEI_CORE_INSTANCE *) Data;
+
+  //CpuDeadLoop ();
 
   if (PerformanceMeasurementEnabled()) {
     if (OldCoreData == NULL) {
@@ -145,19 +147,27 @@ Returns:
   PrivateData.Signature = PEI_CORE_HANDLE_SIGNATURE;
   PrivateData.PS = &mPS;
 
-  //
-  // Initialize libraries that the PeiCore is linked against
-  // BUGBUG: The FfsHeader is passed in as NULL.  Do we look it up or remove it from the lib init?
-  //
-  ProcessLibraryConstructorList (NULL, &PrivateData.PS);
+  SetPeiServicesTablePointer (&PrivateData.PS);
 
   InitializeMemoryServices (&PrivateData.PS, SecCoreData, OldCoreData);
 
   InitializePpiServices (&PrivateData.PS, OldCoreData);
 
-  InitializeSecurityServices (&PrivateData.PS, OldCoreData);
+  if (OldCoreData == NULL) {
+    //
+    // If SEC provided any PPI services to PEI, install them.
+    //
+    if (PpList != NULL) {
+      Status = PrivateData.PS->InstallPpi ((CONST EFI_PEI_SERVICES **) &PrivateData.PS, PpList);
+      ASSERT_EFI_ERROR (Status);
+    }
+  }
 
-  InitializeDispatcherData (&PrivateData.PS, OldCoreData, SecCoreData);
+  //
+  // Initialize libraries that the PeiCore is linked against
+  // BUGBUG: The FfsHeader is passed in as NULL.  Do we look it up or remove it from the lib init?
+  //
+  ProcessLibraryConstructorList (NULL, &PrivateData.PS);
 
   if (OldCoreData != NULL) {
 
@@ -197,7 +207,7 @@ Returns:
     //
     
     PERF_START (NULL,"DisMem", NULL, 0);
-    Status = PeiServicesInstallPpi (&mMemoryDiscoveredPpi);
+    Status = (PrivateData.PS)->InstallPpi ((CONST EFI_PEI_SERVICES **) &PrivateData.PS, &mMemoryDiscoveredPpi);
     PERF_END (NULL,"DisMem", NULL, 0);
 
   } else {
@@ -216,21 +226,21 @@ Returns:
     //
     PERF_START (NULL,"PreMem", NULL, mTick);
 
-    //
-    // If SEC provided any PPI services to PEI, install them.
-    //
-    if (PpList != NULL) {
-      Status = PeiServicesInstallPpi (PpList);
-      ASSERT_EFI_ERROR (Status);
-    }
   }
 
-  DispatchData = &PrivateData.DispatchData;
+  InitializeSecurityServices (&PrivateData.PS, OldCoreData);
+
+  InitializeDispatcherData (&PrivateData, OldCoreData, SecCoreData);
+
+  //
+  // Install Pei Load File PPI. 
+  //
+  InitializeImageServices (&PrivateData, OldCoreData);
 
   //
   // Call PEIM dispatcher
   //
-  PeiDispatcher (SecCoreData, &PrivateData, DispatchData);
+  PeiDispatcher (SecCoreData, &PrivateData);
 
   //
   // Check if InstallPeiMemory service was called.

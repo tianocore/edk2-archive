@@ -36,6 +36,17 @@ CustomDecompressExtractSection (
   OUT       UINT32                                *AuthenticationStatus
 );
 
+STATIC
+EFI_STATUS
+EFIAPI 
+Decompress (
+  IN CONST  EFI_PEI_DECOMPRESS_PPI  *This,
+  IN CONST  EFI_COMPRESSION_SECTION *InputSection,
+  OUT       VOID                    **OutputBuffer,
+  OUT       UINTN                   *OutputSize
+);
+
+
 BOOLEAN gInMemory = FALSE;
 
 //
@@ -50,20 +61,29 @@ static EFI_PEI_FV_FILE_LOADER_PPI mLoadFilePpi = {
   DxeIplLoadFile
 };
 
-static EFI_PEI_GUIDED_SECTION_EXTRACTION_PPI mCustomDecompressExtractiongPpi = {
+STATIC EFI_PEI_GUIDED_SECTION_EXTRACTION_PPI mCustomDecompressExtractiongPpi = {
   CustomDecompressExtractSection
 };
 
+STATIC EFI_PEI_DECOMPRESS_PPI mDecompressPpi = {
+  Decompress
+};
+
 static EFI_PEI_PPI_DESCRIPTOR     mPpiList[] = {
-  {
+/*  {
   EFI_PEI_PPI_DESCRIPTOR_PPI,
   &gEfiPeiFvFileLoaderPpiGuid,
   &mLoadFilePpi
+  },*/
+  {
+    EFI_PEI_PPI_DESCRIPTOR_PPI,
+    &gEfiDxeIplPpiGuid,
+    &mDxeIplPpi
   },
   {
-  (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
-  &gEfiDxeIplPpiGuid,
-  &mDxeIplPpi
+    (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
+    &gEfiPeiDecompressPpiGuid,
+    &mDecompressPpi
   }
 };
 
@@ -240,6 +260,7 @@ Returns:
   PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
   ASSERT (PeiEfiPeiPeCoffLoader != NULL);
 
+  
   //
   // Find the EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE type compressed Firmware Volume file
   // The file found will be processed by PeiProcessFile: It will first be decompressed to
@@ -680,6 +701,19 @@ Returns:
              Pe32Data
              );
   if (!EFI_ERROR (Status)) {
+    if (SectionType == EFI_SECTION_FIRMWARE_VOLUME_IMAGE) {
+      //
+      // Build new FvHob for new decompressed Fv image.
+      //
+      BuildFvHob ((EFI_PHYSICAL_ADDRESS) (UINTN) *Pe32Data,((EFI_FIRMWARE_VOLUME_HEADER *) *Pe32Data)->FvLength);
+      
+      //
+      // Set the original FvHob to unused.
+      //
+      if (OrigHob != NULL) {
+        OrigHob->Header->HobType = EFI_HOB_TYPE_UNUSED;
+      }
+    }
     return Status;
   }
   
@@ -1032,3 +1066,114 @@ CustomDecompressExtractSection (
   
   return EFI_SUCCESS;
 }
+
+STATIC
+EFI_STATUS
+EFIAPI 
+Decompress (
+  IN CONST  EFI_PEI_DECOMPRESS_PPI  *This,
+  IN CONST  EFI_COMPRESSION_SECTION *CompressionSection,
+  OUT       VOID                    **OutputBuffer,
+  OUT       UINTN                   *OutputSize
+ )
+{
+  EFI_STATUS                      Status;
+  UINT8                           *DstBuffer;
+  UINT8                           *ScratchBuffer;
+  UINTN                           DstBufferSize;
+  UINT32                          ScratchBufferSize;
+  EFI_COMMON_SECTION_HEADER       *Section;
+  UINTN                           SectionLength;
+
+  if (CompressionSection->CommonHeader.Type != EFI_SECTION_COMPRESSION) {
+    ASSERT (FALSE);
+    return EFI_INVALID_PARAMETER;
+  }
+
+  Section = (EFI_COMMON_SECTION_HEADER *) CompressionSection;
+  SectionLength         = *(UINT32 *) (Section->Size) & 0x00ffffff;
+  
+  //
+  // This is a compression set, expand it
+  //
+  switch (CompressionSection->CompressionType) {
+  case EFI_STANDARD_COMPRESSION:
+    //
+    // Load EFI standard compression.
+    // For compressed data, decompress them to dstbuffer.
+    //
+    Status = UefiDecompressGetInfo (
+               (UINT8 *) ((EFI_COMPRESSION_SECTION *) Section + 1),
+               (UINT32) SectionLength - sizeof (EFI_COMPRESSION_SECTION),
+               (UINT32 *) &DstBufferSize,
+               &ScratchBufferSize
+               );
+    if (EFI_ERROR (Status)) {
+      //
+      // GetInfo failed
+      //
+      DEBUG ((EFI_D_ERROR, "Decompress GetInfo Failed - %r\n", Status));
+      return EFI_NOT_FOUND;
+    }
+    //
+    // Allocate scratch buffer
+    //
+    ScratchBuffer = AllocatePages (EFI_SIZE_TO_PAGES (ScratchBufferSize));
+    if (ScratchBuffer == NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
+    //
+    // Allocate destination buffer
+    //
+    DstBuffer = AllocatePages (EFI_SIZE_TO_PAGES (DstBufferSize));
+    if (DstBuffer == NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
+    //
+    // Call decompress function
+    //
+    Status = UefiDecompress (
+                (CHAR8 *) ((EFI_COMPRESSION_SECTION *) Section + 1),
+                DstBuffer,
+                ScratchBuffer
+                );
+    if (EFI_ERROR (Status)) {
+      //
+      // Decompress failed
+      //
+      DEBUG ((EFI_D_ERROR, "Decompress Failed - %r\n", Status));
+      return EFI_NOT_FOUND;
+    }
+    break;
+
+  // porting note the original branch for customized compress is removed, it should be change to use GUID compress
+
+  case EFI_NOT_COMPRESSED:
+    //
+    // Allocate destination buffer
+    //
+    DstBufferSize = CompressionSection->UncompressedLength;
+    DstBuffer     = AllocatePages (EFI_SIZE_TO_PAGES (DstBufferSize));
+    if (DstBuffer == NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
+    //
+    // stream is not actually compressed, just encapsulated.  So just copy it.
+    //
+    CopyMem (DstBuffer, CompressionSection + 1, DstBufferSize);
+    break;
+
+  default:
+    //
+    // Don't support other unknown compression type.
+    //
+    ASSERT (FALSE);
+    return EFI_NOT_FOUND;
+  }
+
+  *OutputSize = DstBufferSize;
+  *OutputBuffer = DstBuffer;
+
+  return EFI_SUCCESS;
+}
+

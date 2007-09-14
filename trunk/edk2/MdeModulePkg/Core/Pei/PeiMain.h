@@ -31,9 +31,14 @@ Revision History
 #include <Ppi/MemoryDiscovered.h>
 #include <Ppi/FindFv.h>
 #include <Ppi/StatusCode.h>
-#include <Ppi/Security.h>
 #include <Ppi/Reset.h>
 #include <Ppi/FvLoadFile.h>
+#include <Ppi/FirmwareVolume.h>
+#include <Ppi/FirmwareVolumeInfo.h>
+#include <Ppi/Decompress.h>
+#include <Ppi/GuidedSectionExtraction.h>
+#include <Ppi/LoadFile.h>
+#include <Ppi/Security2.h>
 #include <Library/DebugLib.h>
 #include <Library/PeiCoreEntryPoint.h>
 #include <Library/BaseLib.h>
@@ -43,9 +48,15 @@ Revision History
 #include <Library/ReportStatusCodeLib.h>
 #include <Library/PeCoffGetEntryPointLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/CacheMaintenanceLib.h>
 #include <Library/TimerLib.h>
+#include <Library/PeCoffLoaderLib.h>
 #include <IndustryStandard/PeImage.h>
 #include <Library/PeiServicesTablePointerLib.h>
+#include <Library/MemoryAllocationLib.h>
+#include <Guid/FirmwareFileSystem2.h>
+#include <Guid/AprioriFileName.h>
+#include <Guid/PeiPeCoffLoader.h>
 
 extern EFI_GUID gEfiPeiCorePrivateGuid;
 
@@ -88,7 +99,9 @@ typedef struct {
 #define PEIM_STATE_DONE                   0x03
 
 typedef struct {
-  EFI_FIRMWARE_VOLUME_HEADER          *FvHeader;
+  EFI_FIRMWARE_VOLUME_HEADER          *FvHeader; //Will be deleted
+  EFI_PEI_FV_HANDLE                   FvHandle;
+  EFI_GUID                            *FvFormatGuid;
   UINT8                               PeimState[PEI_CORE_MAX_PEIM_PER_FV];   
   EFI_PEI_FILE_HANDLE                 FvFileHandles[PEI_CORE_MAX_PEIM_PER_FV];
   BOOLEAN                             ScanFv;
@@ -134,10 +147,12 @@ typedef struct{
   VOID                               *BottomOfCarHeap;
   VOID                               *TopOfCarHeap;
   VOID                               *CpuIo;
-  EFI_PEI_SECURITY_PPI               *PrivateSecurityPpi;
+  EFI_PEI_SECURITY2_PPI              *PrivateSecurityPpi;
   EFI_PEI_SERVICES                   ServiceTableShadow;
   UINTN                              SizeOfCacheAsRam;
   VOID                               *MaxTopOfCarHeap;
+  EFI_PEI_PPI_DESCRIPTOR             *XipLoadFile;
+  EFI_PEI_PE_COFF_LOADER_PROTOCOL    *PeCoffLoader; 
 } PEI_CORE_INSTANCE;
 
 //
@@ -207,11 +222,10 @@ Returns:
 // Dispatcher support functions
 //
 
-EFI_STATUS
+BOOLEAN
 PeimDispatchReadiness (
   IN EFI_PEI_SERVICES   **PeiServices,
-  IN VOID               *DependencyExpression,
-  IN OUT BOOLEAN        *Runnable
+  IN VOID               *DependencyExpression
   )
 /*++
 
@@ -247,11 +261,10 @@ Returns:
 ;
 
 
-EFI_STATUS
+VOID
 PeiDispatcher (
   IN CONST EFI_SEC_PEI_HAND_OFF  *SecCoreData,
-  IN PEI_CORE_INSTANCE           *PrivateData,
-  IN PEI_CORE_DISPATCH_DATA      *DispatchData
+  IN PEI_CORE_INSTANCE           *PrivateData
   )
 
 /*++
@@ -277,7 +290,7 @@ Returns:
 
 VOID
 InitializeDispatcherData (
-  IN EFI_PEI_SERVICES             **PeiServices,
+  IN PEI_CORE_INSTANCE            *PrivateData,
   IN PEI_CORE_INSTANCE            *OldCoreData,
   IN CONST EFI_SEC_PEI_HAND_OFF   *SecCoreData
   )
@@ -382,8 +395,9 @@ Returns:
 
 BOOLEAN
 DepexSatisfied (
-  IN EFI_PEI_SERVICES  **PeiServices,
-  IN  VOID             *CurrentPeimAddress
+  IN PEI_CORE_INSTANCE          *Private,
+  IN EFI_PEI_FILE_HANDLE        FileHandle,
+  IN UINTN                      PeimCount
   )
 /*++
 
@@ -747,8 +761,9 @@ Returns:
 
 EFI_STATUS
 VerifyPeim (
-  IN EFI_PEI_SERVICES     **PeiServices,
-  IN EFI_FFS_FILE_HEADER  *CurrentPeimAddress
+  IN PEI_CORE_INSTANCE      *PrivateData,
+  IN EFI_PEI_FV_HANDLE      VolumeHandle,
+  IN EFI_PEI_FILE_HANDLE    FileHandle
   )
 /*++
 
@@ -893,7 +908,7 @@ Returns:
 EFI_STATUS
 EFIAPI
 PeiFfsFindSectionData (
-  IN CONST EFI_PEI_SERVICES            **PeiServices,
+  IN CONST EFI_PEI_SERVICES      **PeiServices,
   IN EFI_SECTION_TYPE            SectionType,
   IN EFI_PEI_FILE_HANDLE         FfsFileHeader,
   IN OUT VOID                    **SectionData
@@ -1074,8 +1089,9 @@ Returns:
 EFI_STATUS
 PeiLoadImage (
   IN  EFI_PEI_SERVICES            **PeiServices,
-  IN  EFI_FFS_FILE_HEADER         *PeimFileHeader,
-  OUT VOID                        **EntryPoint
+  IN  EFI_PEI_FILE_HANDLE         FileHandle,
+  OUT    EFI_PHYSICAL_ADDRESS     *EntryPoint,
+  OUT    UINT32                   *AuthenticationState
   )
 /*++
 
@@ -1163,6 +1179,148 @@ Returns:
 --*/
 ;
 
+VOID 
+PeiInitializeFv (
+  IN  PEI_CORE_INSTANCE           *PrivateData,
+  IN CONST EFI_SEC_PEI_HAND_OFF   *SecCoreData
+  )
+/*++
+
+Routine Description:
+
+  Initialize PeiCore Fv List.
+
+Arguments:
+  PrivateData     - Pointer to PEI_CORE_INSTANCE.
+  SecCoreData     - Pointer to EFI_SEC_PEI_HAND_OFF.
+
+Returns:
+  NONE  
+  
+--*/  
+;
+
+EFI_STATUS
+EFIAPI
+FirmwareVolmeInfoPpiNotifyCallback (
+  IN EFI_PEI_SERVICES              **PeiServices,
+  IN EFI_PEI_NOTIFY_DESCRIPTOR     *NotifyDescriptor,
+  IN VOID                          *Ppi
+  )
+/*++
+
+Routine Description:
+
+  Process Firmware Volum Information once FvInfoPPI install.
+
+Arguments:
+
+  PeiServices - General purpose services available to every PEIM.
+    
+Returns:
+
+  Status -  EFI_SUCCESS if the interface could be successfully
+            installed
+
+--*/
+;
+
+
+EFI_STATUS
+EFIAPI 
+PeiFfsFindFileByName (
+  IN  CONST EFI_GUID        *FileName,
+  IN  EFI_PEI_FV_HANDLE     VolumeHandle,
+  OUT EFI_PEI_FILE_HANDLE   *FileHandle
+  )
+/*++
+
+Routine Description:
+
+  Given the input VolumeHandle, search for the next matching name file.
+
+Arguments:
+
+  FileName      - File name to search.
+  VolumeHandle  - The current FV to search.
+  FileHandle    - Pointer to the file matching name in VolumeHandle.
+                - NULL if file not found
+Returns:
+  EFI_STATUS
+  
+--*/  
+;
+
+
+EFI_STATUS
+EFIAPI 
+PeiFfsGetFileInfo (
+  IN EFI_PEI_FILE_HANDLE  FileHandle,
+  OUT EFI_FV_FILE_INFO    *FileInfo
+  )
+/*++
+
+Routine Description:
+
+  Collect information of given file.
+
+Arguments:
+  FileHandle   - The handle to file.
+  FileInfo     - Pointer to the file information.
+
+Returns:
+  EFI_STATUS
+  
+--*/    
+;
+
+EFI_STATUS
+EFIAPI 
+PeiFfsGetVolumeInfo (
+  IN EFI_PEI_FV_HANDLE  VolumeHandle,
+  OUT EFI_FV_INFO       *VolumeInfo
+  )
+/*++
+
+Routine Description:
+
+  Collect information of given Fv Volume.
+
+Arguments:
+  VolumeHandle    - The handle to Fv Volume.
+  VolumeInfo      - The pointer to volume information.
+  
+Returns:
+  EFI_STATUS
+  
+--*/    
+;
+
+
+EFI_STATUS
+EFIAPI
+PeiRegisterForShadow (
+  IN EFI_PEI_FILE_HANDLE       FileHandle
+  )
+/*++
+
+Routine Description:
+
+  This routine enable a PEIM to register itself to shadow when PEI Foundation
+  discovery permanent memory.
+
+Arguments:
+  FileHandle  - File handle of a PEIM.
+  
+Returns:
+  EFI_NOT_FOUND        - The file handle doesn't point to PEIM itself.
+  EFI_ALREADY_STARTED  - Indicate that the PEIM has been registered itself.
+  EFI_SUCCESS          - Successfully to register itself.
+
+--*/  
+;
+
+
 /**
   This routine enable a PEIM to register itself to shadow when PEI Foundation
   discovery permanent memory.
@@ -1213,5 +1371,61 @@ PeiSwitchStacks (
   IN      VOID                      *NewStack,
   IN      VOID                      *NewBsp
   );
+
+EFI_STATUS
+PeiFindFileEx (
+  IN  CONST EFI_PEI_FV_HANDLE        FvHandle,
+  IN  CONST EFI_GUID                 *FileName,   OPTIONAL
+  IN        EFI_FV_FILETYPE          SearchType,
+  IN OUT    EFI_PEI_FILE_HANDLE      *FileHandle,
+  IN OUT    EFI_PEI_FV_HANDLE        *AprioriFile  OPTIONAL
+  )
+/*++
+
+Routine Description:
+    Given the input file pointer, search for the next matching file in the
+    FFS volume as defined by SearchType. The search starts from FileHeader inside
+    the Firmware Volume defined by FwVolHeader.
+
+Arguments:
+    PeiServices - Pointer to the PEI Core Services Table.
+    SearchType - Filter to find only files of this type.
+      Type EFI_FV_FILETYPE_ALL causes no filtering to be done.
+    FwVolHeader - Pointer to the FV header of the volume to search.
+      This parameter must point to a valid FFS volume.
+    FileHeader  - Pointer to the current file from which to begin searching.
+      This pointer will be updated upon return to reflect the file found.
+    Flag        - Indicator for if this is for PEI Dispath search 
+    
+Returns:
+    EFI_NOT_FOUND - No files matching the search criteria were found
+    EFI_SUCCESS
+
+--*/
+;
+
+VOID
+InitializeImageServices (
+  IN  PEI_CORE_INSTANCE   *PrivateData,
+  IN  PEI_CORE_INSTANCE   *OldCoreData
+  )
+/*++
+
+Routine Description:
+
+  Regitser PeCoffLoader to PeiCore PrivateData. And install
+  Pei Load File PPI.
+
+Arguments:
+
+  PrivateData    - Pointer to PEI_CORE_INSTANCE.
+  OldCoreData    - Pointer to PEI_CORE_INSTANCE.
+
+Returns:
+
+  NONE.
+  
+--*/      
+;
 
 #endif
