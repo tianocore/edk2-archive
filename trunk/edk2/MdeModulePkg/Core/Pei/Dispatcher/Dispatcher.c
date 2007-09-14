@@ -23,6 +23,14 @@ Revision History
 
 #include <PeiMain.h>
 
+STATIC
+VOID
+InvokePeiCore (
+  VOID          *Context1,
+  VOID          *Context2
+  );
+
+
 VOID
 DiscoverPeimsAndOrderWithApriori (
   IN  PEI_CORE_INSTANCE    *Private,
@@ -223,6 +231,8 @@ Returns:
   UINTN                               SaveCurrentPeimCount;
   EFI_PEI_FILE_HANDLE                 SaveCurrentFileHandle;
   VOID                                *TopOfStack;
+  PEI_CORE_PARAMETERS                 PeiCoreParameters;
+
 
 #if 0
   PEI_REPORT_STATUS_CODE_CODE (
@@ -469,15 +479,18 @@ Returns:
               TopOfStack = (VOID *)((UINTN)Private->StackBase + (UINTN)Private->StackSize - CPU_STACK_ALIGNMENT);
               TopOfStack = ALIGN_POINTER (TopOfStack, CPU_STACK_ALIGNMENT);
               
+              PeiCoreParameters.SecCoreData = SecCoreData;
+              PeiCoreParameters.PpiList     = NULL;
+              PeiCoreParameters.Data        = PrivateInMem;
+              ASSERT (PeiCoreParameters.Data != 0);
+
               PeiSwitchStacks (
-                (SWITCH_STACK_ENTRY_POINT)(UINTN)PeiCoreReentryPoint,
-                (VOID *) SecCoreData,
-                NULL,
-                PrivateInMem,
+                InvokePeiCore,
+                (VOID*) (UINTN) PeiCore,
+                (VOID*) &PeiCoreParameters,  
                 TopOfStack,
                 (VOID*)(UINTN)Private->StackBase
                 );
-                
             }
 
             if ((Private->PeiMemoryInstalled) && (Private->Fv[FvCount].PeimState[PeimCount] == PEIM_STATE_REGISITER_FOR_SHADOW) &&   \
@@ -716,3 +729,41 @@ PeiRegisterForShadow (
 }
 
 
+/**
+  This routine invoke the PeiCore's entry in new stack environment.
+
+	@param Context1  	The first context parameter is entry of PeiCore
+  @param Context2  	The second context parameter is parameter structure point for PeiCore
+
+**/ 
+STATIC
+VOID
+InvokePeiCore (
+  VOID          *Context1,
+  VOID          *Context2
+  )
+{
+  PEI_CORE_ENTRY_POINT  PeiCoreEntryPoint;
+  PEI_CORE_PARAMETERS       *PeiCoreParameters;
+
+  //
+  // Running on new stack in SEC Core
+  //
+
+  PeiCoreEntryPoint = (PEI_CORE_ENTRY_POINT) (UINTN) Context1;
+  PeiCoreParameters = (PEI_CORE_PARAMETERS *)Context2;
+
+  //
+  // Call PEI Core using new stack
+  //
+  PeiCoreEntryPoint (
+    PeiCoreParameters->SecCoreData,
+    PeiCoreParameters->PpiList,
+    PeiCoreParameters->Data
+    );
+
+  //
+  // Never returns
+  //
+  ASSERT_EFI_ERROR (FALSE);
+}
