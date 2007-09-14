@@ -42,7 +42,7 @@ EDK_0000: Compatible: owner
 
 
 ==========================================================================================
-EDK_3773:  Non-Compatible: qwang12
+EDK_3773:  Non-Compatible: qwang12, klu2
 
 	  Class_PIEnable[0]:  Enable DXE Core to produce EFI_FIRMWARE_VOLUME2_PROTOCOL only.
 
