@@ -385,3 +385,29 @@ PeiServicesResetSystem (
   PeiServices = GetPeiServicesTablePointer ();
   return (*PeiServices)->ResetSystem (PeiServices);
 }
+
+EFI_STATUS
+EFIAPI
+PeiServicesRegisterForShadow (
+  IN  EFI_PEI_FILE_HANDLE FileHandle
+  )
+{
+  EFI_PEI_SERVICES **PeiServices;
+
+  PeiServices = GetPeiServicesTablePointer ();
+  return (*PeiServices)->RegisterForShadow (FileHandle);
+}
+
+EFI_STATUS
+EFIAPI
+PeiServicesFfsGetFileInfo (
+  IN CONST  EFI_PEI_FILE_HANDLE   FileHandle,
+  OUT EFI_FV_FILE_INFO            *FileInfo
+  )
+{
+  EFI_PEI_SERVICES **PeiServices;
+
+  PeiServices = GetPeiServicesTablePointer ();
+  return (*PeiServices)->FfsGetFileInfo (FileHandle, FileInfo);
+}
+
