@@ -491,7 +491,7 @@ EFI_STATUS
 typedef
 EFI_STATUS
 (EFIAPI *EFI_PEI_RESET_SYSTEM) (
-  IN EFI_PEI_SERVICES   **PeiServices
+  IN CONST EFI_PEI_SERVICES   **PeiServices
   );
 
 /**

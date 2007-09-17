@@ -293,6 +293,29 @@ PeiServicesResetSystem (
   );
 
 
+EFI_STATUS
+EFIAPI
+PeiServicesFfsFindByName (
+  IN CONST  EFI_GUID            *FileName,
+  IN CONST  EFI_PEI_FV_HANDLE   VolumeHandle,
+  OUT       EFI_PEI_FILE_HANDLE *FileHandle
+  );
+
+
+EFI_STATUS
+EFIAPI 
+PeiServicesFfsGetFileInfo (
+  IN CONST  EFI_PEI_FILE_HANDLE   FileHandle,
+  OUT EFI_FV_FILE_INFO            *FileInfo
+  );
+
+EFI_STATUS
+EFIAPI
+PeiServicesFfsGetVolumeInfo (
+  IN  EFI_PEI_FV_HANDLE       VolumeHandle,
+  OUT EFI_FV_INFO             *VolumeInfo
+  );
+
 
 EFI_STATUS
 EFIAPI
@@ -300,12 +323,5 @@ PeiServicesRegisterForShadow (
   IN  EFI_PEI_FILE_HANDLE FileHandle
   );
 
-
-EFI_STATUS
-EFIAPI
-PeiServicesFfsGetFileInfo (
-  IN CONST  EFI_PEI_FILE_HANDLE   FileHandle,
-  OUT EFI_FV_FILE_INFO            *FileInfo
-);
 
 #endif
