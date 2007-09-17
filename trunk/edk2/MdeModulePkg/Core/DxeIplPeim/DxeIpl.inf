@@ -91,7 +91,6 @@
   gEfiPeiS3ResumePpiGuid                        # PPI SOMETIMES_CONSUMED
   gEfiPeiRecoveryModulePpiGuid                  # PPI SOMETIMES_CONSUMED
   gEfiEndOfPeiSignalPpiGuid                     # PPI SOMETIMES_PRODUCED
-  gEfiPeiFvFileLoaderPpiGuid                    # PPI SOMETIMES_PRODUCED
   gEfiDxeIplPpiGuid                             # PPI SOMETIMES_PRODUCED
   gEfiPeiPeCoffLoaderGuid                       
   gEfiPeiDecompressPpiGuid

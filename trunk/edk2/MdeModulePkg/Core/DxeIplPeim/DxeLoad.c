@@ -69,12 +69,7 @@ STATIC EFI_PEI_DECOMPRESS_PPI mDecompressPpi = {
   Decompress
 };
 
-static EFI_PEI_PPI_DESCRIPTOR     mPpiList[] = {
-/*  {
-  EFI_PEI_PPI_DESCRIPTOR_PPI,
-  &gEfiPeiFvFileLoaderPpiGuid,
-  &mLoadFilePpi
-  },*/
+STATIC EFI_PEI_PPI_DESCRIPTOR     mPpiList[] = {
   {
     EFI_PEI_PPI_DESCRIPTOR_PPI,
     &gEfiDxeIplPpiGuid,

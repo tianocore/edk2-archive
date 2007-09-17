@@ -96,8 +96,6 @@
   gEfiPeiStatusCodePpiGuid                      # PPI SOMETIMES_CONSUMED
   gEfiPeiResetPpiGuid                           # PPI SOMETIMES_CONSUMED
   gEfiDxeIplPpiGuid                             # PPI ALWAYS_CONSUMED
-  gEfiPeiFvFileLoaderPpiGuid                    # PPI ALWAYS_CONSUMED
-  gEfiFindFvPpiGuid                             # PPI ALWAYS_CONSUMED
   gEfiPeiMemoryDiscoveredPpiGuid                # PPI ALWAYS_PRODUCED
   gEfiPeiDecompressPpiGuid
   gEfiPeiFirmwareVolumeInfoPpiGuid

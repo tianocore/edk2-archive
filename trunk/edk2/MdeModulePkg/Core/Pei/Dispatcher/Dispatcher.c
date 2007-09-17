@@ -232,23 +232,8 @@ Returns:
   EFI_PEI_FILE_HANDLE                 SaveCurrentFileHandle;
   VOID                                *TopOfStack;
   PEI_CORE_PARAMETERS                 PeiCoreParameters;
+  EFI_DEVICE_HANDLE_EXTENDED_DATA     ExtendedData;
 
-
-#if 0
-  PEI_REPORT_STATUS_CODE_CODE (
-    
-    EFI_DEVICE_HANDLE_EXTENDED_DATA   ExtendedData;
-    
-    ExtendedData.DataHeader.HeaderSize = (UINT16)sizeof (EFI_STATUS_CODE_DATA);
-    ExtendedData.DataHeader.Size = (UINT16)(sizeof (EFI_DEVICE_HANDLE_EXTENDED_DATA) - ExtendedData.DataHeader.HeaderSize);
-  
-    PeiCoreCopyMem (
-      &ExtendedData.DataHeader.Type, 
-      &gEfiStatusCodeSpecificDataGuid, 
-      sizeof (EFI_GUID)
-      ); 
-  )
-#endif
 
   PeiServices = &Private->PS;
   PeimEntryPoint = NULL;
@@ -351,22 +336,15 @@ Returns:
               // has been found, so invoke it.
               //
               PERF_START (0, "PEIM", NULL, 0);
-#if 0
-              PEI_REPORT_STATUS_CODE_CODE (              
-                ExtendedData.Handle = PeimFileHandle;
-              )                
-                                                        
-              PEI_REPORT_STATUS_CODE_CODE (
-                PeiReportStatusCode (
-                  PeiServices,
-                  EFI_PROGRESS_CODE,
-                  EFI_SOFTWARE_PEI_CORE | EFI_SW_PC_INIT_BEGIN,
-                  0,
-                  NULL,
-                  (EFI_STATUS_CODE_DATA *)(&ExtendedData)
-                  ); 
-              )
-#endif
+
+              ExtendedData.Handle = (EFI_HANDLE)PeimFileHandle;
+
+              REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
+                EFI_PROGRESS_CODE,
+                EFI_SOFTWARE_PEI_CORE | EFI_SW_PC_INIT_BEGIN,
+                (VOID *)(&ExtendedData),
+                sizeof (ExtendedData)
+                );
 
               Status = VerifyPeim (Private, VolumeHandle, PeimFileHandle);
               if (Status != EFI_SECURITY_VIOLATION && (AuthenticationState == 0)) {
@@ -382,19 +360,15 @@ Returns:
                 PeimEntryPoint (PeimFileHandle, PeiServices);
                 PeimDispatchOnThisPass = TRUE;
               }
-#if 0
-              PEI_REPORT_STATUS_CODE_CODE (
-                PeiReportStatusCode (
-                  PeiServices,
-                  EFI_PROGRESS_CODE,
-                  EFI_SOFTWARE_PEI_CORE | EFI_SW_PC_INIT_END,
-                  0,
-                  NULL,
-                  (EFI_STATUS_CODE_DATA *)(&ExtendedData)
-                  );
-              )
-#endif
+
+              REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
+                EFI_PROGRESS_CODE,
+                EFI_SOFTWARE_PEI_CORE | EFI_SW_PC_INIT_END,
+                (VOID *)(&ExtendedData),
+                sizeof (ExtendedData)
+                );
               PERF_END (0, "PEIM", NULL, 0);
+
             }
 
             //
@@ -464,15 +438,6 @@ Returns:
               // Switch to memory based stack and reenter PEI Core that has been
               //  shadowed to memory.
               //
-#if 0
-              SwitchCoreStacks (
-                PeiCoreReentryPoint,
-                (UINTN)SecCoreData,
-                (UINTN)NULL,
-                (UINTN)PrivateInMem,
-                (VOID*)((UINTN)Private->StackBase + (UINTN)Private->StackSize - 0x10)
-                );
-#endif
               //
               // Adjust the top of stack to be aligned at CPU_STACK_ALIGNMENT
               //

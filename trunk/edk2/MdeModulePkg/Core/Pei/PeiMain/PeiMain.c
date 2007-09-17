@@ -124,8 +124,6 @@ Returns:
   mTick = 0;
   OldCoreData = (PEI_CORE_INSTANCE *) Data;
 
-  //CpuDeadLoop ();
-
   if (PerformanceMeasurementEnabled()) {
     if (OldCoreData == NULL) {
       mTick = GetPerformanceCounter ();
@@ -147,27 +145,15 @@ Returns:
   PrivateData.Signature = PEI_CORE_HANDLE_SIGNATURE;
   PrivateData.PS = &mPS;
 
-  SetPeiServicesTablePointer (&PrivateData.PS);
-
-  InitializeMemoryServices (&PrivateData.PS, SecCoreData, OldCoreData);
-
-  InitializePpiServices (&PrivateData.PS, OldCoreData);
-
-  if (OldCoreData == NULL) {
-    //
-    // If SEC provided any PPI services to PEI, install them.
-    //
-    if (PpList != NULL) {
-      Status = PrivateData.PS->InstallPpi ((CONST EFI_PEI_SERVICES **) &PrivateData.PS, PpList);
-      ASSERT_EFI_ERROR (Status);
-    }
-  }
-
   //
   // Initialize libraries that the PeiCore is linked against
   // BUGBUG: The FfsHeader is passed in as NULL.  Do we look it up or remove it from the lib init?
   //
   ProcessLibraryConstructorList (NULL, &PrivateData.PS);
+
+  InitializeMemoryServices (&PrivateData.PS, SecCoreData, OldCoreData);
+
+  InitializePpiServices (&PrivateData.PS, OldCoreData);
 
   if (OldCoreData != NULL) {
 
@@ -207,7 +193,7 @@ Returns:
     //
     
     PERF_START (NULL,"DisMem", NULL, 0);
-    Status = (PrivateData.PS)->InstallPpi ((CONST EFI_PEI_SERVICES **) &PrivateData.PS, &mMemoryDiscoveredPpi);
+    Status = PeiServicesInstallPpi (&mMemoryDiscoveredPpi);
     PERF_END (NULL,"DisMem", NULL, 0);
 
   } else {
@@ -226,6 +212,13 @@ Returns:
     //
     PERF_START (NULL,"PreMem", NULL, mTick);
 
+    //
+    // If SEC provided any PPI services to PEI, install them.
+    //
+    if (PpList != NULL) {
+      Status = PeiServicesInstallPpi (PpList);
+      ASSERT_EFI_ERROR (Status);
+    }
   }
 
   InitializeSecurityServices (&PrivateData.PS, OldCoreData);
