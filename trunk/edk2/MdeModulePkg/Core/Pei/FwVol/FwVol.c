@@ -212,9 +212,7 @@ Returns:
   UINT64                                FvLength;
   UINT8                                 ErasePolarity;
   UINT8                                 FileState;
-  EFI_PEI_SERVICES                      **PeiServices;
 
-  PeiServices = GetPeiServicesTablePointer();
   FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *)FvHandle;
   FileHeader  = (EFI_FFS_FILE_HEADER **)FileHandle;
 

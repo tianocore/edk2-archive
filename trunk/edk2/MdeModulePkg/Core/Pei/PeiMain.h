@@ -29,10 +29,8 @@ Revision History
 #include <Guid/StatusCodeDataTypeId.h>
 #include <Ppi/DxeIpl.h>
 #include <Ppi/MemoryDiscovered.h>
-#include <Ppi/FindFv.h>
 #include <Ppi/StatusCode.h>
 #include <Ppi/Reset.h>
-#include <Ppi/FvLoadFile.h>
 #include <Ppi/FirmwareVolume.h>
 #include <Ppi/FirmwareVolumeInfo.h>
 #include <Ppi/Decompress.h>
@@ -57,8 +55,6 @@ Revision History
 #include <Guid/FirmwareFileSystem2.h>
 #include <Guid/AprioriFileName.h>
 #include <Guid/PeiPeCoffLoader.h>
-
-extern EFI_GUID gEfiPeiCorePrivateGuid;
 
 #define PEI_CORE_INTERNAL_FFS_FILE_DISPATCH_TYPE   0xff
 
@@ -99,25 +95,11 @@ typedef struct {
 #define PEIM_STATE_DONE                   0x03
 
 typedef struct {
-  EFI_FIRMWARE_VOLUME_HEADER          *FvHeader; //Will be deleted
-  EFI_PEI_FV_HANDLE                   FvHandle;
-  EFI_GUID                            *FvFormatGuid;
+  EFI_FIRMWARE_VOLUME_HEADER          *FvHeader;
   UINT8                               PeimState[PEI_CORE_MAX_PEIM_PER_FV];   
   EFI_PEI_FILE_HANDLE                 FvFileHandles[PEI_CORE_MAX_PEIM_PER_FV];
   BOOLEAN                             ScanFv;
 } PEI_CORE_FV_HANDLE;
-
-typedef struct {
-  UINT8                       CurrentPeim;
-  UINT8                       CurrentFv;
-  UINT32                      DispatchedPeimBitMap;
-  UINT32                      PreviousPeimBitMap;
-  EFI_FFS_FILE_HEADER         *CurrentPeimAddress;
-  EFI_FIRMWARE_VOLUME_HEADER  *CurrentFvAddress;
-  EFI_FIRMWARE_VOLUME_HEADER  *BootFvAddress;
-  EFI_PEI_FIND_FV_PPI         *FindFv;
-} PEI_CORE_DISPATCH_DATA;
-
 
 //
 // Pei Core private data structure instance
@@ -129,7 +111,6 @@ typedef struct{
   UINTN                              Signature;
   EFI_PEI_SERVICES                   *PS;     // Point to ServiceTableShadow
   PEI_PPI_DATABASE                   PpiData;
-  PEI_CORE_DISPATCH_DATA             DispatchData;
   UINTN                              FvCount;
   PEI_CORE_FV_HANDLE                 Fv[PEI_CORE_MAX_FV_SUPPORTED];
   EFI_PEI_FILE_HANDLE                CurrentFvFileHandles[PEI_CORE_MAX_PEIM_PER_FV];

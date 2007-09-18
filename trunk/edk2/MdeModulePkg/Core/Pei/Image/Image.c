@@ -39,7 +39,6 @@ Returns:
   EFI_SUCCESS - ReadSize bytes of data were read into Buffer from the PE/COFF file starting at FileOffset
 
 --*/  
-;
 
 EFI_STATUS
 PeiLoadImageLoadImage (
@@ -193,8 +192,9 @@ Returns:
   return EFI_SUCCESS;
 }
 
+STATIC
 EFI_STATUS
-PeiLoadFile (
+LoadAndRelocatePeCoffImage (
   IN  EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader,
   IN  VOID                                      *Pe32Data,
   OUT EFI_PHYSICAL_ADDRESS                      *ImageAddress,
@@ -229,6 +229,8 @@ Returns:
 {
   EFI_STATUS                            Status;
   PE_COFF_LOADER_IMAGE_CONTEXT          ImageContext;
+
+  ASSERT (PeiEfiPeiPeCoffLoader != NULL);
 
   ZeroMem (&ImageContext, sizeof (ImageContext));
   ImageContext.Handle = Pe32Data;
@@ -272,62 +274,6 @@ Returns:
 
   return EFI_SUCCESS;
 }
-
-EFI_STATUS
-DxeIplLoadFile (
-  IN  VOID                                      *Pe32Data,
-  OUT EFI_PHYSICAL_ADDRESS                      *ImageAddress,
-  OUT UINT64                                    *ImageSize,
-  OUT EFI_PHYSICAL_ADDRESS                      *EntryPoint
-  )
-/*++
-
-Routine Description:
-
-  Given a pointer to an FFS file containing a PE32 image, get the
-  information on the PE32 image, and then "load" it so that it
-  can be executed.
-
-Arguments:
-
-  This  - pointer to our file loader protocol
-
-  FfsHeader - pointer to the FFS file header of the FFS file that
-              contains the PE32 image we want to load
-
-  ImageAddress  - returned address where the PE32 image is loaded
-
-  ImageSize     - returned size of the loaded PE32 image
-
-  EntryPoint    - entry point to the loaded PE32 image
-
-Returns:
-
-  EFI_SUCCESS  - The FFS file was successfully loaded.
-
-  EFI_ERROR    - Unable to load the FFS file.
-
---*/
-{
-  EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader;
-  EFI_STATUS                                Status;
-
-  PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
-
-  //
-  // Load the PE image from the FFS file
-  //
-  Status = PeiLoadFile (
-            PeiEfiPeiPeCoffLoader,
-            Pe32Data,
-            ImageAddress,
-            ImageSize,
-            EntryPoint
-            );
-
-  return Status;
-}
-
 
 EFI_STATUS
 PeiLoadImageLoadImage (
@@ -377,19 +323,22 @@ Returns:
   *AuthenticationState = 0;
 
   //
-  // Try to find a PE32 section.
+  // Try to find a TE section.
   //
   Status = PeiServicesFfsFindSectionData (
-             EFI_SECTION_PE32,
+             EFI_SECTION_TE,
              FileHandle,
              &Pe32Data
              );
+  if (!EFI_ERROR (Status)) {
+     TEImageHeader = (EFI_TE_IMAGE_HEADER *)Pe32Data;
+  }
   //
   // If we didn't find a PE32 section, try to find a TE section.
   //
   if (EFI_ERROR (Status)) {
     Status = PeiServicesFfsFindSectionData (
-               EFI_SECTION_TE,
+               EFI_SECTION_PE32,
                FileHandle,
                &Pe32Data
                );
@@ -399,8 +348,6 @@ Returns:
       // If this two section does not exist, just return.
       //
       return Status;
-    } else {
-      TEImageHeader = (EFI_TE_IMAGE_HEADER *)Pe32Data;
     }
   }
   
@@ -412,7 +359,8 @@ Returns:
       //
       // If memory is installed, perform the shadow operations
       //
-      DxeIplLoadFile (
+      Status = LoadAndRelocatePeCoffImage (
+        Private->PeCoffLoader,
         Pe32Data,
         &ImageAddress,
         &ImageSize,
@@ -743,6 +691,10 @@ Returns:
   
 --*/      
 {
+  //
+  // Always update PeCoffLoader pointer as PEI core itself may get 
+  // shadowed into memory
+  //
   PrivateData->PeCoffLoader = GetPeCoffLoaderProtocol ();
   
   if (OldCoreData == NULL) {

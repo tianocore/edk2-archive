@@ -225,7 +225,6 @@ Returns:
   UINT32                              AuthenticationState;
   EFI_PHYSICAL_ADDRESS                EntryPoint;
   EFI_PEIM_ENTRY_POINT                PeimEntryPoint;
-  VOID*                               PeiCoreReentryPoint;
   BOOLEAN                             PeimNeedingDispatch;
   BOOLEAN                             PeimDispatchOnThisPass;
   UINTN                               SaveCurrentPeimCount;
@@ -425,16 +424,6 @@ Returns:
               ASSERT_EFI_ERROR (Status);
   
               //
-              // The 2nd time around we need to call PeiCore passing in a non 
-              //  NULL value to OldCoreData. We can not call the PE COFF entry
-              //  point (_EntryPoint) as it had codes a NULL into OldCoreData.
-              //  We calculate the memory (shadowed) address of PeiCore by 
-              //  figuring out the offset from _EntryPoint to PeiCore and then
-              //  adding that value to the new memory based entry point.
-              //
-              PeiCoreReentryPoint = (VOID*)(UINTN)(EntryPoint + 
-                                    (((UINT8 *)(UINTN)PeiCore) - (UINT8 *)(UINTN)_ModuleEntryPoint));
-              //
               // Switch to memory based stack and reenter PEI Core that has been
               //  shadowed to memory.
               //
@@ -548,64 +537,6 @@ Returns:
   return;
 }
 
-
-BOOLEAN
-Dispatched (
-  IN UINT8  CurrentPeim,
-  IN UINT32 DispatchedPeimBitMap
-  )
-/*++
-
-Routine Description:
-
-  This routine checks to see if a particular PEIM has been dispatched during
-  the PEI core dispatch.
-
-Arguments:
-  CurrentPeim          - The PEIM/FV in the bit array to check.
-  DispatchedPeimBitMap - Bit array, each bit corresponds to a PEIM/FV.
-
-Returns:
-  TRUE  - PEIM already dispatched
-  FALSE - Otherwise
-
---*/
-{
-  return (BOOLEAN)((DispatchedPeimBitMap & (1 << CurrentPeim)) != 0);
-}
-
-VOID
-SetDispatched (
-  IN EFI_PEI_SERVICES   **PeiServices,
-  IN UINT8              CurrentPeim,
-  OUT UINT32            *DispatchedPeimBitMap
-  )
-/*++
-
-Routine Description:
-
-  This routine sets a PEIM as having been dispatched once its entry
-  point has been invoked.
-
-Arguments:
-
-  PeiServices          - The PEI core services table.
-  CurrentPeim          - The PEIM/FV in the bit array to check.
-  DispatchedPeimBitMap - Bit array, each bit corresponds to a PEIM/FV.
-
-Returns:
-  None
-
---*/
-{
-  //
-  // Check if the total number of PEIMs exceed the bitmap.
-  // CurrentPeim is 0-based
-  //
-  ASSERT (CurrentPeim < (sizeof (*DispatchedPeimBitMap) * 8));
-  *DispatchedPeimBitMap |= (1 << CurrentPeim);
-  return;
-}
 
 BOOLEAN
 DepexSatisfied (

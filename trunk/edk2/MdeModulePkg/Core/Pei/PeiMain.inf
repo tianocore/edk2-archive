@@ -86,7 +86,6 @@
   PeCoffLib
 
 [Guids]
-  gEfiPeiCorePrivateGuid                        # PRIVATE
   gPeiAprioriFileNameGuid
   gEfiFirmwareFileSystem2Guid
 
