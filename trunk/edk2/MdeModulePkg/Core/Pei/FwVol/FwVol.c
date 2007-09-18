@@ -1,6 +1,6 @@
 /*++
 
-Copyright (c) 2006, Intel Corporation                                                         
+Copyright (c) 2006 - 2007, Intel Corporation                                                         
 All rights reserved. This program and the accompanying materials                          
 are licensed and made available under the terms and conditions of the BSD License         
 which accompanies this distribution.  The full text of the license may be found at        
@@ -22,30 +22,12 @@ Abstract:
 #include <PeiMain.h>
 #include "PiFwVol.h"
 
-/** R9 PI Enabling Override Start **/
-STATIC EFI_PEI_FIRMWARE_VOLUME_PPI mPiFirmwareVolumePpi = {
-  PiFvProcessFv,
-  PiFvFindFileByType,
-  PiFvFindFileByName,
-  PiFvGetFileInfo,
-  PiFvGetVolumeInfo,
-  PiFvFindSectionByType
-};
-
 STATIC EFI_PEI_NOTIFY_DESCRIPTOR mNotifyOnFvInfoList = {
   (EFI_PEI_PPI_DESCRIPTOR_NOTIFY_CALLBACK | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
   &gEfiPeiFirmwareVolumeInfoPpiGuid,
   FirmwareVolmeInfoPpiNotifyCallback 
 };
 
-STATIC EFI_PEI_PPI_DESCRIPTOR mPiFvPpiList = {
-  (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
-  &gEfiFirmwareFileSystem2Guid,
-  &mPiFirmwareVolumePpi
-};
-
-
-/** R9 PI Enabling Override End**/
 
 #define GET_OCCUPIED_SIZE(ActualSize, Alignment) \
   (ActualSize) + (((Alignment) - ((ActualSize) & ((Alignment) - 1))) & ((Alignment) - 1))
@@ -832,93 +814,5 @@ Returns:
     CopyMem (&VolumeInfo->FvName, &FwVolExHeaderInfo->FvName, sizeof(EFI_GUID));
   }
   return EFI_SUCCESS;
-}
-
-
-VOID
-InstallPiFvVolPpi (
-  VOID
-  )
-{
-  PeiServicesInstallPpi (&mPiFvPpiList);
-}
-
-
-EFI_STATUS
-EFIAPI 
-PiFvProcessFv (
-  IN CONST  EFI_PEI_FIRMWARE_VOLUME_PPI *This,
-  IN CONST  VOID                        *Buffer,
-  IN CONST  UINTN                       BufferSize,
-  OUT       EFI_PEI_FV_HANDLE           *FvHandle
-  )
-{
-  //
-  // TODO: Add in ASSERT to verify that FV HEADER is correct.
-  //
-  *FvHandle = (EFI_PEI_FV_HANDLE) (Buffer);
-
-  return EFI_SUCCESS;
-}
-
-
-EFI_STATUS
-EFIAPI
-PiFvFindFileByType ( 
-  IN CONST  EFI_PEI_FIRMWARE_VOLUME_PPI   *This, 
-  IN CONST  EFI_FV_FILETYPE               SearchType, 
-  IN CONST  EFI_PEI_FV_HANDLE             FvHandle,
-  IN OUT EFI_PEI_FILE_HANDLE              *FileHandle 
-)
-{
-  return EFI_UNSUPPORTED;
-}
-
-
-EFI_STATUS
-EFIAPI 
-PiFvFindFileByName (
-  IN CONST  EFI_PEI_FIRMWARE_VOLUME_PPI *This,
-  IN CONST  EFI_GUID                    *FileName,
-  IN CONST  EFI_PEI_FV_HANDLE           FvHandle,
-  OUT       EFI_PEI_FILE_HANDLE         *FileHandle
-  )
-{
-  return EFI_UNSUPPORTED;  
-}
-
-
-EFI_STATUS
-EFIAPI 
-PiFvGetFileInfo (
-  IN  CONST EFI_PEI_FIRMWARE_VOLUME_PPI   *This, 
-  IN  CONST EFI_PEI_FILE_HANDLE           FileHandle, 
-  OUT       EFI_FV_FILE_INFO              *FileInfo
-)
-{
-  return EFI_UNSUPPORTED;  
-}
-
-EFI_STATUS
-EFIAPI 
-PiFvGetVolumeInfo (
-  IN CONST  EFI_PEI_FIRMWARE_VOLUME_PPI   *This, 
-  IN CONST  EFI_PEI_FV_HANDLE             FvHandle, 
-  OUT       EFI_FV_INFO                   *VolumeInfo
-)
-{
-  return EFI_UNSUPPORTED;  
-}
-
-EFI_STATUS
-EFIAPI
-PiFvFindSectionByType (
-  IN CONST  EFI_PEI_FIRMWARE_VOLUME_PPI   *This,
-  IN CONST  EFI_SECTION_TYPE              SearchType,
-  IN CONST  EFI_PEI_FILE_HANDLE           FileHandle,
-  OUT       VOID                          **SectionData
- )
-{
-  return EFI_UNSUPPORTED;  
 }
 
