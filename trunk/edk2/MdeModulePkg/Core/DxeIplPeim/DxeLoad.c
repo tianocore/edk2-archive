@@ -690,6 +690,8 @@ Returns:
   EFI_COMPRESSION_SECTION         *CompressionSection;
   EFI_PEI_GUIDED_SECTION_EXTRACTION_PPI  *SectionExtract;
   UINT32                          AuthenticationStatus;
+  VOID                            *PageAlignedBuffer;
+  EFI_FIRMWARE_VOLUME_HEADER      Header;
 
   //
   // First try to find the required section in this ffs file.
@@ -701,6 +703,17 @@ Returns:
              );
   if (!EFI_ERROR (Status)) {
     if (SectionType == EFI_SECTION_FIRMWARE_VOLUME_IMAGE) {
+      //
+      // A temperay solution to copy the FV containing FV to a buffer allocated from page to garantee alignment
+      // requirement
+      //
+
+      CopyMem (&Header, *Pe32Data, sizeof (Header));
+      PageAlignedBuffer = AllocatePages ((UINTN) (EFI_SIZE_TO_PAGES ((Header.FvLength))));
+      CopyMem (PageAlignedBuffer, *Pe32Data, (UINTN) (Header.FvLength));
+
+      *Pe32Data = PageAlignedBuffer;
+      
       //
       // Build new FvHob for new decompressed Fv image.
       //
