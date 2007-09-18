@@ -122,7 +122,6 @@ Returns:
   UINT32                                    DecompressMethodNumber;
   EFI_PEI_PPI_DESCRIPTOR                    *GuidPpi;
   
-  _asm int 3
   Status = PeiServicesGetBootMode (&BootMode);
   ASSERT_EFI_ERROR (Status);
 
