@@ -69,7 +69,12 @@ STATIC EFI_PEI_DECOMPRESS_PPI mDecompressPpi = {
   Decompress
 };
 
-STATIC EFI_PEI_PPI_DESCRIPTOR     mPpiList[] = {
+static EFI_PEI_PPI_DESCRIPTOR     mPpiList[] = {
+/*  {
+  EFI_PEI_PPI_DESCRIPTOR_PPI,
+  &gEfiPeiFvFileLoaderPpiGuid,
+  &mLoadFilePpi
+  },*/
   {
     EFI_PEI_PPI_DESCRIPTOR_PPI,
     &gEfiDxeIplPpiGuid,
@@ -112,62 +117,62 @@ Returns:
 --*/
 {
   EFI_STATUS                                Status;
-  EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader;
   EFI_BOOT_MODE                             BootMode;
   EFI_GUID                                  **DecompressGuidList;
   UINT32                                    DecompressMethodNumber;
   EFI_PEI_PPI_DESCRIPTOR                    *GuidPpi;
   
+  _asm int 3
   Status = PeiServicesGetBootMode (&BootMode);
   ASSERT_EFI_ERROR (Status);
 
-  if (!gInMemory && (BootMode != BOOT_ON_S3_RESUME)) {   
-    //
-    // The DxeIpl has not yet been shadowed
-    //
-    PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
-
-    //
-    // Shadow DxeIpl and then re-run its entry point
-    //
-    Status = ShadowDxeIpl (FfsHeader, PeiEfiPeiPeCoffLoader);
-  } else {
-    //
-    // Get custom decompress method guid list 
-    //
-    DecompressGuidList     = NULL;
-    DecompressMethodNumber = 0;
-    Status = CustomDecompressGetAlgorithms (DecompressGuidList, &DecompressMethodNumber);
-    if (Status == EFI_OUT_OF_RESOURCES) {
+  if (BootMode != BOOT_ON_S3_RESUME) {
+    Status = PeiServicesRegisterForShadow (FfsHeader);
+    if (Status == EFI_SUCCESS) {
+      //
+      // EFI_SUCESS means the first time call register for shadow 
+      // 
+      return Status;
+    } else if (Status == EFI_ALREADY_STARTED) {
+      //
+      // Get custom decompress method guid list 
+      //
+      DecompressGuidList     = NULL;
+      DecompressMethodNumber = 0;
+      Status = CustomDecompressGetAlgorithms (DecompressGuidList, &DecompressMethodNumber);
+      if (Status == EFI_OUT_OF_RESOURCES) {
       DecompressGuidList = (EFI_GUID **) AllocatePages (EFI_SIZE_TO_PAGES (DecompressMethodNumber * sizeof (EFI_GUID *)));
       ASSERT (DecompressGuidList != NULL);
       Status = CustomDecompressGetAlgorithms (DecompressGuidList, &DecompressMethodNumber);
-    }
-    ASSERT_EFI_ERROR(Status);
-
-    //
-    // Install custom decompress extraction guid ppi
-    //
-    if (DecompressMethodNumber > 0) {
-      GuidPpi = NULL;
-      GuidPpi = (EFI_PEI_PPI_DESCRIPTOR *) AllocatePages (EFI_SIZE_TO_PAGES (DecompressMethodNumber * sizeof (EFI_PEI_PPI_DESCRIPTOR)));
-      ASSERT (GuidPpi != NULL);
-      while (DecompressMethodNumber-- > 0) {
-        GuidPpi->Flags = EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST;
-        GuidPpi->Ppi   = &mCustomDecompressExtractiongPpi;
-        GuidPpi->Guid  = DecompressGuidList [DecompressMethodNumber];
-        Status = PeiServicesInstallPpi (GuidPpi++);
-        ASSERT_EFI_ERROR(Status);
       }
+      ASSERT_EFI_ERROR(Status);
+      
+      //
+      // Install custom decompress extraction guid ppi
+      //
+      if (DecompressMethodNumber > 0) {
+      	GuidPpi = NULL;
+      	GuidPpi = (EFI_PEI_PPI_DESCRIPTOR *) AllocatePages (EFI_SIZE_TO_PAGES (DecompressMethodNumber * sizeof (EFI_PEI_PPI_DESCRIPTOR)));
+      	ASSERT (GuidPpi != NULL);
+      	while (DecompressMethodNumber-- > 0) {
+      	  GuidPpi->Flags = EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST;
+      	  GuidPpi->Ppi   = &mCustomDecompressExtractiongPpi;
+      	  GuidPpi->Guid  = DecompressGuidList [DecompressMethodNumber];
+      	  Status = PeiServicesInstallPpi (GuidPpi++);
+      	  ASSERT_EFI_ERROR(Status);
+      	}
+      }
+    } else {
+      ASSERT_EFI_ERROR (FALSE);
     }
-    
-    //
-    // Install FvFileLoader and DxeIpl PPIs.
-    //
-    Status = PeiServicesInstallPpi (mPpiList);
-    ASSERT_EFI_ERROR(Status);
   }
   
+  //
+  // Install FvFileLoader and DxeIpl PPIs.
+  //
+  Status = PeiServicesInstallPpi (mPpiList);
+  ASSERT_EFI_ERROR(Status);  
+	
   return Status;
 }
 
