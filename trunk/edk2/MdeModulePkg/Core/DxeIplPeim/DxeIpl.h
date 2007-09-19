@@ -68,14 +68,21 @@ PeiFindFile (
 
 EFI_STATUS
 PeiLoadFile (
-  IN  EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader,
-  IN  VOID                                      *Pe32Data,
+  IN  EFI_PEI_FILE_HANDLE                       FileHandle,
   OUT EFI_PHYSICAL_ADDRESS                      *ImageAddress,
   OUT UINT64                                    *ImageSize,
   OUT EFI_PHYSICAL_ADDRESS                      *EntryPoint
   )
 ;
 
+EFI_STATUS
+DxeIplFindFirmwareVolumeInstance (
+  IN OUT UINTN              *Instance,
+  IN  EFI_FV_FILETYPE       SeachType,
+  OUT EFI_PEI_FV_HANDLE     *VolumeHandle,
+  OUT EFI_PEI_FILE_HANDLE   *FileHandle
+  )
+;
 
 EFI_STATUS
 GetImageReadFunction (

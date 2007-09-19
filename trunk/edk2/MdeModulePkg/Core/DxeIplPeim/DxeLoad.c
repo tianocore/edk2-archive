@@ -57,9 +57,9 @@ static EFI_DXE_IPL_PPI mDxeIplPpi = {
   DxeLoadCore
 };
 
-static EFI_PEI_FV_FILE_LOADER_PPI mLoadFilePpi = {
-  DxeIplLoadFile
-};
+//static EFI_PEI_FV_FILE_LOADER_PPI mLoadFilePpi = {
+//  DxeIplLoadFile
+//};
 
 STATIC EFI_PEI_GUIDED_SECTION_EXTRACTION_PPI mCustomDecompressExtractiongPpi = {
   CustomDecompressExtractSection
@@ -128,11 +128,15 @@ Returns:
   if (BootMode != BOOT_ON_S3_RESUME) {
     Status = PeiServicesRegisterForShadow (FfsHeader);
     if (Status == EFI_SUCCESS) {
+
+      gInMemory = TRUE;
       //
       // EFI_SUCESS means the first time call register for shadow 
       // 
       return Status;
     } else if (Status == EFI_ALREADY_STARTED) {
+
+
       //
       // Get custom decompress method guid list 
       //
@@ -202,9 +206,9 @@ Returns:
 {
   EFI_STATUS                                Status;
   EFI_GUID                                  DxeCoreFileName;
-  EFI_GUID                                  FirmwareFileName;
-  VOID                                      *Pe32Data;
-  VOID                                      *FvImageData;     
+//  EFI_GUID                                  FirmwareFileName;
+  //VOID                                      *Pe32Data;
+//  VOID                                      *FvImageData;     
   EFI_PHYSICAL_ADDRESS                      DxeCoreAddress;
   UINT64                                    DxeCoreSize;
   EFI_PHYSICAL_ADDRESS                      DxeCoreEntryPoint;
@@ -212,6 +216,10 @@ Returns:
   EFI_BOOT_MODE                             BootMode;
   EFI_PEI_RECOVERY_MODULE_PPI               *PeiRecovery;
   EFI_PEI_S3_RESUME_PPI                     *S3Resume;
+  EFI_PEI_FV_HANDLE                         VolumeHandle;
+  EFI_PEI_FILE_HANDLE                       FileHandle;
+  UINTN                                     Instance;
+
 
 //  PERF_START (PeiServices, L"DxeIpl", NULL, 0);
 
@@ -259,40 +267,25 @@ Returns:
   PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
   ASSERT (PeiEfiPeiPeCoffLoader != NULL);
 
-  
   //
-  // Find the EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE type compressed Firmware Volume file
-  // The file found will be processed by PeiProcessFile: It will first be decompressed to
-  // a normal FV, then a corresponding FV type hob will be built. 
+  // Look in all the FVs present in PEI and find the DXE Core
   //
-  Status = PeiFindFile (
-             EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE,
-             EFI_SECTION_FIRMWARE_VOLUME_IMAGE,
-             &FirmwareFileName,
-             &FvImageData
-             );
-
-  //
-  // Find the DXE Core in a Firmware Volume
-  //
-  Status = PeiFindFile (
-            EFI_FV_FILETYPE_DXE_CORE,
-            EFI_SECTION_PE32,
-            &DxeCoreFileName,
-            &Pe32Data
-            );
+  Instance = 0;
+  Status = DxeIplFindFirmwareVolumeInstance (&Instance, EFI_FV_FILETYPE_DXE_CORE, &VolumeHandle, &FileHandle);
   ASSERT_EFI_ERROR (Status);
+
+  CopyMem(&DxeCoreFileName, &(((EFI_FFS_FILE_HEADER*)FileHandle)->Name), sizeof (EFI_GUID));
 
   //
   // Load the DXE Core from a Firmware Volume
   //
   Status = PeiLoadFile (
-             PeiEfiPeiPeCoffLoader,
-             Pe32Data,
-             &DxeCoreAddress,
-             &DxeCoreSize,
-             &DxeCoreEntryPoint
-             );
+            FileHandle,
+            &DxeCoreAddress,
+            &DxeCoreSize,
+            &DxeCoreEntryPoint
+            );
+
   ASSERT_EFI_ERROR (Status);
 
   //
@@ -338,92 +331,54 @@ Returns:
   return EFI_OUT_OF_RESOURCES;
 }
 
+
 EFI_STATUS
-PeiFindFile (
-  IN  UINT8                  Type,
-  IN  EFI_SECTION_TYPE       SectionType,
-  OUT EFI_GUID               *FileName,
-  OUT VOID                   **Pe32Data
+DxeIplFindFirmwareVolumeInstance (
+  IN OUT UINTN              *Instance,
+  IN  EFI_FV_FILETYPE       SeachType,
+  OUT EFI_PEI_FV_HANDLE     *VolumeHandle,
+  OUT EFI_PEI_FILE_HANDLE   *FileHandle
   )
 /*++
 
 Routine Description:
 
-  Finds a PE/COFF of a specific Type and SectionType in the Firmware Volumes
-  described in the HOB list. Able to search in a compression set in a FFS file.
-  But only one level of compression is supported, that is, not able to search
-  in a compression set that is within another compression set.
+  Find the First Volume that contains the first FileType.
 
 Arguments:
 
-  Type        - The Type of file to retrieve
-
-  SectionType - The type of section to retrieve from a file
-
-  FileName    - The name of the file found in the Firmware Volume
-
-  Pe32Data    - Pointer to the beginning of the PE/COFF file found in the Firmware Volume
+  Instance     - The Fv instance.
+  SeachType    - The type of file to search.
+  VolumeHandle - Pointer to Fv which contains the file to search. 
+  FileHandle   - Pointer to FFS file to search.
 
 Returns:
 
-  EFI_SUCCESS   - The file was found, and the name is returned in FileName, and a pointer to
-                  the PE/COFF image is returned in Pe32Data
+  EFI_STATUS
 
-  EFI_NOT_FOUND - The file was not found in the Firmware Volumes present in the HOB List
-
---*/
+--*/  
 {
-  EFI_FIRMWARE_VOLUME_HEADER  *FwVolHeader;
-  EFI_FFS_FILE_HEADER         *FfsFileHeader;
-  EFI_STATUS                  Status;
-  EFI_PEI_HOB_POINTERS        Hob;
+  EFI_STATUS  Status;
+  EFI_STATUS  VolumeStatus;
 
-
-  FwVolHeader   = NULL;
-  FfsFileHeader = NULL;
-  Status        = EFI_SUCCESS;
-
-  //
-  // For each Firmware Volume, look for a specified type
-  // of file and break out until no one is found 
-  //
-  Hob.Raw = GetHobList ();
-  while ((Hob.Raw = GetNextHob (EFI_HOB_TYPE_FV, Hob.Raw)) != NULL) {
-    FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) (Hob.FirmwareVolume->BaseAddress);
-    //
-    // Make sure the FV HOB does not get corrupted.
-    //
-    ASSERT (FwVolHeader->Signature == EFI_FVH_SIGNATURE);
-
-    Status = PeiServicesFfsFindNextFile (
-               Type,
-               (EFI_PEI_FV_HANDLE)    FwVolHeader,
-               (EFI_PEI_FILE_HANDLE*) &FfsFileHeader
-               );
-    if (!EFI_ERROR (Status)) {
-      Status = PeiProcessFile (
-                 SectionType,
-                 FfsFileHeader,
-                 Pe32Data,
-                 &Hob
-                 );
-      CopyMem (FileName, &FfsFileHeader->Name, sizeof (EFI_GUID));
-      //
-      // Find all Fv type ffs to get all FvImage and add them into FvHob
-      //
-      if (!EFI_ERROR (Status) && (Type != EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE)) {
-        return EFI_SUCCESS;
+  do {
+    VolumeStatus = PeiServicesFfsFindNextVolume (*Instance, VolumeHandle);
+    if (!EFI_ERROR (VolumeStatus)) {
+      *FileHandle = NULL;
+      Status = PeiServicesFfsFindNextFile (SeachType, *VolumeHandle, FileHandle);
+      if (!EFI_ERROR (Status)) {
+        return Status;
       }
     }
-    Hob.Raw = GET_NEXT_HOB (Hob);
-  }
-  return EFI_NOT_FOUND;
+    *Instance += 1;
+  } while (!EFI_ERROR (VolumeStatus));
+
+  return VolumeStatus;
 }
 
 EFI_STATUS
 PeiLoadFile (
-  IN  EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader,
-  IN  VOID                                      *Pe32Data,
+  IN  EFI_PEI_FILE_HANDLE                       FileHandle,
   OUT EFI_PHYSICAL_ADDRESS                      *ImageAddress,
   OUT UINT64                                    *ImageSize,
   OUT EFI_PHYSICAL_ADDRESS                      *EntryPoint
@@ -454,8 +409,36 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                            Status;
-  PE_COFF_LOADER_IMAGE_CONTEXT          ImageContext;
+
+  EFI_STATUS                        Status;
+  PE_COFF_LOADER_IMAGE_CONTEXT      ImageContext;
+  VOID                              *Pe32Data;
+  EFI_PEI_PE_COFF_LOADER_PROTOCOL   *PeiEfiPeiPeCoffLoader;
+
+  PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
+  //
+  // First try to find the required section in this ffs file.
+  //
+  Status = PeiServicesFfsFindSectionData (
+             EFI_SECTION_PE32,
+             FileHandle,
+             &Pe32Data
+             );
+
+  if (EFI_ERROR (Status)) {
+    Status = PeiServicesFfsFindSectionData (
+               EFI_SECTION_TE,
+               FileHandle,
+               &Pe32Data
+               );
+  }
+  
+  if (EFI_ERROR (Status)) {
+    //
+    // NO image types we support so exit.
+    //
+    return Status;
+  }
 
   ZeroMem (&ImageContext, sizeof (ImageContext));
   ImageContext.Handle = Pe32Data;
@@ -498,456 +481,6 @@ Returns:
   *EntryPoint   = ImageContext.EntryPoint;
 
   return EFI_SUCCESS;
-}
-
-EFI_STATUS
-ShadowDxeIpl (
-  IN EFI_FFS_FILE_HEADER                       *DxeIplFileHeader,
-  IN EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader
-  )
-/*++
-
-Routine Description:
-
-  Shadow the DXE IPL to a different memory location. This occurs after permanent
-  memory has been discovered.
-
-Arguments:
-
-  DxeIplFileHeader      - Pointer to the FFS file header of the DXE IPL driver
-
-  PeiEfiPeiPeCoffLoader - Pointer to a PE COFF loader protocol
-
-Returns:
-
-  EFI_SUCCESS   - DXE IPL was successfully shadowed to a different memory location.
-
-  EFI_ ERROR    - The shadow was unsuccessful.
-
-
---*/
-{
-  UINTN                     SectionLength;
-  UINTN                     OccupiedSectionLength;
-  EFI_PHYSICAL_ADDRESS      DxeIplAddress;
-  UINT64                    DxeIplSize;
-  EFI_PHYSICAL_ADDRESS      DxeIplEntryPoint;
-  EFI_STATUS                Status;
-  EFI_COMMON_SECTION_HEADER *Section;
-
-  Section = (EFI_COMMON_SECTION_HEADER *) (DxeIplFileHeader + 1);
-
-  while ((Section->Type != EFI_SECTION_PE32) && (Section->Type != EFI_SECTION_TE)) {
-    SectionLength         = *(UINT32 *) (Section->Size) & 0x00ffffff;
-    OccupiedSectionLength = GET_OCCUPIED_SIZE (SectionLength, 4);
-    Section               = (EFI_COMMON_SECTION_HEADER *) ((UINT8 *) Section + OccupiedSectionLength);
-  }
-  //
-  // Relocate DxeIpl into memory by using loadfile service
-  //
-  Status = PeiLoadFile (
-            PeiEfiPeiPeCoffLoader,
-            (VOID *) (Section + 1),
-            &DxeIplAddress,
-            &DxeIplSize,
-            &DxeIplEntryPoint
-            );
-
-  if (Status == EFI_SUCCESS) {
-    //
-    // Set gInMemory global variable to TRUE to indicate the dxeipl is shadowed.
-    //
-    *(BOOLEAN *) ((UINTN) &gInMemory + (UINTN) DxeIplEntryPoint - (UINTN) _ModuleEntryPoint) = TRUE;
-    Status = ((EFI_PEIM_ENTRY_POINT2) (UINTN) DxeIplEntryPoint) ((EFI_PEI_FILE_HANDLE *) DxeIplFileHeader, GetPeiServicesTablePointer());
-  }
-
-  return Status;
-}
-
-EFI_STATUS
-EFIAPI
-DxeIplLoadFile (
-  IN EFI_PEI_FV_FILE_LOADER_PPI                 *This,
-  IN  EFI_FFS_FILE_HEADER                       *FfsHeader,
-  OUT EFI_PHYSICAL_ADDRESS                      *ImageAddress,
-  OUT UINT64                                    *ImageSize,
-  OUT EFI_PHYSICAL_ADDRESS                      *EntryPoint
-  )
-/*++
-
-Routine Description:
-
-  Given a pointer to an FFS file containing a PE32 image, get the
-  information on the PE32 image, and then "load" it so that it
-  can be executed.
-
-Arguments:
-
-  This  - pointer to our file loader protocol
-
-  FfsHeader - pointer to the FFS file header of the FFS file that
-              contains the PE32 image we want to load
-
-  ImageAddress  - returned address where the PE32 image is loaded
-
-  ImageSize     - returned size of the loaded PE32 image
-
-  EntryPoint    - entry point to the loaded PE32 image
-
-Returns:
-
-  EFI_SUCCESS  - The FFS file was successfully loaded.
-
-  EFI_ERROR    - Unable to load the FFS file.
-
---*/
-{
-  EFI_PEI_PE_COFF_LOADER_PROTOCOL           *PeiEfiPeiPeCoffLoader;
-  EFI_STATUS                                Status;
-  VOID                                      *Pe32Data;
-
-  Pe32Data = NULL;
-  PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
-
-  //
-  // Preprocess the FFS file to get a pointer to the PE32 information
-  // in the enclosed PE32 image.
-  //
- Status = PeiProcessFile (
-            EFI_SECTION_TE,
-            FfsHeader,
-            &Pe32Data,
-            NULL
-            );
-  if (EFI_ERROR (Status)) {
-    Status = PeiProcessFile (
-              EFI_SECTION_PE32,
-              FfsHeader,
-              &Pe32Data,
-              NULL
-              );
-    
-    if (EFI_ERROR (Status)) {
-      return Status;
-    }
-  }
-  //
-  // Load the PE image from the FFS file
-  //
-  Status = PeiLoadFile (
-            PeiEfiPeiPeCoffLoader,
-            Pe32Data,
-            ImageAddress,
-            ImageSize,
-            EntryPoint
-            );
-
-  return Status;
-}
-
-EFI_STATUS
-PeiProcessFile (
-  IN      EFI_SECTION_TYPE       SectionType,
-  IN      EFI_FFS_FILE_HEADER    *FfsFileHeader,
-  OUT     VOID                   **Pe32Data,
-  IN      EFI_PEI_HOB_POINTERS   *OrigHob
-  )
-/*++
-
-Routine Description:
-
-Arguments:
-
-  SectionType       - The type of section in the FFS file to process.
-
-  FfsFileHeader     - Pointer to the FFS file to process, looking for the
-                      specified SectionType
-
-  Pe32Data          - returned pointer to the start of the PE32 image found
-                      in the FFS file.
-
-Returns:
-
-  EFI_SUCCESS       - found the PE32 section in the FFS file
-
---*/
-{
-  EFI_STATUS                      Status;
-  UINT8                           *DstBuffer;
-  UINT8                           *ScratchBuffer;
-  UINTN                           DstBufferSize;
-  UINT32                          ScratchBufferSize;
-  EFI_COMMON_SECTION_HEADER       *CmpSection;
-  UINTN                           CmpSectionLength;
-  UINTN                           OccupiedCmpSectionLength;
-  VOID                            *CmpFileData;
-  UINTN                           CmpFileSize;
-  EFI_COMMON_SECTION_HEADER       *Section;
-  UINTN                           SectionLength;
-  UINTN                           OccupiedSectionLength;
-  UINTN                           FileSize;
-  EFI_FIRMWARE_VOLUME_HEADER      *FvHeader;
-  EFI_COMPRESSION_SECTION         *CompressionSection;
-  EFI_PEI_GUIDED_SECTION_EXTRACTION_PPI  *SectionExtract;
-  UINT32                          AuthenticationStatus;
-  VOID                            *PageAlignedBuffer;
-  EFI_FIRMWARE_VOLUME_HEADER      Header;
-
-  //
-  // First try to find the required section in this ffs file.
-  //
-  Status = PeiServicesFfsFindSectionData (
-             SectionType,
-             FfsFileHeader,
-             Pe32Data
-             );
-  if (!EFI_ERROR (Status)) {
-    if (SectionType == EFI_SECTION_FIRMWARE_VOLUME_IMAGE) {
-      //
-      // A temperay solution to copy the FV containing FV to a buffer allocated from page to garantee alignment
-      // requirement
-      //
-
-      CopyMem (&Header, *Pe32Data, sizeof (Header));
-      PageAlignedBuffer = AllocatePages ((UINTN) (EFI_SIZE_TO_PAGES ((Header.FvLength))));
-      CopyMem (PageAlignedBuffer, *Pe32Data, (UINTN) (Header.FvLength));
-
-      *Pe32Data = PageAlignedBuffer;
-      
-      //
-      // Build new FvHob for new decompressed Fv image.
-      //
-      BuildFvHob ((EFI_PHYSICAL_ADDRESS) (UINTN) *Pe32Data,((EFI_FIRMWARE_VOLUME_HEADER *) *Pe32Data)->FvLength);
-      
-      //
-      // Set the original FvHob to unused.
-      //
-      if (OrigHob != NULL) {
-        OrigHob->Header->HobType = EFI_HOB_TYPE_UNUSED;
-      }
-    }
-    return Status;
-  }
-  
-  //
-  // If not found, the required section may be in guided or compressed section.
-  // So, search guided or compressed section to process
-  //
-  Section   = (EFI_COMMON_SECTION_HEADER *) (UINTN) (VOID *) ((UINT8 *) (FfsFileHeader) + (UINTN) sizeof (EFI_FFS_FILE_HEADER));
-  FileSize  = FfsFileHeader->Size[0] & 0xFF;
-  FileSize += (FfsFileHeader->Size[1] << 8) & 0xFF00;
-  FileSize += (FfsFileHeader->Size[2] << 16) & 0xFF0000;
-  FileSize &= 0x00FFFFFF;
-  OccupiedSectionLength = 0;
-
-  do {
-    //
-    // Initialize local variables.
-    //
-    DstBuffer         = NULL;
-    DstBufferSize     = 0; 
-
-    Section               = (EFI_COMMON_SECTION_HEADER *) ((UINT8 *) Section + OccupiedSectionLength);
-    SectionLength         = *(UINT32 *) (Section->Size) & 0x00ffffff;
-    OccupiedSectionLength = GET_OCCUPIED_SIZE (SectionLength, 4);
-
-    //
-    // Was the DXE Core file encapsulated in a GUID'd section?
-    //
-    if (Section->Type == EFI_SECTION_GUID_DEFINED) {
-      //
-      // Set a default authenticatino state
-      //
-      AuthenticationStatus = 0;
-      //
-      // Locate extract guid section ppi
-      //
-      Status = PeiServicesLocatePpi (
-                 (EFI_GUID *) (Section + 1),
-                 0,
-                 NULL,
-                 (VOID **)&SectionExtract
-                 );
-
-      if (EFI_ERROR (Status)) {
-        //
-        // ignore the unknown guid section
-        //
-        continue;
-      }
-      //
-      // Extract the contents from guid section
-      //
-      Status = SectionExtract->ExtractSection (
-                                SectionExtract,
-                                (VOID *) Section,
-                                (VOID **) &DstBuffer,
-                                &DstBufferSize,
-                                &AuthenticationStatus
-                                );
-
-      if (EFI_ERROR (Status)) {
-        DEBUG ((EFI_D_ERROR, "Extract section content failed - %r\n", Status));
-        return Status;
-      }
-      
-      //
-      // Todo check AuthenticationStatus and do the verify
-      //
-    } else if (Section->Type == EFI_SECTION_COMPRESSION) {
-      //
-      // This is a compression set, expand it
-      //
-      CompressionSection  = (EFI_COMPRESSION_SECTION *) Section;
-
-      switch (CompressionSection->CompressionType) {
-      case EFI_STANDARD_COMPRESSION:
-        //
-        // Load EFI standard compression.
-        // For compressed data, decompress them to dstbuffer.
-        //
-        Status = UefiDecompressGetInfo (
-                   (UINT8 *) ((EFI_COMPRESSION_SECTION *) Section + 1),
-                   (UINT32) SectionLength - sizeof (EFI_COMPRESSION_SECTION),
-                   (UINT32 *) &DstBufferSize,
-                   &ScratchBufferSize
-                   );
-        if (EFI_ERROR (Status)) {
-          //
-          // GetInfo failed
-          //
-          DEBUG ((EFI_D_ERROR, "Decompress GetInfo Failed - %r\n", Status));
-          return EFI_NOT_FOUND;
-        }
-        //
-        // Allocate scratch buffer
-        //
-        ScratchBuffer = AllocatePages (EFI_SIZE_TO_PAGES (ScratchBufferSize));
-        if (ScratchBuffer == NULL) {
-          return EFI_OUT_OF_RESOURCES;
-        }
-        //
-        // Allocate destination buffer
-        //
-        DstBuffer = AllocatePages (EFI_SIZE_TO_PAGES (DstBufferSize));
-        if (DstBuffer == NULL) {
-          return EFI_OUT_OF_RESOURCES;
-        }
-        //
-        // Call decompress function
-        //
-        Status = UefiDecompress (
-                    (CHAR8 *) ((EFI_COMPRESSION_SECTION *) Section + 1),
-                    DstBuffer,
-                    ScratchBuffer
-                    );
-        if (EFI_ERROR (Status)) {
-          //
-          // Decompress failed
-          //
-          DEBUG ((EFI_D_ERROR, "Decompress Failed - %r\n", Status));
-          return EFI_NOT_FOUND;
-        }
-        break;
-
-      // porting note the original branch for customized compress is removed, it should be change to use GUID compress
-
-      case EFI_NOT_COMPRESSED:
-        //
-        // Allocate destination buffer
-        //
-        DstBufferSize = CompressionSection->UncompressedLength;
-        DstBuffer     = AllocatePages (EFI_SIZE_TO_PAGES (DstBufferSize));
-        if (DstBuffer == NULL) {
-          return EFI_OUT_OF_RESOURCES;
-        }
-        //
-        // stream is not actually compressed, just encapsulated.  So just copy it.
-        //
-        CopyMem (DstBuffer, CompressionSection + 1, DstBufferSize);
-        break;
-
-      default:
-        //
-        // Don't support other unknown compression type.
-        //
-        ASSERT_EFI_ERROR (Status);
-        return EFI_NOT_FOUND;
-      }
-    } else {
-      //
-      // ignore other type sections
-      //
-      continue;
-    }
-
-    //
-    // Extract contents from guided or compressed sections.
-    // Loop the decompressed data searching for expected section.
-    //
-    CmpSection = (EFI_COMMON_SECTION_HEADER *) DstBuffer;
-    CmpFileData = (VOID *) DstBuffer;
-    CmpFileSize = DstBufferSize;
-    do {
-      CmpSectionLength          = *(UINT32 *) (CmpSection->Size) & 0x00ffffff;
-      if (CmpSection->Type == SectionType) {
-        //
-        // This is what we want
-        //
-        if (SectionType == EFI_SECTION_FIRMWARE_VOLUME_IMAGE) {
-          // 
-          // Firmware Volume Image in this Section
-          // Skip the section header to get FvHeader
-          //
-          FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (CmpSection + 1);
-
-          if (FvHeader->Signature == EFI_FVH_SIGNATURE) {
-            //
-            // Because FvLength in FvHeader is UINT64 type, 
-            // so FvHeader must meed at least 8 bytes alignment.
-            // If current FvImage base address doesn't meet its alignment,
-            // we need to reload this FvImage to another correct memory address.
-            //
-            if (((UINTN) FvHeader % sizeof (UINT64)) != 0) {
-              CopyMem (DstBuffer, FvHeader, (UINTN) CmpSectionLength - sizeof (EFI_COMMON_SECTION_HEADER));
-              FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) DstBuffer;  
-            }
-
-            //
-            // Build new FvHob for new decompressed Fv image.
-            //
-            BuildFvHob ((EFI_PHYSICAL_ADDRESS) (UINTN) FvHeader, FvHeader->FvLength);
-            
-            //
-            // Set the original FvHob to unused.
-            //
-            if (OrigHob != NULL) {
-              OrigHob->Header->HobType = EFI_HOB_TYPE_UNUSED;
-            }
-            //
-            // return found FvImage data.
-            //
-            *Pe32Data = (VOID *) FvHeader;
-            return EFI_SUCCESS;
-          }
-        } else {
-          //
-          // direct return the found section.
-          //
-          *Pe32Data = (VOID *) (CmpSection + 1);
-          return EFI_SUCCESS;
-        }
-      }
-      OccupiedCmpSectionLength  = GET_OCCUPIED_SIZE (CmpSectionLength, 4);
-      CmpSection                = (EFI_COMMON_SECTION_HEADER *) ((UINT8 *) CmpSection + OccupiedCmpSectionLength);
-    } while (CmpSection->Type != 0 && (UINTN) ((UINT8 *) CmpSection - (UINT8 *) CmpFileData) < CmpFileSize);
-  } while (Section->Type != 0 && (UINTN) ((UINT8 *) Section + OccupiedSectionLength - (UINT8 *) FfsFileHeader) < FileSize);
-
-  //
-  // search all sections (compression and non compression) in this FFS, don't 
-  // find expected section.
-  //
-  return EFI_NOT_FOUND;
 }
 
 /**
