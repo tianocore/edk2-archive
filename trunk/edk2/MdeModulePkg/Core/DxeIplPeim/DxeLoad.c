@@ -93,6 +93,14 @@ static EFI_PEI_PPI_DESCRIPTOR     mPpiSignal = {
   NULL
 };
 
+STATIC EFI_PEI_FIRMWARE_VOLUME_INFO_PPI mFvInfoPpiTemplate = {
+  EFI_FIRMWARE_FILE_SYSTEM2_GUID,
+  NULL,
+  0,    //FvInfoSize
+  NULL, //ParentFvName
+  NULL //ParentFileName;
+};
+
 EFI_STATUS
 EFIAPI
 PeimInitializeDxeIpl (
@@ -267,6 +275,12 @@ Returns:
   PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
   ASSERT (PeiEfiPeiPeCoffLoader != NULL);
 
+  
+  //
+  // If any FV contains an encapsulated FV extract that FV
+  //
+  DxeIplAddEncapsulatedFirmwareVolumes ();
+  
   //
   // Look in all the FVs present in PEI and find the DXE Core
   //
@@ -331,6 +345,155 @@ Returns:
   return EFI_OUT_OF_RESOURCES;
 }
 
+
+STATIC
+EFI_STATUS
+GetFvAlignment (
+  IN    EFI_FIRMWARE_VOLUME_HEADER   *FvHeader,
+  OUT   UINT32                      *FvAlignment
+  )
+{
+  //
+  // Because FvLength in FvHeader is UINT64 type, 
+  // so FvHeader must meed at least 8 bytes alignment.
+  // Get the appropriate alignment requirement.
+  // 
+  if ((FvHeader->Attributes & EFI_FVB2_ALIGNMENT) < EFI_FVB2_ALIGNMENT_8) {
+    return EFI_UNSUPPORTED;
+  }
+  
+   *FvAlignment = 1 << ((FvHeader->Attributes & EFI_FVB2_ALIGNMENT) >> 16);
+   return EFI_SUCCESS;
+}
+
+EFI_STATUS
+DxeIplAddEncapsulatedFirmwareVolumes (
+  VOID
+  )
+/*++
+
+Routine Description:
+
+   Add any encapsulated FV's
+
+Arguments:
+
+  NONE
+  
+Returns:
+  EFI_STATUS
+  
+--*/  
+{
+  EFI_STATUS                  Status;
+  EFI_STATUS                  VolumeStatus;
+  UINTN                       Index;
+  EFI_FV_INFO                 VolumeInfo; 
+  EFI_PEI_FV_HANDLE           VolumeHandle;
+  EFI_PEI_FILE_HANDLE         FileHandle;
+  UINT32                      SectionLength;
+  EFI_FIRMWARE_VOLUME_HEADER  *FvHeader;
+  EFI_FIRMWARE_VOLUME_IMAGE_SECTION *SectionHeader;
+  VOID                        *DstBuffer;
+  UINT32                       FvAlignment;
+  EFI_PEI_FIRMWARE_VOLUME_INFO_PPI *FvInfoPpi;
+  EFI_PEI_PPI_DESCRIPTOR           *FvInfoPpiDescriptor;
+
+  Status = EFI_NOT_FOUND;
+  Index  = 0;
+
+  do {
+    VolumeStatus = DxeIplFindFirmwareVolumeInstance (
+                    &Index, 
+                    EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE, 
+                    &VolumeHandle, 
+                    &FileHandle
+                    );
+                    
+    if (!EFI_ERROR (VolumeStatus)) {
+         Status = PeiServicesFfsFindSectionData (
+                    EFI_SECTION_FIRMWARE_VOLUME_IMAGE, 
+                    (EFI_FFS_FILE_HEADER *)FileHandle, 
+                    (VOID **)&FvHeader
+                    );
+                    
+      if (!EFI_ERROR (Status)) {
+        if (FvHeader->Signature == EFI_FVH_SIGNATURE) {
+          //
+          // Because FvLength in FvHeader is UINT64 type, 
+          // so FvHeader must meed at least 8 bytes alignment.
+          // If current FvImage base address doesn't meet its alignment,
+          // we need to reload this FvImage to another correct memory address.
+          //
+          Status = GetFvAlignment(FvHeader, &FvAlignment); 
+          if (EFI_ERROR(Status)) {
+            return Status;
+          }
+          if (((UINTN) FvHeader % FvAlignment) != 0) {
+            SectionHeader = (EFI_FIRMWARE_VOLUME_IMAGE_SECTION*)((UINTN)FvHeader - sizeof(EFI_FIRMWARE_VOLUME_IMAGE_SECTION));
+            SectionLength =  *(UINT32 *)SectionHeader->Size & 0x00FFFFFF;
+            
+            DstBuffer = AllocateAlignedPages (EFI_SIZE_TO_PAGES ((UINTN) SectionLength - sizeof (EFI_COMMON_SECTION_HEADER)), FvAlignment);
+            if (DstBuffer == NULL) {
+              return EFI_OUT_OF_RESOURCES;
+            }
+            CopyMem (DstBuffer, FvHeader, (UINTN) SectionLength - sizeof (EFI_COMMON_SECTION_HEADER));
+            FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) DstBuffer;  
+          }
+
+          //
+          // This new Firmware Volume comes from a firmware file within a firmware volume.
+          // Record the original Firmware Volume Name.
+          //
+          PeiServicesFfsGetVolumeInfo (&VolumeHandle, &VolumeInfo);
+
+          //
+          // Prepare to install FirmwareVolumeInfo PPI to expose new FV to PeiCore.
+          //
+          FvInfoPpi = AllocateCopyPool (sizeof (EFI_PEI_FIRMWARE_VOLUME_INFO_PPI), &mFvInfoPpiTemplate);
+          ASSERT(FvInfoPpi != NULL);
+
+          FvInfoPpi->FvInfo     = (VOID*)FvHeader;
+          FvInfoPpi->FvInfoSize = (UINT32)FvHeader->FvLength;
+          CopyMem (
+            &FvInfoPpi->ParentFvName,
+            &(VolumeInfo.FvName),
+            sizeof (EFI_GUID)
+            );
+          CopyMem (
+            &FvInfoPpi->ParentFileName,
+            &(((EFI_FFS_FILE_HEADER*)FileHandle)->Name),
+            sizeof (EFI_GUID)
+            );
+
+          FvInfoPpiDescriptor = AllocatePool (sizeof(EFI_PEI_PPI_DESCRIPTOR));
+          ASSERT (FvInfoPpiDescriptor != NULL);
+    	  
+          FvInfoPpiDescriptor->Flags = EFI_PEI_PPI_DESCRIPTOR_PPI|EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST;
+          FvInfoPpiDescriptor->Guid  = &gEfiPeiFirmwareVolumeInfoPpiGuid;
+          FvInfoPpiDescriptor->Ppi   = (VOID *) FvInfoPpi;
+
+          Status          = PeiServicesInstallPpi (FvInfoPpiDescriptor);
+          ASSERT_EFI_ERROR (Status);
+
+          //
+          // Makes the encapsulated volume show up in DXE phase to skip processing of
+          // encapsulated file again.
+          //
+          //BuildFvHob2 (
+          //  (EFI_PHYSICAL_ADDRESS)(UINTN)FvHeader,
+          //  FvHeader->FvLength, 
+          //  &VolumeInfo.FvName,
+          //  &(((EFI_FFS_FILE_HEADER *)FileHandle)->Name)
+          //  );
+          return Status;
+        }
+      }
+    }
+  } while (!EFI_ERROR (VolumeStatus));
+  
+  return Status;
+}
 
 EFI_STATUS
 DxeIplFindFirmwareVolumeInstance (

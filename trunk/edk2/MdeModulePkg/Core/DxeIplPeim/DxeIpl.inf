@@ -94,7 +94,7 @@
   gEfiDxeIplPpiGuid                             # PPI SOMETIMES_PRODUCED
   gEfiPeiPeCoffLoaderGuid                       
   gEfiPeiDecompressPpiGuid
-
+  gEfiPeiFirmwareVolumeInfoPpiGuid
 
 [FeaturePcd.common]
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSupportCustomDecompress

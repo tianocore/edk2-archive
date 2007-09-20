@@ -33,6 +33,10 @@ Abstract:
 #include <Ppi/RecoveryModule.h>
 #include <Ppi/MemoryDiscovered.h>
 #include <Ppi/Decompress.h>
+#include <Ppi/FirmwareVolumeInfo.h>
+
+#include <Guid/FirmwareFileSystem2.h>
+
 #include <Library/DebugLib.h>
 #include <Library/PeimEntryPoint.h>
 #include <Library/BaseLib.h>
@@ -72,6 +76,12 @@ PeiLoadFile (
   OUT EFI_PHYSICAL_ADDRESS                      *ImageAddress,
   OUT UINT64                                    *ImageSize,
   OUT EFI_PHYSICAL_ADDRESS                      *EntryPoint
+  )
+;
+
+EFI_STATUS
+DxeIplAddEncapsulatedFirmwareVolumes (
+  VOID
   )
 ;
 
