@@ -283,6 +283,29 @@ BuildCvHob (
 ;
 
 /**
+  Builds a Firmware Volume HOB.
+
+  This function builds a Firmware Volume HOB.
+  It can only be invoked during PEI phase;
+  for DXE phase, it will ASSERT() since PEI HOB is read-only for DXE phase.
+  If there is no additional space for HOB creation, then ASSERT().
+
+  @param  BaseAddress   The base address of the Firmware Volume.
+  @param  Length        The size of the Firmware Volume in bytes.
+  @param  FvNameGuid    Fv name.
+  @param  FileNameGuid  File name which contians encapsulated Fv.
+**/
+VOID
+EFIAPI
+BuildFvHob2 (
+  IN EFI_PHYSICAL_ADDRESS        BaseAddress,
+  IN UINT64                      Length,
+  IN EFI_GUID                    *FvNameGuid,
+  IN EFI_GUID                    *FileNameGuid
+  )
+;
+
+/**
   Builds a HOB for the CPU.
 
   This function builds a HOB for the CPU.
