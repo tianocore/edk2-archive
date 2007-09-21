@@ -102,5 +102,5 @@
   gEfiPeiSecurity2PpiGuid
 
 [BuildOptions.common]
-  MSFT:DEBUG_*_IA32_CC_FLAGS = /Od
+  MSFT:DEBUG_*_IA32_CC_FLAGS = /FAcs
 

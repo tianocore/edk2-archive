@@ -111,7 +111,7 @@ STATIC EFI_PEI_LOAD_FILE_PPI   mPeiLoadImagePpi = {
 };
 
 
-EFI_PEI_PPI_DESCRIPTOR     gPpiLoadFilePpiList = {
+STATIC EFI_PEI_PPI_DESCRIPTOR     gPpiLoadFilePpiList = {
   (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
   &gEfiPeiLoadFilePpiGuid,
   &mPeiLoadImagePpi

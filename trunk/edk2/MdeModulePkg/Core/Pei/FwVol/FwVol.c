@@ -20,7 +20,6 @@ Abstract:
 --*/
 
 #include <PeiMain.h>
-#include "PiFwVol.h"
 
 STATIC EFI_PEI_NOTIFY_DESCRIPTOR mNotifyOnFvInfoList = {
   (EFI_PEI_PPI_DESCRIPTOR_NOTIFY_CALLBACK | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
@@ -380,6 +379,7 @@ Returns:
        }
      }
     PrivateData->Fv[PrivateData->FvCount++].FvHeader = (EFI_FIRMWARE_VOLUME_HEADER*)Fv->FvInfo;
+    BuildFvHob ((EFI_PHYSICAL_ADDRESS) Fv->FvInfo, (UINT64) Fv->FvInfoSize);
   }
 
   //

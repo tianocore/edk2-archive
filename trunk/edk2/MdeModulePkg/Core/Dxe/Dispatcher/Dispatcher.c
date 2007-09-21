@@ -814,25 +814,12 @@ Returns:
 --*/
 {
   EFI_PEI_HOB_POINTERS                HobFv2;
-  EFI_STATUS                          Status;
-  EFI_FIRMWARE_VOLUME_BLOCK_PROTOCOL  *Fvb;
-  EFI_FIRMWARE_VOLUME_HEADER          *FvHeader;
-  EFI_PHYSICAL_ADDRESS                FvHeaderAddr;
   
   HobFv2.Raw = GetHobList ();
   
   while ((HobFv2.Raw = GetNextHob (EFI_HOB_TYPE_FV2, HobFv2.Raw)) != NULL) {
     if (CompareGuid (DriverName, &HobFv2.FirmwareVolume2->FileName)) {
-      Status = CoreHandleProtocol (FvHandle, &gEfiFirmwareVolumeBlockProtocolGuid, (VOID **) &Fvb);
-      if (!EFI_ERROR (Status)) {
-        Status = Fvb->GetPhysicalAddress (Fvb, &FvHeaderAddr);
-        if (!EFI_ERROR (Status)) {
-          FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) FvHeaderAddr;
-          if (CompareGuid (&FvHeader->FileSystemGuid, &HobFv2.FirmwareVolume2->FvName)) {
-            return TRUE;
-          }
-        }
-      }
+      return TRUE;
     }
     HobFv2.Raw = GET_NEXT_HOB (HobFv2);
   }

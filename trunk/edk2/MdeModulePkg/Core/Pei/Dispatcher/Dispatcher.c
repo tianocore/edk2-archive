@@ -277,7 +277,7 @@ Returns:
           // Process the Notify list and dispatch any notifies for
           // newly installed PPIs.
           //
-          ProcessNotifyList (&Private->PS);
+          ProcessNotifyList (Private);
         }
       }
     }
@@ -374,7 +374,7 @@ Returns:
             // Process the Notify list and dispatch any notifies for
             // newly installed PPIs.
             //
-            ProcessNotifyList (PeiServices);
+            ProcessNotifyList (Private);
 
             //
             // If permanent memory was discovered and installed by this
@@ -466,7 +466,7 @@ Returns:
               // Process the Notify list and dispatch any notifies for
               // newly installed PPIs.
               //
-              ProcessNotifyList (PeiServices);
+              ProcessNotifyList (Private);
             }
           }
         }

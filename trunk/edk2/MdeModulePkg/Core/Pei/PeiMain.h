@@ -443,7 +443,7 @@ Returns:
 //
 VOID
 InitializePpiServices (
-  IN EFI_PEI_SERVICES    **PeiServices,
+  IN PEI_CORE_INSTANCE   *PrivateData,
   IN PEI_CORE_INSTANCE   *OldCoreData
   )
 /*++
@@ -602,7 +602,7 @@ Returns:
 
 VOID
 ProcessNotifyList (
-  IN EFI_PEI_SERVICES    **PeiServices
+  IN PEI_CORE_INSTANCE  *PrivateData
   )
 /*++
 
@@ -621,7 +621,7 @@ Returns:
 
 VOID
 DispatchNotify (
-  IN CONST EFI_PEI_SERVICES    **PeiServices,
+  IN PEI_CORE_INSTANCE  *PrivateData,
   IN UINTN               NotifyType,
   IN INTN                InstallStartIndex,
   IN INTN                InstallStopIndex,
@@ -960,7 +960,7 @@ Returns:
 //
 VOID
 InitializeMemoryServices (
-  IN EFI_PEI_SERVICES            **PeiServices,
+  IN PEI_CORE_INSTANCE           *PrivateData,
   IN CONST EFI_SEC_PEI_HAND_OFF  *SecCoreData,
   IN PEI_CORE_INSTANCE           *OldCoreData
   )
