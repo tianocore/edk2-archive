@@ -151,9 +151,10 @@ PeiProcessFile (
 EFI_STATUS
 EFIAPI
 PeimInitializeDxeIpl (
-  IN EFI_FFS_FILE_HEADER       *FfsHeader,
+  IN EFI_PEI_FILE_HANDLE       FfsHandle,
   IN EFI_PEI_SERVICES          **PeiServices
-  );
+  )
+;
 
 
 #endif

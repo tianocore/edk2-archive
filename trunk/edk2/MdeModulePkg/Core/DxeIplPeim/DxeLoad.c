@@ -1,6 +1,8 @@
-/*++
+/**@file
+  Last PEIM.
+  Responsibility of this module is to load the DXE Core from a Firmware Volume.
 
-Copyright (c) 2006, Intel Corporation
+Copyright (c) 2006 - 2007 Intel Corporation
 All rights reserved. This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -9,23 +11,11 @@ http://opensource.org/licenses/bsd-license.php
 THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-Module Name:
-
-  DxeLoad.c
-
-Abstract:
-
-  Last PEIM.
-  Responsibility of this module is to load the DXE Core from a Firmware Volume.
-
---*/
+**/
 
 #include "DxeIpl.h"
 #include <Ppi/GuidedSectionExtraction.h>
-
-// porting note remove later
-#include "FrameworkPei.h"
-// end of remove later
+#include <FrameworkPei.h>
 
 EFI_STATUS
 CustomDecompressExtractSection (
@@ -57,10 +47,6 @@ static EFI_DXE_IPL_PPI mDxeIplPpi = {
   DxeLoadCore
 };
 
-//static EFI_PEI_FV_FILE_LOADER_PPI mLoadFilePpi = {
-//  DxeIplLoadFile
-//};
-
 STATIC EFI_PEI_GUIDED_SECTION_EXTRACTION_PPI mCustomDecompressExtractiongPpi = {
   CustomDecompressExtractSection
 };
@@ -70,11 +56,6 @@ STATIC EFI_PEI_DECOMPRESS_PPI mDecompressPpi = {
 };
 
 static EFI_PEI_PPI_DESCRIPTOR     mPpiList[] = {
-/*  {
-  EFI_PEI_PPI_DESCRIPTOR_PPI,
-  &gEfiPeiFvFileLoaderPpiGuid,
-  &mLoadFilePpi
-  },*/
   {
     EFI_PEI_PPI_DESCRIPTOR_PPI,
     &gEfiDxeIplPpiGuid,
@@ -101,28 +82,20 @@ STATIC EFI_PEI_FIRMWARE_VOLUME_INFO_PPI mFvInfoPpiTemplate = {
   NULL //ParentFileName;
 };
 
+/**
+  Initializes the Dxe Ipl PPI
+
+  @param  FfsHandle   The handle of FFS file.
+  @param  PeiServices General purpose services available to
+                      every PEIM.
+  @return EFI_SUCESS 
+*/ 
 EFI_STATUS
 EFIAPI
 PeimInitializeDxeIpl (
-  IN EFI_FFS_FILE_HEADER       *FfsHeader,
+  IN EFI_PEI_FILE_HANDLE       FfsHandle,
   IN EFI_PEI_SERVICES          **PeiServices
   )
-/*++
-
-Routine Description:
-
-  Initializes the Dxe Ipl PPI
-
-Arguments:
-
-  FfsHeader   - Pointer to FFS file header
-  PeiServices - General purpose services available to every PEIM.
-
-Returns:
-
-  EFI_SUCCESS
-
---*/
 {
   EFI_STATUS                                Status;
   EFI_BOOT_MODE                             BootMode;
@@ -134,7 +107,7 @@ Returns:
   ASSERT_EFI_ERROR (Status);
 
   if (BootMode != BOOT_ON_S3_RESUME) {
-    Status = PeiServicesRegisterForShadow (FfsHeader);
+    Status = PeiServicesRegisterForShadow (FfsHandle);
     if (Status == EFI_SUCCESS) {
 
       gInMemory = TRUE;
@@ -187,6 +160,16 @@ Returns:
   return Status;
 }
 
+/**
+   Main entry point to last PEIM 
+    
+   @param This          Entry point for DXE IPL PPI
+   @param PeiServices   General purpose services available to every PEIM.
+   @param HobList       Address to the Pei HOB list
+   
+   @return EFI_SUCCESS              DXE core was successfully loaded. 
+   @return EFI_OUT_OF_RESOURCES     There are not enough resources to load DXE core.
+**/
 EFI_STATUS
 EFIAPI
 DxeLoadCore (
@@ -194,29 +177,9 @@ DxeLoadCore (
   IN EFI_PEI_SERVICES      **PeiServices,
   IN EFI_PEI_HOB_POINTERS  HobList
   )
-/*++
-
-Routine Description:
-
-  Main entry point to last PEIM
-
-Arguments:
-  This         - Entry point for DXE IPL PPI
-  PeiServices  - General purpose services available to every PEIM.
-  HobList      - Address to the Pei HOB list
-
-Returns:
-
-  EFI_SUCCESS          - DEX core was successfully loaded.
-  EFI_OUT_OF_RESOURCES - There are not enough resources to load DXE core.
-
---*/
 {
   EFI_STATUS                                Status;
   EFI_GUID                                  DxeCoreFileName;
-//  EFI_GUID                                  FirmwareFileName;
-  //VOID                                      *Pe32Data;
-//  VOID                                      *FvImageData;     
   EFI_PHYSICAL_ADDRESS                      DxeCoreAddress;
   UINT64                                    DxeCoreSize;
   EFI_PHYSICAL_ADDRESS                      DxeCoreEntryPoint;
@@ -227,9 +190,6 @@ Returns:
   EFI_PEI_FV_HANDLE                         VolumeHandle;
   EFI_PEI_FILE_HANDLE                       FileHandle;
   UINTN                                     Instance;
-
-
-//  PERF_START (PeiServices, L"DxeIpl", NULL, 0);
 
   //
   // if in S3 Resume, restore configure
@@ -272,9 +232,8 @@ Returns:
   //
   // Install the PEI Protocols that are shared between PEI and DXE
   //
-  PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *)GetPeCoffLoaderProtocol ();
+  PeiEfiPeiPeCoffLoader = (EFI_PEI_PE_COFF_LOADER_PROTOCOL *) GetPeCoffLoaderProtocol ();
   ASSERT (PeiEfiPeiPeCoffLoader != NULL);
-
   
   //
   // If any FV contains an encapsulated FV extract that FV
@@ -366,24 +325,17 @@ GetFvAlignment (
    return EFI_SUCCESS;
 }
 
+/**
+   Search EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE image and expand 
+   as memory FV 
+    
+   @return EFI_OUT_OF_RESOURCES There are no memory space to exstract FV
+   @return EFI_SUCESS           Sucess to find the FV 
+**/
 EFI_STATUS
 DxeIplAddEncapsulatedFirmwareVolumes (
   VOID
   )
-/*++
-
-Routine Description:
-
-   Add any encapsulated FV's
-
-Arguments:
-
-  NONE
-  
-Returns:
-  EFI_STATUS
-  
---*/  
 {
   EFI_STATUS                  Status;
   EFI_STATUS                  VolumeStatus;
@@ -495,6 +447,17 @@ Returns:
   return Status;
 }
 
+/**
+   Find the First Volume that contains the first FileType.
+
+   @param Instance      The Fv instance.
+   @param SeachType     The type of file to search.
+   @param VolumeHandle  Pointer to Fv which contains the file to search. 
+   @param FileHandle    Pointer to FFS file to search.
+   
+   @return EFI_SUCESS   Success to find the FFS in specificed FV
+   @return others       Fail to find the FFS in specificed FV
+ */
 EFI_STATUS
 DxeIplFindFirmwareVolumeInstance (
   IN OUT UINTN              *Instance,
@@ -502,24 +465,6 @@ DxeIplFindFirmwareVolumeInstance (
   OUT EFI_PEI_FV_HANDLE     *VolumeHandle,
   OUT EFI_PEI_FILE_HANDLE   *FileHandle
   )
-/*++
-
-Routine Description:
-
-  Find the First Volume that contains the first FileType.
-
-Arguments:
-
-  Instance     - The Fv instance.
-  SeachType    - The type of file to search.
-  VolumeHandle - Pointer to Fv which contains the file to search. 
-  FileHandle   - Pointer to FFS file to search.
-
-Returns:
-
-  EFI_STATUS
-
---*/  
 {
   EFI_STATUS  Status;
   EFI_STATUS  VolumeStatus;
@@ -539,6 +484,17 @@ Returns:
   return VolumeStatus;
 }
 
+/**
+   Loads and relocates a PE/COFF image into memory.
+
+   @param FileHandle        The image file handle
+   @param ImageAddress      The base address of the relocated PE/COFF image
+   @param ImageSize         The size of the relocated PE/COFF image
+   @param EntryPoint        The entry point of the relocated PE/COFF image
+   
+   @return EFI_SUCCESS           The file was loaded and relocated
+   @return EFI_OUT_OF_RESOURCES  There was not enough memory to load and relocate the PE/COFF file
+**/
 EFI_STATUS
 PeiLoadFile (
   IN  EFI_PEI_FILE_HANDLE                       FileHandle,
@@ -546,31 +502,6 @@ PeiLoadFile (
   OUT UINT64                                    *ImageSize,
   OUT EFI_PHYSICAL_ADDRESS                      *EntryPoint
   )
-/*++
-
-Routine Description:
-
-  Loads and relocates a PE/COFF image into memory.
-
-Arguments:
-
-  PeiEfiPeiPeCoffLoader - Pointer to a PE COFF loader protocol
-
-  Pe32Data         - The base address of the PE/COFF file that is to be loaded and relocated
-
-  ImageAddress     - The base address of the relocated PE/COFF image
-
-  ImageSize        - The size of the relocated PE/COFF image
-
-  EntryPoint       - The entry point of the relocated PE/COFF image
-
-Returns:
-
-  EFI_SUCCESS   - The file was loaded and relocated
-
-  EFI_OUT_OF_RESOURCES - There was not enough memory to load and relocate the PE/COFF file
-
---*/
 {
 
   EFI_STATUS                        Status;
