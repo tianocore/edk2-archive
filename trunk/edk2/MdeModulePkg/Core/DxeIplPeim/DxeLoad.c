@@ -480,12 +480,12 @@ Returns:
           // Makes the encapsulated volume show up in DXE phase to skip processing of
           // encapsulated file again.
           //
-          //BuildFvHob2 (
-          //  (EFI_PHYSICAL_ADDRESS)(UINTN)FvHeader,
-          //  FvHeader->FvLength, 
-          //  &VolumeInfo.FvName,
-          //  &(((EFI_FFS_FILE_HEADER *)FileHandle)->Name)
-          //  );
+          BuildFvHob2 (
+            (EFI_PHYSICAL_ADDRESS)(UINTN)FvHeader,
+            FvHeader->FvLength, 
+            &VolumeInfo.FvName,
+            &(((EFI_FFS_FILE_HEADER *)FileHandle)->Name)
+            );
           return Status;
         }
       }
