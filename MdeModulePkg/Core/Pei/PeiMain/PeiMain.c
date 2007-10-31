@@ -190,8 +190,8 @@ Returns:
       UINTN  StackValue;
 
       StackValue = INIT_CAR_VALUE;
-      for (StackPointer = (UINTN *) OldCoreData->MaxTopOfCarHeap;
-           ((UINTN) StackPointer < ((UINTN) OldCoreData->BottomOfCarHeap + OldCoreData->SizeOfCacheAsRam))
+      for (StackPointer = (UINTN *) OldCoreData->TopOfCarHeap;
+           ((UINTN) StackPointer < ((UINTN) OldCoreData->MaxTopOfCarHeap))
            && StackValue == INIT_CAR_VALUE;
            StackPointer++) {
         StackValue = *StackPointer;
