@@ -244,6 +244,7 @@ Returns:
     case EFI_FILE_MARKED_FOR_UPDATE:
       if (CalculateHeaderChecksum (FfsFileHeader) != 0) {
         ASSERT (FALSE);
+        *FileHeader = NULL;
         return EFI_NOT_FOUND;
       }
 
@@ -285,11 +286,12 @@ Returns:
       break;
 
     default:
+      *FileHeader = NULL;
       return EFI_NOT_FOUND;
-
     } 
   }
-
+  
+  *FileHeader = NULL;
   return EFI_NOT_FOUND;  
 }
 
