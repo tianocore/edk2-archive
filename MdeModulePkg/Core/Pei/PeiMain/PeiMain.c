@@ -186,13 +186,13 @@ Returns:
     // on a debug build.
     //
     DEBUG_CODE_BEGIN ();
-      UINTN  *StackPointer;
-      UINTN  StackValue;
+      UINT32  *StackPointer;
+      UINT32  StackValue;
 
       StackValue = INIT_CAR_VALUE;
-      for (StackPointer = (UINTN *) OldCoreData->TopOfCarHeap;
+      for (StackPointer = (UINT32 *) OldCoreData->TopOfCarHeap;
            ((UINTN) StackPointer < ((UINTN) OldCoreData->MaxTopOfCarHeap))
-           && StackValue == INIT_CAR_VALUE;
+           && StackValue == (UINT32) INIT_CAR_VALUE;
            StackPointer++) {
         StackValue = *StackPointer;
       }
