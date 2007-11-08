@@ -135,12 +135,6 @@ Returns:
     }
   }
 
-  //
-  // For IPF in CAR mode the real memory access is uncached,in InstallPeiMemory()
-  //  the 63-bit of address is set to 1.
-  //
-  SWITCH_TO_CACHE_MODE (OldCoreData);
-
   if (OldCoreData != NULL) {
     CopyMem (&PrivateData, OldCoreData, sizeof (PEI_CORE_INSTANCE));
     
