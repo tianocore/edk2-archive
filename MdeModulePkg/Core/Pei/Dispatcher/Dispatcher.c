@@ -372,6 +372,12 @@ Returns:
                 );
               PERF_END (0, "PEIM", NULL, 0);
 
+            } else {
+              //
+              // If PeiLoadImage fails, the section extraction PPI or Decompress PPI may not be ready,
+              // we flag that more Peims need to be dispatched.
+              //
+              PeimNeedingDispatch = TRUE;
             }
 
             //
@@ -437,7 +443,7 @@ Returns:
               //
               TopOfStack = (VOID *)((UINTN)Private->StackBase + (UINTN)Private->StackSize - CPU_STACK_ALIGNMENT);
               TopOfStack = ALIGN_POINTER (TopOfStack, CPU_STACK_ALIGNMENT);
-              
+
               PeiCoreParameters.SecCoreData = SecCoreData;
               PeiCoreParameters.PpiList     = NULL;
               PeiCoreParameters.Data        = PrivateInMem;
@@ -666,5 +672,6 @@ InvokePeiCore (
   //
   // Never returns
   //
-  ASSERT_EFI_ERROR (FALSE);
+  ASSERT (FALSE);
+  CpuDeadLoop ();
 }
