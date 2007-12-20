@@ -307,6 +307,8 @@
   MdeModulePkg/Universal/Variable/Pei/VariablePei.inf
   MdeModulePkg/Universal/Variable/Application/VariableInfo.inf
 
+  MdeModulePkg/Universal/UefiHiiDatabaseDxe/UefiHiiDatabaseDxe.inf
+
 [Components.IA32]
   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
   MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe.inf
