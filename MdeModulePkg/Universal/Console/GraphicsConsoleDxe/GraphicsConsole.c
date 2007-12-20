@@ -74,7 +74,7 @@ GRAPHICS_CONSOLE_DEV        mGraphicsConsoleDevTemplate = {
     {  0,  0, 0, 0, 0, 0 }   // Mode 2
   },
   (EFI_GRAPHICS_OUTPUT_BLT_PIXEL *) NULL,
-  (EFI_HII_HANDLE) 0
+  (FRAMEWORK_EFI_HII_HANDLE ) 0
 };
 
 EFI_HII_PROTOCOL            *mHii;
