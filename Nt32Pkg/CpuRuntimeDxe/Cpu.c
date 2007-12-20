@@ -422,7 +422,7 @@ Returns:
   UINT32                      TotalSize;
   EFI_DATA_HUB_PROTOCOL       *DataHub;
   EFI_HII_PROTOCOL            *Hii;
-  EFI_HII_HANDLE              StringHandle;
+  FRAMEWORK_EFI_HII_HANDLE    StringHandle;
   EFI_HII_PACKAGES            *PackageList;
 
 

@@ -150,7 +150,7 @@ Returns:
   EFI_DATA_HUB_PROTOCOL             *DataHub;
   EFI_HII_PROTOCOL                  *Hii;
   EFI_HII_PACKAGES                  *PackageList;
-  EFI_HII_HANDLE                    HiiHandle;
+  FRAMEWORK_EFI_HII_HANDLE          HiiHandle;
   EFI_STATUS                        Status;
   UINTN                             Index;
   BOOLEAN                           LogRecordData;
