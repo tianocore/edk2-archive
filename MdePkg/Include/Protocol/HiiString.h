@@ -59,7 +59,7 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_NEW_STRING) (
   IN CONST  EFI_HII_STRING_PROTOCOL   *This,
-  IN CONST  EFI_HII_HANDLE            PackageList,
+  IN        EFI_HII_HANDLE            PackageList,
   OUT       EFI_STRING_ID             *StringId
   IN CONST  CHAR8                     *Language,
   IN CONST  EFI_STRING                String,
@@ -124,8 +124,8 @@ EFI_STATUS
 (EFIAPI *EFI_HII_GET_STRING) (
   IN CONST  EFI_HII_STRING_PROTOCOL *This,
   IN CONST  CHAR8                   *Language,
-  IN CONST  EFI_HII_HANDLE          PackageList,
-  IN CONST  EFI_STRING_ID           StringId,
+  IN        EFI_HII_HANDLE          PackageList,
+  IN        EFI_STRING_ID           StringId,
   OUT       EFI_STRING              String,
   IN OUT    UINTN                   StringSize,
   OUT       EFI_FONT_INFO           *StringFontInfo OPTIONAL
@@ -168,10 +168,10 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_SET_STRING) (
   IN CONST  EFI_HII_STRING_PROTOCOL *This,
-  IN CONST  EFI_HII_HANDLE          PackageList,
-  IN CONST  EFI_STRING_ID           StringId,
+  IN        EFI_HII_HANDLE          PackageList,
+  IN        EFI_STRING_ID           StringId,
   IN CONST  CHAR8                   *Language,
-  IN CONST  EFI_STRING              String,
+  IN        EFI_STRING              String,
   IN CONST  EFI_FONT_INFO           *StringFontInfo OPTIONAL
 );
 
@@ -209,9 +209,9 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_GET_LANGUAGES) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  EFI_HII_HANDLE            PackageList,
+  IN        EFI_HII_HANDLE            PackageList,
   IN OUT    CHAR8                     *Languages,
-  IN OUT    UINTN                     LanguagesSize
+  IN OUT    UINTN                     *LanguagesSize
 );
 
 
@@ -263,12 +263,12 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_GET_2ND_LANGUAGES) (
+(EFIAPI *EFI_HII_GET_2ND_LANGUAGES) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  EFI_HII_HANDLE            PackageList,
+  IN        EFI_HII_HANDLE            PackageList,
   IN CONST  CHAR8                     *FirstLanguage;
   IN OUT    CHAR8                     *SecondLanguages,
-  IN OUT    UINTN                     SecondLanguagesSize
+  IN OUT    UINTN                     *SecondLanguagesSize
 );
 
 
@@ -300,4 +300,5 @@ struct _EFI_HII_STRING_PROTOCOL {
 extern EFI_GUID gEfiHiiStringProtocolGuid;
 
 #endif
+
 

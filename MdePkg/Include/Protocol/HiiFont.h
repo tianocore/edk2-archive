@@ -15,6 +15,7 @@
 #ifndef __HII_FONT_H__
 #define __HII_FONT_H__
 
+#include <Protocol/GraphicsOutput.h>
 #include <Protocol/HiiImage.h>
 
 #error "UEFI 2.1 HII is not fully implemented for now, Please don't include this file now."
@@ -24,6 +25,7 @@
 
 typedef struct _EFI_HII_FONT_PROTOCOL EFI_HII_FONT_PROTOCOL;
 
+typedef VOID    *EFI_FONT_HANDLE;
 
 //
 // EFI_HII_OUT_FLAGS
@@ -145,10 +147,10 @@ typedef struct {
   
 **/
 typedef struct _EFI_FONT_DISPLAY_INFO {
-  EFI_FONT_INFO                 FontInfo;
   EFI_GRAPHICS_OUTPUT_BLT_PIXEL ForegroundColor;
   EFI_GRAPHICS_OUTPUT_BLT_PIXEL BackgroundColor;
   EFI_FONT_INFO_MASK            FontInfoMask;
+  EFI_FONT_INFO                 FontInfo;  
 } EFI_FONT_DISPLAY_INFO;
 
 /**
@@ -262,12 +264,12 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_STRING_TO_IMAGE) (
   IN CONST  EFI_HII_FONT_PROTOCOL *This,
-  IN CONST  EFI_HII_OUT_FLAGS     Flags,
+  IN        EFI_HII_OUT_FLAGS     Flags,
   IN CONST  EFI_STRING            String,
   IN CONST  EFI_FONT_DISPLAY_INFO *StringInfo,
   IN OUT    EFI_IMAGE_OUTPUT      **Blt,
-  IN CONST  UINTN                 BltX,
-  IN CONST  UINTN                 BltY,
+  IN        UINTN                 BltX,
+  IN        UINTN                 BltY,
   OUT       EFI_HII_ROW_INFO      **RowInfoArray OPTIONAL,
   OUT       UINTN                 *RowInfoArraySize OPTIONAL,
   OUT       UINTN                 *ColumnInfoArray OPTIONAL
@@ -394,14 +396,14 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_STRING_ID_TO_IMAGE) (
   IN CONST  EFI_HII_FONT_PROTOCOL *This,
-  IN CONST  EFI_HII_OUT_FLAGS     Flags,
-  IN CONST  EFI_HII_HANDLE        PackageList,
-  IN CONST  EFI_STRING_ID         StringId,
+  IN        EFI_HII_OUT_FLAGS     Flags,
+  IN        EFI_HII_HANDLE        PackageList,
+  IN        EFI_STRING_ID         StringId,
   IN CONST  CHAR8                 *Language,
   IN CONST  EFI_FONT_DISPLAY_INFO *StringInfo       OPTIONAL,
   IN OUT    EFI_IMAGE_OUTPUT      **Blt,
-  IN CONST  UINTN                 BltX,
-  IN CONST  UINTN                 BltY,
+  IN        UINTN                 BltX,
+  IN        UINTN                 BltY,
   OUT       EFI_HII_ROW_INFO      **RowInfoArray    OPTIONAL,
   OUT       UINTN                 *RowInfoArraySize OPTIONAL,
   OUT       UINTN                 *ColumnInfoArray  OPTIONAL
@@ -493,8 +495,8 @@ EFI_STATUS
   IN CONST  EFI_HII_FONT_PROTOCOL *This,
   IN OUT    EFI_FONT_HANDLE       *FontHandle,
   IN CONST  EFI_FONT_DISPLAY_INFO *StringInfoIn,
-  OUT       EFI_FONT_DISPLAY_INFO *StringInfoOut,
-  IN CONST  EFI_STRING            *String OPTIONAL
+  OUT       EFI_FONT_DISPLAY_INFO **StringInfoOut,
+  IN CONST  EFI_STRING            String OPTIONAL
 );
 
 /**

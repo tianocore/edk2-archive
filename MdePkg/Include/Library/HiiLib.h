@@ -15,29 +15,16 @@
 #ifndef __HII_LIB_H__
 #define __HII_LIB_H__
 
-#error "UEFI 2.1 HII is not fully implemented for now, Please don't include this file now."
-
-#include <Protocol/HiiDatabase.h>
-
-/**
-  This function allocates pool for an EFI_HII_PACKAGES structure
-  with enough space for the variable argument list of package pointers.
-  The allocated structure is initialized using NumberOfPackages, Guid, 
-  and the variable length argument list of package pointers.
-
-  @param  NumberOfPackages The number of HII packages to prepare.
-  @param  Guid Package GUID.
-
-  @return
-  The allocated and initialized packages.
-
-**/
-EFI_HII_PACKAGE_LIST_HEADER *
+EFI_STATUS
 EFIAPI
-PreparePackages (
-  IN CONST  UINTN     NumberOfPackages,
-  IN CONST  EFI_GUID  *Guid OPTIONAL,
+HiiLibCreateNewPackages (
+  IN       UINTN      NumberOfPackages,
+  IN CONST EFI_GUID   *GuidId,
+  OUT      VOID      **HiiHandle,         //Framework is FRAMEWORK_HII_HANDLE; UEFI is EFI_HII_HANDLE; 
+                                     // C:\D\Work\Tiano\Tiano_Main_Trunk\TIANO\Platform\IntelEpg\SR870BN4\MemorySubClassDriver\DualChannelDdr\MemorySubClass.c make use of this output value
   ...
   );
+
+
 
 #endif

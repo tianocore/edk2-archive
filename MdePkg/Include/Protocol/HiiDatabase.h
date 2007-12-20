@@ -16,8 +16,6 @@
 #ifndef __HII_DATABASE_H__
 #define __HII_DATABASE_H__
 
-#error "UEFI 2.1 HII is not fully implemented for now, Please don't include this file now."
-
 #define EFI_HII_DATABASE_PROTOCOL_GUID \
   { 0xef9fc172, 0xa1b2, 0x4693, { 0xb3, 0x27, 0x6d, 0x32, 0xfc, 0x41, 0x60, 0x42 } }
 
@@ -27,53 +25,8 @@ typedef struct _EFI_HII_DATABASE_PROTOCOL EFI_HII_DATABASE_PROTOCOL;
 //
 // ConfigurationS of HII.
 // 
-#define GLYPH_WIDTH         8
-#define GLYPH_HEIGHT        19
-
-/**
-    
-  Each package starts with a header, as defined above, which  
-  indicates the size and type of the package. When added to a  
-  pointer pointing to the start of the header, Length points at  
-  the next package. The package lists form a package list when  
-  concatenated together and terminated with an  
-  EFI_HII_PACKAGE_HEADER with a Type of EFI_HII_PACKAGE_END. The  
-  type EFI_HII_PACKAGE_TYPE_GUID is used for vendor-defined HII  
-  packages, whose contents are determined by the Guid. The range  
-  of package types starting with EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN  
-  through EFI_HII_PACKAGE_TYPE_SYSTEM_END are reserved for system  
-  firmware implementers.  
-  
-  @param Length The size of the package in bytes.
-  
-  @param Type   The package type. See EFI_HII_PACKAGE_TYPE_x,
-                below.
-  
-  @param Data   The package data, the format of which is
-                determined by Type.
-  
-**/
-typedef struct {
-  UINT32  Length:24;
-  UINT32  Type:8;
-  // UINT8  Data[...];
-} EFI_HII_PACKAGE_HEADER;
-
-//
-// EFI_HII_PACKAGE_TYPE_x.
-// 
-#define EFI_HII_PACKAGE_TYPE_ALL      0x00
-#define EFI_HII_PACKAGE_TYPE_GUID     0x01
-#define EFI_HII_PACKAGE_FORM_CONFIG   0x02
-#define EFI_HII_PACKAGE_FORM_APP      0x03
-#define EFI_HII_PACKAGE_STRINGS       0x04
-#define EFI_HII_PACKAGE_FONTS         0x05
-#define EFI_HII_PACKAGE_IMAGES        0x06
-#define EFI_HII_PACKAGE_SIMPLE_FONTS  0x07
-#define EFI_HII_PACKAGE_DEVICE_PATH   0x08
-#define EFI_HII_PACKAGE_END           0x09
-#define EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN   0xE0
-#define EFI_HII_PACKAGE_TYPE_SYSTEM_END     0xFF
+#define EFI_GLYPH_WIDTH         8
+#define EFI_GLYPH_HEIGHT        19
 
 
 /**
@@ -171,7 +124,7 @@ typedef struct _EFI_HII_SIMPLE_FONT_PACKAGE_HDR {
 typedef struct {
   CHAR16  UnicodeWeight;
   UINT8   Attributes;
-  UINT8   GlyphCol1[19];
+  UINT8   GlyphCol1[EFI_GLYPH_HEIGHT];
 } EFI_NARROW_GLYPH;
 
 /**
@@ -205,8 +158,8 @@ typedef struct {
 typedef struct {
   CHAR16  UnicodeWeight;
   UINT8   Attributes;
-  UINT8   GlyphCol1[GLYPH_HEIGHT];
-  UINT8   GlyphCol2[GLYPH_HEIGHT];
+  UINT8   GlyphCol1[EFI_GLYPH_HEIGHT];
+  UINT8   GlyphCol2[EFI_GLYPH_HEIGHT];
   UINT8   Pad[3];
 } EFI_WIDE_GLYPH;
 
@@ -250,7 +203,6 @@ typedef UINT32  EFI_HII_FONT_STYLE;
 **/
 typedef struct _EFI_HII_GLYPH_BLOCK {
   UINT8 BlockType;
-  UINT8 BlockBody[1];
 } EFI_HII_GLYPH_BLOCK;
 
 
@@ -433,7 +385,6 @@ typedef struct _EFI_HII_GIBT_EXT4_BLOCK {
 typedef struct _EFI_HII_GIBT_GLYPH_BLOCK {
   EFI_HII_GLYPH_BLOCK   Header;
   EFI_HII_GLYPH_INFO    Cell;
-  UINT16                GlyphCount;
   UINT8                 BitmapData[1];
 } EFI_HII_GIBT_GLYPH_BLOCK;
 
@@ -473,6 +424,7 @@ typedef struct _EFI_HII_GIBT_GLYPH_BLOCK {
 typedef struct _EFI_HII_GIBT_GLYPHS_BLOCK {
   EFI_HII_GLYPH_BLOCK   Header;
   EFI_HII_GLYPH_INFO    Cell;
+  UINT16                 Count;  
   UINT8                 BitmapData[1];
 } EFI_HII_GIBT_GLYPHS_BLOCK;
 
@@ -581,6 +533,15 @@ typedef struct _EFI_HII_GIBT_SKIP1_BLOCK {
 **/
 typedef EFI_DEVICE_PATH_PROTOCOL  EFI_HII_DEVICE_PATH_PACKAGE_HDR;
 
+//
+// Device Path Package
+//
+typedef struct _EFI_HII_DEVICE_PATH_PACKAGE {
+  EFI_HII_PACKAGE_HEADER   Header;
+  // EFI_DEVICE_PATH_PROTOCOL DevicePath[];
+} EFI_HII_DEVICE_PATH_PACKAGE;
+
+
 
 /**
    
@@ -596,6 +557,8 @@ typedef struct _EFI_HII_GUID_PACKAGE_HDR {
 } EFI_HII_GUID_PACKAGE_HDR;
 
 
+#define UEFI_CONFIG_LANG  L"x-UEFI"
+#define UEFI_CONFIG_LANG2 L"x-i-UEFI"     // BUGBUG, spec need to be updated.
 /**
    
   The Strings package record describes the mapping between string
@@ -629,7 +592,7 @@ typedef struct _EFI_HII_STRING_PACKAGE_HDR {
   UINT32                  StringInfoOffset;
   CHAR16                  LanguageWindow[16];
   EFI_STRING_ID           LanguageName;
-  CHAR8 Language[1];
+  CHAR8                   Language[1];
 } EFI_HII_STRING_PACKAGE_HDR;
 
 
@@ -710,7 +673,6 @@ typedef struct _EFI_HII_FONT_PACKAGE_HDR {
 **/
 typedef struct {
   UINT8   BlockType;
-  UINT8   BlockBody[1];
 } EFI_HII_STRING_BLOCK;
 
 
@@ -881,7 +843,7 @@ typedef struct _EFI_HII_SIBT_SKIP2_BLOCK {
 **/
 typedef struct _EFI_HII_SIBT_STRING_SCSU_BLOCK {
   EFI_HII_STRING_BLOCK Header;
-  UINT8 StringText[1];
+  UINT8                StringText[1];
 } EFI_HII_SIBT_STRING_SCSU_BLOCK;
 
 
@@ -972,8 +934,8 @@ typedef struct _EFI_HII_SIBT_STRINGS_SCSU_BLOCK {
 **/
 typedef struct _EFI_HII_SIBT_STRINGS_SCSU_FONT_BLOCK {
   EFI_HII_STRING_BLOCK  Header;
-  UINT16                StringCount;
   UINT8                 FontIdentifier;
+  UINT16                StringCount;
   UINT8                 StringText[1];
 } EFI_HII_SIBT_STRINGS_SCSU_FONT_BLOCK;
 
@@ -1054,6 +1016,13 @@ typedef struct _EFI_HII_SIBT_STRINGS_UCS2_BLOCK {
   CHAR16                StringText[1];
 } EFI_HII_SIBT_STRINGS_UCS2_BLOCK;
 
+typedef struct _EFI_HII_SIBT_STRINGS_UCS2_FONT_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   FontIdentifier;
+  UINT16                  StringCount;
+  CHAR16                  StringText[1];
+} EFI_HII_SIBT_STRINGS_UCS2_FONT_BLOCK;
+
 
 /**
    
@@ -1079,12 +1048,12 @@ typedef struct _EFI_HII_IMAGE_PACKAGE_HDR {
 } EFI_HII_IMAGE_PACKAGE_HDR;
 
 
+
 //
 // EFI_HII_IMAGE_BLOCK
 // 
 typedef struct _EFI_HII_IMAGE_BLOCK {
   UINT8   BlockType;
-  UINT8   BlockBody[1];
 } EFI_HII_IMAGE_BLOCK;
 
 //
@@ -1183,9 +1152,9 @@ typedef struct _EFI_HII_IIBT_EXT4_BLOCK {
 // EFI_HII_IIBT_IMAGE_1BIT_BASE
 // 
 typedef struct _EFI_HII_IIBT_IMAGE_1BIT_BASE {
-  UINT16 Width;
-  UINT16 Height;
-  // UINT8 Data[...];
+  UINT16              Width;
+  UINT16              Height;
+  UINT8               Data[1];
 } EFI_HII_IIBT_IMAGE_1BIT_BASE;
 
 /**
@@ -1218,7 +1187,11 @@ typedef struct _EFI_HII_IBIT_IMAGE_1BIT_BLOCK {
   EFI_HII_IIBT_IMAGE_1BIT_BASE  Bitmap;
 } EFI_HII_IIBT_IMAGE_1BIT_BLOCK;
 
-typedef EFI_HII_IIBT_IMAGE_1BIT_BLOCK   EFI_HII_IIBT_IMAGE_1BIT_TRANS_BLOCK;
+typedef struct _EFI_HII_IIBT_IMAGE_1BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_1BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_1BIT_TRANS_BLOCK;
 
 
 //
@@ -1266,16 +1239,19 @@ typedef struct {
   EFI_HII_IIBT_IMAGE_24BIT_BASE Bitmap;
 } EFI_HII_IIBT_IMAGE_24BIT_BLOCK;
 
-typedef EFI_HII_IIBT_IMAGE_24BIT_BLOCK EFI_HII_IIBT_IMAGE_24BIT_TRANS_BLOCK;
-
+typedef struct _EFI_HII_IIBT_IMAGE_24BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK           Header;
+  EFI_HII_IIBT_IMAGE_24BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_24BIT_TRANS_BLOCK;
 
 
 //
 // EFI_HII_IIBT_IMAGE_4BIT_BASE
 // 
 typedef struct _EFI_HII_IIBT_IMAGE_4BIT_BASE {
-  UINT16 Width;
-  UINT16 Height;
+  UINT16                      Width;
+  UINT16                      Height;
+  UINT8                       Data[1];
   // UINT8 Data[...];
 } EFI_HII_IIBT_IMAGE_4BIT_BASE;
 
@@ -1306,18 +1282,34 @@ typedef struct _EFI_HII_IIBT_IMAGE_4BIT_BLOCK {
   EFI_HII_IIBT_IMAGE_4BIT_BASE  Bitmap;
 } EFI_HII_IIBT_IMAGE_4BIT_BLOCK;
 
-typedef EFI_HII_IIBT_IMAGE_4BIT_BLOCK EFI_HII_IIBT_IMAGE_4BIT_TRANS_BLOCK;
-
-
+typedef struct _EFI_HII_IIBT_IMAGE_4BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_4BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_4BIT_TRANS_BLOCK;
 
 //
 // EFI_HII_IIBT_IMAGE_8BIT_BASE 
 // 
 typedef struct _EFI_HII_IIBT_IMAGE_8BIT_BASE {
-  UINT16  Width;
-  UINT16  Height;
-  // UINT8 Data[...];
+  UINT16                      Width;
+  UINT16                      Height;
+  UINT8                       Data[1];
 } EFI_HII_IIBT_IMAGE_8BIT_BASE;
+
+typedef struct _EFI_HII_IIBT_IMAGE_8BIT_PALETTE_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_8BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_8BIT_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_8BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_8BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_8BIT_TRAN_BLOCK;
+
+
 
 /**
    
@@ -1389,11 +1381,11 @@ typedef struct _EFI_HII_IIBT_DUPLICATE_BLOCK {
                 of true-color image.
 
 **/
-typedef struct _EFI_HII_IIBT_JPEG {
-  EFI_HII_IMAGE_BLOCK Header;
-  UINT32              Size;
-  //UINT8 Data[ бн ];
-} EFI_HII_IIBT_JPEG;
+typedef struct _EFI_HII_IIBT_JPEG_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT32                       Size;
+  UINT8                        Data[1];
+} EFI_HII_IIBT_JPEG_BLOCK;
 
 
 /**
@@ -1461,10 +1453,10 @@ typedef struct _EFI_HII_IMAGE_PALETTE_INFO_HEADER {
   
 **/
 typedef struct _EFI_HII_IMAGE_PALETTE_INFO {
-  UINT16 PaletteSize;
+  UINT16                       PaletteSize;
+  EFI_HII_RGB_PIXEL            PaletteValue[1];
   // EFI_HII_RGB_PIXEL PaletteValue[...];
 } EFI_HII_IMAGE_PALETTE_INFO;
-
 
 
 //
@@ -1503,11 +1495,11 @@ typedef UINTN   EFI_HII_DATABASE_NOTIFY_TYPE;
 typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_DATABASE_NOTIFY) (
-  IN CONST  UINT8                         PackageType,
+  IN        UINT8                         PackageType,
   IN CONST  EFI_GUID                      *PackageGuid,
   IN CONST  EFI_HII_PACKAGE_HEADER        *Package,
-  IN CONST  EFI_HII_HANDLE                Handle,
-  IN CONST  EFI_HII_DATABASE_NOTIFY_TYPE  NotifyType
+  IN        EFI_HII_HANDLE                 Handle,
+  IN        EFI_HII_DATABASE_NOTIFY_TYPE  NotifyType
 );
 
 /**
@@ -1531,7 +1523,7 @@ EFI_STATUS
 
   @param DriverHandle   Associate the package list with this EFI
                         handle Handle A pointer to the
-                        EFI_HII_HANDLE instance.
+                        EFI_HII_HANDLE  instance.
 
   @retval EFI_SUCCESS   The package list associated with the
                         Handle was added to the HII database.
@@ -1546,11 +1538,11 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_NEW_PACK) (
+(EFIAPI *EFI_HII_DATABASE_NEW_PACK) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL   *This,
   IN CONST  EFI_HII_PACKAGE_LIST_HEADER *PackageList,
-  IN CONST  EFI_HANDLE                  DriverHandle,
-  OUT       EFI_HII_HANDLE              *Handle
+  IN        EFI_HANDLE                  DriverHandle,
+  OUT       EFI_HII_HANDLE               *Handle
 );
 
 
@@ -1577,9 +1569,9 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_REMOVE_PACK) (
+(EFIAPI *EFI_HII_DATABASE_REMOVE_PACK) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  EFI_HII_HANDLE            Handle
+  IN        EFI_HII_HANDLE             Handle
 );
 
 
@@ -1626,9 +1618,9 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_UPDATE_PACK) (
+(EFIAPI *EFI_HII_DATABASE_UPDATE_PACK) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL   *This,
-  IN CONST  EFI_HII_HANDLE              Handle,
+  IN        EFI_HII_HANDLE               Handle,
   IN CONST  EFI_HII_PACKAGE_LIST_HEADER *PackageList
 );
 
@@ -1660,7 +1652,7 @@ EFI_STATUS
                               that is required for the handles
                               found.
 
-  @param Handle   An array of EFI_HII_HANDLE instances returned.
+  @param Handle   An array of EFI_HII_HANDLE  instances returned.
 
 
   @retval EFI_SUCCESS   Handle was updated successfully.
@@ -1676,12 +1668,12 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_LIST_PACKS) (
+(EFIAPI *EFI_HII_DATABASE_LIST_PACKS) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  UINT8                     PackageType,
+  IN        UINT8                     PackageType,
   IN CONST  EFI_GUID                  *PackageGuid,
   IN OUT    UINTN                     *HandleBufferLength,
-  OUT       EFI_HII_HANDLE            *Handle
+  OUT       EFI_HII_HANDLE             *Handle
 );
 
 
@@ -1704,7 +1696,7 @@ EFI_STATUS
   @param This   A pointer to the EFI_HII_DATABASE_PROTOCOL
                 instance.
 
-  @param Handle   An EFI_HII_HANDLE that corresponds to the
+  @param Handle   An EFI_HII_HANDLE  that corresponds to the
                   desired package list in the HII database to
                   export or NULL to indicate all package lists
                   should be exported. 
@@ -1726,9 +1718,9 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_EXPORT_PACKS) (
+(EFIAPI *EFI_HII_DATABASE_EXPORT_PACKS) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  EFI_HII_HANDLE            Handle,
+  IN        EFI_HII_HANDLE             Handle,
   IN OUT    UINTN                     *BufferSize,
   OUT       EFI_HII_PACKAGE_HEADER    *Buffer
 );
@@ -1789,12 +1781,12 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_REGISTER_NOTIFY) (
+(EFIAPI *EFI_HII_DATABASE_REGISTER_NOTIFY) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL     *This,
-  IN CONST  UINT8                         PackageType,
+  IN        UINT8                         PackageType,
   IN CONST  EFI_GUID                      *PackageGuid,
-  IN CONST  EFI_HII_DATABASE_NOTIFY       PackageNotifyFn,
-  IN CONST  EFI_HII_DATABASE_NOTIFY_TYPE  NotifyType,
+  IN        EFI_HII_DATABASE_NOTIFY       PackageNotifyFn,
+  IN        EFI_HII_DATABASE_NOTIFY_TYPE  NotifyType,
   OUT       EFI_HANDLE                    *NotifyHandle
 );
 
@@ -1817,9 +1809,9 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_UNREGISTER_NOTIFY) (
+(EFIAPI *EFI_HII_DATABASE_UNREGISTER_NOTIFY) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  EFI_HANDLE                NotificationHandle
+  IN        EFI_HANDLE                NotificationHandle
 );
 
 
@@ -2129,7 +2121,7 @@ EFI_STATUS
   @param This   A pointer to the EFI_HII_DATABASE_PROTOCOL
                 instance.
   
-  @param PackageListHandle  An EFI_HII_HANDLE that corresponds
+  @param PackageListHandle  An EFI_HII_HANDLE  that corresponds
                             to the desired package list in the
                             HIIdatabase.
   
@@ -2146,9 +2138,9 @@ EFI_STATUS
 **/
 typedef
 EFI_STATUS
-(EFIAPI *EFI_HII_GET_PACK_HANDLE) (
+(EFIAPI *EFI_HII_DATABASE_GET_PACK_HANDLE) (
   IN CONST  EFI_HII_DATABASE_PROTOCOL *This,
-  IN CONST  EFI_HII_HANDLE            PackageListHandle,
+  IN CONST  EFI_HII_HANDLE             PackageListHandle,
   OUT       EFI_HANDLE                *DriverHandle
 );
 
@@ -2190,20 +2182,21 @@ EFI_STATUS
 
 **/
 struct _EFI_HII_DATABASE_PROTOCOL {
-  EFI_HII_NEW_PACK                NewPackageList;
-  EFI_HII_REMOVE_PACK             RemovePackageList;
-  EFI_HII_UPDATE_PACK             UpdatePackageList;
-  EFI_HII_LIST_PACKS              ListPackageLists;
-  EFI_HII_EXPORT_PACKS            ExportPackageLists;
-  EFI_HII_REGISTER_NOTIFY         RegisterPackageNotify;
-  EFI_HII_UNREGISTER_NOTIFY       UnregisterPackageNotify;
-  EFI_HII_FIND_KEYBOARD_LAYOUTS   FindKeyboardLayouts;
-  EFI_HII_GET_KEYBOARD_LAYOUT     GetKeyboardLayout;
-  EFI_HII_SET_KEYBOARD_LAYOUT     SetKeyboardLayout;
-  EFI_HII_GET_PACK_HANDLE         GetPackageHandle;
+  EFI_HII_NEW_PACK                    NewPackageList;
+  EFI_HII_REMOVE_PACK                 RemovePackageList;
+  EFI_HII_DATABASE_UPDATE_PACK        UpdatePackageList;
+  EFI_HII_DATABASE_LIST_PACKS         ListPackageLists;
+  EFI_HII_DATABASE_EXPORT_PACKS       ExportPackageLists;
+  EFI_HII_DATABASE_REGISTER_NOTIFY    RegisterPackageNotify;
+  EFI_HII_DATABASE_UNREGISTER_NOTIFY  UnregisterPackageNotify;
+  EFI_HII_FIND_KEYBOARD_LAYOUTS       FindKeyboardLayouts;
+  EFI_HII_GET_KEYBOARD_LAYOUT         GetKeyboardLayout;
+  EFI_HII_SET_KEYBOARD_LAYOUT         SetKeyboardLayout;
+  EFI_HII_DATABASE_GET_PACK_HANDLE    GetPackageHandle;
 };
 
 extern EFI_GUID gEfiHiiDatabaseProtocolGuid;
 
 #endif
+
 

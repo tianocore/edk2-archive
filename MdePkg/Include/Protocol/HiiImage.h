@@ -83,7 +83,7 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_NEW_IMAGE) (
   IN CONST  EFI_HII_IMAGE_PROTOCOL  *This,
-  IN CONST  EFI_HII_HANDLE          PackageList,
+  IN        EFI_HII_HANDLE          PackageList,
   OUT       EFI_IMAGE_ID            *ImageId,
   IN CONST  EFI_IMAGE_INPUT         *Image
 );
@@ -133,8 +133,8 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_GET_IMAGE) (
   IN CONST  EFI_HII_IMAGE_PROTOCOL  *This,
-  IN CONST  EFI_HII_HANDLE          PackageList,
-  IN CONST  EFI_IMAGE_ID            ImageId,
+  IN        EFI_HII_HANDLE          PackageList,
+  IN        EFI_IMAGE_ID            ImageId,
   OUT       EFI_IMAGE_INPUT         *Image,
   OUT       UINTN                   *ImageSize
 );
@@ -168,9 +168,9 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_SET_IMAGE) (
   IN CONST  EFI_HII_IMAGE_PROTOCOL  *This,
-  IN CONST  EFI_HII_HANDLE          PackageList,
-  IN CONST  EFI_IMAGE_ID            ImageId,
-  IN CONST  EFI_IMAGE_INPUT         Image
+  IN        EFI_HII_HANDLE          PackageList,
+  IN        EFI_IMAGE_ID            ImageId,
+  IN CONST  EFI_IMAGE_INPUT         *Image
 );
 
 
@@ -264,11 +264,11 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_DRAW_IMAGE) (
   IN CONST  EFI_HII_IMAGE_PROTOCOL  *This,
-  IN CONST  EFI_HII_DRAW_FLAGS      Flags,
-  IN CONST  EFI_IMAGE_INPUT         Image,
+  IN        EFI_HII_DRAW_FLAGS      Flags,
+  IN CONST  EFI_IMAGE_INPUT         *Image,
   IN OUT    EFI_IMAGE_OUTPUT        **Blt,
-  IN CONST  UINTN                   BltX,
-  IN CONST  UINTN                   BltY
+  IN        UINTN                   BltX,
+  IN        UINTN                   BltY
 );
 
 /**
@@ -342,12 +342,12 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_HII_DRAW_IMAGE_ID) (
 IN CONST  EFI_HII_IMAGE_PROTOCOL  *This,
-IN CONST  EFI_HII_DRAW_FLAGS      Flags,
-IN CONST  EFI_HII_HANDLE          PackageList,
-IN CONST  EFI_IMAGE_ID            ImageId,
+IN        EFI_HII_DRAW_FLAGS      Flags,
+IN        EFI_HII_HANDLE          PackageList,
+IN        EFI_IMAGE_ID            ImageId,
 IN OUT    EFI_IMAGE_OUTPUT        **Blt,
-IN CONST  UINTN                   BltX,
-IN CONST  UINTN                   BltY
+IN        UINTN                   BltX,
+IN        UINTN                   BltY
 );
 
 
@@ -378,4 +378,5 @@ struct _EFI_HII_IMAGE_PROTOCOL {
 extern EFI_GUID gEfiHiiImageProtocolGuid;
 
 #endif
+
 
