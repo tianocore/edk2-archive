@@ -36,6 +36,550 @@ typedef UINT16  EFI_VARSTORE_ID;
 typedef UINT16  EFI_DEFAULT_ID;
 typedef UINT32  EFI_HII_FONT_STYLE;
 
+
+
+#pragma pack(1)
+
+
+//
+// HII package list
+//
+typedef struct {
+  EFI_GUID               PackageListGuid;
+  UINT32                 PackageLength;
+} EFI_HII_PACKAGE_LIST_HEADER;
+
+/**
+    
+  Each package starts with a header, as defined above, which  
+  indicates the size and type of the package. When added to a  
+  pointer pointing to the start of the header, Length points at  
+  the next package. The package lists form a package list when  
+  concatenated together and terminated with an  
+  EFI_HII_PACKAGE_HEADER with a Type of EFI_HII_PACKAGE_END. The  
+  type EFI_HII_PACKAGE_TYPE_GUID is used for vendor-defined HII  
+  packages, whose contents are determined by the Guid. The range  
+  of package types starting with EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN  
+  through EFI_HII_PACKAGE_TYPE_SYSTEM_END are reserved for system  
+  firmware implementers.  
+  
+  @param Length The size of the package in bytes.
+  
+  @param Type   The package type. See EFI_HII_PACKAGE_TYPE_x,
+                below.
+  
+  @param Data   The package data, the format of which is
+                determined by Type.
+  
+**/
+typedef struct {
+  UINT32  Length:24;
+  UINT32  Type:8;
+  // UINT8  Data[...];
+} EFI_HII_PACKAGE_HEADER;
+
+//
+// EFI_HII_PACKAGE_TYPE_x.
+// 
+#define EFI_HII_PACKAGE_TYPE_ALL             0x00
+#define EFI_HII_PACKAGE_TYPE_GUID            0x01
+#define EFI_HII_PACKAGE_FORM                 0x02
+#define EFI_HII_PACKAGE_KEYBOARD_LAYOUT      0x03
+#define EFI_HII_PACKAGE_STRINGS              0x04
+#define EFI_HII_PACKAGE_FONTS                0x05
+#define EFI_HII_PACKAGE_IMAGES               0x06
+#define EFI_HII_PACKAGE_SIMPLE_FONTS         0x07
+#define EFI_HII_PACKAGE_DEVICE_PATH          0x08
+#define EFI_HII_PACKAGE_END                  0xDF
+#define EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN    0xE0
+#define EFI_HII_PACKAGE_TYPE_SYSTEM_END      0xFF
+
+//
+// Simplified Font Package
+//
+
+#define EFI_GLYPH_HEIGHT                     19
+#define EFI_GLYPH_WIDTH                      8
+//
+// Contents of EFI_NARROW_GLYPH.Attributes
+//
+#define EFI_GLYPH_NON_SPACING                0x01
+#define EFI_GLYPH_WIDE                       0x02
+
+typedef struct {
+  CHAR16                 UnicodeWeight;
+  UINT8                  Attributes;
+  UINT8                  GlyphCol1[EFI_GLYPH_HEIGHT];
+} EFI_NARROW_GLYPH;
+
+typedef struct {
+  CHAR16                 UnicodeWeight;
+  UINT8                  Attributes;
+  UINT8                  GlyphCol1[EFI_GLYPH_HEIGHT];
+  UINT8                  GlyphCol2[EFI_GLYPH_HEIGHT];
+  UINT8                  Pad[3];
+} EFI_WIDE_GLYPH;
+
+
+typedef struct _EFI_HII_SIMPLE_FONT_PACKAGE_HDR {
+  EFI_HII_PACKAGE_HEADER Header;
+  UINT16                 NumberOfNarrowGlyphs;
+  UINT16                 NumberOfWideGlyphs;
+  // EFI_NARROW_GLYPH       NarrowGlyphs[];
+  // EFI_WIDE_GLYPH         WideGlyphs[];
+} EFI_HII_SIMPLE_FONT_PACKAGE_HDR;
+
+//
+// Font Package
+//
+
+#define EFI_HII_FONT_STYLE_BOLD              0x00000001
+#define EFI_HII_FONT_STYLE_ITALIC            0x00000002
+#define EFI_HII_FONT_STYLE_EMBOSS            0x00010000
+#define EFI_HII_FONT_STYLE_OUTLINE           0x00020000
+#define EFI_HII_FONT_STYLE_SHADOW            0x00040000
+#define EFI_HII_FONT_STYLE_UNDERLINE         0x00080000
+#define EFI_HII_FONT_STYLE_DBL_UNDER         0x00100000
+
+typedef struct _EFI_HII_GLYPH_INFO {
+  UINT16                 Width;
+  UINT16                 Height;
+  INT16                  OffsetX;
+  INT16                  OffsetY;
+  INT16                  AdvanceX;
+} EFI_HII_GLYPH_INFO;
+
+typedef struct _EFI_HII_FONT_PACKAGE_HDR {
+  EFI_HII_PACKAGE_HEADER Header;
+  UINT32                 HdrSize;
+  UINT32                 GlyphBlockOffset;
+  EFI_HII_GLYPH_INFO     Cell;
+  EFI_HII_FONT_STYLE     FontStyle;
+  CHAR16                 FontFamily[1];
+} EFI_HII_FONT_PACKAGE_HDR;
+
+#define EFI_HII_GIBT_END                  0x00
+#define EFI_HII_GIBT_GLYPH                0x10
+#define EFI_HII_GIBT_GLYPHS               0x11
+#define EFI_HII_GIBT_GLYPH_DEFAULT        0x12
+#define EFI_HII_GIBT_GLYPHS_DEFAULT       0x13
+#define EFI_HII_GIBT_DUPLICATE            0x20
+#define EFI_HII_GIBT_SKIP2                0x21
+#define EFI_HII_GIBT_SKIP1                0x22
+#define EFI_HII_GIBT_DEFAULTS             0x23
+#define EFI_HII_GIBT_EXT1                 0x30
+#define EFI_HII_GIBT_EXT2                 0x31
+#define EFI_HII_GIBT_EXT4                 0x32
+
+typedef struct _EFI_HII_GLYPH_BLOCK {
+  UINT8                  BlockType;
+} EFI_HII_GLYPH_BLOCK;
+
+typedef struct _EFI_HII_GIBT_DEFAULTS_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  EFI_HII_GLYPH_INFO     Cell;
+} EFI_HII_GIBT_DEFAULTS_BLOCK;
+
+typedef struct _EFI_HII_GIBT_DUPLICATE_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  CHAR16                 CharValue;
+} EFI_HII_GIBT_DUPLICATE_BLOCK;
+
+typedef struct _EFI_GLYPH_GIBT_END_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+} EFI_GLYPH_GIBT_END_BLOCK;
+
+typedef struct _EFI_HII_GIBT_EXT1_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT8                  BlockType2;
+  UINT8                  Length;
+} EFI_HII_GIBT_EXT1_BLOCK;
+
+typedef struct _EFI_HII_GIBT_EXT2_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT8                  BlockType2;
+  UINT16                 Length;
+} EFI_HII_GIBT_EXT2_BLOCK;
+
+typedef struct _EFI_HII_GIBT_EXT4_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT8                  BlockType2;
+  UINT32                 Length;
+} EFI_HII_GIBT_EXT4_BLOCK;
+
+typedef struct _EFI_HII_GIBT_GLYPH_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  EFI_HII_GLYPH_INFO     Cell;
+  UINT8                  BitmapData[1]; // the number of bytes per bitmap can be calculated by ((Cell.Width+7)/8)*Cell.Height
+} EFI_HII_GIBT_GLYPH_BLOCK;
+
+typedef struct _EFI_HII_GIBT_GLYPHS_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  EFI_HII_GLYPH_INFO     Cell;
+  UINT16                 Count;  
+  UINT8                  BitmapData[1]; // the number of bytes per bitmap can be calculated by ((Cell.Width+7)/8)*Cell.Height
+} EFI_HII_GIBT_GLYPHS_BLOCK;
+
+typedef struct _EFI_HII_GIBT_GLYPH_DEFAULT_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT8                  BitmapData[1]; // the number of bytes per bitmap can be calculated by ((Global.Cell.Width+7)/8)*Global.Cell.Height
+} EFI_HII_GIBT_GLYPH_DEFAULT_BLOCK;
+
+typedef struct _EFI_HII_GIBT_GLYPHS_DEFAULT_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT16                 Count;
+  UINT8                  BitmapData[1]; // the number of bytes per bitmap can be calculated by ((Global.Cell.Width+7)/8)*Global.Cell.Height
+} EFI_HII_GIBT_GLYPHS_DEFAULT_BLOCK;
+
+typedef struct _EFI_HII_GIBT_SKIP1_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT8                  SkipCount;
+} EFI_HII_GIBT_SKIP1_BLOCK;
+
+typedef struct _EFI_HII_GIBT_SKIP2_BLOCK {
+  EFI_HII_GLYPH_BLOCK    Header;
+  UINT16                 SkipCount;
+} EFI_HII_GIBT_SKIP2_BLOCK;
+
+//
+// Device Path Package
+//
+typedef struct _EFI_HII_DEVICE_PATH_PACKAGE {
+  EFI_HII_PACKAGE_HEADER   Header;
+  // EFI_DEVICE_PATH_PROTOCOL DevicePath[];
+} EFI_HII_DEVICE_PATH_PACKAGE;
+
+//
+// GUID Package
+//
+typedef struct _EFI_HII_GUID_PACKAGE_HDR {
+  EFI_HII_PACKAGE_HEADER  Header;
+  EFI_GUID                Guid;
+  // Data per GUID definition may follow
+} EFI_HII_GUID_PACKAGE_HDR;
+
+//
+// String Package
+//
+
+#define UEFI_CONFIG_LANG  L"x-UEFI"
+#define UEFI_CONFIG_LANG2 L"x-i-UEFI"     // BUGBUG, spec need to be updated.
+
+typedef struct _EFI_HII_STRING_PACKAGE_HDR {
+  EFI_HII_PACKAGE_HEADER  Header;
+  UINT32                  HdrSize;
+  UINT32                  StringInfoOffset;
+  CHAR16                  LanguageWindow[16];
+  EFI_STRING_ID           LanguageName;
+  CHAR8                   Language[1];
+} EFI_HII_STRING_PACKAGE_HDR;
+
+typedef struct {
+  UINT8                   BlockType;
+} EFI_HII_STRING_BLOCK;
+
+#define EFI_HII_SIBT_END                     0x00
+#define EFI_HII_SIBT_STRING_SCSU             0x10
+#define EFI_HII_SIBT_STRING_SCSU_FONT        0x11
+#define EFI_HII_SIBT_STRINGS_SCSU            0x12
+#define EFI_HII_SIBT_STRINGS_SCSU_FONT       0x13
+#define EFI_HII_SIBT_STRING_UCS2             0x14
+#define EFI_HII_SIBT_STRING_UCS2_FONT        0x15
+#define EFI_HII_SIBT_STRINGS_UCS2            0x16
+#define EFI_HII_SIBT_STRINGS_UCS2_FONT       0x17
+#define EFI_HII_SIBT_DUPLICATE               0x20
+#define EFI_HII_SIBT_SKIP2                   0x21
+#define EFI_HII_SIBT_SKIP1                   0x22
+#define EFI_HII_SIBT_EXT1                    0x30
+#define EFI_HII_SIBT_EXT2                    0x31
+#define EFI_HII_SIBT_EXT4                    0x32
+#define EFI_HII_SIBT_FONT                    0x40
+
+typedef struct _EFI_HII_SIBT_DUPLICATE_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  EFI_STRING_ID           StringId;
+} EFI_HII_SIBT_DUPLICATE_BLOCK;
+
+typedef struct _EFI_HII_SIBT_END_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+} EFI_HII_SIBT_END_BLOCK;
+
+typedef struct _EFI_HII_SIBT_EXT1_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   BlockType2;
+  UINT8                   Length;
+} EFI_HII_SIBT_EXT1_BLOCK;
+
+typedef struct _EFI_HII_SIBT_EXT2_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   BlockType2;
+  UINT16                  Length;
+} EFI_HII_SIBT_EXT2_BLOCK;
+
+typedef struct _EFI_HII_SIBT_EXT4_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   BlockType2;
+  UINT32                  Length;
+} EFI_HII_SIBT_EXT4_BLOCK;
+
+typedef struct _EFI_HII_SIBT_FONT_BLOCK {
+  EFI_HII_SIBT_EXT2_BLOCK Header;
+  UINT8                   FontId;
+  UINT16                  FontSize;
+  EFI_HII_FONT_STYLE      FontStyle;
+  CHAR16                  FontName[1];
+} EFI_HII_SIBT_FONT_BLOCK;
+
+typedef struct _EFI_HII_SIBT_SKIP1_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   SkipCount;
+} EFI_HII_SIBT_SKIP1_BLOCK;
+
+typedef struct _EFI_HII_SIBT_SKIP2_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT16                  SkipCount;
+} EFI_HII_SIBT_SKIP2_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRING_SCSU_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   StringText[1];
+} EFI_HII_SIBT_STRING_SCSU_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRING_SCSU_FONT_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   FontIdentifier;
+  UINT8                   StringText[1];
+} EFI_HII_SIBT_STRING_SCSU_FONT_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRINGS_SCSU_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT16                  StringCount;
+  UINT8                   StringText[1];
+} EFI_HII_SIBT_STRINGS_SCSU_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRINGS_SCSU_FONT_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   FontIdentifier;
+  UINT16                  StringCount;
+  UINT8                   StringText[1];
+} EFI_HII_SIBT_STRINGS_SCSU_FONT_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRING_UCS2_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  CHAR16                  StringText[1];
+} EFI_HII_SIBT_STRING_UCS2_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRING_UCS2_FONT_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   FontIdentifier;
+  CHAR16                  StringText[1];
+} EFI_HII_SIBT_STRING_UCS2_FONT_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRINGS_UCS2_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT16                  StringCount;
+  CHAR16                  StringText[1];
+} EFI_HII_SIBT_STRINGS_UCS2_BLOCK;
+
+typedef struct _EFI_HII_SIBT_STRINGS_UCS2_FONT_BLOCK {
+  EFI_HII_STRING_BLOCK    Header;
+  UINT8                   FontIdentifier;
+  UINT16                  StringCount;
+  CHAR16                  StringText[1];
+} EFI_HII_SIBT_STRINGS_UCS2_FONT_BLOCK;
+
+//
+// Image Packages
+//
+
+typedef struct _EFI_HII_IMAGE_PACKAGE_HDR {
+  EFI_HII_PACKAGE_HEADER  Header;
+  UINT32                  ImageInfoOffset;
+  UINT32                  PaletteInfoOffset;
+} EFI_HII_IMAGE_PACKAGE_HDR;
+
+typedef struct _EFI_HII_IMAGE_BLOCK {
+  UINT8                   BlockType;
+} EFI_HII_IMAGE_BLOCK;
+
+#define EFI_HII_IIBT_END               0x00
+#define EFI_HII_IIBT_IMAGE_1BIT        0x10
+#define EFI_HII_IIBT_IMAGE_1BIT_TRANS  0x11
+#define EFI_HII_IIBT_IMAGE_4BIT        0x12
+#define EFI_HII_IIBT_IMAGE_4BIT_TRANS  0x13
+#define EFI_HII_IIBT_IMAGE_8BIT        0x14
+#define EFI_HII_IIBT_IMAGE_8BIT_TRANS  0x15
+#define EFI_HII_IIBT_IMAGE_24BIT       0x16
+#define EFI_HII_IIBT_IMAGE_24BIT_TRANS 0x17
+#define EFI_HII_IIBT_IMAGE_JPEG        0x18
+#define EFI_HII_IIBT_DUPLICATE         0x20
+#define EFI_HII_IIBT_SKIP2             0x21
+#define EFI_HII_IIBT_SKIP1             0x22
+#define EFI_HII_IIBT_EXT1              0x30
+#define EFI_HII_IIBT_EXT2              0x31
+#define EFI_HII_IIBT_EXT4              0x32
+
+typedef struct _EFI_HII_IIBT_END_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+} EFI_HII_IIBT_END_BLOCK;
+
+typedef struct _EFI_HII_IIBT_EXT1_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        BlockType2;
+  UINT8                        Length;
+} EFI_HII_IIBT_EXT1_BLOCK;
+
+typedef struct _EFI_HII_IIBT_EXT2_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        BlockType2;
+  UINT16                       Length;
+} EFI_HII_IIBT_EXT2_BLOCK;
+
+typedef struct _EFI_HII_IIBT_EXT4_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        BlockType2;
+  UINT32                       Length;
+} EFI_HII_IIBT_EXT4_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_1BIT_BASE {
+  UINT16                       Width;
+  UINT16                       Height;
+  UINT8                        Data[1];
+} EFI_HII_IIBT_IMAGE_1BIT_BASE;
+
+typedef struct _EFI_HII_IIBT_IMAGE_1BIT_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_1BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_1BIT_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_1BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_1BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_1BIT_TRANS_BLOCK;
+
+typedef struct _EFI_HII_RGB_PIXEL {
+  UINT8                        b;
+  UINT8                        g;
+  UINT8                        r;
+} EFI_HII_RGB_PIXEL;
+
+typedef struct _EFI_HII_IIBT_IMAGE_24BIT_BASE {
+  UINT16                       Width;
+  UINT16                       Height;
+  EFI_HII_RGB_PIXEL            Bitmap[1];
+} EFI_HII_IIBT_IMAGE_24BIT_BASE;
+
+typedef struct _EFI_HII_IIBT_IMAGE_24BIT_BLOCK {
+  EFI_HII_IMAGE_BLOCK           Header;
+  EFI_HII_IIBT_IMAGE_24BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_24BIT_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_24BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK           Header;
+  EFI_HII_IIBT_IMAGE_24BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_24BIT_TRANS_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_4BIT_BASE {
+  UINT16                       Width;
+  UINT16                       Height;
+  UINT8                        Data[1];
+} EFI_HII_IIBT_IMAGE_4BIT_BASE;
+
+typedef struct _EFI_HII_IIBT_IMAGE_4BIT_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_4BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_4BIT_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_4BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_4BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_4BIT_TRANS_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_8BIT_BASE {
+  UINT16                       Width;
+  UINT16                       Height;
+  UINT8                        Data[1];
+} EFI_HII_IIBT_IMAGE_8BIT_BASE;
+
+typedef struct _EFI_HII_IIBT_IMAGE_8BIT_PALETTE_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_8BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_8BIT_BLOCK;
+
+typedef struct _EFI_HII_IIBT_IMAGE_8BIT_TRANS_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        PaletteIndex;
+  EFI_HII_IIBT_IMAGE_8BIT_BASE Bitmap;
+} EFI_HII_IIBT_IMAGE_8BIT_TRAN_BLOCK;
+
+typedef struct _EFI_HII_IIBT_DUPLICATE_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  EFI_IMAGE_ID                 ImageId;
+} EFI_HII_IIBT_DUPLICATE_BLOCK;
+
+typedef struct _EFI_HII_IIBT_JPEG_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT32                       Size;
+  UINT8                        Data[1];
+} EFI_HII_IIBT_JPEG_BLOCK;
+
+typedef struct _EFI_HII_IIBT_SKIP1_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT8                        SkipCount;
+} EFI_HII_IIBT_SKIP1_BLOCK;
+
+typedef struct _EFI_HII_IIBT_SKIP2_BLOCK {
+  EFI_HII_IMAGE_BLOCK          Header;
+  UINT16                       SkipCount;
+} EFI_HII_IIBT_SKIP2_BLOCK;
+
+typedef struct _EFI_HII_IMAGE_PALETTE_INFO_HEADER {
+  UINT16                       PaletteCount;
+} EFI_HII_IMAGE_PALETTE_INFO_HEADER;
+
+typedef struct _EFI_HII_IMAGE_PALETTE_INFO {
+  UINT16                       PaletteSize;
+  EFI_HII_RGB_PIXEL            PaletteValue[1];
+} EFI_HII_IMAGE_PALETTE_INFO;
+
+//
+// Forms Package
+//
+
+typedef struct _EFI_HII_FORM_PACKAGE {
+  EFI_HII_PACKAGE_HEADER       Header;
+  // EFI_IFR_OP_HEADER         OpCodeHeader;
+  // More op-codes follow
+} EFI_HII_FORM_PACKAGE;
+
+typedef struct {
+  UINT8 Hour;
+  UINT8 Minute;
+  UINT8 Second;
+} EFI_HII_TIME;
+
+typedef struct {
+  UINT16 Year;
+  UINT8  Month;
+  UINT8  Day;
+} EFI_HII_DATE;
+
+typedef union {
+  UINT8           u8;
+  UINT16          u16;
+  UINT32          u32;
+  UINT64          u64;
+  BOOLEAN         b;
+  EFI_HII_TIME    time;
+  EFI_HII_DATE    date;
+  EFI_STRING_ID   string;
+} EFI_IFR_TYPE_VALUE;
+
 #define EFI_IFR_FORM_OP                0x01
 #define EFI_IFR_SUBTITLE_OP            0x02
 #define EFI_IFR_TEXT_OP                0x03
@@ -125,89 +669,6 @@ typedef UINT32  EFI_HII_FONT_STYLE;
 #define EFI_IFR_CATENATE_OP            0x5E
 #define EFI_IFR_GUID_OP                0x5F
 
-
-
-
-#pragma pack(1)
-
-
-/**
-    
-  Each package starts with a header, as defined above, which  
-  indicates the size and type of the package. When added to a  
-  pointer pointing to the start of the header, Length points at  
-  the next package. The package lists form a package list when  
-  concatenated together and terminated with an  
-  EFI_HII_PACKAGE_HEADER with a Type of EFI_HII_PACKAGE_END. The  
-  type EFI_HII_PACKAGE_TYPE_GUID is used for vendor-defined HII  
-  packages, whose contents are determined by the Guid. The range  
-  of package types starting with EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN  
-  through EFI_HII_PACKAGE_TYPE_SYSTEM_END are reserved for system  
-  firmware implementers.  
-  
-  @param Length The size of the package in bytes.
-  
-  @param Type   The package type. See EFI_HII_PACKAGE_TYPE_x,
-                below.
-  
-  @param Data   The package data, the format of which is
-                determined by Type.
-  
-**/
-typedef struct {
-  UINT32  Length:24;
-  UINT32  Type:8;
-  // UINT8  Data[...];
-} EFI_HII_PACKAGE_HEADER;
-
-//
-// EFI_HII_PACKAGE_TYPE_x.
-// 
-#define EFI_HII_PACKAGE_TYPE_ALL      0x00
-#define EFI_HII_PACKAGE_TYPE_GUID     0x01
-#define EFI_HII_PACKAGE_FORM_CONFIG   0x02
-#define EFI_HII_PACKAGE_FORM_APP      0x03
-#define EFI_HII_PACKAGE_STRINGS       0x04
-#define EFI_HII_PACKAGE_FONTS         0x05
-#define EFI_HII_PACKAGE_IMAGES        0x06
-#define EFI_HII_PACKAGE_SIMPLE_FONTS  0x07
-#define EFI_HII_PACKAGE_DEVICE_PATH   0x08
-#define EFI_HII_PACKAGE_END           0x09
-#define EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN   0xE0
-#define EFI_HII_PACKAGE_TYPE_SYSTEM_END     0xFF
-
-//
-// Forms Package
-//
-
-typedef struct _EFI_HII_FORM_PACKAGE {
-  EFI_HII_PACKAGE_HEADER       Header;
-  // EFI_IFR_OP_HEADER         OpCodeHeader;
-  // More op-codes follow
-} EFI_HII_FORM_PACKAGE;
-
-typedef struct {
-  UINT8 Hour;
-  UINT8 Minute;
-  UINT8 Second;
-} EFI_HII_TIME;
-
-typedef struct {
-  UINT16 Year;
-  UINT8  Month;
-  UINT8  Day;
-} EFI_HII_DATE;
-
-typedef union {
-  UINT8           u8;
-  UINT16          u16;
-  UINT32          u32;
-  UINT64          u64;
-  BOOLEAN         b;
-  EFI_HII_TIME    time;
-  EFI_HII_DATE    date;
-  EFI_STRING_ID   string;
-} EFI_IFR_TYPE_VALUE;
 
 typedef struct _EFI_IFR_OP_HEADER {
   UINT8                    OpCode;

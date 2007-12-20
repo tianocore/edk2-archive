@@ -17,9 +17,6 @@
 #ifndef __EFI_FORM_BROWSER_H__
 #define __EFI_FORM_BROWSER_H__
 
-#error "UEFI 2.1 HII is not fully implemented for now, Please don't include this file now."
-
-
 #define EFI_FORM_BROWSER2_PROTOCOL_GUID \
   { 0xe5a1333e, 0xe1b4, 0x4e55, { 0xce, 0xeb, 0x35, 0xc3, 0xef, 0x13, 0x34, 0x43 } }
 
@@ -67,7 +64,7 @@ typedef UINTN EFI_BROWSER_ACTION_REQUEST;
   the browser to use a variety of passed-in information or
   primarily use the HII database as the source of information.
 
-  @param This   A pointer to the EFI_FORM_BROWSER_PROTOCOL
+  @param This   A pointer to the EFI_FORM_BROWSER2_PROTOCOL
                 instance.
 
   @param Handle   A pointer to an array of HII handles to
@@ -121,12 +118,12 @@ typedef UINTN EFI_BROWSER_ACTION_REQUEST;
 typedef
 EFI_STATUS
 (EFIAPI *EFI_SEND_FORM2) (
-  IN CONST  EFI_FORM_BROWSER_PROTOCOL  *This,
-  IN CONST  FRAMEWORK_EFI_HII_HANDLE   *Handle,
+  IN CONST  EFI_FORM_BROWSER2_PROTOCOL  *This,
+  IN CONST  EFI_HII_HANDLE              *Handle,
   IN CONST  UINTN                      HandleCount,
   IN CONST  BOOLEAN                    SingleUse,
   IN CONST  EFI_SCREEN_DESCRIPTOR      *ScreenDimensions, OPTIONAL
-  OUT       BOOLEAN                    *ResetRequired OPTIONAL
+  OUT       BOOLEAN                    *ResetRequired, OPTIONAL
   OUT       EFI_BROWSER_ACTION_REQUEST *ActionRequest  OPTIONAL
 );
 
@@ -137,7 +134,7 @@ EFI_STATUS
   browser. This routine called this service in the browser to
   retrieve or set certain uncommitted state information.
 
-  @param This   A pointer to the EFI_FORM_BROWSER_PROTOCOL
+  @param This   A pointer to the EFI_FORM_BROWSER2_PROTOCOL
                 instance.
 
   @param ResultsDataSize  A pointer to the size of the buffer
@@ -172,7 +169,7 @@ EFI_STATUS
 typedef
 EFI_STATUS
 (EFIAPI *EFI_BROWSER_CALLBACK2 ) (
-  IN CONST  EFI_FORM_BROWSER_PROTOCOL *This,
+  IN CONST  EFI_FORM_BROWSER2_PROTOCOL *This,
   IN OUT    UINTN                     *ResultsDataSize,
   IN OUT    EFI_STRING                ResultsData,
   IN CONST  BOOLEAN                   RetrieveData,
