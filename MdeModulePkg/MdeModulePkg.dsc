@@ -70,6 +70,9 @@
   UdpIoLib|MdeModulePkg/Library/DxeUdpIoLib/DxeUdpIoLib.inf
   DpcLib|MdeModulePkg/Library/DxeDpcLib/DxeDpcLib.inf
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
+  GraphicsLib|MdeModulepkg/Library/GraphicsLib/GraphicsLib.inf
+  UefiEfiIfrSupportLib|MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
+  
 
 [LibraryClasses.IA32]
   IoLib|MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
@@ -256,6 +259,8 @@
   MdeModulePkg/Library/PeiS3LibNull/PeiS3LibNull.inf
   MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
 
+  MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
+  
   MdeModulePkg/Universal/Network/ArpDxe/ArpDxe.inf
   MdeModulePkg/Universal/Network/Dhcp4Dxe/Dhcp4Dxe.inf
   MdeModulePkg/Universal/Network/Ip4ConfigDxe/Ip4ConfigDxe.inf
@@ -308,6 +313,7 @@
   MdeModulePkg/Universal/Variable/Application/VariableInfo.inf
 
   MdeModulePkg/Universal/UefiHiiDatabaseDxe/UefiHiiDatabaseDxe.inf
+  MdeModulePkg/Universal/UefiSetupBrowserDxe/UefiSetupBrowserDxe.inf
 
 [Components.IA32]
   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
