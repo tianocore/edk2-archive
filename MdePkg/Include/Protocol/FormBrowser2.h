@@ -18,7 +18,7 @@
 #define __EFI_FORM_BROWSER_H__
 
 #define EFI_FORM_BROWSER2_PROTOCOL_GUID \
-  { 0xe5a1333e, 0xe1b4, 0x4e55, { 0xce, 0xeb, 0x35, 0xc3, 0xef, 0x13, 0x34, 0x43 } }
+  {0xb9d4c360, 0xbcfb, 0x4f9b, {0x92, 0x98, 0x53, 0xc1, 0x36, 0x98, 0x22, 0x58 }}
 
 
 typedef struct _EFI_FORM_BROWSER2_PROTOCOL   EFI_FORM_BROWSER2_PROTOCOL;
@@ -51,10 +51,10 @@ typedef struct {
 
 typedef UINTN EFI_BROWSER_ACTION_REQUEST;
 
-#define EFI_BROWSER_ACTION_NONE   0
-#define EFI_BROWSER_ACTION_RESET  1
-#define EFI_BROWSER_ACTION_SUMBIT 2
-#define EFI_BROWSER_ACTION_EXIT   3
+#define EFI_BROWSER_ACTION_REQUEST_NONE   0
+#define EFI_BROWSER_ACTION_REQUEST_RESET  1
+#define EFI_BROWSER_ACTION_REQUEST_SUBMIT 2
+#define EFI_BROWSER_ACTION_REQUEST_EXIT   3
 
 
 /**
@@ -119,11 +119,11 @@ typedef
 EFI_STATUS
 (EFIAPI *EFI_SEND_FORM2) (
   IN CONST  EFI_FORM_BROWSER2_PROTOCOL  *This,
-  IN CONST  EFI_HII_HANDLE              *Handle,
-  IN CONST  UINTN                      HandleCount,
-  IN CONST  BOOLEAN                    SingleUse,
+  IN        EFI_HII_HANDLE              *Handle,
+  IN        UINTN                      HandleCount,
+  IN        EFI_GUID                   *FormSetGuid, OPTIONAL
+  IN        EFI_FORM_ID                FormId, OPTIONAL
   IN CONST  EFI_SCREEN_DESCRIPTOR      *ScreenDimensions, OPTIONAL
-  OUT       BOOLEAN                    *ResetRequired, OPTIONAL
   OUT       EFI_BROWSER_ACTION_REQUEST *ActionRequest  OPTIONAL
 );
 

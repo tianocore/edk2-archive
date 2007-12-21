@@ -554,7 +554,7 @@ struct _EFI_HII_DATABASE_PROTOCOL {
   EFI_HII_FIND_KEYBOARD_LAYOUTS       FindKeyboardLayouts;
   EFI_HII_GET_KEYBOARD_LAYOUT         GetKeyboardLayout;
   EFI_HII_SET_KEYBOARD_LAYOUT         SetKeyboardLayout;
-  EFI_HII_DATABASE_GET_PACK_HANDLE    GetPackageHandle;
+  EFI_HII_DATABASE_GET_PACK_HANDLE    GetPackageListHandle;
 };
 
 extern EFI_GUID gEfiHiiDatabaseProtocolGuid;
