@@ -81,6 +81,9 @@ EFI_HII_PROTOCOL            *mHii;
 
 static CHAR16               mCrLfString[3] = { CHAR_CARRIAGE_RETURN, CHAR_LINEFEED, CHAR_NULL };
 
+GLOBAL_REMOVE_IF_UNREFERENCED EFI_GUID             mFontPackageListGuid = {0xf5f219d3, 0x7006, 0x4648, 0xac, 0x8d, 0xd6, 0x1d, 0xfb, 0x7b, 0xc6, 0xad};
+
+
 static EFI_GRAPHICS_OUTPUT_BLT_PIXEL        mEfiColors[16] = {
   //
   // B     G     R
@@ -240,8 +243,6 @@ GraphicsConsoleControllerDriverStart (
 {
   EFI_STATUS            Status;
   GRAPHICS_CONSOLE_DEV  *Private;
-  EFI_HII_PACKAGES      *Package;
-  EFI_HII_FONT_PACK     *FontPack;
   UINTN                 NarrowFontSize;
   UINT32                HorizontalResolution;
   UINT32                VerticalResolution;
@@ -250,7 +251,6 @@ GraphicsConsoleControllerDriverStart (
   UINTN                 MaxMode;
   UINTN                 Columns;
   UINTN                 Rows;
-  UINT8                 *Location;
   UINT32                               ModeNumber;
   UINTN                                SizeOfInfo;
   EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
@@ -305,6 +305,9 @@ GraphicsConsoleControllerDriverStart (
 
   NarrowFontSize  = ReturnNarrowFontSize ();
 
+#if 1
+  HiiLibAddFontPackageToHiiDatabase (NarrowFontSize, (UINT8 *) UsStdNarrowGlyphData, &mFontPackageListGuid, &(Private->HiiHandle));
+#else
   FontPack        = AllocateZeroPool (sizeof (EFI_HII_FONT_PACK) + NarrowFontSize);
   ASSERT (FontPack);
 
@@ -326,7 +329,7 @@ GraphicsConsoleControllerDriverStart (
   // Free the font database
   //
   FreePool (FontPack);
-
+#endif
   //
   // If the current mode information can not be retrieved, then attemp to set the default mode
   // of 800x600, 32 bit colot, 60 Hz refresh.
@@ -573,7 +576,11 @@ GraphicsConsoleControllerDriverStop (
     //
     // Remove the font pack
     //
+#if 1
+    HiiLibRemovePackagesFromHiiDatabase (Private->HiiHandle);
+#else    
     mHii->RemovePack (mHii, Private->HiiHandle);
+#endif
 
     //
     // Free our instance data

@@ -210,7 +210,7 @@ typedef struct {
   EFI_SIMPLE_TEXT_OUTPUT_MODE      SimpleTextOutputMode;
   GRAPHICS_CONSOLE_MODE_DATA       ModeData[GRAPHICS_MAX_MODE];
   EFI_GRAPHICS_OUTPUT_BLT_PIXEL    *LineBuffer;
-  FRAMEWORK_EFI_HII_HANDLE         HiiHandle;
+  EFI_HII_HANDLE                   HiiHandle;
 } GRAPHICS_CONSOLE_DEV;
 
 #define GRAPHICS_CONSOLE_CON_OUT_DEV_FROM_THIS(a) \
