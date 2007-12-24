@@ -26,8 +26,8 @@
 //
 typedef UINT32  RELOFST;
 
-typedef VOID    *EFI_HII_HANDLE;
-typedef CHAR16  *EFI_STRING;
+typedef VOID*   EFI_HII_HANDLE;
+typedef CHAR16* EFI_STRING;
 typedef UINT16  EFI_IMAGE_ID;
 typedef UINT16  EFI_QUESTION_ID;
 typedef UINT16  EFI_STRING_ID;

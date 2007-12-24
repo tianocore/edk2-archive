@@ -15,16 +15,125 @@
 #ifndef __HII_LIB_H__
 #define __HII_LIB_H__
 
+//#include <PiDxe.h>
+
+/**
+  This function allocates pool for an EFI_HII_PACKAGE_LIST structure
+  with additional space that is big enough to host all packages described by the variable 
+  argument list of package pointers.  The allocated structure is initialized using NumberOfPackages, 
+  GuidId,  and the variable length argument list of package pointers.
+
+  Then, EFI_HII_PACKAGE_LIST will be register to the default System HII Database. The
+  Handle to the newly registered Package List is returned throught HiiHandle.
+
+  @param  NumberOfPackages  The number of HII packages to register.
+  @param  GuidId                    Package List GUID ID.
+  @param  HiiHandle                The ID used to retrieve the Package List later.
+  @param  ...                          The variable argument list describing all HII Package.
+
+  @return
+  The allocated and initialized packages.
+
+**/
+
 EFI_STATUS
 EFIAPI
-HiiLibCreateNewPackages (
-  IN       UINTN      NumberOfPackages,
-  IN CONST EFI_GUID   *GuidId,
-  OUT      VOID      **HiiHandle,         //Framework is FRAMEWORK_HII_HANDLE; UEFI is EFI_HII_HANDLE; 
-                                     // C:\D\Work\Tiano\Tiano_Main_Trunk\TIANO\Platform\IntelEpg\SR870BN4\MemorySubClassDriver\DualChannelDdr\MemorySubClass.c make use of this output value
+HiiLibAddPackagesToHiiDatabase (
+  IN       UINTN               NumberOfPackages,
+  IN CONST EFI_GUID            *GuidId,
+  OUT      EFI_HII_HANDLE      *HiiHandle, OPTIONAL
   ...
-  );
+  )
+;
 
+EFI_STATUS
+EFIAPI
+HiiLibAddFontPackageToHiiDatabase (
+  IN       UINTN               FontSize,
+  IN CONST UINT8               *FontBinary,
+  IN CONST EFI_GUID            *GuidId,
+  OUT      EFI_HII_HANDLE      *HiiHandle OPTIONAL
+  )
+;
 
+EFI_STATUS
+EFIAPI
+HiiLibRemovePackagesFromHiiDatabase (
+  IN      EFI_HII_HANDLE      HiiHandle
+  )
+;
+
+/**
+  This function adds the string into String Package of each language.
+
+  @param  PackageList            Handle of the package list where this string will
+                                 be added.
+  @param  StringId               On return, contains the new strings id, which is
+                                 unique within PackageList.
+  @param  String                 Points to the new null-terminated string.
+
+  @retval EFI_SUCCESS            The new string was added successfully.
+  @retval EFI_NOT_FOUND          The specified PackageList could not be found in
+                                 database.
+  @retval EFI_OUT_OF_RESOURCES   Could not add the string due to lack of resources.
+  @retval EFI_INVALID_PARAMETER  String is NULL or StringId is NULL is NULL.
+
+**/
+EFI_STATUS
+EFIAPI
+HiiLibCreateString (
+  IN  EFI_HII_HANDLE                  PackageList,
+  OUT EFI_STRING_ID                   *StringId,
+  IN  CONST EFI_STRING                String
+  )
+;
+
+/**
+  This function update the specified string in String Package of each language.
+
+  @param  PackageList            Handle of the package list where this string will
+                                 be added.
+  @param  StringId               Ths String Id to be updated.
+  @param  String                 Points to the new null-terminated string.
+
+  @retval EFI_SUCCESS            The new string was added successfully.
+  @retval EFI_NOT_FOUND          The specified PackageList could not be found in
+                                 database.
+  @retval EFI_OUT_OF_RESOURCES   Could not add the string due to lack of resources.
+  @retval EFI_INVALID_PARAMETER  String is NULL or StringId is NULL is NULL.
+
+**/
+EFI_STATUS
+EFIAPI
+HiiLibUpdateString (
+  IN  EFI_HII_HANDLE                  PackageList,
+  IN  EFI_STRING_ID                   StringId,
+  IN  CONST EFI_STRING                String
+  )
+;
+
+//
+// Just use the UEFI prototype
+//
+EFI_STATUS
+EFIAPI
+HiiLibGetStringFromGuidId (
+  IN  EFI_GUID                        *ProducerGuid,
+  IN  EFI_STRING_ID                   StringId,
+  OUT EFI_STRING                      *String
+  )
+;
+
+//
+// Just use the UEFI prototype
+//
+EFI_STATUS
+EFIAPI
+HiiLibGetStringFromHandle (
+  IN  EFI_HII_HANDLE                  PackageList, //This will be changed to VOID * as Framework and Hii is using different type.
+  IN  EFI_STRING_ID                   StringId,
+  OUT EFI_STRING                      *String
+  )
+;
 
 #endif
