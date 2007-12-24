@@ -149,8 +149,10 @@ Returns:
   EFI_MISC_SUBCLASS_DRIVER_DATA     RecordData;
   EFI_DATA_HUB_PROTOCOL             *DataHub;
   EFI_HII_PROTOCOL                  *Hii;
+#if 0
   EFI_HII_PACKAGES                  *PackageList;
-  FRAMEWORK_EFI_HII_HANDLE          HiiHandle;
+#endif
+  EFI_HII_HANDLE                    HiiHandle;
   EFI_STATUS                        Status;
   UINTN                             Index;
   BOOLEAN                           LogRecordData;
@@ -194,9 +196,13 @@ Returns:
   //
   // Add our default strings to the HII database. They will be modified later.
   //
+#if 1
+  HiiLibAddPackagesToHiiDatabase (1, &gEfiMiscSubClassGuid, &HiiHandle, MiscSubclassStrings);
+#else
   PackageList = PreparePackages (1, &gEfiMiscSubClassGuid, MiscSubclassStrings);
   Status   = Hii->NewPack (Hii, PackageList, &HiiHandle);
   FreePool (PackageList);
+#endif
 
   if (EFI_ERROR (Status)) {
     DEBUG ((EFI_D_ERROR, "Could not log default strings to Hii.  %r\n", Status));
