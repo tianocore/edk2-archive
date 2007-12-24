@@ -209,25 +209,6 @@ typedef struct {
   //
 } EFI_HII_STRING_PACK;
 
-//
-// Glyph Attributes
-//
-#define EFI_GLYPH_NON_SPACING   1
-#define EFI_GLYPH_WIDE          2
-
-typedef struct {
-  CHAR16  UnicodeWeight;
-  UINT8   Attributes;
-  UINT8   GlyphCol1[GLYPH_HEIGHT];
-} EFI_NARROW_GLYPH;
-
-typedef struct {
-  CHAR16  UnicodeWeight;
-  UINT8   Attributes;
-  UINT8   GlyphCol1[GLYPH_HEIGHT];
-  UINT8   GlyphCol2[GLYPH_HEIGHT];
-  UINT8   Pad[3];
-} EFI_WIDE_GLYPH;
 
 //
 // A font list consists of a font header followed by a series
