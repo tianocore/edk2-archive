@@ -33,6 +33,7 @@
   UdpIoLib|Include/Library/UdpIoLib.h
   S3Lib|Include/Library/S3Lib.h
   RecoveryLib|Include/Library/RecoveryLib.h
+  GenericBdsLib.h|Include/Library/GenericBdsLib.h
 
 [Guids.common]
 

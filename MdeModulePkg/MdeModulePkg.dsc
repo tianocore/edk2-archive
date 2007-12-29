@@ -72,7 +72,7 @@
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   GraphicsLib|MdeModulepkg/Library/GraphicsLib/GraphicsLib.inf
   UefiEfiIfrSupportLib|MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
-  
+    
 
 [LibraryClasses.IA32]
   IoLib|MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
@@ -260,7 +260,8 @@
   MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
 
   MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
-  
+  MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
+
   MdeModulePkg/Universal/Network/ArpDxe/ArpDxe.inf
   MdeModulePkg/Universal/Network/Dhcp4Dxe/Dhcp4Dxe.inf
   MdeModulePkg/Universal/Network/Ip4ConfigDxe/Ip4ConfigDxe.inf

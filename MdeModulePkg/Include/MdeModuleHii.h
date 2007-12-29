@@ -1,6 +1,6 @@
 /* @file
 
-  Tiano specific HII relative definition.
+  EDK II specific HII relative definition.
 
 Copyright (c) 2006 - 2007, Intel Corporation
 All rights reserved. This program and the accompanying materials
@@ -28,6 +28,21 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 //
 #define BROWSER_STATE_VALIDATE_PASSWORD  0
 #define BROWSER_STATE_SET_PASSWORD       1
+
+
+//
+// Tiano Implementation specific Device Path definition.
+//
+typedef struct {
+  VENDOR_DEVICE_PATH             VendorDevicePath;
+  UINT32                         MonotonicCount;
+} HII_VENDOR_DEVICE_PATH_NODE;
+
+typedef struct {
+  HII_VENDOR_DEVICE_PATH_NODE    Node;
+  EFI_DEVICE_PATH_PROTOCOL       End;
+} HII_VENDOR_DEVICE_PATH;
+
 
 //
 // References to string tokens must use this macro to enable scanning for
