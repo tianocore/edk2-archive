@@ -131,6 +131,7 @@ EFIAPI
 HiiLibAddPackagesToHiiDatabase (
   IN       UINTN               NumberOfPackages,
   IN CONST EFI_GUID            *GuidId,
+  IN       EFI_HANDLE          *DriverHandle, OPTIONAL
   OUT      EFI_HII_HANDLE      *HiiHandle, OPTIONAL
   ...
   )
@@ -185,7 +186,7 @@ HiiLibAddFontPackageToHiiDatabase (
   //
   // Register our Fonts into the global database
   //
-  Status = HiiLibAddPackagesToHiiDatabase (1, NULL, HiiHandle, FontPack);
+  Status = HiiLibAddPackagesToHiiDatabase (1, NULL, HiiHandle, NULL, FontPack);
   //
   // Free the font database
   //
@@ -292,6 +293,26 @@ HiiLibGetStringFromHandle (
   OUT EFI_STRING                      *String
   )
 {
+  return EFI_SUCCESS;
+}
+
+//
+// Just use the UEFI prototype
+//
+EFI_STATUS
+EFIAPI
+HiiLibCreateHiiDriverHandle (
+  OUT EFI_HANDLE               *DriverHandle
+  )
+{
+  //
+  // Driver
+  // This implementation does nothing as DriverHandle concept only
+  // applies to UEFI HII specification.
+  //
+  
+  *DriverHandle = NULL;
+  
   return EFI_SUCCESS;
 }
 
