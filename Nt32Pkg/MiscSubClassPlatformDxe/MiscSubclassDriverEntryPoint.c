@@ -197,7 +197,7 @@ Returns:
   // Add our default strings to the HII database. They will be modified later.
   //
 #if 1
-  HiiLibAddPackagesToHiiDatabase (1, &gEfiMiscSubClassGuid, &HiiHandle, MiscSubclassStrings);
+  HiiLibAddPackagesToHiiDatabase (1, &gEfiMiscSubClassGuid, &HiiHandle, NULL, MiscSubclassStrings);
 #else
   PackageList = PreparePackages (1, &gEfiMiscSubClassGuid, MiscSubclassStrings);
   Status   = Hii->NewPack (Hii, PackageList, &HiiHandle);

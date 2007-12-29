@@ -444,7 +444,7 @@ Returns:
   //
   // Initialize strings to HII database
   //
-  HiiLibAddPackagesToHiiDatabase (1, &gEfiProcessorProducerGuid, NULL, CpuStrings);
+  HiiLibAddPackagesToHiiDatabase (1, &gEfiProcessorProducerGuid, NULL, NULL, CpuStrings);
   
 
   CopyMem (RecordBuffer.Raw, &mCpuDataRecordHeader, HeaderSize);
