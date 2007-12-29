@@ -1,0 +1,236 @@
+<ModuleSurfaceArea xmlns="http://www.TianoCore.org/2006/Edk2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MsaHeader>
+    <ModuleName>Bds</ModuleName>
+    <ModuleType>DXE_DRIVER</ModuleType>
+    <GuidValue>A6F691AC-31C8-4444-854C-E2C1A6950F92</GuidValue>
+    <Version>1.0</Version>
+    <Abstract>Component name for module Bds</Abstract>
+    <Description>FIX ME!</Description>
+    <Copyright>Copyright (c) 2007, Intel Corporation. All rights reserved.</Copyright>
+    <License>All rights reserved. This program and the accompanying materials                          
+      are licensed and made available under the terms and conditions of the BSD License         
+      which accompanies this distribution.  The full text of the license may be found at        
+      http://opensource.org/licenses/bsd-license.php                                            
+      
+      THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
+      WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.</License>
+    <Specification>FRAMEWORK_BUILD_PACKAGING_SPECIFICATION   0x00000052</Specification>
+  </MsaHeader>
+  <ModuleDefinitions>
+    <SupportedArchitectures>IA32 X64 IPF EBC</SupportedArchitectures>
+    <BinaryModule>false</BinaryModule>
+    <OutputFileBasename>Bds</OutputFileBasename>
+  </ModuleDefinitions>
+  <LibraryClassDefinitions>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>PrintLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>DebugLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>BaseMemoryLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiDriverEntryPoint</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiBootServicesTableLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>MemoryAllocationLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>DxeServicesTableLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>ReportStatusCodeLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>UefiRuntimeServicesTableLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>HobLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>BaseLib</Keyword>
+    </LibraryClass>
+    <LibraryClass Usage="ALWAYS_CONSUMED">
+      <Keyword>DevicePathLib</Keyword>
+    </LibraryClass>
+  </LibraryClassDefinitions>
+  <SourceFiles>
+    <Filename>Generic\DeviceMngr\PlatOverMngr\PlatOverMngr.c</Filename>
+    <Filename>Generic\HwErrRecSupport.c</Filename>
+    <Filename>Generic\DeviceMngr\Migration_SetOptions\VfrStrings.uni</Filename>
+    <Filename>BdsPlatform.c</Filename>
+    <Filename>Generic\BootMaint\Variable.c</Filename>
+    <Filename>Generic\BootMaint\BootMaint.h</Filename>
+    <Filename>Generic\DeviceMngr\SetOptions\GetInfo.c</Filename>
+    <Filename>Generic\DeviceMngr\Migration_SetOptions\GetInfo.c</Filename>
+    <Filename>Generic\BootMngr\BootManagerStrings.uni</Filename>
+    <Filename>Generic\FrontPageStrings.uni</Filename>
+    <Filename>Generic\BootMaint\BBSsupport.h</Filename>
+    <Filename>Generic\DeviceMngr\DeviceManager.c</Filename>
+    <Filename>Generic\Bds.dxs</Filename>
+    <Filename>Generic\String.h</Filename>
+    <Filename>Generic\BootMaint\FormGuid.h</Filename>
+    <Filename>Generic\DeviceMngr\DeviceManager.h</Filename>
+    <Filename>Generic\Hotkey.h</Filename>
+    <Filename>Generic\BdsEntry.c</Filename>
+    <Filename>Generic\BootMaint\BBSsupport.c</Filename>
+    <Filename>Generic\String.c</Filename>
+    <Filename>Generic\DeviceMngr\DeviceManagerStrings.uni</Filename>
+    <Filename>Generic\BootMaint\BmLib.c</Filename>
+    <Filename>Generic\DeviceMngr\PlatOverMngr\VfrStrings.uni</Filename>
+    <Filename>Generic\Language.c</Filename>
+    <Filename>Generic\BootMaint\FileExplorer.c</Filename>
+    <Filename>Generic\DeviceMngr\SetOptions\VfrStrings.uni</Filename>
+    <Filename>Generic\BootMngr\BootManager.h</Filename>
+    <Filename>Generic\BootMaint\Data.c</Filename>
+    <Filename>Generic\Bds.h</Filename>
+    <Filename>Generic\DeviceMngr\Migration_SetOptions\SetOptions.h</Filename>
+    <Filename>Generic\DeviceMngr\SetOptions\GetInfo.h</Filename>
+    <Filename>Generic\BootMaint\bmstring.uni</Filename>
+    <Filename>Generic\BootMaint\ConsoleOption.c</Filename>
+    <Filename>Generic\Hotkey.c</Filename>
+    <Filename>Generic\FrontPage.c</Filename>
+    <Filename>Generic\FrontPage.h</Filename>
+    <Filename>Generic\DeviceMngr\Migration_SetOptions\SetOptions.c</Filename>
+    <Filename>Generic\MemoryTest.c</Filename>
+    <Filename>Generic\Language.h</Filename>
+    <Filename>Generic\BootMngr\BootManager.c</Filename>
+    <Filename>BdsPlatform.h</Filename>
+    <Filename>Generic\HwErrRecSupport.h</Filename>
+    <Filename>R8Lib.h</Filename>
+    <Filename>Generic\DeviceMngr\PlatOverMngr\PlatOverMngr.dxs</Filename>
+    <Filename>Generic\DeviceMngr\PlatOverMngr\PlatOverMngr.h</Filename>
+    <Filename>Generic\BootMaint\UpdatePage.c</Filename>
+    <Filename>Generic\Capsules.c</Filename>
+    <Filename>Generic\BootMaint\BootMaint.c</Filename>
+    <Filename>Generic\DeviceMngr\SetOptions\SetOptions.h</Filename>
+    <Filename>Generic\DeviceMngr\Migration_SetOptions\GetInfo.h</Filename>
+    <Filename>R8Lib.c</Filename>
+    <Filename>Generic\Strings.uni</Filename>
+    <Filename>Generic\BootMaint\BootOption.c</Filename>
+    <Filename>Generic\DeviceMngr\SetOptions\SetOptions.c</Filename>
+    <Filename>PlatformData.c</Filename>
+  </SourceFiles>
+  <PackageDependencies>
+    <Package PackageGuid="5e0e9358-46b6-4ae2-8218-4ab8b9bbdcec"/>
+    <Package PackageGuid="68169ab0-d41b-4009-9060-292c253ac43d"/>
+  </PackageDependencies>
+  <Protocols>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiDevicePathProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiSerialIoProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiFormBrowser2ProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiHiiConfigRoutingProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiHiiConfigAccessProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiGraphicsOutputProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiBlockIoProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiDriverBindingProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiUgaDrawProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiLoadedImageProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiPciIoProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiHiiDatabaseProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiConsoleControlProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiLegacyBiosProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiFirmwareVolumeProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiFirmwareVolume2ProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiGenericMemTestProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiBdsArchProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiDataHubProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiComponentNameProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiCpuIoProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiBusSpecificDriverOverrideProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiDriverConfigurationProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiLoadFileProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiHiiStringProtocolGuid</ProtocolCName>
+    </Protocol>
+    <Protocol Usage="ALWAYS_CONSUMED">
+      <ProtocolCName>gEfiSimpleFileSystemProtocolGuid</ProtocolCName>
+    </Protocol>
+  </Protocols>
+  <Guids>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiFileSystemVolumeLabelInfoIdGuid</GuidCName>
+    </GuidCNames>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiFileInfoGuid</GuidCName>
+    </GuidCNames>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiFlashMapHobGuid</GuidCName>
+    </GuidCNames>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiBootStateGuid</GuidCName>
+    </GuidCNames>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiDefaultBmpLogoGuid</GuidCName>
+    </GuidCNames>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiGlobalVariableGuid</GuidCName>
+    </GuidCNames>
+    <GuidCNames Usage="ALWAYS_CONSUMED">
+      <GuidCName>gEfiHobListGuid</GuidCName>
+    </GuidCNames>
+  </Guids>
+  <Externs>
+    <Specification>EFI_SPECIFICATION_VERSION 0x00020000</Specification>
+    <Specification>EDK_RELEASE_VERSION 0x00020000</Specification>
+    <Extern>
+      <ModuleEntryPoint>BdsInitialize</ModuleEntryPoint>
+    </Extern>
+  </Externs>
+</ModuleSurfaceArea>

@@ -68,6 +68,8 @@
   FrameworkHiiLib|IntelFrameworkPkg/Library/FrameworkHiiLib/HiiLib.inf
   S3Lib|MdeModulePkg/Library/PeiS3LibNull/PeiS3LibNull.inf
   RecoveryLib|MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
+  UefiEfiIfrSupportLib|MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
+  GenericBdsLib|MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
 
 [LibraryClasses.common.BASE]
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
@@ -465,6 +467,11 @@
   MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf
   MdeModulePkg/Universal/Network/Udp4Dxe/Udp4Dxe.inf
   Nt32Pkg/SnpNt32Dxe/SnpNt32Dxe.inf
+
+  Nt32Pkg/UefiPlatformBdsDxe/UefiPlatformBdsDxe.inf {
+    <LibraryClasses>
+    GraphicsLib|IntelFrameworkModulePkg/Library/GraphicsLib/GraphicsLib.inf
+  }
 
 [BuildOptions]
   DEBUG_ICC_IA32_DLINK_FLAGS                  = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
