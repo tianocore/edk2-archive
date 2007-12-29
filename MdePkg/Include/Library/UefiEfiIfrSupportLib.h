@@ -76,16 +76,6 @@ typedef struct {
 #pragma pack()
 
 typedef struct {
-  VENDOR_DEVICE_PATH             VendorDevicePath;
-  UINT32                         MonotonicCount;
-} HII_VENDOR_DEVICE_PATH_NODE;
-
-typedef struct {
-  HII_VENDOR_DEVICE_PATH_NODE    Node;
-  EFI_DEVICE_PATH_PROTOCOL       End;
-} HII_VENDOR_DEVICE_PATH;
-
-typedef struct {
   //
   // Buffer size allocated for Data.
   //

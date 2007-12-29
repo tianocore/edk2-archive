@@ -17,6 +17,12 @@
 
 //#include <PiDxe.h>
 
+//
+// Limited buffer size recommended by RFC4646 (4.3.  Length Considerations)
+// (42 characters plus a NULL terminator)
+//
+#define RFC_3066_ENTRY_SIZE             (42 + 1)
+
 /**
   This function allocates pool for an EFI_HII_PACKAGE_LIST structure
   with additional space that is big enough to host all packages described by the variable 
@@ -41,6 +47,7 @@ EFIAPI
 HiiLibAddPackagesToHiiDatabase (
   IN       UINTN               NumberOfPackages,
   IN CONST EFI_GUID            *GuidId,
+  IN       EFI_HANDLE          DriverHandle, OPTIONAL
   OUT      EFI_HII_HANDLE      *HiiHandle, OPTIONAL
   ...
   )
@@ -112,6 +119,8 @@ HiiLibUpdateString (
   )
 ;
 
+
+
 //
 // Just use the UEFI prototype
 //
@@ -133,6 +142,25 @@ HiiLibGetStringFromHandle (
   IN  EFI_HII_HANDLE                  PackageList, //This will be changed to VOID * as Framework and Hii is using different type.
   IN  EFI_STRING_ID                   StringId,
   OUT EFI_STRING                      *String
+  )
+;
+
+
+//
+// This function is Implementation Specifc. HII_VENDOR_DEVICE_PATH
+// This should be moved to MdeModulepkg.
+//
+EFI_STATUS
+EFIAPI
+HiiLibCreateHiiDriverHandle (
+  OUT EFI_HANDLE               *DriverHandle
+  )
+;
+
+EFI_STATUS
+EFIAPI
+HiiLibDestroyHiiDriverHandle (
+  IN EFI_HANDLE                 DriverHandle
   )
 ;
 
