@@ -142,7 +142,7 @@ HiiLibAddPackagesToHiiDatabase (
   EFI_STATUS                Status;
 
 
-  VA_START (Args, GuidId);
+  VA_START (Args, HiiHandle);
   FrameworkHiiPacages = InternalPreparePackages (NumberOfPackages, GuidId, Args);
 
   Status      = mHii->NewPack (mHii, FrameworkHiiPacages, &FrameworkHiiHandle);
