@@ -131,7 +131,7 @@ EFIAPI
 HiiLibAddPackagesToHiiDatabase (
   IN       UINTN               NumberOfPackages,
   IN CONST EFI_GUID            *GuidId,
-  IN       EFI_HANDLE          *DriverHandle, OPTIONAL
+  IN       EFI_HANDLE          DriverHandle, OPTIONAL
   OUT      EFI_HII_HANDLE      *HiiHandle, OPTIONAL
   ...
   )
@@ -233,7 +233,7 @@ HiiLibCreateString (
   EFI_STATUS                Status;
 
   FrameworkHiiHandle = (FRAMEWORK_EFI_HII_HANDLE) (UINTN) PackageList;
-  mHii->NewString (
+  Status = mHii->NewString (
             mHii,
             NULL,
             FrameworkHiiHandle,
@@ -257,7 +257,7 @@ HiiLibUpdateString (
   EFI_STATUS                Status;
 
   FrameworkHiiHandle = (FRAMEWORK_EFI_HII_HANDLE) (UINTN) PackageList;
-  mHii->NewString (
+  Status = mHii->NewString (
             mHii,
             NULL,
             FrameworkHiiHandle,
