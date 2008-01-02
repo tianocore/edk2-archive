@@ -25,8 +25,6 @@ Revision History
 #define _PEI_MAIN_H_
 
 #include <PiPei.h>
-#include <FrameworkPei.h>
-#include <Guid/StatusCodeDataTypeId.h>
 #include <Ppi/DxeIpl.h>
 #include <Ppi/MemoryDiscovered.h>
 #include <Ppi/StatusCode.h>
@@ -53,6 +51,7 @@ Revision History
 #include <IndustryStandard/PeImage.h>
 #include <Library/PeiServicesTablePointerLib.h>
 #include <Library/MemoryAllocationLib.h>
+#include <Library/PeiPiLib.h>
 #include <Guid/FirmwareFileSystem2.h>
 #include <Guid/AprioriFileName.h>
 
@@ -69,7 +68,7 @@ typedef union {
 
 #define PEI_STACK_SIZE 0x20000
 
-#define MAX_PPI_DESCRIPTORS 64
+#define MAX_PPI_DESCRIPTORS 128
 
 typedef struct {
   INTN                    PpiListEnd;
@@ -93,10 +92,19 @@ typedef struct {
 
 typedef struct {
   EFI_FIRMWARE_VOLUME_HEADER          *FvHeader;
-  UINT8                               PeimState[FixedPcdGet32 (PcdPeiCoreMaxPeimPerFv)];   
+  UINT8                               PeimState[FixedPcdGet32 (PcdPeiCoreMaxPeimPerFv)];
   EFI_PEI_FILE_HANDLE                 FvFileHandles[FixedPcdGet32 (PcdPeiCoreMaxPeimPerFv)];
   BOOLEAN                             ScanFv;
 } PEI_CORE_FV_HANDLE;
+
+#define CACHE_SETION_MAX_NUMBER       0x10
+typedef struct {
+  EFI_COMMON_SECTION_HEADER*          Section[CACHE_SETION_MAX_NUMBER];
+  VOID*                               SectionData[CACHE_SETION_MAX_NUMBER];
+  UINTN                               SectionSize[CACHE_SETION_MAX_NUMBER];
+  UINTN                               AllSectionCount;
+  UINTN                               SectionIndex;
+} CACHE_SECTION_DATA;
 
 //
 // Pei Core private data structure instance
@@ -112,7 +120,7 @@ typedef struct{
   PEI_CORE_FV_HANDLE                 Fv[FixedPcdGet32 (PcdPeiCoreMaxFvSupported)];
   EFI_PEI_FILE_HANDLE                CurrentFvFileHandles[FixedPcdGet32 (PcdPeiCoreMaxPeimPerFv)];
   UINTN                              AprioriCount;
-  UINTN                              CurrentPeimFvCount; 
+  UINTN                              CurrentPeimFvCount;
   UINTN                              CurrentPeimCount;
   EFI_PEI_FILE_HANDLE                CurrentFileHandle;
   UINTN                              AllFvCount;
@@ -130,6 +138,7 @@ typedef struct{
   UINTN                              SizeOfCacheAsRam;
   VOID                               *MaxTopOfCarHeap;
   EFI_PEI_PPI_DESCRIPTOR             *XipLoadFile;
+  CACHE_SECTION_DATA                 CacheSection;
 } PEI_CORE_INSTANCE;
 
 //
@@ -1132,7 +1141,7 @@ Returns:
 --*/
 ;
 
-VOID 
+VOID
 PeiInitializeFv (
   IN  PEI_CORE_INSTANCE           *PrivateData,
   IN CONST EFI_SEC_PEI_HAND_OFF   *SecCoreData
@@ -1148,9 +1157,9 @@ Arguments:
   SecCoreData     - Pointer to EFI_SEC_PEI_HAND_OFF.
 
 Returns:
-  NONE  
-  
---*/  
+  NONE
+
+--*/
 ;
 
 EFI_STATUS
@@ -1169,7 +1178,7 @@ Routine Description:
 Arguments:
 
   PeiServices - General purpose services available to every PEIM.
-    
+
 Returns:
 
   Status -  EFI_SUCCESS if the interface could be successfully
@@ -1180,7 +1189,7 @@ Returns:
 
 
 EFI_STATUS
-EFIAPI 
+EFIAPI
 PeiFfsFindFileByName (
   IN  CONST EFI_GUID        *FileName,
   IN  EFI_PEI_FV_HANDLE     VolumeHandle,
@@ -1200,13 +1209,13 @@ Arguments:
                 - NULL if file not found
 Returns:
   EFI_STATUS
-  
---*/  
+
+--*/
 ;
 
 
 EFI_STATUS
-EFIAPI 
+EFIAPI
 PeiFfsGetFileInfo (
   IN EFI_PEI_FILE_HANDLE  FileHandle,
   OUT EFI_FV_FILE_INFO    *FileInfo
@@ -1223,12 +1232,12 @@ Arguments:
 
 Returns:
   EFI_STATUS
-  
---*/    
+
+--*/
 ;
 
 EFI_STATUS
-EFIAPI 
+EFIAPI
 PeiFfsGetVolumeInfo (
   IN EFI_PEI_FV_HANDLE  VolumeHandle,
   OUT EFI_FV_INFO       *VolumeInfo
@@ -1242,11 +1251,11 @@ Routine Description:
 Arguments:
   VolumeHandle    - The handle to Fv Volume.
   VolumeInfo      - The pointer to volume information.
-  
+
 Returns:
   EFI_STATUS
-  
---*/    
+
+--*/
 ;
 
 
@@ -1264,13 +1273,13 @@ Routine Description:
 
 Arguments:
   FileHandle  - File handle of a PEIM.
-  
+
 Returns:
   EFI_NOT_FOUND        - The file handle doesn't point to PEIM itself.
   EFI_ALREADY_STARTED  - Indicate that the PEIM has been registered itself.
   EFI_SUCCESS          - Successfully to register itself.
 
---*/  
+--*/
 ;
 
 
@@ -1279,12 +1288,12 @@ Returns:
   discovery permanent memory.
 
 	@param FileHandle  	File handle of a PEIM.
-  
+
   @retval EFI_NOT_FOUND  				The file handle doesn't point to PEIM itself.
   @retval EFI_ALREADY_STARTED		Indicate that the PEIM has been registered itself.
   @retval EFI_SUCCESS						Successfully to register itself.
 
-**/  
+**/
 EFI_STATUS
 EFIAPI
 PeiRegisterForShadow (
@@ -1347,8 +1356,8 @@ Arguments:
       This parameter must point to a valid FFS volume.
     FileHeader  - Pointer to the current file from which to begin searching.
       This pointer will be updated upon return to reflect the file found.
-    Flag        - Indicator for if this is for PEI Dispath search 
-    
+    Flag        - Indicator for if this is for PEI Dispath search
+
 Returns:
     EFI_NOT_FOUND - No files matching the search criteria were found
     EFI_SUCCESS
@@ -1375,8 +1384,27 @@ Arguments:
 Returns:
 
   NONE.
-  
---*/      
+
+--*/
 ;
+
+/**
+  Get Fv image from the FV type file, then install FV INFO ppi, Build FV hob.
+
+	@param PeiServices          Pointer to the PEI Core Services Table.
+	@param FileHandle  	        File handle of a Fv type file.
+  @param AuthenticationState  Pointer to attestation authentication state of image.
+
+
+  @retval EFI_NOT_FOUND  				FV image can't be found.
+  @retval EFI_SUCCESS						Successfully to process it.
+
+**/
+EFI_STATUS
+ProcessFvFile (
+  IN  EFI_PEI_SERVICES      **PeiServices,
+  IN  EFI_PEI_FILE_HANDLE   FvFileHandle,
+  OUT UINT32                *AuthenticationState
+  );
 
 #endif

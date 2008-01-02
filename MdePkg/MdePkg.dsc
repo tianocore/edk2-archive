@@ -79,7 +79,6 @@
   MdePkg/Library/HiiLib/HiiLib.inf
   MdePkg/Library/PeiCoreEntryPoint/PeiCoreEntryPoint.inf
   MdePkg/Library/PeiDxePostCodeLibReportStatusCode/PeiDxePostCodeLibReportStatusCode.inf
-  MdePkg/Library/PeiHobLib/PeiHobLib.inf
   MdePkg/Library/PeiMemoryAllocationLib/PeiMemoryAllocationLib.inf
   MdePkg/Library/PeiMemoryLib/PeiMemoryLib.inf
   MdePkg/Library/PeimEntryPoint/PeimEntryPoint.inf

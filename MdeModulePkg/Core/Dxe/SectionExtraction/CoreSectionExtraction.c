@@ -1,20 +1,4 @@
-/*++
-
-Copyright (c) 2006, Intel Corporation                                                         
-All rights reserved. This program and the accompanying materials                          
-are licensed and made available under the terms and conditions of the BSD License         
-which accompanies this distribution.  The full text of the license may be found at        
-http://opensource.org/licenses/bsd-license.php                                            
-                                                                                          
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
-
-Module Name:
-
-  CoreSectionExtraction.c
-  
-Abstract:
-
+/**@file
   Section Extraction Protocol implementation.
   
   Stream database is implemented as a linked list of section streams,
@@ -42,8 +26,17 @@ Abstract:
      
   3) A support protocol is not found, and the data is not available to be read
      without it.  This results in EFI_PROTOCOL_ERROR.
-  
---*/
+     
+Copyright (c) 2006 - 2007, Intel Corporation                                                         
+All rights reserved. This program and the accompanying materials                          
+are licensed and made available under the terms and conditions of the BSD License         
+which accompanies this distribution.  The full text of the license may be found at        
+http://opensource.org/licenses/bsd-license.php                                            
+                                                                                          
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
+
+**/
 
 #include <DxeMain.h>
 
@@ -133,38 +126,6 @@ CreateGuidedExtractionRpnEvent (
 
 STATIC
 EFI_STATUS
-EFIAPI
-OpenSectionStream (
-  IN     EFI_SECTION_EXTRACTION_PROTOCOL      *This,
-  IN     UINTN                                SectionStreamLength,
-  IN     VOID                                 *SectionStream,
-     OUT UINTN                                *SectionStreamHandle
-  );
-  
-STATIC
-EFI_STATUS
-EFIAPI
-GetSection (
-  IN EFI_SECTION_EXTRACTION_PROTOCOL          *This,
-  IN UINTN                                    SectionStreamHandle,
-  IN EFI_SECTION_TYPE                         *SectionType,
-  IN EFI_GUID                                 *SectionDefinitionGuid,
-  IN UINTN                                    SectionInstance,
-  IN VOID                                     **Buffer,
-  IN OUT UINTN                                *BufferSize,
-  OUT UINT32                                  *AuthenticationStatus
-  );
-  
-STATIC
-EFI_STATUS
-EFIAPI
-CloseSectionStream (
-  IN  EFI_SECTION_EXTRACTION_PROTOCOL         *This,
-  IN  UINTN                                   StreamHandleToClose
-  );
-  
-STATIC
-EFI_STATUS
 FindStreamNode (
   IN  UINTN                                   SearchHandle,
   OUT CORE_SECTION_STREAM_NODE                **FoundStream
@@ -214,8 +175,9 @@ IsValidSectionStream (
   );
 
 EFI_STATUS
+EFIAPI
 CustomGuidedSectionExtract (
-  IN CONST  EFI_GUIDED_SECTION_EXTRACTION_PROTOCOL *This,
+  IN CONST  EFI_GUIDED_SECTION_EXTRACTION_PROTOCOL  *This,
   IN CONST  VOID                                   *InputSection,
   OUT       VOID                                   **OutputBuffer,
   OUT       UINTN                                  *OutputSize,
@@ -227,12 +189,6 @@ CustomGuidedSectionExtract (
 LIST_ENTRY mStreamRoot = INITIALIZE_LIST_HEAD_VARIABLE (mStreamRoot);
 
 EFI_HANDLE mSectionExtractionHandle = NULL;
-
-EFI_SECTION_EXTRACTION_PROTOCOL mSectionExtraction = { 
-  OpenSectionStream, 
-  GetSection, 
-  CloseSectionStream
-};
 
 EFI_GUIDED_SECTION_EXTRACTION_PROTOCOL mCustomGuidedSectionExtractionProtocol = {
   CustomGuidedSectionExtract
@@ -265,21 +221,11 @@ Returns:
   UINTN                              ExtractHandlerNumber;
 
   //
-  // Install SEP to a new handle
-  //
-  Status = CoreInstallProtocolInterface (
-            &mSectionExtractionHandle,
-            &gEfiSectionExtractionProtocolGuid,
-            EFI_NATIVE_INTERFACE,
-            &mSectionExtraction
-            );
-  ASSERT_EFI_ERROR (Status);
-
-  //
   // Get custom extract guided section method guid list 
   //
   ExtractHandlerNumber = ExtractGuidedSectionGetGuidList (&ExtractHandlerGuidTable);
-
+  
+  Status = EFI_SUCCESS;
   //
   // Install custom guided extraction protocol 
   //
@@ -296,11 +242,9 @@ Returns:
   return Status;
 }
 
-STATIC
 EFI_STATUS
 EFIAPI
 OpenSectionStream (
-  IN     EFI_SECTION_EXTRACTION_PROTOCOL           *This,
   IN     UINTN                                     SectionStreamLength,
   IN     VOID                                      *SectionStream,
      OUT UINTN                                     *SectionStreamHandle
@@ -342,11 +286,9 @@ Returns:
           );
 }
   
-STATIC
 EFI_STATUS
 EFIAPI
 GetSection (
-  IN EFI_SECTION_EXTRACTION_PROTOCOL                    *This,
   IN UINTN                                              SectionStreamHandle,
   IN EFI_SECTION_TYPE                                   *SectionType,
   IN EFI_GUID                                           *SectionDefinitionGuid,
@@ -361,7 +303,6 @@ Routine Description:
   SEP member function.  Retrieves requested section from section stream.
 
 Arguments:  
-  This:                 Pointer to SEP instance.
   SectionStreamHandle:  The section stream from which to extract the requested
                           section.
   SectionType:         A pointer to the type of section to search for.
@@ -485,11 +426,9 @@ GetSection_Done:
 }
 
 
-STATIC
 EFI_STATUS
 EFIAPI
 CloseSectionStream (
-  IN  EFI_SECTION_EXTRACTION_PROTOCOL           *This,
   IN  UINTN                                     StreamHandleToClose
   )
 /*++
@@ -922,7 +861,7 @@ Returns:
           //
           // OR in the parent stream's aggregate status.
           //
-          AuthenticationStatus |= Stream->AuthenticationStatus & EFI_AGGREGATE_AUTH_STATUS_ALL;
+          AuthenticationStatus |= Stream->AuthenticationStatus & EFI_AUTH_STATUS_ALL;
         } else {
           //
           // since there's no authentication data contributed by the section,
@@ -959,23 +898,6 @@ Returns:
         // Figure out the proper authentication status
         //
         AuthenticationStatus = Stream->AuthenticationStatus;
-        if (GuidedHeader->Attributes & EFI_GUIDED_SECTION_AUTH_STATUS_VALID) {
-          //
-          //  The local status of the new stream is contained in 
-          //  AuthenticaionStatus.  This value needs to be ORed into the
-          //  Aggregate bits also...
-          //
-          
-          //
-          // Clear out and initialize the local status
-          //
-          AuthenticationStatus &= ~EFI_LOCAL_AUTH_STATUS_ALL;
-          AuthenticationStatus |= EFI_LOCAL_AUTH_STATUS_IMAGE_SIGNED | EFI_LOCAL_AUTH_STATUS_NOT_TESTED;
-          //
-          // OR local status into aggregate status
-          //
-          AuthenticationStatus |= AuthenticationStatus >> 16;
-        }
         
         SectionLength = SECTION_SIZE (GuidedHeader);
         Status = OpenSectionStreamEx (
@@ -989,17 +911,6 @@ Returns:
           CoreFreePool (Node);
           return Status;
         }
-      }
-      
-      if ((AuthenticationStatus & EFI_LOCAL_AUTH_STATUS_ALL) == 
-            (EFI_LOCAL_AUTH_STATUS_IMAGE_SIGNED | EFI_LOCAL_AUTH_STATUS_NOT_TESTED)) {
-        //
-        // Need to register for RPN for when the required GUIDed extraction
-        // protocol becomes available.  This will enable us to refresh the
-        // AuthenticationStatus cached in the Stream if it's ever requested
-        // again.
-        //
-        CreateGuidedExtractionRpnEvent (Stream, Node);
       }
       
       break;
@@ -1097,7 +1008,7 @@ Returns:
   
   Context = RpnContext;
   
-  Status = CloseSectionStream (&mSectionExtraction, Context->ChildNode->EncapsulatedStreamHandle);
+  Status = CloseSectionStream (Context->ChildNode->EncapsulatedStreamHandle);
   if (!EFI_ERROR (Status)) {
     //
     // The stream closed successfully, so re-open the stream with correct AuthenticationStatus
@@ -1122,7 +1033,7 @@ Returns:
     //
     // OR in the parent stream's aggregagate status.
     //
-    AuthenticationStatus |= Context->ParentStream->AuthenticationStatus & EFI_AGGREGATE_AUTH_STATUS_ALL;
+    AuthenticationStatus |= Context->ParentStream->AuthenticationStatus & EFI_AUTH_STATUS_ALL;
     Status = OpenSectionStreamEx (
                NewStreamBufferSize,
                NewStreamBuffer,
@@ -1173,7 +1084,7 @@ Returns:
     // If it's an encapsulating section, we close the resulting section stream.
     // CloseSectionStream will free all memory associated with the stream.
     //
-    CloseSectionStream (&mSectionExtraction, ChildNode->EncapsulatedStreamHandle);
+    CloseSectionStream (ChildNode->EncapsulatedStreamHandle);
   }
   //
   // Last, free the child node itself
@@ -1454,6 +1365,7 @@ Returns:
 
 **/
 EFI_STATUS
+EFIAPI
 CustomGuidedSectionExtract (
   IN CONST  EFI_GUIDED_SECTION_EXTRACTION_PROTOCOL *This,
   IN CONST  VOID                                   *InputSection,

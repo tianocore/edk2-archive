@@ -31,7 +31,7 @@
   BUILD_TARGETS                  = DEBUG
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = Nt32Pkg/Nt32Pkg.fdf
-
+ 
 
 ################################################################################
 #
@@ -71,6 +71,7 @@
   RecoveryLib|MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
   UefiEfiIfrSupportLib|MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
   GenericBdsLib|MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
+  CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
 
 [LibraryClasses.common.BASE]
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
@@ -371,6 +372,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase|0
 
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -470,17 +472,60 @@
   Nt32Pkg/SnpNt32Dxe/SnpNt32Dxe.inf
 
 [BuildOptions]
-  DEBUG_ICC_IA32_DLINK_FLAGS                  = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  DEBUG_VS2003_IA32_DLINK_FLAGS               = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  DEBUG_MYTOOLS_IA32_DLINK_FLAGS              = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  DEBUG_WINDDK3790x1830_IA32_DLINK_FLAGS      = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  DEBUG_VS2005PRO_IA32_DLINK_FLAGS            = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  DEBUG_MIXED_IA32_DLINK_FLAGS                = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  RELEASE_ICC_IA32_DLINK_FLAGS                = /ALIGN:4096
-  RELEASE_VS2003_IA32_DLINK_FLAGS             = /ALIGN:4096
-  RELEASE_MYTOOLS_IA32_DLINK_FLAGS            = /ALIGN:4096
-  RELEASE_WINDDK3790x1830_IA32_DLINK_FLAGS    = /ALIGN:4096
-  RELEASE_VS2005PRO_IA32_DLINK_FLAGS          = /ALIGN:4096
-  RELEASE_MIXED_IA32_DLINK_FLAGS              = /ALIGN:4096
-  MSFT:DEBUG_*_IA32_DLINK_FLAGS = /EXPORT:InitializeDriver=_ModuleEntryPoint /ALIGN:4096 /SUBSYSTEM:CONSOLE
-  MSFT:RELEASE_*_IA32_DLINK_FLAGS = /ALIGN:4096
+  DEBUG_*_IA32_DLINK_FLAGS = /EXPORT:InitializeDriver=$(IMAGE_ENTRY_POINT) /ALIGN:4096 /SUBSYSTEM:CONSOLE
+  RELEASE_*_IA32_DLINK_FLAGS = /ALIGN:4096
+  *_*_IA32_CC_FLAGS = /D EFI_SPECIFICATION_VERSION=0x0002000A /D TIANO_RELEASE_VERSION=0x00080006
+
+
+
+
+#############################################################################################################
+# NOTE:
+# The following [Libraries.IA32] section is for building R8 module under the R9 tool chain.
+# If you want build R8 module for Nt32 platform, please uncomment [Libraries.IA32] section and
+# libraries used by that R8 module.
+# Currently, Nt32 platform do not has any R8 style module
+#  
+#
+#[Libraries.IA32]
+  #
+  # Libraries common to PEI and DXE
+  #
+  #  EdkCompatibilityPkg\Foundation\Efi\Guid\EfiGuidLib.inf
+  #  EdkCompatibilityPkg\Foundation\Framework\Guid\EdkFrameworkGuidLib.inf
+  #  EdkCompatibilityPkg\Foundation\Guid\EdkGuidLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\EfiCommonLib\EfiCommonLib.inf
+  #  EdkCompatibilityPkg\Foundation\Cpu\Pentium\CpuIA32Lib\CpuIA32Lib.inf
+  #  EdkCompatibilityPkg\Foundation\Cpu\Itanium\CpuIA64Lib\CpuIA64Lib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\CustomizedDecompress\CustomizedDecompress.inf
+  #  EdkCompatibilityPkg\Foundation\Library\CompilerStub\CompilerStubLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\Hob\HobLib.inf
+
+  #
+  # PEI libraries
+  #
+  #  EdkCompatibilityPkg\Foundation\Framework\Ppi\EdkFrameworkPpiLib.inf
+  #  EdkCompatibilityPkg\Foundation\Ppi\EdkPpiLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Pei\PeiLib\PeiLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Pei\Hob\PeiHobLib.inf
+
+  #
+  # DXE libraries
+  #
+  #  EdkCompatibilityPkg\Foundation\Core\Dxe\ArchProtocol\ArchProtocolLib.inf
+  #  EdkCompatibilityPkg\Foundation\Efi\Protocol\EfiProtocolLib.inf
+  #  EdkCompatibilityPkg\Foundation\Framework\Protocol\EdkFrameworkProtocolLib.inf
+  #  EdkCompatibilityPkg\Foundation\Protocol\EdkProtocolLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\EfiDriverLib\EfiDriverLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\RuntimeDxe\EfiRuntimeLib\EfiRuntimeLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\Graphics\Graphics.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\EfiIfrSupportLib\EfiIfrSupportLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\Print\PrintLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\EfiScriptLib\EfiScriptLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\EfiUiLib\EfiUiLib.inf
+
+  #
+  # Print/Graphics Library consume SetupBrowser Print Protocol
+  #
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\PrintLite\PrintLib.inf
+  #  EdkCompatibilityPkg\Foundation\Library\Dxe\GraphicsLite\Graphics.inf

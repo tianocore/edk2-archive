@@ -1,21 +1,5 @@
-/*++
-
-Copyright (c) 2006, Intel Corporation                                                         
-All rights reserved. This program and the accompanying materials                          
-are licensed and made available under the terms and conditions of the BSD License         
-which accompanies this distribution.  The full text of the license may be found at        
-http://opensource.org/licenses/bsd-license.php                                            
-                                                                                          
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
-
-Module Name:
-
-  Dispatcher.c
-
-Abstract:
-
-  Tiano DXE Dispatcher.
+/**@file
+  DXE Dispatcher.
 
   Step #1 - When a FV protocol is added to the system every driver in the FV
             is added to the mDiscoveredList. The SOR, Before, and After Depex are 
@@ -42,7 +26,16 @@ Abstract:
   Depex - Dependency Expresion.
   SOR   - Schedule On Request - Don't schedule if this bit is set.
 
---*/
+Copyright (c) 2006 - 2007, Intel Corporation                                                         
+All rights reserved. This program and the accompanying materials                          
+are licensed and made available under the terms and conditions of the BSD License         
+which accompanies this distribution.  The full text of the license may be found at        
+http://opensource.org/licenses/bsd-license.php                                            
+                                                                                          
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
+
+**/
 
 #include <DxeMain.h>
 
@@ -490,9 +483,15 @@ Returns:
       
       CoreReleaseDispatcherLock ();
 
-      CoreReportProgressCodeSpecific (EFI_SOFTWARE_DXE_CORE | EFI_SW_PC_INIT_BEGIN, DriverEntry->ImageHandle);
+      CoreReportProgressCodeSpecific (
+        FixedPcdGet32(PcdStatusCodeValueDxeDriverBegin), 
+        DriverEntry->ImageHandle
+        );
       Status = CoreStartImage (DriverEntry->ImageHandle, NULL, NULL);
-      CoreReportProgressCodeSpecific (EFI_SOFTWARE_DXE_CORE | EFI_SW_PC_INIT_END, DriverEntry->ImageHandle);
+      CoreReportProgressCodeSpecific (
+        FixedPcdGet32(PcdStatusCodeValueDxeDriverEnd), 
+        DriverEntry->ImageHandle
+        );
 
       ReturnStatus = EFI_SUCCESS;
     }
@@ -860,14 +859,20 @@ Returns:
   EFI_SECTION_TYPE                    SectionType;
   UINT32                              AuthenticationStatus;
   VOID                                *Buffer;
+  VOID                                *AlignedBuffer;
   UINTN                               BufferSize;
+  EFI_FIRMWARE_VOLUME_HEADER          *FvHeader;
+  UINT32                              FvAlignment;  
 
   //
   // Read the first (and only the first) firmware volume section
   //
   SectionType = EFI_SECTION_FIRMWARE_VOLUME_IMAGE;
+  FvHeader    = NULL;
+  FvAlignment = 0;
   Buffer      = NULL;
   BufferSize  = 0;
+  AlignedBuffer = NULL;
   Status = Fv->ReadSection (
                 Fv, 
                 DriverName, 
@@ -879,22 +884,49 @@ Returns:
                 );
   if (!EFI_ERROR (Status)) {
     //
-    // Produce a FVB protocol for the file
+    // FvImage should be at its required alignment.
     //
-    Status = ProduceFVBProtocolOnBuffer (
-              (EFI_PHYSICAL_ADDRESS) (UINTN) Buffer,
-              (UINT64)BufferSize,
-              FvHandle,
-              NULL
-              );
+    FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) Buffer;
+    FvAlignment = 1 << ((FvHeader->Attributes & EFI_FVB2_ALIGNMENT) >> 16);
+    //
+    // FvAlignment must be more than 8 bytes required by FvHeader structure.
+    // 
+    if (FvAlignment < 8) {
+      FvAlignment = 8;
+    }
+    AlignedBuffer = AllocateAlignedPages (EFI_SIZE_TO_PAGES (BufferSize), (UINTN) FvAlignment);
+    if (AlignedBuffer == NULL) {
+      Status = EFI_OUT_OF_RESOURCES;
+    } else {
+      //
+      // Move FvImage into the aligned buffer and release the original buffer.
+      //
+      CopyMem (AlignedBuffer, Buffer, BufferSize);
+      CoreFreePool (Buffer);
+      Buffer = NULL;
+      //
+      // Produce a FVB protocol for the file
+      //
+      Status = ProduceFVBProtocolOnBuffer (
+                (EFI_PHYSICAL_ADDRESS) (UINTN) AlignedBuffer,
+                (UINT64)BufferSize,
+                FvHandle,
+                NULL
+                );
+    }
   }
 
-  if (EFI_ERROR (Status) && (Buffer != NULL)) {    
-  //
-  // ReadSection or Produce FVB failed, Free data buffer
-  //
-  CoreFreePool (Buffer); 
-
+  if (EFI_ERROR (Status)) {    
+    //
+    // ReadSection or Produce FVB failed, Free data buffer
+    //
+    if (Buffer != NULL) {
+      CoreFreePool (Buffer); 
+    }
+    
+    if (AlignedBuffer != NULL) {
+      FreeAlignedPages (AlignedBuffer, EFI_SIZE_TO_PAGES (BufferSize));
+    }
   }
 
   return Status;
@@ -1084,7 +1116,6 @@ Returns:
             if (FvFoundInHobFv2 (FvHandle, &NameGuid)) {
               continue;
             }
-            
             //
             // Found a firmware volume image. Produce a firmware volume block
             // protocol for it so it gets dispatched from. This is usually a 

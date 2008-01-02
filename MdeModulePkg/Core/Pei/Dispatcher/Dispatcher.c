@@ -23,13 +23,17 @@ Revision History
 
 #include <PeiMain.h>
 
+typedef struct {
+  EFI_STATUS_CODE_DATA  DataHeader;
+  EFI_HANDLE            Handle;
+} PEIM_FILE_HANDLE_EXTENDED_DATA;
+
 STATIC
 VOID
 InvokePeiCore (
   VOID          *Context1,
   VOID          *Context2
   );
-
 
 VOID
 DiscoverPeimsAndOrderWithApriori (
@@ -224,7 +228,7 @@ Returns:
   UINTN                               PeimCount;
   UINT32                              AuthenticationState;
   EFI_PHYSICAL_ADDRESS                EntryPoint;
-  EFI_PEIM_ENTRY_POINT                PeimEntryPoint;
+  EFI_PEIM_ENTRY_POINT2               PeimEntryPoint;
   BOOLEAN                             PeimNeedingDispatch;
   BOOLEAN                             PeimDispatchOnThisPass;
   UINTN                               SaveCurrentPeimCount;
@@ -232,12 +236,14 @@ Returns:
   EFI_PEI_FILE_HANDLE                 SaveCurrentFileHandle;
   VOID                                *TopOfStack;
   PEI_CORE_PARAMETERS                 PeiCoreParameters;
-  EFI_DEVICE_HANDLE_EXTENDED_DATA     ExtendedData;
+  PEIM_FILE_HANDLE_EXTENDED_DATA      ExtendedData;
+  EFI_FV_FILE_INFO                    FvFileInfo;
 
 
   PeiServices = &Private->PS;
   PeimEntryPoint = NULL;
   PeimFileHandle = NULL;
+  EntryPoint     = 0;
 
   if ((Private->PeiMemoryInstalled) && (Private->HobList.HandoffInformationTable->BootMode != BOOT_ON_S3_RESUME)) {
     //
@@ -269,10 +275,10 @@ Returns:
             //
             // Call the PEIM entry point
             //
-            PeimEntryPoint = (EFI_PEIM_ENTRY_POINT)(UINTN)EntryPoint;
+            PeimEntryPoint = (EFI_PEIM_ENTRY_POINT2)(UINTN)EntryPoint;
             
             PERF_START (0, "PEIM", NULL, 0);
-            PeimEntryPoint(PeimFileHandle, &Private->PS);
+            PeimEntryPoint(PeimFileHandle, (const EFI_PEI_SERVICES **) &Private->PS);
             PERF_END (0, "PEIM", NULL, 0);
           } 
           
@@ -327,16 +333,28 @@ Returns:
           if (!DepexSatisfied (Private, PeimFileHandle, PeimCount)) {
             PeimNeedingDispatch = TRUE;
           } else {
-            Status = PeiLoadImage (
-                       PeiServices, 
-                       PeimFileHandle,  
-                       &EntryPoint, 
-                       &AuthenticationState
-                       );
+            Status = PeiFfsGetFileInfo (PeimFileHandle, &FvFileInfo);
+            ASSERT_EFI_ERROR (Status);
+            if (FvFileInfo.FileType == EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE) {
+              //
+              // For Fv type file, Produce new FV PPI and FV hob
+              //
+              Status = ProcessFvFile (PeiServices, PeimFileHandle, &AuthenticationState);
+            } else {
+              //
+              // For PEIM driver, Load its entry point
+              //
+              Status = PeiLoadImage (
+                         PeiServices, 
+                         PeimFileHandle,  
+                         &EntryPoint, 
+                         &AuthenticationState
+                         );
+            }
+
             if ((Status == EFI_SUCCESS)) {
               //
-              // The PEIM has its dependencies satisfied, and its entry point
-              // has been found, so invoke it.
+              // The PEIM has its dependencies satisfied, and is processed.
               //
               PERF_START (0, "PEIM", NULL, 0);
 
@@ -344,7 +362,7 @@ Returns:
 
               REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
                 EFI_PROGRESS_CODE,
-                EFI_SOFTWARE_PEI_CORE | EFI_SW_PC_INIT_BEGIN,
+                FixedPcdGet32(PcdStatusCodeValuePeimDispatch),
                 (VOID *)(&ExtendedData),
                 sizeof (ExtendedData)
                 );
@@ -355,18 +373,21 @@ Returns:
                 // PEIM_STATE_NOT_DISPATCHED move to PEIM_STATE_DISPATCHED
                 //
                 Private->Fv[FvCount].PeimState[PeimCount]++;
+                
+                if (FvFileInfo.FileType != EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE) {
+                  //
+                  // Call the PEIM entry point for PEIM driver
+                  //
+                  PeimEntryPoint = (EFI_PEIM_ENTRY_POINT2)(UINTN)EntryPoint;
+                  PeimEntryPoint (PeimFileHandle, (const EFI_PEI_SERVICES **) PeiServices);
+                }
 
-                //
-                // Call the PEIM entry point
-                //
-                PeimEntryPoint = (EFI_PEIM_ENTRY_POINT)(UINTN)EntryPoint;
-                PeimEntryPoint (PeimFileHandle, PeiServices);
                 PeimDispatchOnThisPass = TRUE;
               }
 
               REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
                 EFI_PROGRESS_CODE,
-                EFI_SOFTWARE_PEI_CORE | EFI_SW_PC_INIT_END,
+                FixedPcdGet32(PcdStatusCodeValuePeimDispatch),
                 (VOID *)(&ExtendedData),
                 sizeof (ExtendedData)
                 );
@@ -465,7 +486,7 @@ Returns:
               // We call the entry point a 2nd time so the module knows it's shadowed. 
               //
               //PERF_START (PeiServices, L"PEIM", PeimFileHandle, 0);
-              PeimEntryPoint (PeimFileHandle, PeiServices);
+              PeimEntryPoint (PeimFileHandle, (const EFI_PEI_SERVICES **) PeiServices);
               //PERF_END (PeiServices, L"PEIM", PeimFileHandle, 0);
               
               //
@@ -572,8 +593,8 @@ Returns:
 
 --*/
 {
-  EFI_STATUS  Status;
-  VOID        *DepexData;
+  EFI_STATUS           Status;
+  VOID                 *DepexData;
 
   if (PeimCount < Private->AprioriCount) {
     //
@@ -581,8 +602,16 @@ Returns:
     //
     return TRUE;
   }
+  
+  //
+  // Depex section not in the encapsulated section. 
+  //
+  Status = PeiServicesFfsFindSectionData (
+              EFI_SECTION_PEI_DEPEX,
+              FileHandle, 
+              (VOID **)&DepexData
+              );
 
-  Status = PeiServicesFfsFindSectionData (EFI_SECTION_PEI_DEPEX, FileHandle, (VOID **) &DepexData);
   if (EFI_ERROR (Status)) {
     //
     // If there is no DEPEX, assume the module can be executed
@@ -674,4 +703,120 @@ InvokePeiCore (
   //
   ASSERT (FALSE);
   CpuDeadLoop ();
+}
+
+/**
+  Get Fv image from the FV type file, then install FV INFO ppi, Build FV hob.
+
+	@param PeiServices          Pointer to the PEI Core Services Table.
+	@param FileHandle  	        File handle of a Fv type file.
+  @param AuthenticationState  Pointer to attestation authentication state of image.
+
+  
+  @retval EFI_NOT_FOUND  				FV image can't be found.
+  @retval EFI_SUCCESS						Successfully to process it.
+
+**/
+EFI_STATUS
+ProcessFvFile (
+  IN  EFI_PEI_SERVICES      **PeiServices,
+  IN  EFI_PEI_FILE_HANDLE   FvFileHandle,
+  OUT UINT32                *AuthenticationState
+  )
+{
+  EFI_STATUS            Status;
+  EFI_PEI_FV_HANDLE     FvImageHandle;
+  EFI_FV_INFO           FvImageInfo;
+  UINT32                FvAlignment;
+  VOID                  *FvBuffer;
+  EFI_PEI_HOB_POINTERS  HobFv2;
+  
+  FvBuffer             = NULL;
+  *AuthenticationState = 0;
+
+  //
+  // Check if this EFI_FV_FILETYPE_FIRMWARE_VOLUME_IMAGE file has already 
+  // been extracted.
+  //
+  HobFv2.Raw = GetHobList ();
+  while ((HobFv2.Raw = GetNextHob (EFI_HOB_TYPE_FV2, HobFv2.Raw)) != NULL) {
+    if (CompareGuid (&(((EFI_FFS_FILE_HEADER *)FvFileHandle)->Name), &HobFv2.FirmwareVolume2->FileName)) {
+      //
+      // this FILE has been dispatched, it will not be dispatched again.
+      //
+      return EFI_SUCCESS;
+    }
+    HobFv2.Raw = GET_NEXT_HOB (HobFv2);
+  }
+  
+  //
+  // Find FvImage in FvFile
+  //
+  Status = PeiFfsFindSectionData (
+             (CONST EFI_PEI_SERVICES **) PeiServices,
+             EFI_SECTION_FIRMWARE_VOLUME_IMAGE,
+             FvFileHandle,
+             (VOID **)&FvImageHandle
+             );
+  
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+  //
+  // Collect FvImage Info.
+  //
+  Status = PeiFfsGetVolumeInfo (FvImageHandle, &FvImageInfo);
+  ASSERT_EFI_ERROR (Status);
+  //
+  // FvAlignment must be more than 8 bytes required by FvHeader structure.
+  //
+  FvAlignment = 1 << ((FvImageInfo.FvAttributes & EFI_FVB2_ALIGNMENT) >> 16);
+  if (FvAlignment < 8) {
+    FvAlignment = 8;
+  }
+  // 
+  // Check FvImage
+  //
+  if ((UINTN) FvImageInfo.FvStart % FvAlignment != 0) {
+    FvBuffer = AllocateAlignedPages (EFI_SIZE_TO_PAGES ((UINT32) FvImageInfo.FvSize), FvAlignment);
+    if (FvBuffer == NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
+    CopyMem (FvBuffer, FvImageInfo.FvStart, (UINTN) FvImageInfo.FvSize);
+    //
+    // Update FvImageInfo after reload FvImage to new aligned memory
+    //
+    PeiFfsGetVolumeInfo ((EFI_PEI_FV_HANDLE) FvBuffer, &FvImageInfo);
+  }
+  
+  //
+  // Install FvPpi and Build FvHob
+  //
+  PiLibInstallFvInfoPpi (
+    NULL,
+    FvImageInfo.FvStart,
+    (UINT32) FvImageInfo.FvSize,
+    &(FvImageInfo.FvName),
+    &(((EFI_FFS_FILE_HEADER*)FvFileHandle)->Name)
+    );
+
+  //
+  // Inform HOB consumer phase, i.e. DXE core, the existance of this FV
+  //
+  BuildFvHob (
+    (EFI_PHYSICAL_ADDRESS) (UINTN) FvImageInfo.FvStart,
+    FvImageInfo.FvSize
+  );
+  //
+  // Makes the encapsulated volume show up in DXE phase to skip processing of
+  // encapsulated file again.
+  //
+  BuildFv2Hob (
+    (EFI_PHYSICAL_ADDRESS) (UINTN) FvImageInfo.FvStart,
+    FvImageInfo.FvSize,
+    &FvImageInfo.FvName,
+    &(((EFI_FFS_FILE_HEADER *)FvFileHandle)->Name)
+    );
+    
+  return EFI_SUCCESS;
 }

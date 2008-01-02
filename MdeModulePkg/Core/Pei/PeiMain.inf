@@ -65,7 +65,6 @@
 [Packages]
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
-  IntelFrameworkPkg/IntelFrameworkPkg.dec
   
 [LibraryClasses]
   TimerLib
@@ -81,6 +80,7 @@
   MemoryAllocationLib
   CacheMaintenanceLib
   PeCoffLib
+  PeiPiLib
 
 [Guids]
   gPeiAprioriFileNameGuid
@@ -100,9 +100,8 @@
 [FixedPcd.common]
   gEfiMdeModulePkgTokenSpaceGuid.PcdPeiCoreMaxFvSupported
   gEfiMdeModulePkgTokenSpaceGuid.PcdPeiCoreMaxPeimPerFv
+  gEfiMdePkgTokenSpaceGuid.PcdStatusCodeValuePeimDispatch
+  gEfiMdePkgTokenSpaceGuid.PcdStatusCodeValuePeiCoreEntry
 
 [FeaturePcd.common]
   gEfiMdeModulePkgTokenSpaceGuid.PcdPeiCoreImageLoaderSearchTeSectionFirst
-
-
-

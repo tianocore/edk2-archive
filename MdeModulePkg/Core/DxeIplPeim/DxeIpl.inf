@@ -59,7 +59,6 @@
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
-  IntelFrameworkPkg/IntelFrameworkPkg.dec
 
 [LibraryClasses]
   PeCoffLib
@@ -78,13 +77,7 @@
   DebugLib
   S3Lib
   RecoveryLib
-  PeiPiLib
-
-[Protocols]
-  gEfiCustomizedDecompressProtocolGuid          # PROTOCOL SOMETIMES_PRODUCED
-  gEfiTianoDecompressProtocolGuid               # PROTOCOL SOMETIMES_PRODUCED
-  gEfiDecompressProtocolGuid                    # PROTOCOL SOMETIMES_PRODUCED
-
+  PerformanceLib
 
 [Ppis]
   gEfiPeiSecurityPpiGuid                        # PPI SOMETIMES_CONSUMED
@@ -108,7 +101,8 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplEnableIdt
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSwitchToLongMode
 
-
+[FixedPcd.common]
+  gEfiMdePkgTokenSpaceGuid.PcdStatusCodeValuePeiHandoffToDxe
 [Depex]
   gEfiPeiMemoryDiscoveredPpiGuid
 
