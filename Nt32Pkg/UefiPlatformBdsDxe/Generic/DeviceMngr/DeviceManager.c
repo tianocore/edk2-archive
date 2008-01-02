@@ -140,7 +140,7 @@ InitializeDeviceManager (
   //
   // Create driver handle used by HII database
   //
-  Status = CreateHiiDriverHandle (&gDeviceManagerPrivate.DriverHandle);
+  Status = HiiLibCreateHiiDriverHandle (&gDeviceManagerPrivate.DriverHandle);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -257,7 +257,7 @@ CallDeviceManager (
   //
   NumberOfHiiHandles = HandleBufferLength / sizeof (EFI_HII_HANDLE);
   for (Index = 0; Index < NumberOfHiiHandles; Index++) {
-    ExtractClassFromHiiHandle (HiiHandles[Index], &FormSetClass, &FormSetTitle, &FormSetHelp);
+    HiiLibExtractClassFromHiiHandle (HiiHandles[Index], &FormSetClass, &FormSetTitle, &FormSetHelp);
 
     if (FormSetClass == EFI_NON_DEVICE_CLASS) {
       continue;

@@ -323,7 +323,7 @@ InitializeFrontPage (
     //
     // Create driver handle used by HII database
     //
-    Status = CreateHiiDriverHandle (&gFrontPagePrivate.DriverHandle);
+    Status = HiiLibCreateHiiDriverHandle (&gFrontPagePrivate.DriverHandle);
     if (EFI_ERROR (Status)) {
       return Status;
     }

@@ -90,6 +90,7 @@ Revision History
 #include <Library/GenericBdsLib.h>
 #include <Library/GraphicsLib.h>
 #include <Library/UefiEfiIfrSupportLib.h>
+#include <Library/HiiLib.h>
 
 #include <Common/MaxBbsEntries.h>
 

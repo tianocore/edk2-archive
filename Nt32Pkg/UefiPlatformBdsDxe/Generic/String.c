@@ -56,7 +56,7 @@ InitializeStringSupport (
   //
   // Create driver handle used by HII database
   //
-  Status = CreateHiiDriverHandle (&DriverHandle);
+  Status = HiiLibCreateHiiDriverHandle (&DriverHandle);
   if (EFI_ERROR (Status)) {
     return Status;
   }

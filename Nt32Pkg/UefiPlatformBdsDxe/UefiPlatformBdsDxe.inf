@@ -97,6 +97,8 @@
   PrintLib
   UefiEfiIfrSupportLib
   GenericBdsLib
+  GraphicsLib
+  HiiLib
 
 
 [Guids]

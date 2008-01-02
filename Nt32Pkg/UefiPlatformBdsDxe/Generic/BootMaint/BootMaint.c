@@ -842,7 +842,7 @@ InitializeBM (
   //
   // Create driver handle used by HII database
   //
-  Status = CreateHiiDriverHandle (&BmmCallbackInfo->BmmDriverHandle);
+  Status = HiiLibCreateHiiDriverHandle (&BmmCallbackInfo->BmmDriverHandle);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -863,7 +863,7 @@ InitializeBM (
   //
   // Create driver handle used by HII database
   //
-  Status = CreateHiiDriverHandle (&BmmCallbackInfo->FeDriverHandle);
+  Status = HiiLibCreateHiiDriverHandle (&BmmCallbackInfo->FeDriverHandle);
   if (EFI_ERROR (Status)) {
     return Status;
   }

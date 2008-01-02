@@ -131,7 +131,7 @@ InitializeBootManager (
   //
   // Create driver handle used by HII database
   //
-  Status = CreateHiiDriverHandle (&gBootManagerPrivate.DriverHandle);
+  Status = HiiLibCreateHiiDriverHandle (&gBootManagerPrivate.DriverHandle);
   if (EFI_ERROR (Status)) {
     return Status;
   }
