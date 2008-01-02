@@ -34,11 +34,13 @@
 
 [Sources.common]
   DriverSample.c
-#  inventorystrings.uni
+  inventorystrings.uni
   NVDataStruc.h
-#  VfrStrings.uni
+  VfrStrings.uni
   DriverSample.h
-
+  inventory.vfr
+  Vfr.vfr
+  VfrStrings.uni  
 
 [Packages]
   MdePkg/MdePkg.dec

@@ -23,12 +23,6 @@ Abstract:
 #include "Ui.h"
 
 
-//
-// BugBug: Will be removed when UefiStrGather Tool is ready.
-//
-UINT8  SetupBrowserStrings[] = { 0 };
-
-
 SETUP_DRIVER_PRIVATE_DATA  mPrivateData = {
   SETUP_DRIVER_SIGNATURE,
   NULL,
