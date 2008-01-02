@@ -90,7 +90,7 @@ UefiHiiLibConstructor (
 }
 
 EFI_STATUS
-GetCurrentLanguage (
+HiiLibGetCurrentLanguage (
   OUT     CHAR8               *Lang
   )
 /*++
@@ -129,7 +129,7 @@ Returns:
 }
 
 VOID
-GetNextLanguage (
+HiiLibGetNextLanguage (
   IN OUT CHAR8      **LangCode,
   OUT CHAR8         *Lang
   )
@@ -172,7 +172,7 @@ Returns:
 }
 
 CHAR8 *
-GetSupportedLanguages (
+HiiLibGetSupportedLanguages (
   IN EFI_HII_HANDLE           HiiHandle
   )
 /*++
@@ -213,7 +213,7 @@ Returns:
 }
 
 UINT16
-GetSupportedLanguageNumber (
+HiiLibGetSupportedLanguageNumber (
   IN EFI_HII_HANDLE           HiiHandle
   )
 /*++
@@ -234,7 +234,7 @@ Returns:
   UINT16  LangNumber;
   CHAR8   Lang[RFC_3066_ENTRY_SIZE];
 
-  Languages = GetSupportedLanguages (HiiHandle);
+  Languages = HiiLibGetSupportedLanguages (HiiHandle);
   if (Languages == NULL) {
     return 0;
   }
@@ -242,7 +242,7 @@ Returns:
   LangNumber = 0;
   LanguageString = Languages;
   while (*LanguageString != 0) {
-    GetNextLanguage (&LanguageString, Lang);
+    HiiLibGetNextLanguage (&LanguageString, Lang);
     LangNumber++;
   }
   gBS->FreePool (Languages);
@@ -305,7 +305,7 @@ InternalHiiLibPreparePackages (
 
 EFI_HII_PACKAGE_LIST_HEADER *
 EFIAPI
-PreparePackageList (
+HiiLibPreparePackageList (
   IN UINTN                    NumberOfPackages,
   IN CONST EFI_GUID           *GuidId,
   ...
@@ -422,12 +422,13 @@ HiiLibAddFontPackageToHiiDatabase (
   //
   // Add this simplified font package to a package list then install it.
   //
-  PackageList = PreparePackageList (1, GuidId, Package);
+  PackageList = HiiLibPreparePackageList (1, GuidId, Package);
   Status = mHiiDatabaseProt->NewPackageList (mHiiDatabaseProt, PackageList, NULL, HiiHandle);
   ASSERT_EFI_ERROR (Status);
   SafeFreePool (PackageList);
   SafeFreePool (Package);    
-  
+
+  return EFI_SUCCESS;
 }
 
 EFI_STATUS
@@ -454,11 +455,11 @@ HiiLibCreateString (
 
   Status = EFI_SUCCESS;
 
-  Languages = GetSupportedLanguages (PackageList);
+  Languages = HiiLibGetSupportedLanguages (PackageList);
 
   LangStrings = Languages;
   while (*LangStrings != 0) {
-    GetNextLanguage (&LangStrings, Lang);
+    HiiLibGetNextLanguage (&LangStrings, Lang);
 
     Status = mHiiStringProt->NewString (
                                  mHiiStringProt,
@@ -495,11 +496,11 @@ HiiLibUpdateString (
 
   Status = EFI_SUCCESS;
 
-  Languages = GetSupportedLanguages (PackageList);
+  Languages = HiiLibGetSupportedLanguages (PackageList);
 
   LangStrings = Languages;
   while (*LangStrings != 0) {
-    GetNextLanguage (&LangStrings, Lang);
+    HiiLibGetNextLanguage (&LangStrings, Lang);
 
     Status = mHiiStringProt->SetString (
                                  mHiiStringProt,
@@ -588,7 +589,7 @@ HiiLibDestroyHiiDriverHandle (
 }
 
 EFI_STATUS
-ExtractDefault(
+HiiLibExtractDefault(
   IN VOID                         *Buffer,
   IN UINTN                        *BufferSize,
   UINTN                           Number,
@@ -659,10 +660,10 @@ ExtractDefault(
 }
 
 
-EFI_GUID mIfrVendorGuid = EFI_IFR_TIANO_GUID;
+STATIC EFI_GUID mIfrVendorGuid = EFI_IFR_TIANO_GUID;
 
 EFI_STATUS
-ExtractClassFromHiiHandle (
+HiiLibExtractClassFromHiiHandle (
   IN      EFI_HII_HANDLE      Handle,
   OUT     UINT16              *Class,
   OUT     EFI_STRING_ID       *FormSetTitle,

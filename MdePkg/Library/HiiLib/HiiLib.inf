@@ -44,3 +44,13 @@
   MemoryAllocationLib
   DebugLib
 
+[Protocols]
+  gEfiHiiDatabaseProtocolGuid  # ALWAYS_CONSUMED
+  gEfiHiiStringProtocolGuid    # ALWAYS_CONSUMED
+  
+[Guids]  
+  gEfiGlobalVariableGuid 
+
+[Depex]
+  gEfiHiiDatabaseProtocolGuid      # ALWAYS_CONSUMED
+  gEfiHiiStringProtocolGuid

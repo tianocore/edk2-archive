@@ -164,4 +164,29 @@ HiiLibDestroyHiiDriverHandle (
   )
 ;
 
+
+EFI_STATUS
+HiiLibExtractClassFromHiiHandle (
+  IN      EFI_HII_HANDLE      Handle,
+  OUT     UINT16              *Class,
+  OUT     EFI_STRING_ID       *FormSetTitle,
+  OUT     EFI_STRING_ID       *FormSetHelp
+  )
+/*++
+
+Routine Description:
+  Extract formset class for given HII handle.
+
+Arguments:
+  HiiHandle       - Hii handle
+  Class           - Class of the formset
+  FormSetTitle    - Formset title string
+  FormSetHelp     - Formset help string
+
+Returns:
+  EFI_SUCCESS     - Successfully extract Class for specified Hii handle.
+
+--*/
+;
+
 #endif

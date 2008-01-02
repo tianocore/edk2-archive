@@ -63,7 +63,6 @@ Abstract:
 #define QUESTION_FLAGS              (EFI_IFR_FLAG_READ_ONLY | EFI_IFR_FLAG_CALLBACK | EFI_IFR_FLAG_RESET_REQUIRED | EFI_IFR_FLAG_OPTIONS_ONLY)
 #define QUESTION_FLAGS_MASK         (~QUESTION_FLAGS)
 
-extern EFI_GUID                  mIfrVendorGuid;
 extern EFI_HII_DATABASE_PROTOCOL *gIfrLibHiiDatabase;
 extern EFI_HII_STRING_PROTOCOL   *gIfrLibHiiString;
 
