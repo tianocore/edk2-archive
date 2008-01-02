@@ -63,7 +63,7 @@
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
   FvbServiceLib|MdeModulePkg/Library/EdkFvbServiceLib/EdkFvbServiceLib.inf
   ScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
-  FrameworkHiiLib|IntelFrameworkPkg/Library/FrameworkHiiLib/HiiLib.inf
+  HiiLib|IntelFrameworkPkg/Library/FrameworkHiiLib/HiiLib.inf
   UsbLib|MdePkg/Library/UefiUsbLib/UefiUsbLib.inf
   NetLib|MdeModulePkg/Library/DxeNetLib/DxeNetLib.inf
   IpIoLib|MdeModulePkg/Library/DxeIpIoLib/DxeIpIoLib.inf
@@ -261,6 +261,7 @@
 
   MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
   MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
+  MdeModulepkg/Library/GraphicsLib/GraphicsLib.inf
 
   MdeModulePkg/Universal/Network/ArpDxe/ArpDxe.inf
   MdeModulePkg/Universal/Network/Dhcp4Dxe/Dhcp4Dxe.inf
@@ -315,6 +316,7 @@
 
   MdeModulePkg/Universal/UefiHiiDatabaseDxe/UefiHiiDatabaseDxe.inf
   MdeModulePkg/Universal/UefiSetupBrowserDxe/UefiSetupBrowserDxe.inf
+  MdeModulePkg/Universal/DriverSampleDxe/DriverSampleDxe.inf
 
 [Components.IA32]
   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
@@ -323,6 +325,7 @@
   MdeModulePkg/Universal/DebugSupportDxe/DebugSupportDxe.inf
   MdeModulePkg/Universal/PcatRealTimeClockRuntimeDxe/PcatRealTimeClockRuntimeDxe.inf
   MdeModulePkg/Bus/Pci/UndiRuntimeDxe/UndiRuntimeDxe.inf
+  MdeModulepkg/Library/GraphicsLib/GraphicsLib.inf
 
 [Components.X64]
   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf

@@ -52,12 +52,11 @@
   UefiLib
   UefiDriverEntryPoint
   DebugLib
-  FrameworkHiiLib
+  HiiLib
 
 [Protocols]
   gEfiDevicePathProtocolGuid                    # PROTOCOL ALWAYS_CONSUMED
   gEfiSimpleTextOutProtocolGuid                 # PROTOCOL BY_START
-  gEfiHiiProtocolGuid                           # PROTOCOL TO_START
   gEfiGraphicsOutputProtocolGuid                # PROTOCOL TO_START
   gEfiUgaDrawProtocolGuid                       # PROTOCOL TO_START
 

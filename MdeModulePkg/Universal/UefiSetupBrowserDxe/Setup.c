@@ -569,7 +569,7 @@ InitializeSetup (
   //
   // Publish our HII data
   //
-  Status = CreateHiiDriverHandle (&HiiDriverHandle);
+  Status = HiiLibCreateHiiDriverHandle (&HiiDriverHandle);
   ASSERT_EFI_ERROR (Status);
 
   PackageList = PreparePackageList (1, &gSetupBrowserGuid, SetupBrowserStrings);

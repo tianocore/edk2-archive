@@ -25,7 +25,7 @@ Revision History:
 
 #include "UefiIfrLibraryInternal.h"
 
-EFI_GUID mIfrVendorGuid = EFI_IFR_TIANO_GUID;
+STATIC EFI_GUID mIfrVendorGuid = EFI_IFR_TIANO_GUID;
 
 STATIC
 BOOLEAN

@@ -50,6 +50,7 @@ Revision History
 #include <Library/BaseLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiEfiIfrSupportLib.h>
+#include <Library/HiiLib.h>
 
 #include "R8Lib.h"
 

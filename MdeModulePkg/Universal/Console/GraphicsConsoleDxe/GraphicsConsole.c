@@ -188,10 +188,6 @@ GraphicsConsoleControllerDriverSupported (
   } else {
     goto Error;
   }
-  //
-  // Does Hii Exist?  If not, we aren't ready to run
-  //
-  Status = EfiLocateHiiProtocol ();
 
   //
   // Close the I/O Abstraction(s) used to perform the supported test
@@ -292,15 +288,6 @@ GraphicsConsoleControllerDriverStart (
     if (EFI_ERROR (Status)) {
       goto Error;
     }
-  }
-
-  //
-  // Get the HII protocol. If Supported() succeeds, do we really
-  // need to get HII protocol again?
-  //
-  Status = EfiLocateHiiProtocol ();
-  if (EFI_ERROR (Status)) {
-    goto Error;
   }
 
   NarrowFontSize  = ReturnNarrowFontSize ();
@@ -594,50 +581,6 @@ GraphicsConsoleControllerDriverStop (
   return Status;
 }
 
-EFI_STATUS
-EfiLocateHiiProtocol (
-  VOID
-  )
-/*++
-
-  Routine Description:
-    Find if the HII protocol is available. If yes, locate the HII protocol
-
-  Arguments:
-
-  Returns:
-
---*/
-{
-  EFI_HANDLE  Handle;
-  UINTN       Size;
-  EFI_STATUS  Status;
-
-  //
-  // There should only be one - so buffer size is this
-  //
-  Size = sizeof (EFI_HANDLE);
-
-  Status = gBS->LocateHandle (
-                  ByProtocol,
-                  &gEfiHiiProtocolGuid,
-                  NULL,
-                  &Size,
-                  &Handle
-                  );
-
-  if (EFI_ERROR (Status)) {
-    return Status;
-  }
-
-  Status = gBS->HandleProtocol (
-                  Handle,
-                  &gEfiHiiProtocolGuid,
-                  (VOID **)&mHii
-                  );
-
-  return Status;
-}
 //
 // Body of the STO functions
 //

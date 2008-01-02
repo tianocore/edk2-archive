@@ -25,6 +25,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Protocol/GraphicsOutput.h>
 #include <Protocol/FirmwareVolume2.h>
 #include <Protocol/UgaDraw.h>
+#include <Protocol/HiiFont.h>
+#include <Protocol/HiiImage.h>
 
 #include <Guid/Bmp.h>
 
@@ -34,6 +36,27 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DebugLib.h>
+#include <Library/BaseMemoryLib.h>
+
+STATIC EFI_GRAPHICS_OUTPUT_BLT_PIXEL mEfiColors[16] = {
+  { 0x00, 0x00, 0x00, 0x00 },
+  { 0x98, 0x00, 0x00, 0x00 },
+  { 0x00, 0x98, 0x00, 0x00 },
+  { 0x98, 0x98, 0x00, 0x00 },
+  { 0x00, 0x00, 0x98, 0x00 },
+  { 0x98, 0x00, 0x98, 0x00 },
+  { 0x00, 0x98, 0x98, 0x00 },
+  { 0x98, 0x98, 0x98, 0x00 },
+  { 0x10, 0x10, 0x10, 0x00 },
+  { 0xff, 0x10, 0x10, 0x00 },
+  { 0x10, 0xff, 0x10, 0x00 },
+  { 0xff, 0xff, 0x10, 0x00 },
+  { 0x10, 0x10, 0xff, 0x00 },
+  { 0xf0, 0x10, 0xff, 0x00 },
+  { 0x10, 0xff, 0xff, 0x00 },
+  { 0xff, 0xff, 0xff, 0x00 }
+};
+
 
 EFI_STATUS
 GetGraphicsBitMapFromFV (
@@ -598,3 +621,243 @@ Returns:
 
   return ConsoleControl->SetMode (ConsoleControl, EfiConsoleControlScreenText);
 }
+
+UINTN
+_IPrint (
+  IN EFI_GRAPHICS_OUTPUT_PROTOCOL     *GraphicsOutput,
+  IN EFI_UGA_DRAW_PROTOCOL            *UgaDraw,
+  IN EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL     *Sto,
+  IN UINTN                            X,
+  IN UINTN                            Y,
+  IN EFI_GRAPHICS_OUTPUT_BLT_PIXEL    *Foreground,
+  IN EFI_GRAPHICS_OUTPUT_BLT_PIXEL    *Background,
+  IN CHAR16                           *fmt,
+  IN VA_LIST                          args
+  )
+/*++
+
+Routine Description:
+
+  Display string worker for: Print, PrintAt, IPrint, IPrintAt
+
+Arguments:
+
+  GraphicsOutput  - Graphics output protocol interface
+
+  UgaDraw         - UGA draw protocol interface
+  
+  Sto             - Simple text out protocol interface
+  
+  X               - X coordinate to start printing
+  
+  Y               - Y coordinate to start printing
+  
+  Foreground      - Foreground color
+  
+  Background      - Background color
+  
+  fmt             - Format string
+  
+  args            - Print arguments
+
+Returns: 
+
+  EFI_SUCCESS             -  success
+  EFI_OUT_OF_RESOURCES    -  out of resources
+
+--*/
+{
+  VOID                           *Buffer;
+  EFI_STATUS                     Status;
+  UINTN                          Index;
+  CHAR16                         *UnicodeWeight;
+  UINT32                         HorizontalResolution;
+  UINT32                         VerticalResolution;
+  UINT32                         ColorDepth;
+  UINT32                         RefreshRate;
+  UINTN                          BufferLen;
+  UINTN                          LineBufferLen;
+  EFI_HII_FONT_PROTOCOL          *HiiFont;
+  EFI_IMAGE_OUTPUT               *Blt;
+  EFI_FONT_DISPLAY_INFO          *FontInfo;  
+
+  //
+  // For now, allocate an arbitrarily long buffer
+  //
+  Buffer = AllocateZeroPool (0x10000);
+  if (Buffer == NULL) {
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  if (GraphicsOutput != NULL) {
+    HorizontalResolution = GraphicsOutput->Mode->Info->HorizontalResolution;
+    VerticalResolution = GraphicsOutput->Mode->Info->VerticalResolution;
+  } else {
+    UgaDraw->GetMode (UgaDraw, &HorizontalResolution, &VerticalResolution, &ColorDepth, &RefreshRate);
+  }
+  ASSERT ((HorizontalResolution != 0) && (VerticalResolution !=0)); 
+
+  Blt      = NULL;
+  FontInfo = NULL;
+  ASSERT (GraphicsOutput != NULL);
+  Status = gBS->LocateProtocol (&gEfiHiiFontProtocolGuid, NULL, (VOID **) &HiiFont);
+  if (EFI_ERROR (Status)) {
+    goto Error;
+  }  
+
+  UnicodeVSPrint (Buffer, 0x10000, fmt, args);
+  
+  UnicodeWeight = (CHAR16 *) Buffer;
+
+  for (Index = 0; UnicodeWeight[Index] != 0; Index++) {
+    if (UnicodeWeight[Index] == CHAR_BACKSPACE ||
+        UnicodeWeight[Index] == CHAR_LINEFEED  ||
+        UnicodeWeight[Index] == CHAR_CARRIAGE_RETURN) {
+      UnicodeWeight[Index] = 0;
+    }
+  }
+
+  BufferLen = StrLen (Buffer);
+ 
+
+  LineBufferLen = sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL) * HorizontalResolution * EFI_GLYPH_HEIGHT;
+  if (EFI_GLYPH_WIDTH * EFI_GLYPH_HEIGHT * sizeof(EFI_GRAPHICS_OUTPUT_BLT_PIXEL) * BufferLen > LineBufferLen) {
+     Status = EFI_INVALID_PARAMETER;
+     goto Error;
+  }
+
+  Blt = (EFI_IMAGE_OUTPUT *) AllocateZeroPool (sizeof (EFI_IMAGE_OUTPUT));
+  if (Blt == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
+    goto Error;
+  }
+
+  Blt->Width        = (UINT16) (HorizontalResolution);
+  Blt->Height       = (UINT16) (VerticalResolution);
+  Blt->Image.Screen = GraphicsOutput;
+   
+  FontInfo = (EFI_FONT_DISPLAY_INFO *) AllocateZeroPool (sizeof (EFI_FONT_DISPLAY_INFO));
+  if (FontInfo == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
+    goto Error;
+  }
+  if (Foreground != NULL) {
+    CopyMem (&FontInfo->ForegroundColor, Foreground, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL));
+  } else {
+    CopyMem (
+      &FontInfo->ForegroundColor, 
+      &mEfiColors[Sto->Mode->Attribute & 0x0f], 
+      sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL)
+      );
+  }
+  if (Background != NULL) {
+    CopyMem (&FontInfo->BackgroundColor, Background, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL));
+  } else {
+    CopyMem (
+      &FontInfo->BackgroundColor, 
+      &mEfiColors[Sto->Mode->Attribute >> 4], 
+      sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL)
+      );
+  }
+
+  Status = HiiFont->StringToImage (
+                       HiiFont,
+                       EFI_HII_IGNORE_IF_NO_GLYPH | EFI_HII_DIRECT_TO_SCREEN,
+                       Buffer,
+                       FontInfo,
+                       &Blt,
+                       X,
+                       Y,
+                       NULL,
+                       NULL,
+                       NULL
+                       );
+  
+
+Error:
+  SafeFreePool (Blt);
+  SafeFreePool (FontInfo);
+  gBS->FreePool (Buffer);
+  return Status;
+}
+
+UINTN
+PrintXY (
+  IN UINTN                            X,
+  IN UINTN                            Y,
+  IN EFI_GRAPHICS_OUTPUT_BLT_PIXEL    *ForeGround, OPTIONAL
+  IN EFI_GRAPHICS_OUTPUT_BLT_PIXEL    *BackGround, OPTIONAL
+  IN CHAR16                           *Fmt,
+  ...
+  )
+/*++
+
+Routine Description:
+
+    Prints a formatted unicode string to the default console
+
+Arguments:
+
+    X           - X coordinate to start printing
+    
+    Y           - Y coordinate to start printing
+    
+    ForeGround  - Foreground color
+    
+    BackGround  - Background color
+
+    Fmt         - Format string
+
+    ...         - Print arguments
+
+Returns:
+
+    Length of string printed to the console
+
+--*/
+{
+  EFI_HANDLE                    Handle;
+  EFI_GRAPHICS_OUTPUT_PROTOCOL  *GraphicsOutput;
+  EFI_UGA_DRAW_PROTOCOL         *UgaDraw;
+  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL  *Sto;
+  EFI_STATUS                    Status;
+  VA_LIST                       Args;
+
+  VA_START (Args, Fmt);
+
+  Handle = gST->ConsoleOutHandle;
+
+  Status = gBS->HandleProtocol (
+                  Handle,
+                  &gEfiGraphicsOutputProtocolGuid,
+                  (VOID**)&GraphicsOutput
+                  );
+
+  UgaDraw = NULL;
+  if (EFI_ERROR (Status)) {
+    GraphicsOutput = NULL;
+
+    Status = gBS->HandleProtocol (
+                    Handle,
+                    &gEfiUgaDrawProtocolGuid,
+                    (VOID**)&UgaDraw
+                    );
+
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
+  Status = gBS->HandleProtocol (
+                  Handle,
+                  &gEfiSimpleTextOutProtocolGuid,
+                  (VOID**)&Sto
+                  );
+
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  return _IPrint (GraphicsOutput, UgaDraw, Sto, X, Y, ForeGround, BackGround, Fmt, Args);
+}
+

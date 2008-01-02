@@ -300,11 +300,6 @@ GraphicsConsoleConOutEnableCursor (
   );
 
 EFI_STATUS
-EfiLocateHiiProtocol (
-  VOID
-  );
-
-EFI_STATUS
 EFIAPI
 GraphicsConsoleControllerDriverSupported (
   IN EFI_DRIVER_BINDING_PROTOCOL    *This,
