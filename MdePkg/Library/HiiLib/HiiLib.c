@@ -369,7 +369,7 @@ HiiLibAddPackagesToHiiDatabase (
   EFI_STATUS                Status;
 
 
-  VA_START (Args, GuidId);
+  VA_START (Args, HiiHandle);
   PackageListHeader = InternalHiiLibPreparePackages (NumberOfPackages, GuidId, Args);
 
   Status      = mHiiDatabaseProt->NewPackageList (mHiiDatabaseProt, PackageListHeader, DriverHandle, HiiHandle);
