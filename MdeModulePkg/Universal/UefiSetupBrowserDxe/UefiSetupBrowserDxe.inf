@@ -33,7 +33,7 @@
 #
 
 [Sources.common]
-#  SetupBrowserStr.uni
+  SetupBrowserStr.uni
   Presentation.c
   Colors.h
   Expression.c

@@ -72,7 +72,6 @@ Revision History
 //
 // This is the generated header file which includes whatever needs to be exported (strings + IFR)
 //
-//@MT:#include "SetupBrowserStrDefs.h"
 
 extern UINT8  SetupBrowserStrings[];
 
@@ -757,7 +756,5 @@ BrowserCallback (
   IN CONST CHAR16                      *VariableName  OPTIONAL
   )
 ;
-
-#include "TempStringToken.h"
 
 #endif
