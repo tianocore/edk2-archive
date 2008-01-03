@@ -24,7 +24,8 @@
 // Make sure we are useing the correct packing rules per EFI specification
 //
 #ifndef __GNUC__
-#pragma pack()
+//#pragma pack()x
+//#pragma pack(show)
 #endif
 
 #if __INTEL_COMPILER
