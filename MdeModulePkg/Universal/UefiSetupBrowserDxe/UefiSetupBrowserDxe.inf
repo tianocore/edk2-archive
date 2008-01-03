@@ -34,20 +34,20 @@
 
 [Sources.common]
   SetupBrowserStr.uni
-  Presentation.c
-  Colors.h
-  Expression.c
-  IfrParse.c
-  Ui.c
-  InputHandler.c
-  ProcessOptions.c
-  R8Lib.c
-  Print.c
-  Ui.h
-  Setup.h
   Setup.c
+  Setup.h
+  IfrParse.c
+  Expression.c
+  InputHandler.c
+  Print.c
   Print.h
+  Presentation.c
+  ProcessOptions.c
+  Ui.c
+  Ui.h
+  R8Lib.c
   R8Lib.h
+  Colors.h
 
 
 [Packages]

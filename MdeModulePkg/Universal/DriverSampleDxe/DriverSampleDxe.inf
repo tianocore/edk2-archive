@@ -38,7 +38,7 @@
   NVDataStruc.h
   VfrStrings.uni
   DriverSample.h
-  inventory.vfr
+  Inventory.vfr
   Vfr.vfr
   VfrStrings.uni  
 
@@ -56,6 +56,7 @@
   DebugLib
   HiiLib
   UefiEfiIfrSupportLib
+  BaseLib
 
 
 [Protocols]
@@ -67,5 +68,5 @@
 
 
 [Depex]
-  gEfiHiiDatabaseProtocolGuid
+  gEfiSimpleTextOutProtocolGuid AND gEfiHiiDatabaseProtocolGuid
 

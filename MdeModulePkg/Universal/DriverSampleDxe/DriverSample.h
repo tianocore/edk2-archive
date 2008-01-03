@@ -47,12 +47,6 @@ Revision History
 #include "NVDataStruc.h"
 
 //
-// This is the generated header file which includes whatever needs to be exported (strings + IFR)
-//
-// WQBugBug:
-#include "DriverSampleStrDefs.h"
-
-//
 // This is the generated <AltResp> for defaults defined in VFR
 //
 extern UINT8 VfrMyIfrNVDataDefault0000[];

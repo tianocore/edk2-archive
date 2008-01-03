@@ -22,18 +22,12 @@ Abstract:
 
 #include "DriverSample.h"
 
-#define DISPLAY_ONLY_MY_ITEM  0x0000
+#define DISPLAY_ONLY_MY_ITEM  0x0002
 
 EFI_GUID   mFormSetGuid = FORMSET_GUID;
 EFI_GUID   mInventoryGuid = INVENTORY_GUID;
 
 CHAR16     VariableName[] = L"MyIfrNVData";
-
-//WQBugBug:
-UINT8 VfrMyIfrNVDataDefault0000 [] = {0};
-UINT8 InventoryBin [] = {0};
-UINT8 DriverSampleStrings [] = {0};
-UINT8 VfrBin [] = {0};
 
 VOID
 EncodePassword (
