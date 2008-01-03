@@ -30,17 +30,6 @@ Abstract:
 CHAR16  mFirmwareVendor[] = L"TianoCore.org";
 
 //
-// These arraies will be removed when Uefi VFRC and Uefi StringGather tool is ready for EDK II
-//
-UINT8 FrontPageVfrBin[] = {0};
-UINT8 BdsStrings[] = {0};
-UINT8 BootManagerVfrBin[] = {0};
-UINT8 DeviceManagerVfrBin[] = {0};
-UINT8 bmBin[] = {0};
-UINT8 FEBin[] = {0};
-
-
-//
 // BDS Platform Functions
 //
 

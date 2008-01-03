@@ -29,7 +29,6 @@ Revision History
 //@MT:#include "EfiImage.h"
 //@MT:#include "UefiIfrLibrary.h"
 //@MT:#include "EfiDriverLib.h"
-#include "BdsStrDefs.h"
 //@MT:#include "BdsLib.h"
 #include "BBSsupport.h"
 #include "FormGuid.h"

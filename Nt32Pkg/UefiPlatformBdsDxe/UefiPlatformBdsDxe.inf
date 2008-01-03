@@ -32,47 +32,59 @@
 #
 
 [Sources.common]
-  Generic\BootMaint\BootOption.c
-#  Generic\Strings.uni
-  R8Lib.c
-  Generic\BootMaint\BootMaint.c
+  PlatformData.c
+  BdsPlatform.c
+
+  Generic\BdsEntry.c
+  Generic\FrontPage.c
+  Generic\FrontPageStrings.uni
+  Generic\FrontPageVfr.vfr
+  Generic\Language.c
+  Generic\String.c
+  Generic\Strings.uni
   Generic\Capsules.c
+  Generic\MemoryTest.c
+  Generic\Hotkey.c
+
+  Generic\BootMaint\bmstring.uni
+  Generic\BootMaint\bm.vfr
+  Generic\BootMaint\BmLib.c
+  Generic\BootMaint\BootOption.c
+  Generic\BootMaint\ConsoleOption.c
+  Generic\BootMaint\Data.c
+  Generic\BootMaint\Variable.c
   Generic\BootMaint\UpdatePage.c
+  Generic\BootMaint\BBSsupport.c
+  Generic\BootMaint\BootMaint.c
+  Generic\BootMaint\FileExplorer.c
+  Generic\BootMaint\FE.vfr
+
+  Generic\BootMngr\BootManager.c
+  Generic\BootMngr\BootManagerStrings.uni
+  Generic\BootMngr\BootManagerVfr.Vfr
+
+  Generic\DeviceMngr\DeviceManager.c
+  Generic\DeviceMngr\DeviceManagerStrings.uni
+  Generic\DeviceMngr\DeviceManagerVfr.Vfr
+
+ 
+#  Generic\HwErrRecSupport.c
+  VendorDevPath.c
+  R8Lib.c
   R8Lib.h
   Generic\HwErrRecSupport.h
   BdsPlatform.h
-  Generic\BootMngr\BootManager.c
   Generic\Language.h
-  Generic\MemoryTest.c
   Generic\FrontPage.h
-  Generic\FrontPage.c
-  Generic\Hotkey.c
-  Generic\BootMaint\ConsoleOption.c
-#  Generic\BootMaint\bmstring.uni
   Generic\Bds.h
-  Generic\BootMaint\Data.c
   Generic\BootMngr\BootManager.h
-  Generic\BootMaint\FileExplorer.c
-  Generic\Language.c
-#  Generic\DeviceMngr\PlatOverMngr\VfrStrings.uni
-  Generic\BootMaint\BmLib.c
-#  Generic\DeviceMngr\DeviceManagerStrings.uni
-  Generic\String.c
-  Generic\BootMaint\BBSsupport.c
-  Generic\BdsEntry.c
-  Generic\Hotkey.h
   Generic\DeviceMngr\DeviceManager.h
   Generic\BootMaint\FormGuid.h
   Generic\String.h
-  Generic\DeviceMngr\DeviceManager.c
   Generic\BootMaint\BBSsupport.h
-#  Generic\FrontPageStrings.uni
   Generic\BootMaint\BootMaint.h
-  Generic\BootMaint\Variable.c
-  BdsPlatform.c
-  Generic\HwErrRecSupport.c
-  PlatformData.c
-  VendorDevPath.c
+  Generic\Hotkey.h
+  
 
 [Packages]
   MdePkg/MdePkg.dec

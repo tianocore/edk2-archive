@@ -97,11 +97,6 @@ Revision History
 #include <MdeModuleHii.h>
 
 //
-// WQBugBug: This Macro Definition will be removed when UefiStringGather Tool is ready.
-//
-#include "BdsStrDefs.h"
-
-//
 // Bds AP Context data
 //
 #define EFI_BDS_ARCH_PROTOCOL_INSTANCE_SIGNATURE  EFI_SIGNATURE_32 ('B', 'd', 's', 'A')

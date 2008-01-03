@@ -43,11 +43,6 @@ Revision History
 
 #define ONE_SECOND  10000000
 
-//
-// This is the VFR compiler generated header file which defines the
-// string identifiers.
-//
-#include "BdsStrDefs.h"
 #define PRINTABLE_LANGUAGE_NAME_STRING_ID     0x0001
 
 //

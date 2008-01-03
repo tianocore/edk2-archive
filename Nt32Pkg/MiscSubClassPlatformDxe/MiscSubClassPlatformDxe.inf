@@ -69,7 +69,7 @@
   BaseMemoryLib
   UefiDriverEntryPoint
   UefiLib
-  FrameworkHiiLib
+  HiiLib
   DebugLib
   BaseLib
   PcdLib

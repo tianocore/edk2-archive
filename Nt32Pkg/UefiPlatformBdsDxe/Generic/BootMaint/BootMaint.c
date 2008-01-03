@@ -21,7 +21,6 @@ Abstract:
 **/
 
 #include "BootMaint.h"
-#include "BdsStrDefs.h"
 #include "FormGuid.h"
 #include "Bds.h"
 #include "FrontPage.h"
