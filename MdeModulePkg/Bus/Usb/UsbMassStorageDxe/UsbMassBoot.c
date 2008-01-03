@@ -535,9 +535,12 @@ UsbScsiModeSense (
   IN USB_MASS_DEVICE          *UsbMass
   )
 {
-  EFI_STATUS                Status;
+  EFI_STATUS                       Status;
   USB_SCSI_MODE_SENSE6_CMD         ModeSenseCmd;
   USB_SCSI_MODE_SENSE6_PARA_HEADER ModeParaHeader;
+  EFI_BLOCK_IO_MEDIA               *Media;
+
+  Media   = &UsbMass->BlockIoMedia;
 
   ZeroMem (&ModeSenseCmd, sizeof (USB_SCSI_MODE_SENSE6_CMD));
   ZeroMem (&ModeParaHeader, sizeof (USB_SCSI_MODE_SENSE6_PARA_HEADER));
@@ -565,7 +568,7 @@ UsbScsiModeSense (
   // devices support this command, so have a try here.
   //
   if (!EFI_ERROR (Status)) {
-    UsbMass->BlockIoMedia.ReadOnly = (BOOLEAN) ((ModeParaHeader.DevicePara & 0x80) ? TRUE : FALSE);
+    Media->ReadOnly = (BOOLEAN) ((ModeParaHeader.DevicePara & 0x80) ? TRUE : FALSE);
   }
 
   return Status;
@@ -591,9 +594,11 @@ UsbBootGetParams (
   IN USB_MASS_DEVICE          *UsbMass
   )
 {
+  EFI_BLOCK_IO_MEDIA          *Media;
   EFI_STATUS                  Status;
   UINT8                       CmdSet;
 
+  Media  = &(UsbMass->BlockIoMedia);
   CmdSet = ((EFI_USB_INTERFACE_DESCRIPTOR *) (UsbMass->Context))->InterfaceSubClass;
 
   Status = UsbBootInquiry (UsbMass);
@@ -614,7 +619,7 @@ UsbBootGetParams (
     //
     // Default value 2048 Bytes, in case no media present at first time
     //
-    UsbMass->BlockIoMedia.BlockSize        = 0x0800;
+    Media->BlockSize        = 0x0800;
   }
 
   if ((UsbMass->Pdt != USB_PDT_CDROM) && (CmdSet == USB_MASS_STORE_SCSI)) {
