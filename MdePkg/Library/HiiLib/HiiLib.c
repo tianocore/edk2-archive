@@ -577,7 +577,7 @@ HiiLibDestroyHiiDriverHandle (
   Status = gBS->HandleProtocol (
                   DriverHandle,
                   &gEfiDevicePathProtocolGuid,
-                  &DevicePath
+                  (VOID **) &DevicePath
                   );
   if (EFI_ERROR (Status)) {
     return Status;
@@ -694,7 +694,6 @@ Returns:
   EFI_HII_DATABASE_PROTOCOL    *HiiDatabase;
   EFI_HII_PACKAGE_LIST_HEADER  *HiiPackageList;
   UINT8                        *Package;
-  UINT8                        *FormSet;
   UINT8                        *OpCodeData;
   UINT32                       Offset;
   UINT32                       Offset2;
@@ -711,7 +710,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiHiiDatabaseProtocolGuid,
                   NULL,
-                  &HiiDatabase
+                  (VOID **) &HiiDatabase
                   );
   if (EFI_ERROR (Status)) {
     return Status;
@@ -738,7 +737,6 @@ Returns:
   //
   Offset = sizeof (EFI_HII_PACKAGE_LIST_HEADER);
   Offset2 = 0;
-  FormSet = NULL;
   CopyMem (&PackageListLength, &HiiPackageList->PackageLength, sizeof (UINT32));
 
   while (Offset < PackageListLength) {
