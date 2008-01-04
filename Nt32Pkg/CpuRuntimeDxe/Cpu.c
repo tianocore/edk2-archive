@@ -421,6 +421,7 @@ Returns:
   UINT32                      HeaderSize;
   UINT32                      TotalSize;
   EFI_DATA_HUB_PROTOCOL       *DataHub;
+  EFI_HII_HANDLE              HiiHandle;
 
   //
   // Locate DataHub protocol.
@@ -444,7 +445,7 @@ Returns:
   //
   // Initialize strings to HII database
   //
-  HiiLibAddPackagesToHiiDatabase (1, &gEfiProcessorProducerGuid, NULL, NULL, CpuStrings);
+  HiiLibAddPackagesToHiiDatabase (1, &gEfiProcessorProducerGuid, NULL, &HiiHandle, CpuStrings);
   
 
   CopyMem (RecordBuffer.Raw, &mCpuDataRecordHeader, HeaderSize);
