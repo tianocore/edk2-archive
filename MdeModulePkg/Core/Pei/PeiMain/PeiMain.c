@@ -179,6 +179,11 @@ Returns:
     // DEBUG_CODE_BEGIN macro is used to prevent this code from being compiled
     // on a debug build.
     //
+/*  
+    // It will try to dump out CAR space usage information after PEI core switch stack. 
+    // on IPF platform, CAR is terminated during SBSP PEI core switch stack so any try 
+    // to access CAR space after CAR is tearing down should be prohibited.
+    // comment out this debug info in current PO stage.
     DEBUG_CODE_BEGIN ();
       UINT32  *StackPointer;
       UINT32  StackValue;
@@ -200,6 +205,7 @@ Returns:
         (UINTN) OldCoreData->HobList.Raw)
         ));
     DEBUG_CODE_END ();
+*/
 
     //
     // Alert any listeners that there is permanent memory available
