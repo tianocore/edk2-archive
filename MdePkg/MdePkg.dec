@@ -83,7 +83,7 @@
   BasePeCoffLib|Include/Library/PeCoffLib.h
   GraphicsLib|Include/Library/GraphicsLib.h
   ExtractGuidedSectionLib|Include/Library/ExtractGuidedSectionLib.h
-  UefiEfiIfrSupportLib|Include/Library/UefiEfiIfrSupportLib.h
+  UefiIfrSupportLib|Include/Library/UefiIfrSupportLib.h
   
 [LibraryClasses.IPF]
   SalLib|Include/Library/SalLib.h
