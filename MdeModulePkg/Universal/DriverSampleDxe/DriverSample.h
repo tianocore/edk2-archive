@@ -38,7 +38,7 @@ Revision History
 #include <Library/UefiDriverEntryPoint.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include <Library/UefiEfiIfrSupportLib.h>
+#include <Library/UefiIfrSupportLib.h>
 #include <Library/HiiLib.h>
 
 #include <MdeModuleHii.h>

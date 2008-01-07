@@ -63,7 +63,7 @@ Abstract:
 #include <Library/DevicePathLib.h>
 
 
-#include <Library/UefiEfiIfrSupportLib.h>
+#include <Library/UefiIfrSupportLib.h>
 #include <Library/GenericBdsLib.h>
 
 #include "BmMachine.h"

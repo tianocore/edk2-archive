@@ -55,7 +55,7 @@
   BaseMemoryLib
   DebugLib
   HiiLib
-  UefiEfiIfrSupportLib
+  UefiIfrSupportLib
   BaseLib
 
 

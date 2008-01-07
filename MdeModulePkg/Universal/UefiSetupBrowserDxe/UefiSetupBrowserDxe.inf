@@ -65,7 +65,7 @@
   DebugLib
   PrintLib
   GraphicsLib
-  UefiEfiIfrSupportLib
+  UefiIfrSupportLib
   HiiLib
 
 [Protocols]
