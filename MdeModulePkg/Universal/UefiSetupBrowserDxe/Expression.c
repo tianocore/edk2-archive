@@ -1316,6 +1316,7 @@ EvaluateExpression (
   EFI_HII_VALUE           *Value;
   INTN                    Result;
   CHAR16                  *StrPtr;
+  UINT32                  TempValue;
 
   //
   // Always reset the stack before evaluating an Expression
@@ -1714,15 +1715,16 @@ EvaluateExpression (
           break;
 
         case EFI_IFR_MULTIPLY_OP:
-          Value->Value.u64 = MultU64x32 (Data1.Value.u64, (UINTN) Data2.Value.u64);
+          Value->Value.u64 = MultU64x32 (Data1.Value.u64, (UINT32) Data2.Value.u64);
           break;
 
         case EFI_IFR_DIVIDE_OP:
-          Value->Value.u64 = DivU64x32Remainder  (Data1.Value.u64, (UINTN) Data2.Value.u64, NULL);
+          Value->Value.u64 = DivU64x32 (Data1.Value.u64, (UINT32) Data2.Value.u64);
           break;
 
         case EFI_IFR_MODULO_OP:
-          DivU64x32Remainder  (Data1.Value.u64, (UINTN) Data2.Value.u64, (UINTN *) &Value->Value.u64);
+          DivU64x32Remainder  (Data1.Value.u64, (UINT32) Data2.Value.u64, &TempValue);
+          Value->Value.u64 = TempValue;
           break;
 
         case EFI_IFR_BITWISE_AND_OP:

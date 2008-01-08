@@ -328,9 +328,9 @@ Returns:
       ASSERT (0);
     }
 
-    TestPercent = (UINTN) DivU64x32Remainder  (
-                            DivU64x32Remainder  (MultU64x32 (TestedMemorySize, 100), 16, NULL),
-                            (UINTN)DivU64x32Remainder  (TotalMemorySize, 16, NULL),
+    TestPercent = (UINTN) DivU64x32Remainder (
+                            DivU64x32Remainder (MultU64x32 (TestedMemorySize, 100), 16, NULL),
+                            (UINT32) DivU64x32 (TotalMemorySize, 16),
                             NULL
                             );
     if (TestPercent != PreviousValue) {

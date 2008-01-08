@@ -287,7 +287,7 @@ ValueToString (
   CHAR16  *BufferPtr;
   UINTN   Count;
   UINTN   NumberCount;
-  UINTN   Remainder;
+  UINT32  Remainder;
   BOOLEAN Negative;
 
   Negative    = FALSE;
