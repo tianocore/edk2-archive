@@ -73,7 +73,9 @@
   RecoveryLib|MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
   UefiIfrSupportLib|MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
   GenericBdsLib|MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
+  PlatformBdsLib|Nt32Pkg/Library/Nt32BdsLib/Nt32BdsLib.inf
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
+  DxePiLib|MdePkg/Library/DxePiLib/DxePiLib.inf
 
 [LibraryClasses.common.BASE]
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
@@ -472,7 +474,8 @@
   MdeModulePkg/Universal/Network/Udp4Dxe/Udp4Dxe.inf
   Nt32Pkg/SnpNt32Dxe/SnpNt32Dxe.inf
 
-  Nt32Pkg/UefiPlatformBdsDxe/UefiPlatformBdsDxe.inf 
+  #Nt32Pkg/UefiPlatformBdsDxe/UefiPlatformBdsDxe.inf
+  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf 
   MdeModulePkg/Universal/UefiHiiDatabaseDxe/UefiHiiDatabaseDxe.inf
   MdeModulePkg/Universal/UefiSetupBrowserDxe/UefiSetupBrowserDxe.inf
   MdeModulePkg/Universal/DriverSampleDxe/DriverSampleDxe.inf {
