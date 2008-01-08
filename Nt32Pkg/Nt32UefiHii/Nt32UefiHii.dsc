@@ -71,7 +71,7 @@
   HiiLib|MdePkg/Library/HiiLib/HiiLib.inf
   S3Lib|MdeModulePkg/Library/PeiS3LibNull/PeiS3LibNull.inf
   RecoveryLib|MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
-  UefiIfrSupportLib|MdeModulePkg/Library/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
+  UefiIfrSupportLib|MdeModulePkg/Library/UefiIfrSupportLib/UefiIfrSupportLib.inf
   GenericBdsLib|MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
   PlatformBdsLib|Nt32Pkg/Library/Nt32BdsLib/Nt32BdsLib.inf
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
