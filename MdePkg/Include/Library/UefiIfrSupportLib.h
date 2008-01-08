@@ -93,24 +93,6 @@ typedef struct {
   UINT8                 *Data;
 } EFI_HII_UPDATE_DATA;
 
-VOID
-LocateHiiProtocols (
-  VOID
-  )
-/*++
-
-Routine Description:
-  This function locate Hii relative protocols for later usage.
-
-Arguments:
-  None.
-
-Returns:
-  None.
-
---*/
-;
-
 //
 // Exported Library functions
 //
@@ -498,47 +480,6 @@ Returns:
 --*/
 ;
 
-EFI_STATUS
-CreateHiiDriverHandle (
-  OUT EFI_HANDLE               *DriverHandle
-  )
-/*++
-
-Routine Description:
-  The HII driver handle passed in for HiiDatabase.NewPackageList() requires
-  that there should be DevicePath Protocol installed on it.
-  This routine create a virtual Driver Handle by installing a vendor device
-  path on it, so as to use it to invoke HiiDatabase.NewPackageList().
-
-Arguments:
-  DriverHandle - Handle to be returned
-
-Returns:
-  EFI_SUCCESS          - Handle destroy success.
-  EFI_OUT_OF_RESOURCES - Not enough memory.
-
---*/
-;
-
-EFI_STATUS
-DestroyHiiDriverHandle (
-  IN EFI_HANDLE                 DriverHandle
-  )
-/*++
-
-Routine Description:
-  Destroy the Driver Handle created by CreateHiiDriverHandle().
-
-Arguments:
-  DriverHandle - Handle returned by CreateHiiDriverHandle()
-
-Returns:
-  EFI_SUCCESS - Handle destroy success.
-  other       - Handle destroy fail.
-
---*/
-;
-
 EFI_HII_HANDLE
 DevicePathToHiiHandle (
   IN EFI_HII_DATABASE_PROTOCOL  *HiiDatabase,
@@ -602,30 +543,6 @@ Arguments:
 
 Returns:
   EFI_SUCCESS   - Successfully extract GUID from Hii database.
-
---*/
-;
-
-EFI_STATUS
-ExtractClassFromHiiHandle (
-  IN      EFI_HII_HANDLE      Handle,
-  OUT     UINT16              *Class,
-  OUT     EFI_STRING_ID       *FormSetTitle,
-  OUT     EFI_STRING_ID       *FormSetHelp
-  )
-/*++
-
-Routine Description:
-  Extract formset class for given HII handle.
-
-Arguments:
-  HiiHandle       - Hii handle
-  Class           - Class of the formset
-  FormSetTitle    - Formset title string
-  FormSetHelp     - Formset help string
-
-Returns:
-  EFI_SUCCESS     - Successfully extract Class for specified Hii handle.
 
 --*/
 ;
