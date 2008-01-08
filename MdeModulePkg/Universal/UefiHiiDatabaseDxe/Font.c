@@ -1540,9 +1540,7 @@ HiiStringToImage (
   StringPtr = String;
   StringIn  = NULL;
   ImageTmp  = NULL;
-  for (Index = 0; Index < MAX_STRING_LENGTH; Index++) {
-    GlyphBuf[Index] = NULL;
-  }
+
   //
   // Ignore line-break characters only. Hyphens or dash character will be displayed
   // without line-break opportunity.
