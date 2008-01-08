@@ -262,8 +262,6 @@ GraphicsConsoleControllerDriverStart (
   UINTN                                SizeOfInfo;
   EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
 
-  CpuBreakpoint ();
-  
   ModeNumber = 0;
 
   //
@@ -584,6 +582,8 @@ GraphicsConsoleControllerDriverStop (
 #else    
     mHii->RemovePack (mHii, Private->HiiHandle);
 #endif
+    mFirstAccessFlag = TRUE;
+
 
     //
     // Free our instance data
@@ -618,7 +618,6 @@ EfiLocateHiiProtocol (
 
 #if (EFI_SPECIFICATION_VERSION >= 0x0002000A)
 
-  CpuBreakpoint ();
   //
   // There should only be one - so buffer size is this
   //
