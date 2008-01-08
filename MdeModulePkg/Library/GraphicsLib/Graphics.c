@@ -37,6 +37,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DebugLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/DxePiLib.h>
 
 STATIC EFI_GRAPHICS_OUTPUT_BLT_PIXEL mEfiColors[16] = {
   { 0x00, 0x00, 0x00, 0x00 },
@@ -90,58 +91,56 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                    Status;
-  UINTN                         FvProtocolCount;
-  EFI_HANDLE                    *FvHandles;
-  EFI_FIRMWARE_VOLUME2_PROTOCOL *Fv;
-  UINTN                         Index;
-  UINT32                        AuthenticationStatus;
-
-
-  Status = gBS->LocateHandleBuffer (
-                  ByProtocol,
-                  &gEfiFirmwareVolume2ProtocolGuid,
-                  NULL,
-                  &FvProtocolCount,
-                  &FvHandles
-                  );
-  if (EFI_ERROR (Status)) {
-    return EFI_NOT_FOUND;
-  }
-
-  for (Index = 0; Index < FvProtocolCount; Index++) {
-    Status = gBS->HandleProtocol (
-                    FvHandles[Index],
-                    &gEfiFirmwareVolume2ProtocolGuid,
-                    (VOID **) &Fv
-                    );
-
-    //
-    // Assuming Image and ImageSize are correct on input.
-    //
-    Status = Fv->ReadSection (
-                  Fv,
-                  FileNameGuid,
-                  EFI_SECTION_RAW,
-                  0,
-                  Image,
-                  ImageSize,
-                  &AuthenticationStatus
-                  );
-    if (!EFI_ERROR (Status)) {
-      return EFI_SUCCESS;
-    } else if (Status == EFI_BUFFER_TOO_SMALL) {
-      //
-      // ImageSize updated to needed size so return
-      //
-      return EFI_BUFFER_TOO_SMALL;
-    }
-  }
-
-  return EFI_NOT_FOUND;
+  return GetGraphicsBitMapFromFVEx (NULL, FileNameGuid, Image, ImageSize);
 }
 
-STATIC
+EFI_STATUS
+GetGraphicsBitMapFromFVEx (
+  IN  EFI_HANDLE    ImageHandle,
+  IN  EFI_GUID      *FileNameGuid,
+  OUT VOID          **Image,
+  OUT UINTN         *ImageSize
+  )
+/*++
+
+Routine Description:
+
+  Return the graphics image file named FileNameGuid into Image and return it's
+  size in ImageSize. All Firmware Volumes (FV) in the system are searched for the
+  file name.
+
+Arguments:
+
+  ImageHandle   - The driver image handle of the caller. The parameter is used to
+                  optimize the loading of the image file so that the FV from which
+                  the driver image is loaded will be tried first. 
+
+  FileNameGuid  - File Name of graphics file in the FV(s).
+
+  Image         - Pointer to pointer to return graphics image.  If NULL, a 
+                  buffer will be allocated.
+
+  ImageSize     - Size of the graphics Image in bytes. Zero if no image found.
+
+
+Returns: 
+
+  EFI_SUCCESS          - Image and ImageSize are valid. 
+  EFI_BUFFER_TOO_SMALL - Image not big enough. ImageSize has required size
+  EFI_NOT_FOUND        - FileNameGuid not found
+
+--*/
+{
+  return PiLibGetSectionFromCurrentFv (
+           FileNameGuid,
+           EFI_SECTION_RAW,
+           0,
+           Image,
+           ImageSize
+           );
+}
+
+
 EFI_STATUS
 ConvertBmpToGopBlt (
   IN  VOID      *BmpImage,
@@ -371,7 +370,38 @@ Arguments:
   LogoFile - File name of logo to display on the center of the screen.
 
 
-Returns:
+Returns: 
+
+  EFI_SUCCESS           - ConsoleControl has been flipped to graphics and logo
+                          displayed.
+  EFI_UNSUPPORTED       - Logo not found
+
+--*/
+{
+  return EnableQuietBootEx (LogoFile, NULL);
+}
+
+EFI_STATUS
+EnableQuietBootEx (
+  IN  EFI_GUID    *LogoFile,
+  IN  EFI_HANDLE  ImageHandle
+  )
+/*++
+
+Routine Description:
+
+  Use Console Control to turn off GOP/UGA based Simple Text Out consoles from going
+  to the GOP/UGA device. Put up LogoFile on every GOP/UGA device that is a console
+
+Arguments:
+
+  LogoFile    - File name of logo to display on the center of the screen.
+  ImageHandle - The driver image handle of the caller. The parameter is used to
+                optimize the loading of the logo file so that the FV from which
+                the driver image is loaded will be tried first.
+
+
+Returns: 
 
   EFI_SUCCESS           - ConsoleControl has been flipped to graphics and logo
                           displayed.
@@ -402,7 +432,7 @@ Returns:
   UINT32                        RefreshRate;
   EFI_GRAPHICS_OUTPUT_PROTOCOL  *GraphicsOutput;
 
-  Status = gBS->LocateProtocol (&gEfiConsoleControlProtocolGuid, NULL, (VOID **) &ConsoleControl);
+  Status = gBS->LocateProtocol (&gEfiConsoleControlProtocolGuid, NULL, (VOID**)&ConsoleControl);
   if (EFI_ERROR (Status)) {
     return EFI_UNSUPPORTED;
   }
@@ -411,20 +441,20 @@ Returns:
   //
   // Try to open GOP first
   //
-  Status = gBS->HandleProtocol (gST->ConsoleOutHandle, &gEfiGraphicsOutputProtocolGuid, (VOID **) &GraphicsOutput);
-  if (EFI_ERROR(Status)) {
+  Status = gBS->HandleProtocol (gST->ConsoleOutHandle, &gEfiGraphicsOutputProtocolGuid, (VOID**)&GraphicsOutput);
+  if (EFI_ERROR (Status)) {
     GraphicsOutput = NULL;
     //
     // Open GOP failed, try to open UGA
     //
-    Status = gBS->HandleProtocol (gST->ConsoleOutHandle, &gEfiUgaDrawProtocolGuid, (VOID **) &UgaDraw);
+    Status = gBS->HandleProtocol (gST->ConsoleOutHandle, &gEfiUgaDrawProtocolGuid, (VOID**)&UgaDraw);
     if (EFI_ERROR (Status)) {
       return EFI_UNSUPPORTED;
     }
   }
 
   Badging = NULL;
-  Status  = gBS->LocateProtocol (&gEfiOEMBadgingProtocolGuid, NULL, (VOID **) &Badging);
+  Status  = gBS->LocateProtocol (&gEfiOEMBadgingProtocolGuid, NULL, (VOID**)&Badging);
 
   ConsoleControl->SetMode (ConsoleControl, EfiConsoleControlScreenGraphics);
 
@@ -466,7 +496,7 @@ Returns:
         continue;
       }
     } else {
-      Status = GetGraphicsBitMapFromFV (LogoFile, (VOID **) &ImageData, &ImageSize);
+      Status = GetGraphicsBitMapFromFVEx (ImageHandle, LogoFile, &ImageData, &ImageSize);
       if (EFI_ERROR (Status)) {
         return EFI_UNSUPPORTED;
       }
@@ -477,7 +507,6 @@ Returns:
     }
 
     Blt = NULL;
-    BltSize = 0;
     Status = ConvertBmpToGopBlt (
               ImageData,
               ImageSize,
