@@ -29,11 +29,6 @@ Abstract:
 //#define EFI_SPECIFICATION_VERSION 0x0002000A
 
 #define PI_SPECIFICATION_VERSION 0x00010000
-#define PERF_ENABLE(handle, table, ticker)
-#define PERF_START(handle, token, host, ticker)
-#define PERF_END(handle, token, host, ticker)
-#define PERF_UPDATE(handle, token, host, handlenew, tokennew, hostnew)
-#define PERF_CODE(code)
 
 #include <PiDxe.h>
 #include <Protocol/HiiDatabase.h>
@@ -102,7 +97,7 @@ extern EFI_HANDLE mBdsImageHandle;
 typedef struct {
 
   UINTN                     Signature;
-  LIST_ENTRY            Link;
+  LIST_ENTRY                Link;
 
   EFI_DEVICE_PATH_PROTOCOL  *DevicePath;
 
@@ -113,6 +108,7 @@ typedef struct {
   CHAR16                    *Description;
   VOID                      *LoadOptions;
   UINT32                    LoadOptionsSize;
+  CHAR16                    *StatusString;
 
 } BDS_COMMON_OPTION;
 
