@@ -119,7 +119,7 @@ UpdateFormPackageData (
   CopyMem (&PackageHeader, Package, sizeof (EFI_HII_PACKAGE_HEADER));
   IfrOpHdr   = (EFI_IFR_OP_HEADER *)((UINT8 *) Package + sizeof (EFI_HII_PACKAGE_HEADER));
   Offset     = sizeof (EFI_HII_PACKAGE_HEADER);
-  GetFormSet = (FormSetGuid == NULL) ? TRUE : FALSE;
+  GetFormSet = (BOOLEAN) ((FormSetGuid == NULL) ? TRUE : FALSE);
   GetForm    = FALSE;
   Updated    = FALSE;
 
@@ -400,9 +400,7 @@ IfrLibCreatePopUp (
   UINTN                         Index;
   UINTN                         Count;
   UINTN                         Start;
-  UINTN                         End;
   UINTN                         Top;
-  UINTN                         Bottom;
   CHAR16                        *StringPtr;
   UINTN                         LeftColumn;
   UINTN                         RightColumn;
@@ -475,10 +473,8 @@ IfrLibCreatePopUp (
   // each end plus a border.
   //
   Start     = (DimensionsWidth - LargestString - 2) / 2 + LeftColumn + 1;
-  End       = Start + LargestString + 1;
 
   Top       = ((DimensionsHeight - NumberOfLines - 2) / 2) + TopRow - 1;
-  Bottom    = Top + NumberOfLines + 2;
 
   //
   // Disable cursor
@@ -789,7 +785,7 @@ ConstructConfigHdr (
   Status = gBS->HandleProtocol (
                   DriverHandle,
                   &gEfiDevicePathProtocolGuid,
-                  &DevicePath
+                  (VOID **) &DevicePath
                   );
   if (EFI_ERROR (Status)) {
     return Status;
@@ -932,12 +928,12 @@ GetBrowserData (
   //
   // Locate protocols for use
   //
-  Status = gBS->LocateProtocol (&gEfiFormBrowser2ProtocolGuid, NULL, &FormBrowser2);
+  Status = gBS->LocateProtocol (&gEfiFormBrowser2ProtocolGuid, NULL, (VOID **) &FormBrowser2);
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  Status = gBS->LocateProtocol (&gEfiHiiConfigRoutingProtocolGuid, NULL, &HiiConfigRouting);
+  Status = gBS->LocateProtocol (&gEfiHiiConfigRoutingProtocolGuid, NULL, (VOID **) &HiiConfigRouting);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -1046,12 +1042,12 @@ SetBrowserData (
   //
   // Locate protocols for use
   //
-  Status = gBS->LocateProtocol (&gEfiFormBrowser2ProtocolGuid, NULL, &FormBrowser2);
+  Status = gBS->LocateProtocol (&gEfiFormBrowser2ProtocolGuid, NULL, (VOID **) &FormBrowser2);
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  Status = gBS->LocateProtocol (&gEfiHiiConfigRoutingProtocolGuid, NULL, &HiiConfigRouting);
+  Status = gBS->LocateProtocol (&gEfiHiiConfigRoutingProtocolGuid, NULL, (VOID **) &HiiConfigRouting);
   if (EFI_ERROR (Status)) {
     return Status;
   }

@@ -77,7 +77,7 @@ Returns:
   gBS->CalculateCrc32 (BootOptionVar, BootOptionSize, &Crc);
   FreePool (BootOptionVar);
 
-  return (KeyOption->BootOptionCrc == Crc) ? TRUE : FALSE;
+  return (BOOLEAN) ((KeyOption->BootOptionCrc == Crc) ? TRUE : FALSE);
 }
 
 EFI_STATUS
@@ -187,7 +187,7 @@ Returns:
     RegisterOptionNumber = KeyOrder[Index];
     FreePool (TempOption);
   } else {
-    RegisterOptionNumber = MaxOptionNumber + 1;
+    RegisterOptionNumber = (UINT16) (MaxOptionNumber + 1);
   }
 
   if (KeyOptionNumber != NULL) {
@@ -567,7 +567,7 @@ Returns:
     Status = gBS->HandleProtocol (
                     Handle,
                     &gEfiSimpleTextInputExProtocolGuid,
-                    &SimpleTextInEx
+                    (VOID **) &SimpleTextInEx
                     );
     ASSERT_EFI_ERROR (Status);
 

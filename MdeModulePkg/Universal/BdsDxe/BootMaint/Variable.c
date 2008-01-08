@@ -397,7 +397,6 @@ Var_UpdateConsoleOption (
   VENDOR_DEVICE_PATH        Vendor;
   EFI_DEVICE_PATH_PROTOCOL  *TerminalDevicePath;
   UINTN                     Index;
-  UINT16                    *Temp;
 
   ConDevicePath = EfiLibGetVariable (ConsoleName, &gEfiGlobalVariableGuid);
   if (ConDevicePath != NULL) {
@@ -449,7 +448,6 @@ Var_UpdateConsoleOption (
                             );
       ASSERT (TerminalDevicePath != NULL);
       ChangeTerminalDevicePath (TerminalDevicePath, TRUE);
-      Temp = DevicePathToStr (TerminalDevicePath);
       ConDevicePath = AppendDevicePathInstance (
                         ConDevicePath,
                         TerminalDevicePath
@@ -534,7 +532,8 @@ Var_UpdateDriverOption (
     StrCpy (DescriptionData, DriverString);
   }
 
-  BufferSize = sizeof (UINT32) + sizeof (UINT16) + StrSize (DescriptionData) + GetDevicePathSize (CallbackData->LoadContext->FilePathList);
+  BufferSize = sizeof (UINT32) + sizeof (UINT16) + StrSize (DescriptionData);
+  BufferSize += GetDevicePathSize (CallbackData->LoadContext->FilePathList);
 
   if (*OptionalData != 0x0000) {
     OptionalDataExist = TRUE;
@@ -628,6 +627,7 @@ Var_UpdateDriverOption (
                   BufferSize,
                   Buffer
                   );
+  ASSERT_EFI_ERROR (Status);
   DriverOrderList = BdsLibGetVariableAndSize (
                       L"DriverOrder",
                       &gEfiGlobalVariableGuid,
@@ -648,6 +648,7 @@ Var_UpdateDriverOption (
                   DriverOrderListSize + sizeof (UINT16),
                   NewDriverOrderList
                   );
+  ASSERT_EFI_ERROR (Status);
   SafeFreePool (DriverOrderList);
   DriverOrderList = NULL;
   SafeFreePool (NewDriverOrderList);
@@ -688,7 +689,8 @@ Var_UpdateBootOption (
     StrCpy (NvRamMap->DescriptionData, BootString);
   }
 
-  BufferSize = sizeof (UINT32) + sizeof (UINT16) + StrSize (NvRamMap->DescriptionData) + GetDevicePathSize (CallbackData->LoadContext->FilePathList);
+  BufferSize = sizeof (UINT32) + sizeof (UINT16) + StrSize (NvRamMap->DescriptionData);
+  BufferSize += GetDevicePathSize (CallbackData->LoadContext->FilePathList);
 
   if (NvRamMap->OptionalData[0] != 0x0000) {
     OptionalDataExist = TRUE;
@@ -779,6 +781,7 @@ Var_UpdateBootOption (
                   BufferSize,
                   Buffer
                   );
+  ASSERT_EFI_ERROR (Status);
 
   BootOrderList = BdsLibGetVariableAndSize (
                     L"BootOrder",
@@ -802,6 +805,7 @@ Var_UpdateBootOption (
                   BootOrderListSize + sizeof (UINT16),
                   NewBootOrderList
                   );
+  ASSERT_EFI_ERROR (Status);
 
   SafeFreePool (BootOrderList);
   BootOrderList = NULL;
@@ -905,7 +909,7 @@ Var_UpdateBootOrder (
   }
 
   for (Index = 0; Index < BootOptionMenu.MenuNumber; Index++) {
-    NewBootOrderList[Index] = CallbackData->BmmFakeNvData.OptionOrder[Index] - 1;
+    NewBootOrderList[Index] = (UINT16) (CallbackData->BmmFakeNvData.OptionOrder[Index] - 1);
   }
 
   Status = gRT->SetVariable (
@@ -965,7 +969,7 @@ Var_UpdateDriverOrder (
   }
 
   for (Index = 0; Index < DriverOrderListSize; Index++) {
-    NewDriverOrderList[Index] = CallbackData->BmmFakeNvData.OptionOrder[Index] - 1;
+    NewDriverOrderList[Index] = (UINT16) (CallbackData->BmmFakeNvData.OptionOrder[Index] - 1);
   }
 
   Status = gRT->SetVariable (
@@ -996,7 +1000,6 @@ Var_UpdateBBSOption (
   VOID                        *BootOptionVar;
   CHAR16                      VarName[100];
   UINTN                       OptionSize;
-  UINT16                      FilePathSize;
   UINT8                       *Ptr;
   EFI_STATUS                  Status;
   CHAR16                      DescString[100];
@@ -1160,7 +1163,8 @@ Var_UpdateBBSOption (
     UnicodeToAscii (DescString, StrSize (DescString), DescAsciiString);
 
     NewOptionSize = sizeof (UINT32) + sizeof (UINT16) + StrSize (DescString) +
-                    sizeof (BBS_BBS_DEVICE_PATH) + AsciiStrLen (DescAsciiString) +
+                    sizeof (BBS_BBS_DEVICE_PATH);
+    NewOptionSize += AsciiStrLen (DescAsciiString) +
                     EFI_END_DEVICE_PATH_LENGTH + sizeof (BBS_TABLE) + sizeof (UINT16);
 
     UnicodeSPrint (VarName, 100, L"Boot%04x", Index);
@@ -1178,7 +1182,6 @@ Var_UpdateBBSOption (
 
     Ptr += sizeof (UINT32);
 
-    FilePathSize = *(UINT16 *) Ptr;
     Ptr += sizeof (UINT16);
     Ptr += StrSize ((CHAR16 *) Ptr);
 

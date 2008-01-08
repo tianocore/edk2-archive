@@ -73,7 +73,6 @@ BdsLibUpdateConsoleVariable (
   IN  EFI_DEVICE_PATH_PROTOCOL  *ExclusiveDevicePath
   )
 {
-  EFI_STATUS                Status;
   EFI_DEVICE_PATH_PROTOCOL  *VarConsole;
   UINTN                     DevicePathSize;
   EFI_DEVICE_PATH_PROTOCOL  *NewDevicePath;
@@ -82,7 +81,6 @@ BdsLibUpdateConsoleVariable (
 
   VarConsole      = NULL;
   DevicePathSize  = 0;
-  Status          = EFI_UNSUPPORTED;
 
   //
   // Notes: check the device path point, here should check
@@ -314,6 +312,7 @@ BdsLibConnectAllConsoles (
                     &gEfiDevicePathProtocolGuid,
                     (VOID **) &ConDevicePath
                     );
+    ASSERT_EFI_ERROR (Status);
     BdsLibUpdateConsoleVariable (L"ConIn", ConDevicePath, NULL);
   }
 

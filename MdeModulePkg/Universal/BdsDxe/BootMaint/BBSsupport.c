@@ -253,7 +253,7 @@ BdsCreateLegacyBootOption (
   UINT16               CurrentBootOptionNo;
   UINT16               BootString[10];
   UINT16               BootDesc[100];
-  UINT8                HelpString[100];
+  CHAR8                HelpString[100];
   UINT16               *NewBootOrderList;
   UINTN                BufferSize;
   UINTN                StringLen;
@@ -526,7 +526,7 @@ BdsDeleteAllInvalidLegacyBootOptions (
   LocalBbsTable = NULL;
   BbsEntry      = NULL;
 
-  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, &LegacyBios);
+  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, (VOID **) &LegacyBios);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -759,7 +759,7 @@ Returns:
   LocalHddInfo  = NULL;
   LocalBbsTable = NULL;
 
-  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, &LegacyBios);
+  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, (VOID **) &LegacyBios);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -1053,7 +1053,7 @@ Index# is a 16 bit integer, the low byte of it stands for the index in BBS table
   BEVIndex      = 0;
   NewDevPtr     = NULL;
 
-  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, &LegacyBios);
+  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, (VOID **) &LegacyBios);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -1562,7 +1562,7 @@ BdsRefreshBbsTableForBoot (
   LocalBbsTable = NULL;
   DevType       = BBS_UNKNOWN;
 
-  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, &LegacyBios);
+  Status        = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, (VOID **) &LegacyBios);
   if (EFI_ERROR (Status)) {
     return Status;
   }

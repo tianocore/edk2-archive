@@ -71,7 +71,7 @@ BdsLockNonUpdatableFlash (
   EFI_CPU_IO_PROTOCOL       *CpuIo;
   EFI_PHYSICAL_ADDRESS      Base;
 
-  Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, &CpuIo);
+  Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **) &CpuIo);
   ASSERT_EFI_ERROR (Status);
 
   //

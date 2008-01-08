@@ -236,7 +236,7 @@ Returns:
   gBS->HandleProtocol (
         Handle,
         &gEfiDevicePathProtocolGuid,
-        &DevicePath
+        (VOID **) &DevicePath
         );
   Ptr = (UINT8 *) DevicePath;
 
@@ -379,7 +379,7 @@ Returns:
     gBS->HandleProtocol (
           Handles[Index],
           &gEfiDevicePathProtocolGuid,
-          &DevicePath
+          (VOID **) &DevicePath
           );
     Ptr = (UINT8 *) DevicePath;
     while (*Ptr != END_DEVICE_PATH_TYPE) {
@@ -416,7 +416,7 @@ Returns:
       gBS->HandleProtocol (
             Handles[Index],
             &gEfiSerialIoProtocolGuid,
-            &SerialIo
+            (VOID **) &SerialIo
             );
 
       CopyMem (
@@ -706,9 +706,7 @@ GetConsoleMenu (
   UINTN                     Index2;
   BM_MENU_ENTRY             *NewMenuEntry;
   BM_CONSOLE_CONTEXT        *NewConsoleContext;
-  BM_TERMINAL_CONTEXT       *NewTerminalContext;
   TYPE_OF_TERMINAL          Terminal;
-  BM_MENU_ENTRY             *NewTerminalMenuEntry;
   UINTN                     Com;
   BM_MENU_OPTION            *ConsoleMenu;
 
@@ -799,8 +797,6 @@ GetConsoleMenu (
                                     DevicePath,
                                     NewConsoleContext->DevicePath
                                     );
-    NewTerminalMenuEntry  = NULL;
-    NewTerminalContext    = NULL;
 
     if (NewConsoleContext->IsTerminal) {
       BOpt_DestroyMenuEntry (NewMenuEntry);

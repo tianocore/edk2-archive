@@ -198,6 +198,7 @@ Returns:
   UINT16                      *TempStr;
   EFI_HII_HANDLE              HiiHandle;
   EFI_BROWSER_ACTION_REQUEST  ActionRequest;
+  UINTN                       TempSize;
 
   gOption = NULL;
   InitializeListHead (&BdsBootOptionList);
@@ -248,7 +249,8 @@ Returns:
     IfrLibNewString (HiiHandle, &Token, Option->Description);
 
     TempStr = DevicePathToStr (Option->DevicePath);
-    HelpString = AllocateZeroPool (StrSize (TempStr) + StrSize (L"Device Path : "));
+    TempSize = StrSize (TempStr);
+    HelpString = AllocateZeroPool (TempSize + StrSize (L"Device Path : "));
     StrCat (HelpString, L"Device Path : ");
     StrCat (HelpString, TempStr);
 

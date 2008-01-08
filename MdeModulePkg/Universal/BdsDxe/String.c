@@ -50,7 +50,7 @@ Returns:
   EFI_HANDLE                   DriverHandle;
   EFI_HII_PACKAGE_LIST_HEADER  *PackageList;
 
-  Status = gBS->LocateProtocol (&gEfiHiiDatabaseProtocolGuid, NULL, &gHiiDatabase);
+  Status = gBS->LocateProtocol (&gEfiHiiDatabaseProtocolGuid, NULL, (VOID **) &gHiiDatabase);
   if (EFI_ERROR (Status)) {
     return Status;
   }

@@ -274,8 +274,6 @@ Returns:
     }
   }
 
-  return ;
-
 }
 
 VOID

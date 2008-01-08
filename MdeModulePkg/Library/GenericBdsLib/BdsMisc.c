@@ -142,7 +142,7 @@ BdsLibLoadDrivers (
                     );
 
     if (!EFI_ERROR (Status)) {
-      gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, &ImageInfo);
+      gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **) &ImageInfo);
 
       //
       // Verify whether this image is a driver, if not,
@@ -259,7 +259,6 @@ BdsLibRegisterNewOption (
 {
   EFI_STATUS                Status;
   UINTN                     Index;
-  UINT16                    MaxOptionNumber;
   UINT16                    RegisterOptionNumber;
   UINT16                    *TempOptionPtr;
   UINTN                     TempOptionSize;
@@ -280,7 +279,6 @@ BdsLibRegisterNewOption (
   TempPtr               = NULL;
   OptionDevicePath      = NULL;
   Description           = NULL;
-  MaxOptionNumber       = 0;
   OptionOrderPtr        = NULL;
   UpdateBootDevicePath  = FALSE;
   ZeroMem (OptionName, sizeof (OptionName));
@@ -340,7 +338,8 @@ BdsLibRegisterNewOption (
     gBS->FreePool (OptionPtr);
   }
 
-  OptionSize          = sizeof (UINT32) + sizeof (UINT16) + StrSize (String) + GetDevicePathSize (DevicePath);
+  OptionSize          = sizeof (UINT32) + sizeof (UINT16) + StrSize (String);
+  OptionSize += GetDevicePathSize (DevicePath);
   OptionPtr           = AllocateZeroPool (OptionSize);
   TempPtr             = OptionPtr;
   *(UINT32 *) TempPtr = LOAD_OPTION_ACTIVE;
@@ -545,10 +544,10 @@ BdsLibVariableToOption (
   //
   if (*VariableName == 'B') {
     NumOff = sizeof (L"Boot")/sizeof(CHAR16) -1 ;
-    Option->BootCurrent =  (VariableName[NumOff]  -'0') * 0x1000;
-    Option->BootCurrent += (VariableName[NumOff+1]-'0') * 0x100;
-    Option->BootCurrent += (VariableName[NumOff+2]-'0') * 0x10;
-    Option->BootCurrent += (VariableName[NumOff+3]-'0');
+    Option->BootCurrent = (UINT16) ((VariableName[NumOff]  -'0') * 0x1000);
+    Option->BootCurrent = (UINT16) (Option->BootCurrent + ((VariableName[NumOff+1]-'0') * 0x100));
+    Option->BootCurrent = (UINT16) (Option->BootCurrent +  ((VariableName[NumOff+2]-'0') * 0x10));
+    Option->BootCurrent = (UINT16) (Option->BootCurrent + ((VariableName[NumOff+3]-'0')));
   }
   //
   // Insert active entry to BdsDeviceList
@@ -1113,7 +1112,7 @@ BdsLibGetImageHeader (
   BufferSize  = SIZE_OF_EFI_FILE_INFO + 200;
   do {
     Info   = NULL;
-    Status = gBS->AllocatePool (EfiBootServicesData, BufferSize, &Info);
+    Status = gBS->AllocatePool (EfiBootServicesData, BufferSize, (VOID **) &Info);
     if (EFI_ERROR (Status)) {
       goto Done;
     }
@@ -1288,7 +1287,7 @@ Returns:
   //
   Status = EfiGetSystemConfigurationTable (
              &gEfiMemoryTypeInformationGuid,
-             &CurrentMemoryTypeInformation
+             (VOID **) &CurrentMemoryTypeInformation
              );
   if (EFI_ERROR (Status)) {
     return;
@@ -1300,7 +1299,7 @@ Returns:
   // If the previous Memory Type Information is not available, then set defaults
   //
   EfiGetSystemConfigurationTable (&gEfiHobListGuid, &HobList);
-  Status = R8_GetNextGuidHob (&HobList, &gEfiMemoryTypeInformationGuid, &PreviousMemoryTypeInformation, &VariableSize);
+  Status = R8_GetNextGuidHob (&HobList, &gEfiMemoryTypeInformationGuid, (VOID **) &PreviousMemoryTypeInformation, &VariableSize);
   if (EFI_ERROR (Status) || PreviousMemoryTypeInformation == NULL) {
     //
     // If Platform has not built Memory Type Info into the Hob, just return.

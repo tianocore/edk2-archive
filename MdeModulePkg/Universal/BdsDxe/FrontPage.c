@@ -295,22 +295,22 @@ Returns:
     //
     // Locate Hii relative protocols
     //
-    Status = gBS->LocateProtocol (&gEfiHiiDatabaseProtocolGuid, NULL, &gHiiDatabase);
+    Status = gBS->LocateProtocol (&gEfiHiiDatabaseProtocolGuid, NULL, (VOID **) &gHiiDatabase);
     if (EFI_ERROR (Status)) {
       return Status;
     }
 
-    Status = gBS->LocateProtocol (&gEfiHiiStringProtocolGuid, NULL, &gHiiString);
+    Status = gBS->LocateProtocol (&gEfiHiiStringProtocolGuid, NULL, (VOID **) &gHiiString);
     if (EFI_ERROR (Status)) {
       return Status;
     }
 
-    Status = gBS->LocateProtocol (&gEfiFormBrowser2ProtocolGuid, NULL, &gFormBrowser2);
+    Status = gBS->LocateProtocol (&gEfiFormBrowser2ProtocolGuid, NULL, (VOID **) &gFormBrowser2);
     if (EFI_ERROR (Status)) {
       return Status;
     }
 
-    Status = gBS->LocateProtocol (&gEfiHiiConfigRoutingProtocolGuid, NULL, &gHiiConfigRouting);
+    Status = gBS->LocateProtocol (&gEfiHiiConfigRoutingProtocolGuid, NULL, (VOID **) &gHiiConfigRouting);
     if (EFI_ERROR (Status)) {
       return Status;
     }
@@ -663,7 +663,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiDataHubProtocolGuid,
                   NULL,
-                  &DataHub
+                  (VOID **) &DataHub
                   );
   ASSERT_EFI_ERROR (Status);
 
@@ -1031,7 +1031,7 @@ Exit:
   // Note: The following lines of code only execute when Auto boot
   // takes affect
   //
-  Status = gBS->LocateProtocol (&gEfiConsoleControlProtocolGuid, NULL, &ConsoleControl);
+  Status = gBS->LocateProtocol (&gEfiConsoleControlProtocolGuid, NULL, (VOID **) &ConsoleControl);
   ConsoleControl->SetMode (ConsoleControl, EfiConsoleControlScreenText);
 
 }

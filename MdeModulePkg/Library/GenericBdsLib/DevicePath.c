@@ -125,7 +125,9 @@ CatPrint (
     Str->str  = AllocateZeroPool (strsize);
     ASSERT (Str->str != NULL);
   } else {
-    strsize = StrSize (AppendStr) + StrSize (Str->str) - sizeof (UINT16);
+    strsize = StrSize (AppendStr);
+    strsize += (StrSize (Str->str) - sizeof (UINT16));
+
     Str->str = ReallocatePool (
                 Str->str,
                 StrSize (Str->str),
@@ -447,7 +449,7 @@ DevPathExtendedAcpi (
   UIDSTRIdx    = 0;
   CIDSTRIdx    = 0;
   ExtendedAcpi = DevPath;
-  Length       = DevicePathNodeLength ((EFI_DEVICE_PATH_PROTOCOL *) ExtendedAcpi);
+  Length       = (UINT16) DevicePathNodeLength ((EFI_DEVICE_PATH_PROTOCOL *) ExtendedAcpi);
 
   ASSERT (Length >= 19);
   AsChar8Array = (CHAR8 *) ExtendedAcpi;
@@ -465,7 +467,7 @@ DevPathExtendedAcpi (
   //
   // find UIDSTR
   //
-  Anchor = Index + 1;
+  Anchor = (UINT16) (Index + 1);
   for (Index = Anchor; Index < Length && AsChar8Array[Index]; Index++) {
     ;
   }
@@ -475,7 +477,7 @@ DevPathExtendedAcpi (
   //
   // find CIDSTR
   //
-  Anchor = Index + 1;
+  Anchor = (UINT16) (Index + 1);
   for (Index = Anchor; Index < Length && AsChar8Array[Index]; Index++) {
     ;
   }
@@ -545,8 +547,8 @@ DevPathAdrAcpi (
   UINT16                  AdditionalAdrCount;
 
   AcpiAdr            = DevPath;
-  Length             = DevicePathNodeLength ((EFI_DEVICE_PATH_PROTOCOL *) AcpiAdr);
-  AdditionalAdrCount = (Length - 8) / 4;
+  Length             = (UINT16) DevicePathNodeLength ((EFI_DEVICE_PATH_PROTOCOL *) AcpiAdr);
+  AdditionalAdrCount = (UINT16) ((Length - 8) / 4);
 
   CatPrint (Str, L"AcpiAdr(%x", (UINTN) AcpiAdr->ADR);
   for (Index = 0; Index < AdditionalAdrCount; Index++) {
@@ -1204,7 +1206,7 @@ DevicePathToStr (
   Status = gBS->LocateProtocol (
                   &gEfiDevicePathToTextProtocolGuid,
                   NULL,
-                  &DevPathToText
+                  (VOID **) &DevPathToText
                   );
   if (!EFI_ERROR (Status)) {
     ToText = DevPathToText->ConvertDevicePathToText (

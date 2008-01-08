@@ -150,7 +150,7 @@ BootThisFile (
   CHAR16            *ExitData;
   BDS_COMMON_OPTION *Option;
 
-  Status                  = gBS->AllocatePool (EfiBootServicesData, sizeof (BDS_COMMON_OPTION), &Option);
+  Status                  = gBS->AllocatePool (EfiBootServicesData, sizeof (BDS_COMMON_OPTION), (VOID **) &Option);
   Option->Description     = FileContext->FileName;
   Option->DevicePath      = FileContext->DevicePath;
   Option->LoadOptionsSize = 0;
@@ -187,7 +187,7 @@ UpdateConCOMPage (
 
   UpdatePageStart (CallbackData);
 
-  Status = EfiLibLocateProtocol (&gTerminalDriverGuid, &Interface);
+  Status = EfiLibLocateProtocol (&gTerminalDriverGuid, (VOID **) &Interface);
   if (!EFI_ERROR (Status)) {
     for (Index = 0; Index < TerminalMenu.MenuNumber; Index++) {
       NewMenuEntry = BOpt_GetMenuEntry (&TerminalMenu, Index);
@@ -231,9 +231,9 @@ UpdateBootDelPage (
     CallbackData->BmmFakeNvData.BootOptionDel[Index] = 0x00;
 
     CreateCheckBoxOpCode (
-      BOOT_OPTION_DEL_QUESTION_ID + Index,
+      (EFI_QUESTION_ID) (BOOT_OPTION_DEL_QUESTION_ID + Index),
       VARSTORE_ID_BOOT_MAINT,
-      BOOT_OPTION_DEL_VAR_OFFSET + Index,
+      (UINT16) (BOOT_OPTION_DEL_VAR_OFFSET + Index),
       NewMenuEntry->DisplayStringToken,
       NewMenuEntry->HelpStringToken,
       0,
@@ -296,9 +296,9 @@ UpdateDrvDelPage (
     CallbackData->BmmFakeNvData.DriverOptionDel[Index] = 0x00;
 
     CreateCheckBoxOpCode (
-      DRIVER_OPTION_DEL_QUESTION_ID + Index,
+      (EFI_QUESTION_ID) (DRIVER_OPTION_DEL_QUESTION_ID + Index),
       VARSTORE_ID_BOOT_MAINT,
-      DRIVER_OPTION_DEL_VAR_OFFSET + Index,
+      (UINT16) (DRIVER_OPTION_DEL_VAR_OFFSET + Index),
       NewMenuEntry->DisplayStringToken,
       NewMenuEntry->HelpStringToken,
       0,
@@ -333,7 +333,7 @@ UpdateDriverAddHandleDescPage (
     );
 
   CreateStringOpCode (
-    DRV_ADD_HANDLE_DESC_QUESTION_ID,
+    (EFI_QUESTION_ID) DRV_ADD_HANDLE_DESC_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     DRV_ADD_HANDLE_DESC_VAR_OFFSET,
     STRING_TOKEN (STR_LOAD_OPTION_DESC),
@@ -346,7 +346,7 @@ UpdateDriverAddHandleDescPage (
     );
 
   CreateCheckBoxOpCode (
-    DRV_ADD_RECON_QUESTION_ID,
+    (EFI_QUESTION_ID) DRV_ADD_RECON_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     DRV_ADD_RECON_VAR_OFFSET,
     STRING_TOKEN (STR_LOAD_OPTION_FORCE_RECON),
@@ -357,7 +357,7 @@ UpdateDriverAddHandleDescPage (
     );
 
   CreateStringOpCode (
-    DRIVER_ADD_OPTION_QUESTION_ID,
+    (EFI_QUESTION_ID) DRIVER_ADD_OPTION_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     DRIVER_ADD_OPTION_VAR_OFFSET,
     STRING_TOKEN (STR_OPTIONAL_DATA),
@@ -404,9 +404,9 @@ UpdateConsolePage (
     }
 
     CreateCheckBoxOpCode (
-      CON_DEVICE_QUESTION_ID + Index,
+      (EFI_QUESTION_ID) (CON_DEVICE_QUESTION_ID + Index),
       VARSTORE_ID_BOOT_MAINT,
-      CON_DEVICE_VAR_OFFSET + Index,
+      (UINT16) (CON_DEVICE_VAR_OFFSET + Index),
       NewMenuEntry->DisplayStringToken,
       NewMenuEntry->HelpStringToken,
       0,
@@ -415,7 +415,7 @@ UpdateConsolePage (
       );
   }
 
-  Status = EfiLibLocateProtocol (&gTerminalDriverGuid, &Interface);
+  Status = EfiLibLocateProtocol (&gTerminalDriverGuid, (VOID **) &Interface);
   if (!EFI_ERROR (Status)) {
     for (Index2 = 0; Index2 < TerminalMenu.MenuNumber; Index2++) {
       CheckFlags          = 0;
@@ -433,9 +433,9 @@ UpdateConsolePage (
       }
 
       CreateCheckBoxOpCode (
-        CON_DEVICE_QUESTION_ID + Index,
+        (EFI_QUESTION_ID) (CON_DEVICE_QUESTION_ID + Index),
         VARSTORE_ID_BOOT_MAINT,
-        CON_DEVICE_VAR_OFFSET + Index,
+        (UINT16) (CON_DEVICE_VAR_OFFSET + Index),
         NewMenuEntry->DisplayStringToken,
         NewMenuEntry->HelpStringToken,
         0,
@@ -484,7 +484,7 @@ UpdateOrderPage (
 
   if (OptionMenu->MenuNumber > 0) {
     CreateOrderedListOpCode (
-      OPTION_ORDER_QUESTION_ID,
+      (EFI_QUESTION_ID) OPTION_ORDER_QUESTION_ID,
       VARSTORE_ID_BOOT_MAINT,
       OPTION_ORDER_VAR_OFFSET,
       STRING_TOKEN (STR_CHANGE_ORDER),
@@ -557,7 +557,7 @@ UpdateBootNextPage (
     }
 
     CreateOneOfOpCode (
-      BOOT_NEXT_QUESTION_ID,
+      (EFI_QUESTION_ID) BOOT_NEXT_QUESTION_ID,
       VARSTORE_ID_BOOT_MAINT,
       BOOT_NEXT_VAR_OFFSET,
       STRING_TOKEN (STR_BOOT_NEXT),
@@ -589,7 +589,7 @@ UpdateTimeOutPage (
   BootTimeOut = BdsLibGetTimeout ();
 
   CreateNumericOpCode (
-    BOOT_TIME_OUT_QUESTION_ID,
+    (EFI_QUESTION_ID) BOOT_TIME_OUT_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     BOOT_TIME_OUT_VAR_OFFSET,
     STRING_TOKEN (STR_NUM_AUTO_BOOT),
@@ -702,7 +702,7 @@ Returns:
   }
 
   CreateOneOfOpCode (
-    CON_MODE_QUESTION_ID,
+    (EFI_QUESTION_ID) CON_MODE_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     CON_MODE_VAR_OFFSET,
     STRING_TOKEN (STR_CON_MODE_SETUP),
@@ -764,7 +764,7 @@ UpdateTerminalPage (
   }
 
   CreateOneOfOpCode (
-    COM_BAUD_RATE_QUESTION_ID,
+    (EFI_QUESTION_ID) COM_BAUD_RATE_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     COM_BAUD_RATE_VAR_OFFSET,
     STRING_TOKEN (STR_COM_BAUD_RATE),
@@ -791,7 +791,7 @@ UpdateTerminalPage (
   }
 
   CreateOneOfOpCode (
-    COM_DATA_RATE_QUESTION_ID,
+    (EFI_QUESTION_ID) COM_DATA_RATE_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     COM_DATA_RATE_VAR_OFFSET,
     STRING_TOKEN (STR_COM_DATA_BITS),
@@ -817,7 +817,7 @@ UpdateTerminalPage (
   }
 
   CreateOneOfOpCode (
-    COM_PARITY_QUESTION_ID,
+    (EFI_QUESTION_ID) COM_PARITY_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     COM_PARITY_VAR_OFFSET,
     STRING_TOKEN (STR_COM_PARITY),
@@ -843,7 +843,7 @@ UpdateTerminalPage (
   }
 
   CreateOneOfOpCode (
-    COM_STOP_BITS_QUESTION_ID,
+    (EFI_QUESTION_ID) COM_STOP_BITS_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     COM_STOP_BITS_VAR_OFFSET,
     STRING_TOKEN (STR_COM_STOP_BITS),
@@ -868,7 +868,7 @@ UpdateTerminalPage (
   }
 
   CreateOneOfOpCode (
-    COM_TERMINAL_QUESTION_ID,
+    (EFI_QUESTION_ID) COM_TERMINAL_QUESTION_ID,
     VARSTORE_ID_BOOT_MAINT,
     COM_TERMINAL_VAR_OFFSET,
     STRING_TOKEN (STR_COM_TERMI_TYPE),
@@ -929,11 +929,9 @@ GetLegacyBootOptionVar (
   VOID                      *OptionBuffer;
   UINTN                     OrderSize;
   UINTN                     Index;
-  UINT32                    Attribute;
   UINT16                    *OrderBuffer;
   CHAR16                    StrTemp[100];
   UINT16                    FilePathSize;
-  CHAR16                    *Description;
   UINT8                     *Ptr;
   UINT8                     *OptionalData;
 
@@ -958,13 +956,11 @@ GetLegacyBootOptionVar (
     }
 
     Ptr       = (UINT8 *) OptionBuffer;
-    Attribute = *(UINT32 *) Ptr;
     Ptr += sizeof (UINT32);
 
     FilePathSize = *(UINT16 *) Ptr;
     Ptr += sizeof (UINT16);
 
-    Description = (CHAR16 *) Ptr;
     Ptr += StrSize ((CHAR16 *) Ptr);
 
     //
@@ -1017,7 +1013,6 @@ UpdateSetLegacyDeviceOrderPage (
   CHAR16                      *TypeStrHelp;
   UINT16                      VarDevOrder;
   UINT8                       *VarData;
-  UINT8                       *OriginalPtr;
   UINT8                       *LegacyOrder;
   UINT8                       *OldData;
   UINT8                       *DisMap;
@@ -1045,7 +1040,7 @@ UpdateSetLegacyDeviceOrderPage (
   switch (UpdatePageId) {
   case FORM_SET_FD_ORDER_ID:
     OptionMenu  = (BM_MENU_OPTION *) &LegacyFDMenu;
-    Key         = LEGACY_FD_QUESTION_ID;
+    Key         = (UINT16) LEGACY_FD_QUESTION_ID;
     TypeStr     = StrFloppy;
     TypeStrHelp = StrFloppyHelp;
     BbsType     = BBS_FLOPPY;
@@ -1055,7 +1050,7 @@ UpdateSetLegacyDeviceOrderPage (
 
   case FORM_SET_HD_ORDER_ID:
     OptionMenu  = (BM_MENU_OPTION *) &LegacyHDMenu;
-    Key         = LEGACY_HD_QUESTION_ID;
+    Key         = (UINT16) LEGACY_HD_QUESTION_ID;
     TypeStr     = StrHardDisk;
     TypeStrHelp = StrHardDiskHelp;
     BbsType     = BBS_HARDDISK;
@@ -1065,7 +1060,7 @@ UpdateSetLegacyDeviceOrderPage (
 
   case FORM_SET_CD_ORDER_ID:
     OptionMenu  = (BM_MENU_OPTION *) &LegacyCDMenu;
-    Key         = LEGACY_CD_QUESTION_ID;
+    Key         = (UINT16) LEGACY_CD_QUESTION_ID;
     TypeStr     = StrCDROM;
     TypeStrHelp = StrCDROMHelp;
     BbsType     = BBS_CDROM;
@@ -1075,7 +1070,7 @@ UpdateSetLegacyDeviceOrderPage (
 
   case FORM_SET_NET_ORDER_ID:
     OptionMenu  = (BM_MENU_OPTION *) &LegacyNETMenu;
-    Key         = LEGACY_NET_QUESTION_ID;
+    Key         = (UINT16) LEGACY_NET_QUESTION_ID;
     TypeStr     = StrNET;
     TypeStrHelp = StrNETHelp;
     BbsType     = BBS_EMBED_NETWORK;
@@ -1085,7 +1080,7 @@ UpdateSetLegacyDeviceOrderPage (
 
   case FORM_SET_BEV_ORDER_ID:
     OptionMenu  = (BM_MENU_OPTION *) &LegacyBEVMenu;
-    Key         = LEGACY_BEV_QUESTION_ID;
+    Key         = (UINT16) LEGACY_BEV_QUESTION_ID;
     TypeStr     = StrBEV;
     TypeStrHelp = StrBEVHelp;
     BbsType     = BBS_BEV_DEVICE;
@@ -1129,7 +1124,6 @@ UpdateSetLegacyDeviceOrderPage (
               );
 
   if (NULL != VarData) {
-    OriginalPtr = VarData;
     DevOrder    = (BM_LEGACY_DEV_ORDER_CONTEXT *) VarData;
     while (VarData < VarData + VarSize) {
       if (DevOrder->BbsType == BbsType) {
@@ -1156,9 +1150,9 @@ UpdateSetLegacyDeviceOrderPage (
       IfrLibNewString (CallbackData->BmmHiiHandle, &StrRefHelp, String);
 
       CreateOneOfOpCode (
-        Key + Index,
+        (EFI_QUESTION_ID) (Key + Index),
         VARSTORE_ID_BOOT_MAINT,
-        Key + Index - CONFIG_OPTION_OFFSET,
+        (UINT16) (Key + Index - CONFIG_OPTION_OFFSET),
         StrRef,
         StrRefHelp,
         EFI_IFR_FLAG_CALLBACK,
@@ -1174,7 +1168,7 @@ UpdateSetLegacyDeviceOrderPage (
         LegacyOrder[Index]  = 0xFF;
         Pos                 = (VarDevOrder & 0xFF) / 8;
         Bit                 = 7 - ((VarDevOrder & 0xFF) % 8);
-        DisMap[Pos] |= (UINT8) (1 << Bit);
+        DisMap[Pos] = (UINT8) (DisMap[Pos] | (UINT8) (1 << Bit));
       } else {
         LegacyOrder[Index] = (UINT8) (VarDevOrder & 0xFF);
       }
@@ -1197,10 +1191,6 @@ UpdatePageId (
   UINT16                         NewPageId
   )
 {
-  UINT16  FileOptionMask;
-
-  FileOptionMask = (UINT16) (FILE_OPTION_MASK & NewPageId);
-
   if ((NewPageId < FILE_OPTION_OFFSET) && (NewPageId >= HANDLE_OPTION_OFFSET)) {
     //
     // If we select a handle to add driver option, advance to the add handle description page.

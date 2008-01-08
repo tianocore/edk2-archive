@@ -85,7 +85,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   ProtocolGuid,
                   NULL,
-                  Interface
+                  (VOID **) Interface
                   );
   return Status;
 }
@@ -518,7 +518,7 @@ EfiLibStrFromDatahub (
   Status = gBS->LocateProtocol (
                   &gEfiDataHubProtocolGuid,
                   NULL,
-                  &Datahub
+                  (VOID **) &Datahub
                   );
   if (EFI_ERROR (Status)) {
     return NULL;

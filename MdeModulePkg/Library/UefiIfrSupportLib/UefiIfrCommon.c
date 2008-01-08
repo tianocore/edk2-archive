@@ -50,10 +50,10 @@ LocateHiiProtocols (
     return;
   }
 
-  Status = gBS->LocateProtocol (&gEfiHiiDatabaseProtocolGuid, NULL, &gIfrLibHiiDatabase);
+  Status = gBS->LocateProtocol (&gEfiHiiDatabaseProtocolGuid, NULL, (VOID **) &gIfrLibHiiDatabase);
   ASSERT_EFI_ERROR (Status);
 
-  Status = gBS->LocateProtocol (&gEfiHiiStringProtocolGuid, NULL, &gIfrLibHiiString);
+  Status = gBS->LocateProtocol (&gEfiHiiStringProtocolGuid, NULL, (VOID **) &gIfrLibHiiString);
   ASSERT_EFI_ERROR (Status);
 
   mHiiProtocolsInitialized = TRUE;
@@ -178,7 +178,7 @@ DevicePathToHiiHandle (
   BufferSize = GetDevicePathSize (DevicePath);
   for(Index = 0; Index < HandleCount; Index++) {
     Handle = Handles[Index];
-    gBS->HandleProtocol (Handle, &gEfiDevicePathProtocolGuid, &TmpDevicePath);
+    gBS->HandleProtocol (Handle, &gEfiDevicePathProtocolGuid, (VOID **) &TmpDevicePath);
 
     //
     // Check whether DevicePath match
@@ -336,7 +336,7 @@ ExtractGuidFromHiiHandle (
   Status = gBS->LocateProtocol (
                   &gEfiHiiDatabaseProtocolGuid,
                   NULL,
-                  &HiiDatabase
+                  (VOID **) &HiiDatabase
                   );
   if (EFI_ERROR (Status)) {
     return Status;

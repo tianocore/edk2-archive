@@ -578,12 +578,13 @@ GraphicsConsoleControllerDriverStop (
     // Remove the font pack
     //
 #if 1
-    HiiLibRemovePackagesFromHiiDatabase (Private->HiiHandle);
+    Status = HiiLibRemovePackagesFromHiiDatabase (Private->HiiHandle);
+    if (!EFI_ERROR (Status)) {
+      mFirstAccessFlag = TRUE;
+    }
 #else    
     mHii->RemovePack (mHii, Private->HiiHandle);
 #endif
-    mFirstAccessFlag = TRUE;
-
 
     //
     // Free our instance data
@@ -653,7 +654,6 @@ EfiLocateHiiProtocol (
   return Status;
 #else
 
-  CpuBreakpoint ();
   //
   // There should only be one - so buffer size is this
   //

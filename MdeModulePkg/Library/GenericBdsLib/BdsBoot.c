@@ -51,7 +51,7 @@ BdsLibDoLegacyBoot (
   EFI_STATUS                Status;
   EFI_LEGACY_BIOS_PROTOCOL  *LegacyBios;
 
-  Status = gBS->LocateProtocol (&gEfiLegacyBiosProtocolGuid, NULL, &LegacyBios);
+  Status = gBS->LocateProtocol (&gEfiLegacyBiosProtocolGuid, NULL, (VOID **) &LegacyBios);
   if (EFI_ERROR (Status)) {
     //
     // If no LegacyBios protocol we do not support legacy boot
@@ -132,7 +132,7 @@ BdsLibBootViaBootOption (
   // hook on the event EFI_EVENT_SIGNAL_READY_TO_BOOT or
   // EFI_EVENT_SIGNAL_LEGACY_BOOT
   //
-  Status = gBS->LocateProtocol (&gEfiAcpiS3SaveProtocolGuid, NULL, &AcpiS3Save);
+  Status = gBS->LocateProtocol (&gEfiAcpiS3SaveProtocolGuid, NULL, (VOID **) &AcpiS3Save);
   if (!EFI_ERROR (Status)) {
     AcpiS3Save->S3Save (AcpiS3Save, NULL);
   }
@@ -263,7 +263,7 @@ BdsLibBootViaBootOption (
   //
   // Provide the image with it's load options
   //
-  Status = gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, &ImageInfo);
+  Status = gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **) &ImageInfo);
   ASSERT_EFI_ERROR (Status);
 
   if (Option->LoadOptionsSize != 0) {
@@ -625,7 +625,6 @@ BdsLibDeleteOptionFromHandle (
   EFI_DEVICE_PATH_PROTOCOL  *DevicePath;
   EFI_DEVICE_PATH_PROTOCOL  *OptionDevicePath;
   UINT8                     *TempPtr;
-  CHAR16                    *Description;
 
   Status        = EFI_SUCCESS;
   BootOrder     = NULL;
@@ -661,7 +660,6 @@ BdsLibDeleteOptionFromHandle (
 
     TempPtr = BootOptionVar;
     TempPtr += sizeof (UINT32) + sizeof (UINT16);
-    Description = (CHAR16 *) TempPtr;
     TempPtr += StrSize ((CHAR16 *) TempPtr);
     OptionDevicePath = (EFI_DEVICE_PATH_PROTOCOL *) TempPtr;
     OptionDevicePathSize = GetDevicePathSize (OptionDevicePath);
@@ -719,10 +717,8 @@ BdsDeleteAllInvalidEfiBootOption (
   UINTN                     Index;
   UINTN                     Index2;
   UINT16                    BootOption[BOOT_OPTION_MAX_CHAR];
-  UINTN                     OptionDevicePathSize;
   EFI_DEVICE_PATH_PROTOCOL  *OptionDevicePath;
   UINT8                     *TempPtr;
-  CHAR16                    *Description;
 
   Status        = EFI_SUCCESS;
   BootOrder     = NULL;
@@ -752,10 +748,8 @@ BdsDeleteAllInvalidEfiBootOption (
 
     TempPtr = BootOptionVar;
     TempPtr += sizeof (UINT32) + sizeof (UINT16);
-    Description = (CHAR16 *) TempPtr;
     TempPtr += StrSize ((CHAR16 *) TempPtr);
     OptionDevicePath = (EFI_DEVICE_PATH_PROTOCOL *) TempPtr;
-    OptionDevicePathSize = GetDevicePathSize (OptionDevicePath);
 
     //
     // Skip legacy boot option (BBS boot device)
@@ -832,7 +826,6 @@ BdsLibEnumerateAllBootOption (
   UINT16                        FloppyNumber;
   UINT16                        CdromNumber;
   UINT16                        UsbNumber;
-  UINT16                        ScsiNumber;
   UINT16                        MiscNumber;
   UINT16                        NonBlockNumber;
   UINTN                         NumberBlockIoHandles;
@@ -865,7 +858,6 @@ BdsLibEnumerateAllBootOption (
   FloppyNumber = 0;
   CdromNumber = 0;
   UsbNumber = 0;
-  ScsiNumber = 0;
   MiscNumber = 0;
   ZeroMem (Buffer, sizeof (Buffer));
   //
@@ -1841,7 +1833,7 @@ BdsLibUpdateFvFileDevicePath (
   Status = gBS->HandleProtocol (
              mBdsImageHandle,
              &gEfiLoadedImageProtocolGuid,
-             &LoadedImage
+             (VOID **) &LoadedImage
              );
   if (!EFI_ERROR (Status)) {
     Status = gBS->HandleProtocol (

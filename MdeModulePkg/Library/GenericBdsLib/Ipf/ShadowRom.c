@@ -27,6 +27,8 @@ Revision History
 
 //@MT:#include EFI_PROTOCOL_DEFINITION (LegacyBios)
 
+#include "InternalBdsLib.h"
+
 UINT8 mShadowRomFlag = 0;
 
 VOID
@@ -41,7 +43,7 @@ ShadowAllOptionRom()
     Status = gBS->LocateProtocol (
                     &gEfiLegacyBiosProtocolGuid,
                     NULL,
-                    &LegacyBios
+                    (VOID **) &LegacyBios
                     );
     if (!EFI_ERROR (Status)) {
       LegacyBios->PrepareToBootEfi (LegacyBios, NULL, NULL);

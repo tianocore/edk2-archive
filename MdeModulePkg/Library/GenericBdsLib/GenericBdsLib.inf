@@ -83,6 +83,7 @@
   DebugLib
   PrintLib
   PcdLib
+  PerformanceLib
 
 
 [Guids]

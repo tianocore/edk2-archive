@@ -82,7 +82,7 @@ Returns:
   Status = gBS->HandleProtocol (
                   gST->ConsoleOutHandle,
                   &gEfiGraphicsOutputProtocolGuid,
-                  &GraphicsOutput
+                  (VOID **) &GraphicsOutput
                   );
   if (EFI_ERROR (Status)) {
     GraphicsOutput = NULL;
@@ -90,7 +90,7 @@ Returns:
     Status = gBS->HandleProtocol (
                     gST->ConsoleOutHandle,
                     &gEfiUgaDrawProtocolGuid,
-                    &UgaDraw
+                    (VOID **) &UgaDraw
                     );
     if (EFI_ERROR (Status)) {
       return EFI_UNSUPPORTED;
@@ -224,7 +224,6 @@ Returns:
 {
   EFI_STATUS                        Status;
   EFI_STATUS                        InitStatus;
-  EFI_STATUS                        KeyStatus;
   EFI_STATUS                        ReturnStatus;
   BOOLEAN                           RequireSoftECCInit;
   EFI_GENERIC_MEMORY_TEST_PROTOCOL  *GenMemoryTest;
@@ -245,6 +244,7 @@ Returns:
   UINT8                             Value;
   UINTN                             DataSize;
   UINT32                            Attributes;
+  UINT32                            TempData;
 
   ReturnStatus = EFI_SUCCESS;
   ZeroMem (&Key, sizeof (EFI_INPUT_KEY));
@@ -276,7 +276,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiGenericMemTestProtocolGuid,
                   NULL,
-                  &GenMemoryTest
+                  (VOID **) &GenMemoryTest
                   );
   if (EFI_ERROR (Status)) {
     FreePool (Pos);
@@ -328,10 +328,10 @@ Returns:
       ASSERT (0);
     }
 
-    TestPercent = (UINTN) DivU64x32Remainder (
-                            DivU64x32Remainder (MultU64x32 (TestedMemorySize, 100), 16, NULL),
-                            (UINT32) DivU64x32 (TotalMemorySize, 16),
-                            NULL
+    TempData = (UINT32) DivU64x32 (TotalMemorySize, 16);
+    TestPercent = (UINTN) DivU64x32 (
+                            DivU64x32 (MultU64x32 (TestedMemorySize, 100), 16),
+                            TempData
                             );
     if (TestPercent != PreviousValue) {
       UnicodeValueToString (StrPercent, 0, TestPercent, 0);
@@ -358,7 +358,6 @@ Returns:
 
     PreviousValue = TestPercent;
 
-    KeyStatus     = gST->ConIn->ReadKeyStroke (gST->ConIn, &Key);
     if (Key.ScanCode == SCAN_ESC) {
       if (!RequireSoftECCInit) {
         TmpStr = GetStringById (STRING_TOKEN (STR_PERFORM_MEM_TEST));

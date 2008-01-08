@@ -299,7 +299,7 @@ BootMaintCallback (
         //
         Pos = OldValue / 8;
         Bit = 7 - (OldValue % 8);
-        DisMap[Pos] |= (UINT8) (1 << Bit);
+        DisMap[Pos] = (UINT8) (DisMap[Pos] | (UINT8) (1 << Bit));
         for (Index2 = Index; Index2 < Number - 1; Index2++) {
           NewLegacyDev[Index2] = NewLegacyDev[Index2 + 1];
         }
@@ -342,7 +342,7 @@ BootMaintCallback (
           //
           Pos = NewValue / 8;
           Bit = 7 - (NewValue % 8);
-          DisMap[Pos] &= ~ (UINT8) (1 << Bit);
+          DisMap[Pos] = (UINT8) (DisMap[Pos] & (~ (UINT8) (1 << Bit)));
           if (0xFF != OldValue) {
             //
             // Because NewValue is a item that was disabled before
@@ -351,7 +351,7 @@ BootMaintCallback (
             //
             Pos = OldValue / 8;
             Bit = 7 - (OldValue % 8);
-            DisMap[Pos] |= (UINT8) (1 << Bit);
+            DisMap[Pos] = (UINT8) (DisMap[Pos] | (UINT8) (1 << Bit));
           }
         }
       }
@@ -942,7 +942,7 @@ Returns:
     UpdateTerminalPage (BmmCallbackInfo);
   }
 
-  Status = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, &LegacyBios);
+  Status = EfiLibLocateProtocol (&gEfiLegacyBiosProtocolGuid, (VOID **) &LegacyBios);
   if (!EFI_ERROR (Status)) {
     RefreshUpdateData ();
 

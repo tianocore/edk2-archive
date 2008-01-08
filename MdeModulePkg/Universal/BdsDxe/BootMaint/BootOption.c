@@ -293,7 +293,7 @@ Returns:
       Status = gBS->HandleProtocol (
                       BlkIoHandle[Index],
                       &gEfiBlockIoProtocolGuid,
-                      &BlkIo
+                      (VOID **) &BlkIo
                       );
 
       if (EFI_ERROR (Status)) {
@@ -341,7 +341,7 @@ Returns:
       Status = gBS->HandleProtocol (
                       SimpleFsHandle[Index],
                       &gEfiBlockIoProtocolGuid,
-                      &BlkIo
+                      (VOID **) &BlkIo
                       );
       if (EFI_ERROR (Status)) {
         //
@@ -383,7 +383,7 @@ Returns:
                                   );
       FileContext->IsDir            = TRUE;
       FileContext->IsRoot           = TRUE;
-      FileContext->IsRemovableMedia = FALSE;
+      FileContext->IsRemovableMedia = RemovableMedia;
       FileContext->IsLoadFile       = FALSE;
 
       //
@@ -475,7 +475,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiLegacyBiosProtocolGuid,
                   NULL,
-                  &LegacyBios
+                  (VOID **) &LegacyBios
                   );
   if (!EFI_ERROR (Status)) {
 
@@ -768,7 +768,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiLegacyBiosProtocolGuid,
                   NULL,
-                  &LegacyBios
+                  (VOID **) &LegacyBios
                   );
   if (!EFI_ERROR (Status)) {
     Status = LegacyBios->GetBbsInfo (
@@ -1352,7 +1352,7 @@ Returns:
     Status = gBS->HandleProtocol (
                     CurHandle,
                     &gEfiSimpleFileSystemProtocolGuid,
-                    &SimpleFs
+                    (VOID **) &SimpleFs
                     );
     if (Status == EFI_SUCCESS) {
       continue;
@@ -1361,7 +1361,7 @@ Returns:
     Status = gBS->HandleProtocol (
                     CurHandle,
                     &gEfiLoadFileProtocolGuid,
-                    &LoadFile
+                    (VOID **) &LoadFile
                     );
     if (Status == EFI_SUCCESS) {
       continue;

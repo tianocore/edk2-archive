@@ -137,10 +137,7 @@ extern UINT8    FEBin[];
 //
 // Enumeration type definition
 //
-typedef enum {
-  IplRelative,
-  BcvRelative
-} BBS_TYPE;
+typedef UINT8 BBS_TYPE;
 
 typedef enum {
   PC_ANSI                             = 0,
@@ -460,7 +457,7 @@ typedef struct {
   BM_LOAD_CONTEXT                *LoadContext;
   BM_TERMINAL_CONTEXT            *TerminalContext;
   UINTN                          CurrentTerminal;
-  BBS_TYPE                       BbsType;
+  UINT8                          BbsType;
 
   //
   // BMM main formset callback data.
@@ -548,7 +545,7 @@ BOpt_FindDrivers (
 // For Cleaning up handle navigation menu
 //
 VOID
-BOpt_FreeDrivers();
+BOpt_FreeDrivers(VOID);
 
 //
 // For initializing Boot Option menu
@@ -570,25 +567,25 @@ BOpt_GetDriverOptions (
 // For Cleaning up boot option menu
 //
 VOID
-BOpt_FreeBootOptions ();
+BOpt_FreeBootOptions (VOID);
 
 //
 // For cleaning up driver option menu
 //
 VOID
-BOpt_FreeDriverOptions();
+BOpt_FreeDriverOptions(VOID);
 
 //
 // For Initializing HD/FD/CD/NET/BEV option menu
 //
 EFI_STATUS
-BOpt_GetLegacyOptions();
+BOpt_GetLegacyOptions(VOID);
 
 //
 // For cleaning up driver option menu
 //
 VOID
-BOpt_FreeLegacyOptions();
+BOpt_FreeLegacyOptions(VOID);
 
 //
 // this function is used to take place of all other free menu actions
@@ -623,13 +620,13 @@ BOpt_IsEfiApp (
 // Get current unused boot option number
 //
 UINT16
-BOpt_GetBootOptionNumber ();
+BOpt_GetBootOptionNumber (VOID);
 
 //
 // Get current unused driver option number
 //
 UINT16
-BOpt_GetDriverOptionNumber ();
+BOpt_GetDriverOptionNumber (VOID);
 
 BM_MENU_ENTRY                     *
 BOpt_CreateMenuEntry (
@@ -659,13 +656,13 @@ SafeFreePool (
 // Locate all serial io devices for console
 //
 EFI_STATUS
-LocateSerialIo ();
+LocateSerialIo (VOID);
 
 //
 // Initializing Console menu
 //
 EFI_STATUS
-GetAllConsoles();
+GetAllConsoles(VOID);
 
 //
 // Get current mode information
@@ -679,7 +676,7 @@ GetConsoleOutMode (
 // Cleaning up console menu
 //
 EFI_STATUS
-FreeAllConsoles();
+FreeAllConsoles(VOID);
 
 VOID
 ChangeVariableDevicePath (
@@ -701,10 +698,10 @@ Var_UpdateBootOption (
   );
 
 EFI_STATUS
-Var_DelBootOption ();
+Var_DelBootOption (VOID);
 
 EFI_STATUS
-Var_ChangeBootOrder ();
+Var_ChangeBootOrder (VOID);
 
 EFI_STATUS
 Var_UpdateDriverOption (
@@ -716,22 +713,22 @@ Var_UpdateDriverOption (
   );
 
 EFI_STATUS
-Var_DelDriverOption ();
+Var_DelDriverOption (VOID);
 
 EFI_STATUS
-Var_ChangeDriverOrder ();
+Var_ChangeDriverOrder (VOID);
 
 EFI_STATUS
-Var_UpdateConsoleInpOption ();
+Var_UpdateConsoleInpOption (VOID);
 
 EFI_STATUS
-Var_UpdateConsoleOutOption ();
+Var_UpdateConsoleOutOption (VOID);
 
 EFI_STATUS
-Var_UpdateErrorOutOption ();
+Var_UpdateErrorOutOption (VOID);
 
 VOID
-Var_UpdateAllConsoleOption ();
+Var_UpdateAllConsoleOption (VOID);
 
 EFI_STATUS
 Var_UpdateBootNext (
@@ -1013,7 +1010,7 @@ BdsStartBootMaint (
   );
 
 VOID
-InitializeStringDepository ();
+InitializeStringDepository (VOID);
 
 EFI_STRING_ID
 GetStringTokenFromDepository (
