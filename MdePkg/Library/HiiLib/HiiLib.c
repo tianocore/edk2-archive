@@ -760,7 +760,7 @@ Returns:
         }
 
         if ((((EFI_IFR_OP_HEADER *) OpCodeData)->OpCode == EFI_IFR_GUID_OP) &&
-            (CompareGuid (&mIfrVendorGuid, &((EFI_IFR_GUID *) OpCodeData)->Guid)) &&
+            (CompareMem (&mIfrVendorGuid, &((EFI_IFR_GUID *) OpCodeData)->Guid, sizeof (EFI_GUID)) == 0) &&
             (((EFI_IFR_GUID_CLASS *) OpCodeData)->ExtendOpCode == EFI_IFR_EXTEND_OP_CLASS)
            ) {
           //
