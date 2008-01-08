@@ -63,7 +63,7 @@ BdsLibGetTimeout (
   // present.
   // This code should be removed later.
   //
-  Timeout = gPlatformBootTimeOutDefault;
+  Timeout = PcdGet16 (PcdPlatformBootTimeOutDefault);
 
   //
   // Notes: Platform should set default variable if non exists on all error cases!!!

@@ -381,8 +381,8 @@ BdsLibConnectAllDefaultConsoles (
   //
   // Insert the performance probe for Console Out
   //
-  PERF_START (NULL, L"ConOut", L"BDS", 1);
-  PERF_END (NULL, L"ConOut", L"BDS", 0);
+  PERF_START (NULL, "ConOut", "BDS", 1);
+  PERF_END (NULL, "ConOut", "BDS", 0);
 
   //
   // Because possibly the platform is legacy free, in such case,

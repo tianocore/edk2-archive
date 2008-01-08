@@ -82,6 +82,7 @@
   BaseMemoryLib
   DebugLib
   PrintLib
+  PcdLib
 
 
 [Guids]
@@ -111,3 +112,5 @@
   gEfiCpuArchProtocolGuid                       # PROTOCOL ALWAYS_CONSUMED
   gEfiDevicePathProtocolGuid                    # PROTOCOL ALWAYS_CONSUMED
 
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPlatformBootTimeOutDefault

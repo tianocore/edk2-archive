@@ -36,9 +36,8 @@ DevPathVendor (
 
 EFI_GUID  mEfiDevicePathMessagingUartFlowControlGuid = DEVICE_PATH_MESSAGING_UART_FLOW_CONTROL;
 
-#if (EFI_SPECIFICATION_VERSION >= 0x00020000)
 EFI_GUID mEfiDevicePathMessagingSASGuid = DEVICE_PATH_MESSAGING_SAS;
-#endif
+
 
 VOID *
 ReallocatePool (
@@ -268,7 +267,6 @@ DevPathController (
 }
 
 
-#if 0
 /**
   Convert Vendor device path to device name
 
@@ -289,15 +287,16 @@ DevPathVendor (
   UINTN               DataLength;
   UINTN               Index;
   UINT32              FlowControlMap;
-#if (EFI_SPECIFICATION_VERSION >= 0x00020000)
+
   UINT16              Info;
-#endif
 
   Vendor  = DevPath;
 
   switch (DevicePathType (&Vendor->Header)) {
   case HARDWARE_DEVICE_PATH:
     Type = L"Hw";
+// bugbug: nt 32 specific definition
+#if 0
     //
     // If the device is a winntbus device, we will give it a readable device name.
     //
@@ -311,6 +310,7 @@ DevPathVendor (
       CatPrint (Str, L"%s", L"Serial");
       return ;
     }
+#endif
     break;
 
   case MESSAGING_DEVICE_PATH:
@@ -347,7 +347,7 @@ DevPathVendor (
       }
 
       return ;
-#if (EFI_SPECIFICATION_VERSION >= 0x00020000)
+
     } else if (CompareGuid (&Vendor->Guid, &mEfiDevicePathMessagingSASGuid)) {
       CatPrint (
         Str,
@@ -378,7 +378,7 @@ DevPathVendor (
 
       CatPrint (Str, L"%x)", (UINTN) ((SAS_DEVICE_PATH *) Vendor)->Reserved);
       return ;
-#endif
+
     } else if (CompareGuid (&Vendor->Guid, &gEfiDebugPortProtocolGuid)) {
       CatPrint (Str, L"DebugPort()");
       return ;
@@ -404,7 +404,7 @@ DevPathVendor (
   }
   CatPrint (Str, L")");
 }
-#endif
+
 
 VOID
 DevPathAcpi (

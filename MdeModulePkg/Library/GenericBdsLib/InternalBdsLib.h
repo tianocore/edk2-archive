@@ -41,6 +41,7 @@ Abstract:
 #include <Protocol/FirmwareVolume2.h>
 #include <Protocol/PciIo.h>
 #include <Protocol/AcpiS3Save.h>
+#include <Protocol/Performance.h>
 
 #include <Guid/MemoryTypeInformation.h>
 #include <Guid/FileInfo.h>
@@ -61,8 +62,8 @@ Abstract:
 #include <Library/HobLib.h>
 #include <Library/BaseLib.h>
 #include <Library/DevicePathLib.h>
-
-
+#include <Library/PerformanceLib.h>
+#include <Library/PcdLib.h>
 #include <Library/UefiIfrSupportLib.h>
 #include <Library/GenericBdsLib.h>
 
