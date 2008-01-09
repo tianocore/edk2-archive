@@ -28,6 +28,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Library/UefiIfrSupportLib.h>
 
 #include <MdeModuleHii.h>
 
@@ -760,7 +761,7 @@ Returns:
         }
 
         if ((((EFI_IFR_OP_HEADER *) OpCodeData)->OpCode == EFI_IFR_GUID_OP) &&
-            (CompareMem (&mIfrVendorGuid, &((EFI_IFR_GUID *) OpCodeData)->Guid, sizeof (EFI_GUID)) == 0) &&
+             CompareFormSetGuid (&mIfrVendorGuid, OpCodeData) &&
             (((EFI_IFR_GUID_CLASS *) OpCodeData)->ExtendOpCode == EFI_IFR_EXTEND_OP_CLASS)
            ) {
           //

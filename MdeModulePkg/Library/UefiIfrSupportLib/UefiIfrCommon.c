@@ -368,3 +368,31 @@ ExtractGuidFromHiiHandle (
   return EFI_SUCCESS;
 }
 
+/**
+  Compares GUID with the payload GUID in HII formset pacakge.
+
+  @param  Guid        A pointer to a 128 bit GUID.
+  @param  OpCodeData  A pointer to op-code associated with the forms data described
+                      in EFI_HII_FORM_PACKAGE.
+
+  @retval TRUE        Guid matches the GUID contained in OpCodeData.
+  @retval FALSE       Guid does not match the GUID contained in OpCodeData.
+
+**/
+BOOLEAN
+EFIAPI
+CompareFormSetGuid (
+  IN CONST EFI_GUID    *Guid,
+  IN VOID              *OpCode
+  )
+{
+  EFI_IFR_OP_HEADER    *EfiIfrHeader;
+  VOID                 *PayLoad;
+  EFI_GUID             *FormSetGuid;
+
+  EfiIfrHeader = OpCode;
+  PayLoad      = EfiIfrHeader + 1;
+  FormSetGuid  = PayLoad;
+
+  return CompareGuid(Guid, FormSetGuid);
+}

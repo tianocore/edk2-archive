@@ -1495,7 +1495,7 @@ ParseOpCodes (
     // Vendor specific
     //
     case EFI_IFR_GUID_OP:
-      if (CompareGuid (&((EFI_IFR_GUID_BANNER *) OpCodeData)->Guid, &gTianoHiiIfrGuid)) {
+      if (CompareFormSetGuid (&gTianoHiiIfrGuid, OpCodeData)) {
         //
         // Tiano specific GUIDed opcodes
         //
