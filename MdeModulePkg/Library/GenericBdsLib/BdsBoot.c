@@ -109,7 +109,6 @@ BdsLibBootViaBootOption (
   EFI_HANDLE                ImageHandle;
   EFI_DEVICE_PATH_PROTOCOL  *FilePath;
   EFI_LOADED_IMAGE_PROTOCOL *ImageInfo;
-  EFI_EVENT                 ReadyToBootEvent;
   EFI_DEVICE_PATH_PROTOCOL  *WorkingDevicePath;
   EFI_ACPI_S3_SAVE_PROTOCOL *AcpiS3Save;
   LIST_ENTRY                TempBootLists;
@@ -153,17 +152,9 @@ BdsLibBootViaBootOption (
   //
   // Signal the EFI_EVENT_SIGNAL_READY_TO_BOOT event
   //
-  Status = EfiCreateEventReadyToBootEx (
-             TPL_CALLBACK,
-             NULL,
-             NULL,
-             &ReadyToBootEvent
-             );
-
-  if (!EFI_ERROR (Status)) {
-    gBS->SignalEvent (ReadyToBootEvent);
-    gBS->CloseEvent (ReadyToBootEvent);
-  }
+  EfiSignalEventReadyToBoot();
+  
+  
   //
   // Set Boot Current
   //
