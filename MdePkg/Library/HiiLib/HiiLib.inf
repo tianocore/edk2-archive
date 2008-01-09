@@ -44,7 +44,6 @@
 [LibraryClasses]
   MemoryAllocationLib
   DebugLib
-  UefiIfrSupportLib
 
 [Protocols]
   gEfiHiiDatabaseProtocolGuid  # ALWAYS_CONSUMED

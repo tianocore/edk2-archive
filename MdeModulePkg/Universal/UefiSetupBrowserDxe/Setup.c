@@ -2127,7 +2127,7 @@ GetIfrBinaryData (
           //
           // FormSet GUID is specified, check it
           //
-          if (CompareFormSetGuid (FormSetGuid, OpCodeData)) {
+          if (CompareGuid (FormSetGuid, (EFI_GUID *)(OpCodeData + sizeof (EFI_IFR_OP_HEADER)))) {
             break;
           }
         }

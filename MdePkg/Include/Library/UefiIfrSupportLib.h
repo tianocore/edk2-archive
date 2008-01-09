@@ -94,24 +94,6 @@ typedef struct {
 } EFI_HII_UPDATE_DATA;
 
 
-/**
-  Compares GUID with the payload GUID in HII formset pacakge.
-
-  @param  Guid        A pointer to a 128 bit GUID.
-  @param  OpCodeData  A pointer to op-code associated with the forms data described
-                      in EFI_HII_FORM_PACKAGE.
-
-  @retval TRUE        Guid matches the GUID contained in OpCodeData.
-  @retval FALSE       Guid does not match the GUID contained in OpCodeData.
-
-**/
-BOOLEAN
-EFIAPI
-CompareFormSetGuid (
-  IN CONST EFI_GUID    *Guid,
-  IN VOID              *OpCodeData
-  );
-
 //
 // Exported Library functions
 //
