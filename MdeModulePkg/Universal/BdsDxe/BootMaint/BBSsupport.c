@@ -22,8 +22,6 @@ Abstract:
 --*/
 
 #include "BBSsupport.h"
-//@MT:#include "BdsLib.h"
-//@MT:#include EFI_PROTOCOL_DEFINITION (LegacyBios)
 
 EFI_DEVICE_PATH_PROTOCOL  EndDevicePath[] = {
   END_DEVICE_PATH_TYPE,

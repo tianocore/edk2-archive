@@ -21,8 +21,6 @@ AgBStract:
 
 #include "BootMaint.h"
 
-//@MT:#include EFI_GUID_DEFINITION (DataHubRecords)
-
 VOID *
 EfiAllocateZeroPool (
   IN UINTN            Size

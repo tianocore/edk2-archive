@@ -20,7 +20,6 @@ Abstract:
 --*/
 
 #include "BootMaint.h"
-//@MT:#include "BdsStrDefs.h"
 #include "FormGuid.h"
 #include "Bds.h"
 #include "FrontPage.h"

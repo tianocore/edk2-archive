@@ -24,10 +24,6 @@ Revision History
 #ifndef _EFI_BDS_BBS_SUPPORT_H
 #define _EFI_BDS_BBS_SUPPORT_H
 
-//@MT:#include "Tiano.h"
-//@MT:#include "EfiDriverLib.h"
-//@MT:#include "EfiPrintLib.h"
-//@MT:#include "BdsLib.h"
 #include "BootMaint.h"
 //
 // Bugbug: Candidate for a PCD entries

@@ -24,11 +24,7 @@ Revision History
 #ifndef _EFI_BOOT_MANAGER_H
 #define _EFI_BOOT_MANAGER_H
 
-//@MT:#include "Tiano.h"
 #include "Bds.h"
-//@MT:#include "BdsLib.h"
-//@MT:#include "BdsPlatform.h"
-//@MT:#include "UefiIfrLibrary.h"
 #include "FrontPage.h"
 
 //

@@ -20,8 +20,6 @@ Abstract:
 --*/
 
 #include "Bds.h"
-//@MT:#include "BdsLib.h"
-//@MT:#include "BdsPlatform.h"
 #include "Language.h"
 #include "FrontPage.h"
 #include "Hotkey.h"
@@ -40,8 +38,6 @@ EFI_BDS_ARCH_PROTOCOL_INSTANCE  gBdsInstanceTemplate = {
 UINT16                          *mBootNext = NULL;
 
 EFI_HANDLE                      mBdsImageHandle;
-
-//@MT:EFI_DRIVER_ENTRY_POINT (BdsInitialize)
 
 EFI_STATUS
 EFIAPI
@@ -71,9 +67,6 @@ Returns:
 --*/
 {
   EFI_STATUS  Status;
-
-  //@MT:EdkII Library Constructor should initialize library automatically
-  //@MT:DxeInitializeDriverLib (ImageHandle, SystemTable);
 
   mBdsImageHandle = ImageHandle;
 

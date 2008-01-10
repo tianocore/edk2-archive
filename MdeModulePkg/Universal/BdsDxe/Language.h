@@ -24,13 +24,7 @@ Revision History
 #ifndef _LANGUAGE_H
 #define _LANGUAGE_H
 
-//@MT:#include "Tiano.h"
-//@MT:#include "EfiDriverLib.h"
-
-//@MT:#include "BdsLib.h"
 #include "String.h"
-
-//@MT:#include EFI_GUID_DEFINITION (GlobalVariable)
 
 VOID
 InitializeLanguage (

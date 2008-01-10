@@ -20,8 +20,6 @@ Abstract:
 --*/
 
 #include "Bds.h"
-//@MT:#include "BdsLib.h"
-//@MT:#include "BdsPlatform.h"
 #include "FrontPage.h"
 
 EFI_GUID  mFrontPageGuid      = FRONT_PAGE_FORMSET_GUID;

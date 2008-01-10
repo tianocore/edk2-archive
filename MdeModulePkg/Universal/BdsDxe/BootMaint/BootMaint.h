@@ -22,34 +22,10 @@ Revision History
 #ifndef _BOOT_MAINT_H
 #define _BOOT_MAINT_H
 
-//@MT:#include "Tiano.h"
-//@MT:#include "EfiPrintLib.h"
-//@MT:#include "EfiImage.h"
-//@MT:#include "UefiIfrLibrary.h"
-//@MT:#include "EfiDriverLib.h"
-//@MT:#include "BdsStrDefs.h"
-//@MT:#include "BdsLib.h"
 #include "Bds.h"
 #include "BBSsupport.h"
 #include "FormGuid.h"
 #include "FrontPage.h"
-
-//
-// Protocol definition included
-//
-//@MT:#include EFI_PROTOCOL_DEFINITION (BlockIo)
-//@MT:#include EFI_PROTOCOL_DEFINITION (DevicePath)
-//@MT:#include EFI_PROTOCOL_DEFINITION (DiskIo)
-//@MT:#include EFI_PROTOCOL_DEFINITION (LoadFile)
-//@MT:#include EFI_PROTOCOL_DEFINITION (SerialIo)
-//@MT:#include EFI_PROTOCOL_DEFINITION (SimpleFileSystem)
-//@MT:#include EFI_PROTOCOL_DEFINITION (FileInfo)
-//@MT:#include EFI_PROTOCOL_DEFINITION (FileSystemVolumeLabelInfo)
-//@MT:#include EFI_PROTOCOL_DEFINITION (UnicodeCollation)
-//@MT:#include EFI_PROTOCOL_DEFINITION (VariableStore)
-//@MT:#include EFI_PROTOCOL_DEFINITION (LegacyBios)
-//@MT:#include EFI_PROTOCOL_DEFINITION (LoadedImage)
-//@MT:#include EFI_ARCH_PROTOCOL_DEFINITION (Bds)
 
 //
 // Constants which are variable names used to access variables

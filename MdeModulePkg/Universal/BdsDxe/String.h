@@ -25,7 +25,6 @@ Revision History
 #define _STRING_H_
 
 #include "Bds.h"
-//@MT:#include "UefiIfrLibrary.h"
 
 extern EFI_HII_HANDLE gStringPackHandle;
 
@@ -33,7 +32,6 @@ extern EFI_HII_HANDLE gStringPackHandle;
 // This is the VFR compiler generated header file which defines the
 // string identifiers.
 //
-//@MT:#include "BdsStrDefs.h"
 
 extern UINT8  BdsStrings[];
 

@@ -24,21 +24,10 @@ Revision History
 #ifndef _FRONT_PAGE_H
 #define _FRONT_PAGE_H
 
-//@MT:#include "Tiano.h"
-//@MT:#include "EfiDriverLib.h"
-//@MT:#include "UefiIfrLibrary.h"
 #include "DeviceMngr/DeviceManager.h"
 #include "BootMaint/BootMaint.h"
 #include "BootMngr/BootManager.h"
 #include "String.h"
-
-//@MT:#include EFI_PROTOCOL_DEFINITION (HiiDatabase)
-//@MT:#include EFI_PROTOCOL_DEFINITION (HiiString)
-//@MT:#include EFI_PROTOCOL_DEFINITION (HiiConfigAccess)
-//@MT:#include EFI_PROTOCOL_DEFINITION (FormBrowser2)
-//@MT:#include EFI_PROTOCOL_DEFINITION (DataHub)
-
-//@MT:#include EFI_GUID_DEFINITION (DataHubRecords)
 
 #define ONE_SECOND  10000000
 
@@ -46,7 +35,6 @@ Revision History
 // This is the VFR compiler generated header file which defines the
 // string identifiers.
 //
-//@MT:#include "BdsStrDefs.h"
 #define PRINTABLE_LANGUAGE_NAME_STRING_ID     0x0001
 
 //

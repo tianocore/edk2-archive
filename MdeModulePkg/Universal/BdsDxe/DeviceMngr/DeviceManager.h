@@ -24,7 +24,6 @@ Revision History
 #ifndef _DEVICE_MANAGER_H
 #define _DEVICE_MANAGER_H
 
-//@MT:#include "Tiano.h"
 #include "Bds.h"
 #include "FrontPage.h"
 
@@ -33,7 +32,7 @@ Revision History
 //
 #define DEVICE_MANAGER_FORMSET_GUID  \
   { \
-    0x3ebfa8e6, 0x511d, 0x4b5b, 0xa9, 0x5f, 0xfb, 0x38, 0x26, 0xf, 0x1c, 0x27 \
+  0x3ebfa8e6, 0x511d, 0x4b5b, {0xa9, 0x5f, 0xfb, 0x38, 0x26, 0xf, 0x1c, 0x27} \
   }
 
 #define LABEL_VBIOS                          0x0040

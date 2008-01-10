@@ -20,12 +20,7 @@ Abstract:
 --*/
 
 #include "Bds.h"
-//@MT:#include "bdslib.h"
-//@MT:#include "BdsPlatform.h"
-//@MT:#include "EfiPrintLib.h"
 #include "String.h"
-
-//@MT:#include EFI_GUID_DEFINITION (BootState)
 
 //
 // BDS Platform Functions

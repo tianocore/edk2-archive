@@ -20,7 +20,6 @@ Abstract:
 --*/
 
 #include "BootMaint.h"
-//@MT:#include "BdsPlatform.h"
 
 EFI_STATUS
 Var_DelBootOption (

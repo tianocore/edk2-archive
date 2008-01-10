@@ -27,13 +27,6 @@ Revision History
 
 #include "Bds.h"
 #include "String.h"
-//@MT:#include "Tiano.h"
-//@MT:#include "EfiDriverLib.h"
-//@MT:#include "BdsPlatform.h"
-//@MT:#include "BdsLib.h"
-
-//@MT:#include EFI_PROTOCOL_DEFINITION (SimpleTextInputEx)
-
 
 #define GET_KEY_CODE_COUNT(KeyOptions)      (((KeyOptions) & EFI_KEY_CODE_COUNT) >> 8)
 
