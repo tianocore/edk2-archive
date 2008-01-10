@@ -66,10 +66,9 @@ BdsLibDoLegacyBoot (
   //
   // Write boot to OS performance data to a file
   //
-  //
-  // BugBug: We need to port the performance lib over.
-  //
-  //WRITE_BOOT_TO_OS_PERFORMANCE_DATA;
+  PERF_CODE (
+    WriteBootToOsPerformanceData ();
+  );
 
   DEBUG ((DEBUG_INFO | DEBUG_LOAD, "Legacy Boot: %S\n", Option->Description));
   return LegacyBios->LegacyBoot (

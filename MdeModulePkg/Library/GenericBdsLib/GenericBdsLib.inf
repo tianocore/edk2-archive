@@ -33,7 +33,6 @@
 #
 
 [Sources.common]
-  Performance.h
   DevicePath.c
   Performance.c
   BdsConnect.c
@@ -72,6 +71,7 @@
 
 [LibraryClasses]
   DevicePathLib
+  PeCoffGetEntryPointLib
   BaseLib
   HobLib
   UefiRuntimeServicesTableLib
@@ -84,6 +84,7 @@
   PrintLib
   PcdLib
   PerformanceLib
+  TimerLib
 
 
 [Guids]
@@ -96,6 +97,7 @@
   gEfiVT100Guid                                 # ALWAYS_CONSUMED
   gEfiFileInfoGuid                              # ALWAYS_CONSUMED
   gEfiPcAnsiGuid                                # ALWAYS_CONSUMED
+  gEfiGenericPlatformVariableGuid               # ALWAYS_CONSUMED
 
 
 [Protocols]

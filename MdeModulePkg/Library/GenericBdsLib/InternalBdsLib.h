@@ -49,7 +49,7 @@ Abstract:
 #include <Guid/PcAnsi.h>
 #include <Guid/ShellFile.h>
 #include <Guid/HobList.h>
-
+#include <Guid/GenericPlatformVariable.h>
 
 #include <Library/PrintLib.h>
 #include <Library/DebugLib.h>
@@ -65,10 +65,38 @@ Abstract:
 #include <Library/PerformanceLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiIfrSupportLib.h>
+#include <Library/PeCoffGetEntryPointLib.h>
 #include <Library/GenericBdsLib.h>
+#include <Library/TimerLib.h>
 
 #include "BmMachine.h"
 
 #include "R8Lib.h"
+
+#define PERFORMANCE_SIGNATURE   EFI_SIGNATURE_32 ('P', 'e', 'r', 'f')
+#define PERF_TOKEN_SIZE         28
+#define PERF_TOKEN_LENGTH       (PERF_TOKEN_SIZE - 1)
+#define PERF_PEI_ENTRY_MAX_NUM  50
+
+typedef struct {
+  CHAR8   Token[PERF_TOKEN_SIZE];
+  UINT32  Duration;
+} PERF_DATA;
+
+typedef struct {
+  UINT64        BootToOs;
+  UINT64        S3Resume;
+  UINT32        S3EntryNum;
+  PERF_DATA     S3Entry[PERF_PEI_ENTRY_MAX_NUM];
+  UINT64        CpuFreq;
+  UINT64        BDSRaw;
+  UINT32        Count;
+  UINT32        Signiture;
+} PERF_HEADER;
+
+VOID
+WriteBootToOsPerformanceData (
+  VOID
+  );
 
 #endif // _BDS_LIB_H_
