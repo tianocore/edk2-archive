@@ -505,3 +505,12 @@ Returns:
 {
   return EFI_SUCCESS;
 }
+
+EFI_STATUS
+EFIAPI
+PlatformBdsLockNonUpdatableFlash (
+  VOID
+  )
+{
+  return EFI_SUCCESS;
+}
