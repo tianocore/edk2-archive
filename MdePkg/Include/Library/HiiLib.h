@@ -134,19 +134,6 @@ HiiLibGetStringFromGuidId (
 ;
 
 //
-// Just use the UEFI prototype
-//
-EFI_STATUS
-EFIAPI
-HiiLibGetStringFromHandle (
-  IN  EFI_HII_HANDLE                  PackageList, //This will be changed to VOID * as Framework and Hii is using different type.
-  IN  EFI_STRING_ID                   StringId,
-  OUT EFI_STRING                      *String
-  )
-;
-
-
-//
 // This function is Implementation Specifc. HII_VENDOR_DEVICE_PATH
 // This should be moved to MdeModulepkg.
 //
