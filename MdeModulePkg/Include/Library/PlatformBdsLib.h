@@ -89,4 +89,10 @@ PlatformBdsBootSuccess (
   )
 ;
 
+EFI_STATUS
+EFIAPI
+PlatformBdsLockNonUpdatableFlash (
+  VOID
+  )
+;
 #endif
