@@ -58,4 +58,5 @@ InitializeHwErrRecSupport (
   if (EFI_ERROR (Status)) {
     DEBUG ((EFI_D_ERROR, "HwErrRecSupport: Can not set the variable\n"));
   }
+
 }

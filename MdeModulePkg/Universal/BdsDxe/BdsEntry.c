@@ -25,6 +25,7 @@ Abstract:
 #include "Language.h"
 #include "FrontPage.h"
 #include "Hotkey.h"
+#include "HwErrRecSupport.h"
 
 
 EFI_BDS_ARCH_PROTOCOL_INSTANCE  gBdsInstanceTemplate = {
@@ -330,7 +331,10 @@ Returns:
   //
   PERF_START (0, "PlatformBds", "BDS", 0);
   PlatformBdsInit (PrivateData);
- 
+
+  if (FeaturePcdGet (PcdSupportHardwareErrorRecord)) {
+    InitializeHwErrRecSupport (PcdGet16 (PcdHardwareErrorRecordLevel));
+  }
   //
   // bugbug: platform specific code
   // Initialize the platform specific string and language

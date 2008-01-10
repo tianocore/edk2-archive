@@ -140,12 +140,14 @@
   
 [FeaturePcd.common]
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLangDepricate
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSupportHardwareErrorRecord
 
 [Pcd.common]
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLangCodes
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang
+  gEfiMdeModulePkgTokenSpaceGuid.PcdHardwareErrorRecordLevel
 
 [Depex]
   gEfiHiiDatabaseProtocolGuid
