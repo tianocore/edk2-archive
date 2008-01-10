@@ -321,7 +321,6 @@ ProcessOptions (
   EFI_HII_VALUE                   HiiValue;
   EFI_HII_VALUE                   *QuestionValue;
   BOOLEAN                         Suppress;
-  UINT16                          Minimum;
   UINT16                          Maximum;
 
   Status        = EFI_SUCCESS;
@@ -335,7 +334,6 @@ ProcessOptions (
 
   Question = MenuOption->ThisTag;
   QuestionValue = &Question->HiiValue;
-  Minimum = (UINT16) Question->Minimum;
   Maximum = (UINT16) Question->Maximum;
 
   switch (Question->Operand) {
@@ -472,7 +470,7 @@ ProcessOptions (
       //
       // Since this is a BOOLEAN operation, flip it upon selection
       //
-      QuestionValue->Value.b = QuestionValue->Value.b ? FALSE : TRUE;
+      QuestionValue->Value.b = (BOOLEAN) (QuestionValue->Value.b ? FALSE : TRUE);
 
       //
       // Perform inconsistent check
@@ -482,7 +480,7 @@ ProcessOptions (
         //
         // Inconsistent check fail, restore Question Value
         //
-        QuestionValue->Value.b = QuestionValue->Value.b ? FALSE : TRUE;
+        QuestionValue->Value.b = (BOOLEAN) (QuestionValue->Value.b ? FALSE : TRUE);
         gBS->FreePool (*OptionString);
         return Status;
       }
@@ -976,7 +974,7 @@ ProcessHelpString (
   *FormattedString = AllocateZeroPool (VirtualLineCount * (BlockWidth + 1) * sizeof (CHAR16) * 2);
 
   for (CurrIndex = 0; CurrIndex < LineCount; CurrIndex ++) {
-    *(*FormattedString + CurrIndex * 2 * (BlockWidth + 1)) = (IndexArray[CurrIndex*3+2] == 2) ? WIDE_CHAR : NARROW_CHAR;
+    *(*FormattedString + CurrIndex * 2 * (BlockWidth + 1)) = (CHAR16) ((IndexArray[CurrIndex*3+2] == 2) ? WIDE_CHAR : NARROW_CHAR);
     StrnCpy (
       *FormattedString + CurrIndex * 2 * (BlockWidth + 1) + 1,
       StringPtr + IndexArray[CurrIndex*3],

@@ -320,14 +320,14 @@ FindStringBlock (
     case EFI_HII_SIBT_STRING_SCSU:
       Offset = sizeof (EFI_HII_STRING_BLOCK);
       StringTextPtr = BlockHdr + Offset;
-      BlockSize += Offset + AsciiStrSize (StringTextPtr);
+      BlockSize += Offset + AsciiStrSize ((CHAR8 *) StringTextPtr);
       CurrentStringId++;
       break;
 
     case EFI_HII_SIBT_STRING_SCSU_FONT:
       Offset = sizeof (EFI_HII_SIBT_STRING_SCSU_FONT_BLOCK) - sizeof (UINT8);
       StringTextPtr = BlockHdr + Offset;
-      BlockSize += Offset + AsciiStrSize (StringTextPtr);
+      BlockSize += Offset + AsciiStrSize ((CHAR8 *) StringTextPtr);
       CurrentStringId++;
       break;
 
@@ -337,14 +337,14 @@ FindStringBlock (
       BlockSize += StringTextPtr - BlockHdr;
 
       for (Index = 0; Index < StringCount; Index++) {
-        BlockSize += AsciiStrSize (StringTextPtr);
+        BlockSize += AsciiStrSize ((CHAR8 *) StringTextPtr);
         if (CurrentStringId == StringId) {
           *BlockType        = *BlockHdr;
           *StringBlockAddr  = BlockHdr;
           *StringTextOffset = StringTextPtr - BlockHdr;
           return EFI_SUCCESS;
         }
-        StringTextPtr = StringTextPtr + AsciiStrSize (StringTextPtr);
+        StringTextPtr = StringTextPtr + AsciiStrSize ((CHAR8 *) StringTextPtr);
         CurrentStringId++;
       }
       break;
@@ -359,14 +359,14 @@ FindStringBlock (
       BlockSize += StringTextPtr - BlockHdr;
 
       for (Index = 0; Index < StringCount; Index++) {
-        BlockSize += AsciiStrSize (StringTextPtr);
+        BlockSize += AsciiStrSize ((CHAR8 *) StringTextPtr);
         if (CurrentStringId == StringId) {
           *BlockType        = *BlockHdr;
           *StringBlockAddr  = BlockHdr;
           *StringTextOffset = StringTextPtr - BlockHdr;
           return EFI_SUCCESS;
         }
-        StringTextPtr = StringTextPtr + AsciiStrSize (StringTextPtr);
+        StringTextPtr = StringTextPtr + AsciiStrSize ((CHAR8 *) StringTextPtr);
         CurrentStringId++;
       }
       break;
@@ -460,13 +460,13 @@ FindStringBlock (
 
     case EFI_HII_SIBT_SKIP1:
       SkipCount = (UINT16) (*(BlockHdr + sizeof (EFI_HII_STRING_BLOCK)));
-      CurrentStringId = CurrentStringId + SkipCount;
+      CurrentStringId = (UINT16) (CurrentStringId + SkipCount);
       BlockSize       +=  sizeof (EFI_HII_SIBT_SKIP1_BLOCK);
       break;
 
     case EFI_HII_SIBT_SKIP2:
       CopyMem (&SkipCount, BlockHdr + sizeof (EFI_HII_STRING_BLOCK), sizeof (UINT16));
-      CurrentStringId = CurrentStringId + SkipCount;
+      CurrentStringId = (UINT16) (CurrentStringId + SkipCount);
       BlockSize       +=  sizeof (EFI_HII_SIBT_SKIP2_BLOCK);
       break;
 
@@ -631,7 +631,7 @@ GetStringWorker (
   case EFI_HII_SIBT_STRING_SCSU_FONT:
   case EFI_HII_SIBT_STRINGS_SCSU:
   case EFI_HII_SIBT_STRINGS_SCSU_FONT:
-    Status = ConvertToUnicodeText (String, StringTextPtr, StringSize);
+    Status = ConvertToUnicodeText (String, (CHAR8 *) StringTextPtr, StringSize);
     break;
   case EFI_HII_SIBT_STRING_UCS2:
   case EFI_HII_SIBT_STRING_UCS2_FONT:
@@ -706,12 +706,13 @@ SetStringWorker (
   UINT8                                *BlockPtr;
   UINTN                                BlockSize;
   UINTN                                OldBlockSize;
-  HII_STRING_PACKAGE_INSTANCE          *Package;
   HII_FONT_INFO                        *LocalFont;
   HII_GLOBAL_FONT_INFO                 *GlobalFont;
   BOOLEAN                              Referred;
   EFI_HII_SIBT_EXT2_BLOCK              Ext2;
   UINTN                                StringSize;
+  UINTN                                TmpSize;
+
 
   ASSERT (Private != NULL && StringPackage != NULL && String != NULL);
   ASSERT (Private->Signature == HII_DATABASE_PRIVATE_DATA_SIGNATURE);
@@ -731,7 +732,6 @@ SetStringWorker (
     return Status;
   }
 
-  Package    = NULL;
   LocalFont  = NULL;
   GlobalFont = NULL;
   Referred   = FALSE;
@@ -776,7 +776,8 @@ SetStringWorker (
   case EFI_HII_SIBT_STRING_SCSU_FONT:
   case EFI_HII_SIBT_STRINGS_SCSU:
   case EFI_HII_SIBT_STRINGS_SCSU_FONT:
-    BlockSize = OldBlockSize + StrLen (String) - AsciiStrLen (StringTextPtr);
+    BlockSize = OldBlockSize + StrLen (String);
+    BlockSize -= AsciiStrLen ((CHAR8 *) StringTextPtr);
     Block = AllocateZeroPool (BlockSize);
     if (Block == NULL) {
       return EFI_OUT_OF_RESOURCES;
@@ -790,10 +791,12 @@ SetStringWorker (
     }
     *BlockPtr++ = 0;
 
+    
+    TmpSize = OldBlockSize - (StringTextPtr - StringPackage->StringBlock) - AsciiStrSize ((CHAR8 *) StringTextPtr);
     CopyMem (
       BlockPtr,
-      StringTextPtr + AsciiStrSize (StringTextPtr),
-      OldBlockSize - (StringTextPtr - StringPackage->StringBlock) - AsciiStrSize (StringTextPtr)
+      StringTextPtr + AsciiStrSize ((CHAR8 *)StringTextPtr),
+      TmpSize
       );
 
     SafeFreePool (StringPackage->StringBlock);

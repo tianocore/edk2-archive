@@ -111,6 +111,7 @@ ReadString (
 
   do {
     Status = WaitForKeyStroke (&Key);
+    ASSERT_EFI_ERROR (Status);
 
     gST->ConOut->SetAttribute (gST->ConOut, EFI_TEXT_ATTR (EFI_BLACK, EFI_LIGHTGRAY));
     switch (Key.UnicodeChar) {
@@ -222,9 +223,6 @@ ReadString (
     gST->ConOut->SetCursorPosition (gST->ConOut, Start + GetStringWidth (StringPtr) / 2, Top + 3);
   } while (TRUE);
 
-  gST->ConOut->SetAttribute (gST->ConOut, EFI_TEXT_ATTR (EFI_LIGHTGRAY, EFI_BLACK));
-  gST->ConOut->EnableCursor (gST->ConOut, CursorVisible);
-  return Status;
 }
 
 
@@ -641,7 +639,8 @@ EnterCarriageReturn:
             //
             // EditValue = EditValue * 10 + (Key.UnicodeChar - L'0');
             //
-            EditValue = LShiftU64 (EditValue, 3) + LShiftU64 (EditValue, 1) + (Key.UnicodeChar - L'0');
+            EditValue = LShiftU64 (EditValue, 3);
+            EditValue += LShiftU64 (EditValue, 1) + (Key.UnicodeChar - L'0');
           }
         } else {
           if (HexInput) {
@@ -669,7 +668,6 @@ EnterCarriageReturn:
     }
   } while (TRUE);
 
-  return EFI_SUCCESS;
 }
 
 
@@ -709,7 +707,6 @@ GetSelectionInputPopUp (
   BOOLEAN                 ShowDownArrow;
   BOOLEAN                 ShowUpArrow;
   UINTN                   DimensionsWidth;
-  UINTN                   DimensionsHeight;
   LIST_ENTRY              *Link;
   BOOLEAN                 OrderedList;
   UINT8                   *ValueArray;
@@ -721,7 +718,6 @@ GetSelectionInputPopUp (
   FORM_BROWSER_STATEMENT  *Question;
 
   DimensionsWidth   = gScreenDimensions.RightColumn - gScreenDimensions.LeftColumn;
-  DimensionsHeight  = gScreenDimensions.BottomRow - gScreenDimensions.TopRow;
 
   ValueArray        = NULL;
   CurrentOption     = NULL;
@@ -1136,10 +1132,6 @@ TheKey:
     }
   } while (TRUE);
 
-  //
-  // Code will not reach here
-  //
-  return EFI_SUCCESS;
 }
 
 EFI_STATUS

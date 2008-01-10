@@ -410,10 +410,8 @@ DisplayForm (
   )
 {
   CHAR16                 *StringPtr;
-  UINTN                  Count;
   UINT16                 MenuItemCount;
   EFI_HII_HANDLE         Handle;
-  UINT16                 FormId;
   BOOLEAN                Suppress;
   EFI_SCREEN_DESCRIPTOR  LocalScreen;
   UINT16                 Width;
@@ -425,7 +423,6 @@ DisplayForm (
   EFI_STATUS             Status;
 
   Handle        = Selection->Handle;
-  FormId        = 0;
   MenuItemCount = 0;
   ArrayEntry    = 0;
   OutputString  = NULL;
@@ -503,7 +500,7 @@ DisplayForm (
 
       NumberOfLines = 1;
       ArrayEntry = 0;
-      for (Count = 0; GetLineByWidth (StringPtr, Width, &ArrayEntry, &OutputString) != 0x0000;) {
+      for (; GetLineByWidth (StringPtr, Width, &ArrayEntry, &OutputString) != 0x0000;) {
         //
         // If there is more string to process print on the next row and increment the Skip value
         //

@@ -658,6 +658,7 @@ CreateDialog (
   //
   if (HotKey) {
     Status = WaitForKeyStroke (&Key);
+    ASSERT_EFI_ERROR (Status);
     CopyMem (KeyValue, &Key, sizeof (EFI_INPUT_KEY));
 
   } else {

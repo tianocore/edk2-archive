@@ -256,7 +256,7 @@ typedef struct _HII_DATABASE_PRIVATE_DATA {
   EFI_HII_DATABASE_PROTOCOL             HiiDatabase;
   EFI_HII_CONFIG_ROUTING_PROTOCOL       ConfigRouting;
   LIST_ENTRY                            HiiHandleList;
-  UINTN                                 HiiHandleCount;
+  INTN                                  HiiHandleCount;
   LIST_ENTRY                            FontInfoList;  // global font info list
   UINTN                                 Attribute;     // default system color
   EFI_GUID                              CurrentLayoutGuid;

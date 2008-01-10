@@ -813,7 +813,7 @@ InsertStringPackage (
   if (Language == NULL) {
     return EFI_OUT_OF_RESOURCES;
   }
-  AsciiStrCpy (Language, (UINT8 *) PackageHdr + HeaderSize - LanguageSize);
+  AsciiStrCpy (Language, (CHAR8 *) PackageHdr + HeaderSize - LanguageSize);
   for (Link = PackageList->StringPkgHdr.ForwardLink; Link != &PackageList->StringPkgHdr; Link = Link->ForwardLink) {
     StringPackage = CR (Link, HII_STRING_PACKAGE_INSTANCE, StringEntry, HII_STRING_PACKAGE_SIGNATURE);
     if (R8_EfiLibCompareLanguage (Language, StringPackage->StringPkgHdr->Language)) {
@@ -2742,7 +2742,7 @@ HiiNewPackageList (
   Status = gBS->HandleProtocol (
                   DriverHandle,
                   &gEfiDevicePathProtocolGuid,
-                  &DevicePath
+                  (VOID **) &DevicePath
                   );
   if (!EFI_ERROR (Status)) {
     Status = AddDevicePathPackage (Private, EFI_HII_DATABASE_NOTIFY_NEW_PACK, DevicePath, DatabaseRecord);

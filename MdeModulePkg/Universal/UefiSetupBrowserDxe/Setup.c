@@ -398,6 +398,7 @@ BrowserCallback (
   CHAR16                *ConfigResp;
   CHAR16                *StrPtr;
   UINTN                 BufferSize;
+  UINTN                 TmpSize;
 
   if (ResultsDataSize == NULL || ResultsData == NULL) {
     return EFI_INVALID_PARAMETER;
@@ -493,7 +494,8 @@ BrowserCallback (
     //
     // Prepare <ConfigResp>
     //
-    BufferSize = (StrLen (ResultsData) + StrLen (Storage->ConfigHdr) + 2) * sizeof (CHAR16);
+    TmpSize = StrLen (ResultsData);
+    BufferSize = (TmpSize + StrLen (Storage->ConfigHdr) + 2) * sizeof (CHAR16);
     ConfigResp = AllocateZeroPool (BufferSize);
     ASSERT (ConfigResp != NULL);
 
@@ -542,21 +544,21 @@ InitializeSetup (
   Status = gBS->LocateProtocol (
                   &gEfiHiiDatabaseProtocolGuid,
                   NULL,
-                  &mHiiDatabase
+                  (VOID **) &mHiiDatabase
                   );
   ASSERT_EFI_ERROR (Status);
 
   Status = gBS->LocateProtocol (
                   &gEfiHiiStringProtocolGuid,
                   NULL,
-                  &mHiiString
+                  (VOID **) &mHiiString
                   );
   ASSERT_EFI_ERROR (Status);
 
   Status = gBS->LocateProtocol (
                   &gEfiHiiConfigRoutingProtocolGuid,
                   NULL,
-                  &mHiiConfigRouting
+                  (VOID **) &mHiiConfigRouting
                   );
   ASSERT_EFI_ERROR (Status);
 
@@ -625,11 +627,12 @@ NewString (
   IN  EFI_HII_HANDLE           HiiHandle
   )
 {
-  EFI_STATUS     Status;
   EFI_STRING_ID  StringId;
+  EFI_STATUS     Status;
 
   StringId = 0;
   Status = IfrLibNewString (HiiHandle, &StringId, String);
+  ASSERT_EFI_ERROR (Status);
 
   return StringId;
 }
@@ -736,13 +739,15 @@ NewStringCat (
   )
 {
   CHAR16  *NewString;
+  UINTN   TmpSize;
 
   if (*Dest == NULL) {
     NewStringCpy (Dest, Src);
     return;
   }
 
-  NewString = AllocateZeroPool (StrSize (*Dest) + StrSize (Src) - 1);
+  TmpSize = StrSize (*Dest);
+  NewString = AllocateZeroPool (TmpSize + StrSize (Src) - 1);
   ASSERT (NewString != NULL);
 
   StrCpy (NewString, *Dest);
@@ -1149,8 +1154,8 @@ GetQuestionValue (
     Dst = (UINT8 *) &Question->HiiValue.Value;
   }
 
-  IsBufferStorage = (Storage->Type == EFI_HII_VARSTORE_BUFFER) ? TRUE : FALSE;
-  IsString = (Question->HiiValue.Type == EFI_IFR_TYPE_STRING) ?  TRUE : FALSE;
+  IsBufferStorage = (BOOLEAN) ((Storage->Type == EFI_HII_VARSTORE_BUFFER) ? TRUE : FALSE);
+  IsString = (BOOLEAN) ((Question->HiiValue.Type == EFI_IFR_TYPE_STRING) ?  TRUE : FALSE);
   if (Cached) {
     if (IsBufferStorage) {
       //
@@ -1184,9 +1189,11 @@ GetQuestionValue (
     //                   <ConfigHdr> + "&" + <VariableName>
     //
     if (IsBufferStorage) {
-      Length = StrLen (Storage->ConfigHdr) + StrLen (Question->BlockName);
+      Length = StrLen (Storage->ConfigHdr);
+      Length += StrLen (Question->BlockName);
     } else {
-      Length = StrLen (Storage->ConfigHdr) + StrLen (Question->VariableName) + 1;
+      Length = StrLen (Storage->ConfigHdr);
+      Length += StrLen (Question->VariableName) + 1;
     }
     ConfigRequest = AllocateZeroPool ((Length + 1) * sizeof (CHAR16));
     ASSERT (ConfigRequest != NULL);
@@ -1388,8 +1395,8 @@ SetQuestionValue (
     Src = (UINT8 *) &Question->HiiValue.Value;
   }
 
-  IsBufferStorage = (Storage->Type == EFI_HII_VARSTORE_BUFFER) ? TRUE : FALSE;
-  IsString = (Question->HiiValue.Type == EFI_IFR_TYPE_STRING) ?  TRUE : FALSE;
+  IsBufferStorage = (BOOLEAN) ((Storage->Type == EFI_HII_VARSTORE_BUFFER) ? TRUE : FALSE);
+  IsString = (BOOLEAN) ((Question->HiiValue.Type == EFI_IFR_TYPE_STRING) ?  TRUE : FALSE);
   if (IsBufferStorage) {
     //
     // Copy to storage edit buffer
@@ -1991,12 +1998,10 @@ InitializeCurrentSetting (
   IN OUT FORM_BROWSER_FORMSET             *FormSet
   )
 {
-  EFI_STATUS              Status;
   LIST_ENTRY              *Link;
   FORMSET_STORAGE         *Storage;
   FORM_BROWSER_FORM       *Form;
-
-  Status = EFI_SUCCESS;
+  EFI_STATUS              Status;
 
   //
   // Extract default from IFR binary
@@ -2023,7 +2028,9 @@ InitializeCurrentSetting (
     // Now Edit Buffer is filled with default values(lower priority) and current
     // settings(higher priority), sychronize it to shadow Buffer
     //
-    SynchronizeStorage (Storage);
+    if (!EFI_ERROR (Status)) {
+      SynchronizeStorage (Storage);
+    }
 
     Link = GetNextNode (&FormSet->StorageListHead, Link);
   }
@@ -2222,7 +2229,7 @@ InitializeFormSet (
   Status = gBS->HandleProtocol (
                   DriverHandle,
                   &gEfiHiiConfigAccessProtocolGuid,
-                  &FormSet->ConfigAccess
+                  (VOID **) &FormSet->ConfigAccess
                   );
   if (EFI_ERROR (Status)) {
     //

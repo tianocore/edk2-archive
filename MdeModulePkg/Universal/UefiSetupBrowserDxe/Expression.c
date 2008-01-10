@@ -508,7 +508,7 @@ InitializeUnicodeCollationProtocol (
   Status = gBS->LocateProtocol (
                   &gEfiUnicodeCollation2ProtocolGuid,
                   NULL,
-                  &mUnicodeCollation
+                  (VOID **) &mUnicodeCollation
                   );
   return Status;
 }
@@ -520,7 +520,7 @@ IfrStrToUpper (
 {
   while (*String != 0) {
     if ((*String >= 'a') && (*String <= 'z')) {
-      *String = (*String) & ((UINT16) ~0x20);
+      *String = (UINT16) ((*String) & ((UINT16) ~0x20));
     }
     String++;
   }
@@ -684,6 +684,7 @@ IfrCatenate (
   CHAR16         *String[2];
   UINTN          Index;
   CHAR16         *StringPtr;
+  UINTN          Size;
 
   //
   // String[0] - The second string
@@ -712,7 +713,8 @@ IfrCatenate (
     }
   }
 
-  StringPtr= AllocatePool (StrSize (String[1]) + StrSize (String[0]));
+  Size = StrSize (String[0]);
+  StringPtr= AllocatePool (StrSize (String[1]) + Size);
   ASSERT (StringPtr != NULL);
   StrCpy (StringPtr, String[1]);
   StrCat (StringPtr, String[0]);
@@ -1353,7 +1355,7 @@ EvaluateExpression (
       if (Result == EFI_INVALID_PARAMETER) {
         return EFI_INVALID_PARAMETER;
       }
-      Value->Value.b = (Result == 0) ? TRUE : FALSE;
+      Value->Value.b = (BOOLEAN) ((Result == 0) ? TRUE : FALSE);
       break;
 
     case EFI_IFR_EQ_ID_ID_OP:
@@ -1371,7 +1373,7 @@ EvaluateExpression (
       if (Result == EFI_INVALID_PARAMETER) {
         return EFI_INVALID_PARAMETER;
       }
-      Value->Value.b = (Result == 0) ? TRUE : FALSE;
+      Value->Value.b = (BOOLEAN) ((Result == 0) ? TRUE : FALSE);
       break;
 
     case EFI_IFR_EQ_ID_LIST_OP:
@@ -1517,7 +1519,7 @@ EvaluateExpression (
       if (Value->Type != EFI_IFR_TYPE_BOOLEAN) {
         return EFI_INVALID_PARAMETER;
       }
-      Value->Value.b = !Value->Value.b;
+      Value->Value.b = (BOOLEAN) (!Value->Value.b);
       break;
 
     case EFI_IFR_QUESTION_REF2_OP:
@@ -1591,7 +1593,7 @@ EvaluateExpression (
         // When converting from an unsigned integer, zero will be converted to
         // FALSE and any other value will be converted to TRUE.
         //
-        Value->Value.b = (Value->Value.u64) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Value->Value.u64) ? TRUE : FALSE);
 
         Value->Type = EFI_IFR_TYPE_BOOLEAN;
       } else if (Value->Type == EFI_IFR_TYPE_STRING) {
@@ -1773,9 +1775,9 @@ EvaluateExpression (
       }
 
       if (OpCode->Operand == EFI_IFR_AND_OP) {
-        Value->Value.b = Data1.Value.b && Data2.Value.b;
+        Value->Value.b = (BOOLEAN) (Data1.Value.b && Data2.Value.b);
       } else {
-        Value->Value.b = Data1.Value.b || Data2.Value.b;
+        Value->Value.b = (BOOLEAN) (Data1.Value.b || Data2.Value.b);
       }
       break;
 
@@ -1811,27 +1813,27 @@ EvaluateExpression (
 
       switch (OpCode->Operand) {
       case EFI_IFR_EQUAL_OP:
-        Value->Value.b = (Result == 0) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Result == 0) ? TRUE : FALSE);
         break;
 
       case EFI_IFR_NOT_EQUAL_OP:
-        Value->Value.b = (Result != 0) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Result == 0) ? TRUE : FALSE);
         break;
 
       case EFI_IFR_GREATER_EQUAL_OP:
-        Value->Value.b = (Result >= 0) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Result >= 0) ? TRUE : FALSE);
         break;
 
       case EFI_IFR_GREATER_THAN_OP:
-        Value->Value.b = (Result > 0) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Result > 0) ? TRUE : FALSE);
         break;
 
       case EFI_IFR_LESS_EQUAL_OP:
-        Value->Value.b = (Result <= 0) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Result <= 0) ? TRUE : FALSE);
         break;
 
       case EFI_IFR_LESS_THAN_OP:
-        Value->Value.b = (Result < 0) ? TRUE : FALSE;
+        Value->Value.b = (BOOLEAN) ((Result < 0) ? TRUE : FALSE);
         break;
 
       default:

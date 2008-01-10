@@ -231,7 +231,7 @@ GetGlyphBuffer (
             Cell->AdvanceX = Cell->Width;
             CopyMem (*GlyphBuffer, Narrow.GlyphCol1, Cell->Height);
             if (Attributes != NULL) {
-              *Attributes = Narrow.Attributes | NARROW_GLYPH;
+              *Attributes = (UINT8) (Narrow.Attributes | NARROW_GLYPH);
             }
             return EFI_SUCCESS;
           }
@@ -254,7 +254,7 @@ GetGlyphBuffer (
             CopyMem (*GlyphBuffer, Wide.GlyphCol1, EFI_GLYPH_HEIGHT);
             CopyMem (*GlyphBuffer + EFI_GLYPH_HEIGHT, Wide.GlyphCol2, EFI_GLYPH_HEIGHT);
             if (Attributes != NULL) {
-              *Attributes = Wide.Attributes | EFI_GLYPH_WIDE;
+              *Attributes = (UINT8) (Wide.Attributes | EFI_GLYPH_WIDE);
             }
             return EFI_SUCCESS;
           }
@@ -739,7 +739,7 @@ FindGlyphBlock (
         }
         BlockPtr += BufferLen;
       }
-      CharCurrent = CharCurrent + Glyphs.Count;
+      CharCurrent = (UINT16) (CharCurrent + Glyphs.Count);
       break;
 
     case EFI_HII_GIBT_GLYPH_DEFAULT:
@@ -784,16 +784,16 @@ FindGlyphBlock (
         }
         BlockPtr += BufferLen;
       }
-      CharCurrent = CharCurrent + Length16;
+      CharCurrent = (UINT16) (CharCurrent + Length16);
       break;
 
     case EFI_HII_GIBT_SKIP1:
-      CharCurrent = CharCurrent + (UINT16) (*(BlockPtr + sizeof (EFI_HII_GLYPH_BLOCK)));
+      CharCurrent = (UINT16) (CharCurrent + (UINT16) (*(BlockPtr + sizeof (EFI_HII_GLYPH_BLOCK))));
       BlockPtr    += sizeof (EFI_HII_GIBT_SKIP1_BLOCK);
       break;
     case EFI_HII_GIBT_SKIP2:
       CopyMem (&Length16, BlockPtr + sizeof (EFI_HII_GLYPH_BLOCK), sizeof (UINT16));
-      CharCurrent = CharCurrent + Length16;
+      CharCurrent = (UINT16) (CharCurrent + Length16);
       BlockPtr    += sizeof (EFI_HII_GIBT_SKIP2_BLOCK);
       break;
     default:
@@ -1419,7 +1419,6 @@ HiiStringToImage (
 {
   EFI_STATUS                          Status;
   HII_DATABASE_PRIVATE_DATA           *Private;
-  EFI_IMAGE_OUTPUT                    *ImageTmp;
   UINT8                               **GlyphBuf;
   EFI_HII_GLYPH_INFO                  *Cell;
   UINT8                               *Attributes;
@@ -1539,7 +1538,6 @@ HiiStringToImage (
 
   StringPtr = String;
   StringIn  = NULL;
-  ImageTmp  = NULL;
 
   //
   // Ignore line-break characters only. Hyphens or dash character will be displayed
@@ -1619,7 +1617,7 @@ HiiStringToImage (
   if (*Blt != NULL) {
     Image     = *Blt;
     BufferPtr = Image->Image.Bitmap + Image->Width * BltY + BltX;
-    MaxRowNum = Image->Height / Height;
+    MaxRowNum = (UINT16) (Image->Height / Height);
     if (Image->Height % Height != 0) {
       MaxRowNum++;
     }
@@ -1634,7 +1632,7 @@ HiiStringToImage (
     // Format the glyph buffer according to flags.
     //
 
-    Transparent = (Flags & EFI_HII_OUT_FLAG_TRANSPARENT) == EFI_HII_OUT_FLAG_TRANSPARENT ? TRUE : FALSE;
+    Transparent = (BOOLEAN) ((Flags & EFI_HII_OUT_FLAG_TRANSPARENT) == EFI_HII_OUT_FLAG_TRANSPARENT ? TRUE : FALSE);
     if ((Flags & EFI_HII_OUT_FLAG_CLEAN_Y) == EFI_HII_OUT_FLAG_CLEAN_Y) {
       //
       // Don't draw at all if there is only one row and

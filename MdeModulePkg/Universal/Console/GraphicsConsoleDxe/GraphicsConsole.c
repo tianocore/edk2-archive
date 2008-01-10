@@ -629,7 +629,7 @@ EfiLocateHiiProtocol (
                   &gEfiHiiDatabaseProtocolGuid,
                   NULL,
                   &Size,
-                  &Handle
+                  (VOID **) &Handle
                   );
 
   if (EFI_ERROR (Status)) {
@@ -639,7 +639,7 @@ EfiLocateHiiProtocol (
   Status = gBS->HandleProtocol (
                   Handle,
                   &gEfiHiiDatabaseProtocolGuid,
-                  (VOID **)&mHiiDatabase
+                  (VOID **) &mHiiDatabase
                   );
 
   if (EFI_ERROR (Status)) {
@@ -649,7 +649,7 @@ EfiLocateHiiProtocol (
   Status = gBS->HandleProtocol (
                   Handle,
                   &gEfiHiiFontProtocolGuid,
-                  (VOID **)&mHiiFont
+                  (VOID **) &mHiiFont
                   );
   return Status;
 #else

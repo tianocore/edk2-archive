@@ -122,11 +122,11 @@ HexStringToBufPrivate (
     // and for even characters, the upper nibble.
     //
     if ((Idx & 1) == 0) {
-      Byte = Digit << 4;
+      Byte = (UINT8) (Digit << 4);
     } else {
       Byte = Buf[Idx / 2];
       Byte &= 0xF0;
-      Byte |= Digit;
+      Byte = (UINT8) (Byte | Digit);
     }
 
     Buf[Idx / 2] = Byte;
@@ -945,7 +945,7 @@ HiiConfigRoutingExtractConfig (
     Status = gBS->HandleProtocol (
                     DriverHandle,
                     &gEfiHiiConfigAccessProtocolGuid,
-                    (VOID *) &ConfigAccess
+                    (VOID **) &ConfigAccess
                     );
     ASSERT_EFI_ERROR (Status);
 
@@ -1046,6 +1046,7 @@ HiiConfigRoutingExportConfig (
   EFI_HII_CONFIG_ACCESS_PROTOCOL      *ConfigAccess;
   EFI_STRING                          AccessProgress;
   EFI_STRING                          AccessResults;
+  UINTN                               TmpSize;
 
   if (This == NULL || Results == NULL) {
     return EFI_INVALID_PARAMETER;
@@ -1102,7 +1103,8 @@ HiiConfigRoutingExportConfig (
     // Generate a <ConfigRequest> with one <ConfigHdr> and zero <RequestElement>.
     // It means extract all possible configurations from this specific driver.
     //
-    RequestSize   = (StrLen (L"GUID=&NAME=&PATH=") + sizeof (EFI_GUID) * 2 +  StrLen (Storage->Name))
+    TmpSize = StrLen (L"GUID=&NAME=&PATH=");
+    RequestSize   = (TmpSize + sizeof (EFI_GUID) * 2 +  StrLen (Storage->Name))
                      * sizeof (CHAR16) + PathHdrSize;
     ConfigRequest = (EFI_STRING) AllocateZeroPool (RequestSize);
     if (ConfigRequest == NULL) {
@@ -1170,7 +1172,7 @@ HiiConfigRoutingExportConfig (
     Status = gBS->HandleProtocol (
                     Storage->DriverHandle,
                     &gEfiHiiConfigAccessProtocolGuid,
-                    (VOID *) &ConfigAccess
+                    (VOID **)  &ConfigAccess
                     );
     ASSERT_EFI_ERROR (Status);
 
@@ -1365,7 +1367,7 @@ HiiConfigRoutingRoutConfig (
     Status = gBS->HandleProtocol (
                     DriverHandle,
                     &gEfiHiiConfigAccessProtocolGuid,
-                    (VOID *) &ConfigAccess
+                    (VOID **)  &ConfigAccess
                     );
     ASSERT_EFI_ERROR (Status);
 
@@ -1480,6 +1482,7 @@ HiiBlockToConfig (
 
 
   Private = CONFIG_ROUTING_DATABASE_PRIVATE_DATA_FROM_THIS (This);
+  ASSERT (Private != NULL);
 
   StringPtr     = ConfigRequest;
   ValueStr      = NULL;
@@ -1736,6 +1739,7 @@ HiiConfigToBlock (
   }
 
   Private = CONFIG_ROUTING_DATABASE_PRIVATE_DATA_FROM_THIS (This);
+  ASSERT (Private != NULL);
 
   StringPtr  = ConfigResp;
   BufferSize = *BlockSize;
@@ -1963,7 +1967,8 @@ HiiGetAltCfg (
     GenerateSubStr (L"ALTCFG=", sizeof (UINT16), (UINT8 *) AltCfgId, FALSE, &AltIdStr);
   }
   if (Name != NULL) {
-    Length  = StrLen (Name) + StrLen (L"NAME=&") + 1;
+    Length  = StrLen (Name);
+    Length  += StrLen (L"NAME=&") + 1;
     NameStr = AllocateZeroPool (Length * sizeof (CHAR16));
     if (NameStr == NULL) {
       Status = EFI_OUT_OF_RESOURCES;

@@ -166,13 +166,13 @@ GetImageIdOrAddress (
     case EFI_HII_IIBT_SKIP1:
       Length8 = *(ImageBlock + sizeof (EFI_HII_IMAGE_BLOCK));
       ImageBlock += sizeof (EFI_HII_IIBT_SKIP1_BLOCK);
-      ImageIdCurrent = ImageIdCurrent + Length8;
+      ImageIdCurrent = (UINT16) (ImageIdCurrent + Length8);
       break;
 
     case EFI_HII_IIBT_SKIP2:
       CopyMem (&Length16, ImageBlock + sizeof (EFI_HII_IMAGE_BLOCK), sizeof (UINT16));
       ImageBlock += sizeof (EFI_HII_IIBT_SKIP2_BLOCK);
-      ImageIdCurrent = ImageIdCurrent + Length16;
+      ImageIdCurrent = (UINT16) (ImageIdCurrent + Length16);
       break;
 
     default:
@@ -1326,7 +1326,7 @@ HiiDrawImage (
       Status = gBS->LocateProtocol (
                       &gEfiConsoleControlProtocolGuid,
                       NULL,
-                      &Console
+                      (VOID **) &Console
                       );
 
       if (EFI_ERROR (Status)) {
