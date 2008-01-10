@@ -62,37 +62,6 @@ BdsLockFv (
   }
 }
 
-VOID
-BdsLockNonUpdatableFlash (
-  VOID
-  )
-{
-  EFI_STATUS                Status;
-  EFI_CPU_IO_PROTOCOL       *CpuIo;
-  EFI_PHYSICAL_ADDRESS      Base;
-
-  Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **) &CpuIo);
-  ASSERT_EFI_ERROR (Status);
-
-  //
-  // Bugbug: add PCD entry for capsule update
-  //
-  Base = 0;
-  //Base = (EFI_PHYSICAL_ADDRESS) PcdGet32 (PcdFlashFvMainBase);
-  if (Base > 0) {
-    BdsLockFv (CpuIo, Base);
-  }
-  //
-  // Bugbug: add PCD entry for capsule update
-  //
-  //Base = (EFI_PHYSICAL_ADDRESS) PcdGet32 (PcdFlashFvRecoveryBase);
-  if (Base > 0) {
-    BdsLockFv (CpuIo, Base);
-  }
-
-  return ;
-}
-
 EFI_STATUS
 ProcessCapsules (
   EFI_BOOT_MODE BootMode
@@ -161,8 +130,7 @@ Note:
   //
   HobPointer.Raw = GetHobList ();
   while ((HobPointer.Raw = GetNextGuidHob (&gEfiCapsuleVendorGuid, HobPointer.Raw)) != NULL) {
-    CapsuleHobInfo = GET_GUID_HOB_DATA (HobPointer.Guid);
-    CapsulePtr [CapsuleNumber++] = (VOID *) (UINTN) CapsuleHobInfo->BaseAddress; 
+    CapsuleTotalNumber ++;
 
     HobPointer.Raw = GET_NEXT_HOB (HobPointer);
   }
@@ -171,7 +139,7 @@ Note:
     //
     // We didn't find a hob, so had no errors.
     //
-    BdsLockNonUpdatableFlash ();
+    PlatformBdsLockNonUpdatableFlash ();
     return EFI_SUCCESS;
   }
   
@@ -190,7 +158,9 @@ Note:
   //
   HobPointer.Raw = GetHobList ();
   while ((HobPointer.Raw = GetNextGuidHob (&gEfiCapsuleVendorGuid, HobPointer.Raw)) != NULL) {
-    CapsuleNumber++;
+    CapsuleHobInfo = GET_GUID_HOB_DATA (HobPointer.Guid);
+    CapsulePtr [CapsuleNumber++] = (VOID *)(UINTN)(CapsuleHobInfo->BaseAddress);
+
     HobPointer.Raw = GET_NEXT_HOB (HobPointer);
   }
 
@@ -281,7 +251,7 @@ Note:
     }
   }
 
-  BdsLockNonUpdatableFlash ();
+  PlatformBdsLockNonUpdatableFlash ();
   
   //
   // Free the allocated temp memory space.
