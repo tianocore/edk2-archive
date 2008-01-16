@@ -326,8 +326,8 @@
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultTimeout|0x0008|UINT16|0x0000001b
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLangCodes|"engfra"|VOID*|0x0000001c
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang|"eng"|VOID*|0x0000001d
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en;fr"|VOID*|0x0000001e
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang|"en"|VOID*|0x0000001f
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en-US;fr-FR"|VOID*|0x0000001e
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang|"en-US"|VOID*|0x0000001f
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200|UINT64|0x00000020
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8|UINT8|0x00000021
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1|UINT8|0x00000022
@@ -364,8 +364,8 @@
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultTimeout|0x0008|UINT16|0x0000001b
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLangCodes|"engfra"|VOID*|0x0000001c
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang|"eng"|VOID*|0x0000001d
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en;fr"|VOID*|0x0000001e
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang|"en"|VOID*|0x0000001f
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en-US;fr-FR"|VOID*|0x0000001e
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang|"en-US"|VOID*|0x0000001f
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200|UINT64|0x00000020
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8|UINT8|0x00000021
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1|UINT8|0x00000022
@@ -376,8 +376,8 @@
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultTimeout|0x0008|UINT16|0x0000001b
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLangCodes|"engfra"|VOID*|0x0000001c
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang|"eng"|VOID*|0x0000001d
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en;fr"|VOID*|0x0000001e
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang|"en"|VOID*|0x0000001f
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en-US;fr-FR"|VOID*|0x0000001e
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang|"en-US"|VOID*|0x0000001f
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200|UINT64|0x00000020
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8|UINT8|0x00000021
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1|UINT8|0x00000022
