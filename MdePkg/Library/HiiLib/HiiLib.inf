@@ -45,6 +45,7 @@
   MemoryAllocationLib
   DebugLib
   PcdLib
+  UefiRuntimeServicesTableLib
 
 [Protocols]
   gEfiHiiDatabaseProtocolGuid  # ALWAYS_CONSUMED
