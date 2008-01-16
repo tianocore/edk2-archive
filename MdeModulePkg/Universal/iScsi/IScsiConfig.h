@@ -24,10 +24,8 @@ Abstract:
 //#include "Tiano.h"
 //#include "EfiDriverLib.h"
 //#include "Base.h"
-#include <Library/FrameworkHiiLib.h>
-#include <Protocol/FrameworkFormBrowser.h>
-#include <Protocol/FrameworkFormCallback.h>
-#include <Library/FrameworkIfrSupportLib.h>
+#include <Library/HiiLib.h>
+#include <Library/UefiIfrSupportLib.h>
 #include <Library/DebugLib.h>
 #include <Library/BaseLib.h>
 //#include "EfiPrintLib.h"
@@ -51,7 +49,7 @@ extern UINT8  iSCSIStrings[];
   CR ( \
   Callback, \
   ISCSI_FORM_CALLBACK_INFO, \
-  FormCallback, \
+  ConfigAccess, \
   ISCSI_FORM_CALLBACK_INFO_SIGNATURE \
   )
 
@@ -81,14 +79,15 @@ typedef struct _ISCSI_CONFIG_FORM_ENTRY {
 } ISCSI_CONFIG_FORM_ENTRY;
 
 typedef struct _ISCSI_FORM_CALLBACK_INFO {
-  UINTN                       Signature;
-  EFI_HANDLE                  CallbackHandle;
-  EFI_FORM_CALLBACK_PROTOCOL  FormCallback;
-  UINT16                      *KeyList;
-  VOID                        *FormBuffer;
-  FRAMEWORK_EFI_HII_HANDLE              RegisteredHandle;
-  EFI_HII_PROTOCOL            *Hii;
-  ISCSI_CONFIG_FORM_ENTRY     *Current;
+  UINTN                            Signature;
+  EFI_HANDLE                       DriverHandle;
+  EFI_HII_CONFIG_ACCESS_PROTOCOL   ConfigAccess;
+  EFI_HII_DATABASE_PROTOCOL        *HiiDatabase;
+  EFI_HII_CONFIG_ROUTING_PROTOCOL  *ConfigRouting;
+  UINT16                           *KeyList;
+  VOID                             *FormBuffer;
+  EFI_HII_HANDLE                   RegisteredHandle;
+  ISCSI_CONFIG_FORM_ENTRY          *Current;
 } ISCSI_FORM_CALLBACK_INFO;
 
 EFI_STATUS
