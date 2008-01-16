@@ -636,11 +636,7 @@ EnterCarriageReturn:
           if (HexInput) {
             EditValue = LShiftU64 (EditValue, 4) + Digital;
           } else {
-            //
-            // EditValue = EditValue * 10 + (Key.UnicodeChar - L'0');
-            //
-            EditValue = LShiftU64 (EditValue, 3);
-            EditValue += LShiftU64 (EditValue, 1) + (Key.UnicodeChar - L'0');
+            EditValue = MultU64x32 (EditValue, 10) + (Key.UnicodeChar - L'0');
           }
         } else {
           if (HexInput) {
