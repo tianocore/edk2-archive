@@ -63,13 +63,20 @@ R8_EfiLibCompareLanguage (
   //
   UINTN Index;
 
-  for (Index = 0; Index < 3; Index++) {
+  for (Index = 0; (Language1[Index] != 0) && (Language2[Index] != 0); Index++) {
     if (Language1[Index] != Language2[Index]) {
       return FALSE;
     }
   }
 
-  return TRUE;
+  if (((Language1[Index] == 0) && (Language2[Index] == 0))   || 
+  	  ((Language1[Index] == 0) && (Language2[Index] != ';')) ||
+  	  ((Language1[Index] == ';') && (Language2[Index] != 0)) ||
+  	  ((Language1[Index] == ';') && (Language2[Index] != ';'))) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
