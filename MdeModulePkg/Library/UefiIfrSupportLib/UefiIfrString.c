@@ -272,7 +272,7 @@ GetCurrentLanguage (
                   );
 
   if (EFI_ERROR (Status)) {
-    AsciiStrCpy (Lang, "en-US");
+    AsciiStrCpy (Lang, (CHAR8 *) PcdGetPtr (PcdUefiVariableDefaultPlatformLang));
   }
 
   return Status;

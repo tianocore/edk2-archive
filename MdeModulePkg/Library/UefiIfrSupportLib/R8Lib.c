@@ -16,7 +16,7 @@
 
 
 CHAR16
-NibbleToHexChar (
+InternalNibbleToHexChar (
   IN UINT8      Nibble
   )
 /*++
@@ -96,8 +96,8 @@ R8_BufToHexString (
   for (Idx = 0; Idx < Len; Idx++) {
 
     Byte = Buf[Idx];
-    Str[StrLen - 1 - Idx * 2] = NibbleToHexChar (Byte);
-    Str[StrLen - 2 - Idx * 2] = NibbleToHexChar ((UINT8)(Byte >> 4));
+    Str[StrLen - 1 - Idx * 2] = InternalNibbleToHexChar (Byte);
+    Str[StrLen - 2 - Idx * 2] = InternalNibbleToHexChar ((UINT8)(Byte >> 4));
   }
 
   return EFI_SUCCESS;
