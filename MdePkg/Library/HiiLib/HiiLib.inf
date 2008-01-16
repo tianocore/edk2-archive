@@ -44,6 +44,7 @@
 [LibraryClasses]
   MemoryAllocationLib
   DebugLib
+  PcdLib
 
 [Protocols]
   gEfiHiiDatabaseProtocolGuid  # ALWAYS_CONSUMED
@@ -55,3 +56,6 @@
 
 [Depex]
   gEfiHiiDatabaseProtocolGuid AND gEfiHiiStringProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang

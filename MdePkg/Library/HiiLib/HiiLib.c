@@ -28,6 +28,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Library/PcdLib.h>
 
 #include <MdeModuleHii.h>
 
@@ -122,7 +123,7 @@ Returns:
                   );
 
   if (EFI_ERROR (Status)) {
-    AsciiStrCpy (Lang, "en-US");
+    AsciiStrCpy (Lang, (CHAR8 *) PcdGetPtr (PcdUefiVariableDefaultPlatformLang));
   }
 
   return Status;
