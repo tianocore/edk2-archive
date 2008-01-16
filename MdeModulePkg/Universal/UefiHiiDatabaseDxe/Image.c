@@ -374,7 +374,7 @@ Output4bitPixel (
   Palette = AllocateZeroPool (PaletteSize);
   ASSERT (Palette != NULL);
   CopyMem (Palette, PaletteInfo, PaletteSize);
-  PaletteNum = Palette->PaletteSize / sizeof (EFI_HII_RGB_PIXEL);
+  PaletteNum = (UINT16)(Palette->PaletteSize / sizeof (EFI_HII_RGB_PIXEL));
 
   ZeroMem (PaletteValue, sizeof (PaletteValue));
   CopyRgbToGopPixel (PaletteValue, Palette->PaletteValue, PaletteNum);
@@ -446,7 +446,7 @@ Output8bitPixel (
   Palette = AllocateZeroPool (PaletteSize);
   ASSERT (Palette != NULL);
   CopyMem (Palette, PaletteInfo, PaletteSize);
-  PaletteNum = Palette->PaletteSize / sizeof (EFI_HII_RGB_PIXEL);
+  PaletteNum = (UINT16)(Palette->PaletteSize / sizeof (EFI_HII_RGB_PIXEL));
   ZeroMem (PaletteValue, sizeof (PaletteValue));
   CopyRgbToGopPixel (PaletteValue, Palette->PaletteValue, PaletteNum);
   SafeFreePool (Palette);

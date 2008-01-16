@@ -1198,7 +1198,7 @@ ParseOpCodes (
 
       CurrentStatement->Flags = ((EFI_IFR_ORDERED_LIST *) OpCodeData)->Flags;
       CurrentStatement->MaxContainers = ((EFI_IFR_ORDERED_LIST *) OpCodeData)->MaxContainers;
-      CurrentStatement->StorageWidth = CurrentStatement->MaxContainers * sizeof (UINT8);
+      CurrentStatement->StorageWidth = (UINT16)(CurrentStatement->MaxContainers * sizeof (UINT8));
       InitializeRequestElement (FormSet, CurrentStatement);
 
       //
@@ -1234,7 +1234,7 @@ ParseOpCodes (
       //
       CurrentStatement->Minimum = ((EFI_IFR_STRING *) OpCodeData)->MinSize;
       CurrentStatement->Maximum = ((EFI_IFR_STRING *) OpCodeData)->MaxSize;
-      CurrentStatement->StorageWidth = ((UINT16) CurrentStatement->Maximum) * sizeof (UINT16);
+      CurrentStatement->StorageWidth = (UINT16)(CurrentStatement->Maximum * sizeof (UINT16));
       CurrentStatement->Flags = ((EFI_IFR_STRING *) OpCodeData)->Flags;
 
       CurrentStatement->HiiValue.Type = EFI_IFR_TYPE_STRING;
@@ -1253,7 +1253,7 @@ ParseOpCodes (
       //
       CopyMem (&CurrentStatement->Minimum, &((EFI_IFR_PASSWORD *) OpCodeData)->MinSize, sizeof (UINT16));
       CopyMem (&CurrentStatement->Maximum, &((EFI_IFR_PASSWORD *) OpCodeData)->MaxSize, sizeof (UINT16));
-      CurrentStatement->StorageWidth = ((UINT16) CurrentStatement->Maximum) * sizeof (UINT16);
+      CurrentStatement->StorageWidth = (UINT16)(CurrentStatement->Maximum * sizeof (UINT16));
 
       CurrentStatement->HiiValue.Type = EFI_IFR_TYPE_STRING;
       CurrentStatement->BufferValue = AllocateZeroPool (CurrentStatement->StorageWidth);
