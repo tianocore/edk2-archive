@@ -285,7 +285,6 @@ BdsLibConnectAllConsoles (
   VOID
   )
 {
-  EFI_STATUS                Status;
   UINTN                     Index;
   EFI_DEVICE_PATH_PROTOCOL  *ConDevicePath;
   UINTN                     HandleCount;
@@ -299,38 +298,38 @@ BdsLibConnectAllConsoles (
   //
   // Update all the console varables
   //
-  Status = gBS->LocateHandleBuffer (
-                  ByProtocol,
-                  &gEfiSimpleTextInProtocolGuid,
-                  NULL,
-                  &HandleCount,
-                  &HandleBuffer
-                  );
+  gBS->LocateHandleBuffer (
+          ByProtocol,
+          &gEfiSimpleTextInProtocolGuid,
+          NULL,
+          &HandleCount,
+          &HandleBuffer
+          );
+  
   for (Index = 0; Index < HandleCount; Index++) {
-    Status = gBS->HandleProtocol (
-                    HandleBuffer[Index],
-                    &gEfiDevicePathProtocolGuid,
-                    (VOID **) &ConDevicePath
-                    );
-    ASSERT_EFI_ERROR (Status);
+    gBS->HandleProtocol (
+            HandleBuffer[Index],
+            &gEfiDevicePathProtocolGuid,
+            (VOID **) &ConDevicePath
+            );
     BdsLibUpdateConsoleVariable (L"ConIn", ConDevicePath, NULL);
   }
 
   SafeFreePool(HandleBuffer);
 
-  Status = gBS->LocateHandleBuffer (
-                  ByProtocol,
-                  &gEfiSimpleTextOutProtocolGuid,
-                  NULL,
-                  &HandleCount,
-                  &HandleBuffer
-                  );
+  gBS->LocateHandleBuffer (
+          ByProtocol,
+          &gEfiSimpleTextOutProtocolGuid,
+          NULL,
+          &HandleCount,
+          &HandleBuffer
+          );
   for (Index = 0; Index < HandleCount; Index++) {
-    Status = gBS->HandleProtocol (
-                    HandleBuffer[Index],
-                    &gEfiDevicePathProtocolGuid,
-                    (VOID **) &ConDevicePath
-                    );
+    gBS->HandleProtocol (
+            HandleBuffer[Index],
+            &gEfiDevicePathProtocolGuid,
+            (VOID **) &ConDevicePath
+            );
     BdsLibUpdateConsoleVariable (L"ConOut", ConDevicePath, NULL);
     BdsLibUpdateConsoleVariable (L"ErrOut", ConDevicePath, NULL);
   }
