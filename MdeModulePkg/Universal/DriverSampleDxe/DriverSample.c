@@ -498,6 +498,13 @@ DriverCallback (
     *ActionRequest = EFI_BROWSER_ACTION_REQUEST_EXIT;
     break;
 
+  case 0x1238:
+    //
+    // User press "Save now", request Browser to save the uncommitted data.
+    //
+    *ActionRequest = EFI_BROWSER_ACTION_REQUEST_SUBMIT;
+    break;
+
   case 0x2000:
     //
     // When try to set a new password, user will be chanlleged with old password.

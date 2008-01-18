@@ -124,6 +124,13 @@ formset
       flags  = INTERACTIVE,
       key    = 0x1237;
 
+    text
+      help   = STRING_TOKEN(STR_SAVE_TEXT),
+      text   = STRING_TOKEN(STR_SAVE_TEXT),
+        text   = STRING_TOKEN(STR_SAVE_TEXT),
+      flags  = INTERACTIVE,
+      key    = 0x1238;
+
     //
     // Define oneof (EFI_IFR_ONE_OF)
     //
