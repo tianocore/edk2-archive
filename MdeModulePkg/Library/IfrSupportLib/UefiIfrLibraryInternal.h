@@ -36,7 +36,7 @@ Abstract:
 #include <Library/BaseLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include <Library/UefiIfrSupportLib.h>
+#include <Library/IfrSupportLib.h>
 #include <Library/PcdLib.h>
 
 #include <MdeModuleHii.h>
