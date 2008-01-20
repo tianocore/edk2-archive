@@ -69,7 +69,7 @@ Revision History
 #include <Library/DxeServicesTableLib.h>
 #include <Library/PerformanceLib.h>
 #include <Library/ReportStatusCodeLib.h>
-#include <Library/UefiIfrSupportLib.h>
+#include <Library/IfrSupportLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 #include <Library/HobLib.h>
 #include <Library/BaseLib.h>

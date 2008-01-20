@@ -78,7 +78,7 @@
   DebugLib
   PrintLib
   HiiLib
-  UefiIfrSupportLib
+  IfrSupportLib
   NetLib
 
 [Protocols]

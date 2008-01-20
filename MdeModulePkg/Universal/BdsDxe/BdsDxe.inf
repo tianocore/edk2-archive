@@ -87,7 +87,7 @@
   BaseLib
   HobLib
   UefiRuntimeServicesTableLib
-  UefiIfrSupportLib
+  IfrSupportLib
   GenericBdsLib
   ReportStatusCodeLib
   PerformanceLib

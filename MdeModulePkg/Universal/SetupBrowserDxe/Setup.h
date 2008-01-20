@@ -49,7 +49,7 @@ Revision History
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include <Library/UefiIfrSupportLib.h>
+#include <Library/IfrSupportLib.h>
 #include <Library/HiiLib.h>
 
 #include "R8Lib.h"

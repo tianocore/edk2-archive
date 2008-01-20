@@ -25,7 +25,7 @@ Abstract:
 //#include "EfiDriverLib.h"
 //#include "Base.h"
 #include <Library/HiiLib.h>
-#include <Library/UefiIfrSupportLib.h>
+#include <Library/IfrSupportLib.h>
 #include <Library/DebugLib.h>
 #include <Library/BaseLib.h>
 //#include "EfiPrintLib.h"
