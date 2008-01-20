@@ -89,7 +89,7 @@ Revision History
 #include <Library/DevicePathLib.h>
 #include <Library/GenericBdsLib.h>
 #include <Library/GraphicsLib.h>
-#include <Library/UefiIfrSupportLib.h>
+#include <Library/IfrSupportLib.h>
 #include <Library/HiiLib.h>
 
 #include <Common/MaxBbsEntries.h>

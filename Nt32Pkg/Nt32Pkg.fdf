@@ -1,4 +1,4 @@
-# This is NT32 FDF file
+# This is NT32 FDF file with UEFI HII features enabled
 #
 # Copyright (c) 2007, Intel Corporation
 #
@@ -161,10 +161,10 @@ INF  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
 INF  IntelFrameworkModulePkg/Universal/DataHubDxe/DataHubDxe.inf
 INF  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
 INF  MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe.inf
-INF  IntelFrameworkModulePkg/Universal/HiiDataBaseDxe/HiiDatabase.inf
+INF  MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
 INF  Nt32Pkg/WinNtThunkDxe/WinNtThunkDxe.inf
 INF  Nt32Pkg/CpuRuntimeDxe/CpuRuntimeDxe.inf
-INF  Nt32Pkg/PlatformBdsDxe/PlatformBdsDxe.inf
+INF  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
 INF  MdeModulePkg/Universal/FirmwareVolume/FaultTolerantWriteDxe/FtwLite.inf
 INF  IntelFrameworkModulePkg/Universal/DataHubStdErrDxe/DataHubStdErrDxe.inf
 INF  Nt32Pkg/MiscSubClassPlatformDxe/MiscSubClassPlatformDxe.inf
@@ -181,7 +181,7 @@ INF  MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
 INF  MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
 INF  MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
 INF  MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
-INF  IntelFrameworkModulePkg/Universal/SetupBrowserDxe/SetupBrowser.inf
+INF  MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
 INF  MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
 INF  IntelFrameworkModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 INF  MdeModulePkg/Bus/Scsi/ScsiBusDxe/ScsiBusDxe.inf     ##This driver follows UEFI specification definition
@@ -192,7 +192,7 @@ INF  Nt32Pkg/WinNtBlockIoDxe/WinNtBlockIoDxe.inf
 INF  Nt32Pkg/WinNtSerialIoDxe/WinNtSerialIoDxe.inf
 INF  Nt32Pkg/WinNtGopDxe/WinNtGopDxe.inf
 INF  Nt32Pkg/WinNtSimpleFileSystemDxe/WinNtSimpleFileSystemDxe.inf
-INF  IntelFrameworkModulePkg/Universal/DriverSampleDxe/DriverSampleDxe.inf
+INF  MdeModulePkg/Universal/DriverSampleDxe/DriverSampleDxe.inf
 INF  MdeModulePkg/Application/HelloWorld/HelloWorld.inf
 
 ################################################################################
@@ -267,16 +267,6 @@ FILE FREEFORM = 7BB28B99-61BB-11D5-9A5D-0090273FC14D {
      PE32      PE32                      |.efi
      UI       STRING="$(MODULE_NAME)" Optional         
      VERSION  STRING="$(INF_VERSION)" Optional BUILD_NUM=$(BUILD_NUMBER)   
-  }
-
-[Rule.Common.PEIM.TIANOCOMPRESSED]
-  FILE PEIM = $(NAMED_GUID) DEBUG_MYTOOLS_IA32 {
-    PEI_DEPEX PEI_DEPEX Optional         |.depex
-    GUIDED A31280AD-481E-41B6-95E8-127F4C984779 PROCESSING_REQUIRED = TRUE {
-      PE32      PE32                     |.efi
-      UI        STRING="$(MODULE_NAME)" Optional
-      VERSION   STRING="$(INF_VERSION)" Optional BUILD_NUM=$(BUILD_NUMBER)
-    }
   }
 
 [Rule.Common.DXE_CORE]

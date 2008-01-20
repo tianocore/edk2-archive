@@ -71,7 +71,7 @@
   HiiLib|MdePkg/Library/HiiLib/HiiLib.inf
   S3Lib|MdeModulePkg/Library/PeiS3LibNull/PeiS3LibNull.inf
   RecoveryLib|MdeModulePkg/Library/PeiRecoveryLibNull/PeiRecoveryLibNull.inf
-  UefiIfrSupportLib|MdeModulePkg/Library/UefiIfrSupportLib/UefiIfrSupportLib.inf
+  IfrSupportLib|MdeModulePkg/Library/IfrSupportLib/IfrSupportLib.inf
   GenericBdsLib|MdeModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
   PlatformBdsLib|Nt32Pkg/Library/Nt32BdsLib/Nt32BdsLib.inf
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
@@ -473,8 +473,8 @@
 
   #Nt32Pkg/UefiPlatformBdsDxe/UefiPlatformBdsDxe.inf
   MdeModulePkg/Universal/BdsDxe/BdsDxe.inf 
-  MdeModulePkg/Universal/UefiHiiDatabaseDxe/UefiHiiDatabaseDxe.inf
-  MdeModulePkg/Universal/UefiSetupBrowserDxe/UefiSetupBrowserDxe.inf
+  MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
+  MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
   MdeModulePkg/Universal/DriverSampleDxe/DriverSampleDxe.inf {
     <LibraryClasses>
       PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf

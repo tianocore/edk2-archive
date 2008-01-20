@@ -107,7 +107,7 @@
   BaseMemoryLib
   DebugLib
   PrintLib
-  UefiIfrSupportLib
+  IfrSupportLib
   GenericBdsLib
   GraphicsLib
   HiiLib
