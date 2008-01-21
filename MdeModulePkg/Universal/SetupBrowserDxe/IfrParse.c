@@ -341,7 +341,7 @@ InitializeRequestElement (
   if ((Question->Operand == EFI_IFR_PASSWORD_OP) && (Question->QuestionFlags & EFI_IFR_FLAG_CALLBACK)) {
     //
     // Password with CALLBACK flag is stored in encoded format,
-    // so don't need to append it to <ConfigRequest>\
+    // so don't need to append it to <ConfigRequest>
     //
     return EFI_SUCCESS;
   }
@@ -354,13 +354,13 @@ InitializeRequestElement (
     // Old String buffer is not sufficient for RequestElement, allocate a new one
     //
     StringSize = (Storage->ConfigRequest != NULL) ? StrSize (Storage->ConfigRequest) : 0;
-    NewStr = AllocateZeroPool ((StringSize + CONFIG_REQUEST_STRING_INCREMENTAL + 1) * sizeof (CHAR16));
+    NewStr = AllocateZeroPool (StringSize + CONFIG_REQUEST_STRING_INCREMENTAL * sizeof (CHAR16));
     if (Storage->ConfigRequest != NULL) {
-      StrCpy (NewStr, Storage->ConfigRequest);
+      CopyMem (NewStr, Storage->ConfigRequest, StringSize);
       gBS->FreePool (Storage->ConfigRequest);
     }
     Storage->ConfigRequest = NewStr;
-    Storage->SpareStrLen += CONFIG_REQUEST_STRING_INCREMENTAL;
+    Storage->SpareStrLen = CONFIG_REQUEST_STRING_INCREMENTAL;
   }
 
   StrCat (Storage->ConfigRequest, RequestElement);
