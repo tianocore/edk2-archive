@@ -62,6 +62,7 @@
 //
 // USB standard descriptors and reqeust
 //
+#pragma pack(1)
 
 ///
 /// Format of Setup Data for USB Device Requests
@@ -149,6 +150,9 @@ typedef struct {
   UINT8           DescriptorType;
   CHAR16          String[1];
 } EFI_USB_STRING_DESCRIPTOR;
+
+#pragma pack()
+
 
 typedef enum {
   //
@@ -335,7 +339,6 @@ typedef struct hid_class_descriptor {
   UINT8   DescriptorType;
   UINT16  DescriptorLength;
 } EFI_USB_HID_CLASS_DESCRIPTOR;
-#pragma pack()
 
 ///
 /// The HID descriptor identifies the length and type
@@ -349,5 +352,7 @@ typedef struct hid_descriptor {
   UINT8                         NumDescriptors;
   EFI_USB_HID_CLASS_DESCRIPTOR  HidClassDesc[1];
 } EFI_USB_HID_DESCRIPTOR;
+
+#pragma pack()
 
 #endif
