@@ -38,6 +38,7 @@ GetPeiServicesTablePointer (
   )
 {
   IA32_DESCRIPTOR   Idtr;
+  EFI_PEI_SERVICES  **PeiServices;
 
   AsmReadIdtr (&Idtr);
   PeiServices = (EFI_PEI_SERVICES **)(UINTN)(*(UINTN*)(Idtr.Base - sizeof (UINTN)));
