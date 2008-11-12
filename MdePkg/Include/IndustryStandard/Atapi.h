@@ -104,7 +104,7 @@ typedef struct {
   /// Vendor specific parameters fields, the sizeof (ATAPI_INQUIRY_DATA) is 255
   /// since allocation_length is one byte in ATAPI_INQUIRY_CMD.
   ///
-  UINT8 vendor_specific_96_255[254 - 96 + 1];
+  UINT8 vendor_specific_96_255[253 - 96 + 1];
 } ATAPI_INQUIRY_DATA;
 
 ///
@@ -138,7 +138,7 @@ typedef struct {
   /// the sizeof (ATAPI_REQUEST_SENSE_DATA) is 255, 
   /// since allocation_length is one byte in ATAPI_INQUIRY_CMD.
   ///
-  UINT8 additional_sense_bytes[254 - 18 + 1];
+  UINT8 additional_sense_bytes[253 - 18 + 1];
 } ATAPI_REQUEST_SENSE_DATA;
 
 ///
