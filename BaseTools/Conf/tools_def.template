@@ -823,3 +823,7 @@ RELEASE_MYTOOLS_IPF_DLINK_FLAGS          = /NOLOGO /NODEFAULTLIB /LTCG /DLL /OPT
 *_*_*_ASLDLINK_FLAGS               = /NODEFAULTLIB /ENTRY:main
 *_*_*_ASLPP_FLAGS                  = /nologo /EP /C
 *_*_*_ASL_FLAGS                    =
+
+DEFINE LZMA_BIN  = ENV(WORKSPACE)\BaseTools\LzmaCompress\Bin\Win32
+*_*_*_LZMA_PATH               = DEF(LZMA_BIN)\LzmaCompress.exe
+*_*_*_LZMA_GUID                    = EE4E5898-3914-4259-9D6E-DC7BD79403CF
