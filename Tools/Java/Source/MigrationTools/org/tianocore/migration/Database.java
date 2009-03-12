@@ -440,7 +440,7 @@ public final class Database {
 
 			itProtocols = protocolDeclarations.getEntryList().iterator();
 			while (itProtocols.hasNext()) {
-				hashDbGuids.put(itProtocols.next().getCName(), pkgGuid);
+				hashDbProtocols.put(itProtocols.next().getCName(), pkgGuid);
 			}
 		}
 
