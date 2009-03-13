@@ -978,3 +978,107 @@ Returns:
   return EFI_SUCCESS; 
 }
 ////~
+
+////#DevicePathLib
+BOOLEAN
+R8_IsDevicePathEndSubType (
+  IN EFI_DEVICE_PATH_PROTOCOL  *Node
+  )
+/*++
+
+Routine Description:
+
+  Determines if a device path node sub type is an end node of an entire device path.
+
+Arguments:
+
+  Node        - A pointer to a device path node data structure.
+
+Returns:
+
+  TRUE        - The device path node specified by Node is the end of an entire device path.
+  FALSE       - The device path node specified by Node is not the end of an entire device path.
+
+--*/
+{
+  return (BOOLEAN) ((Node)->SubType == END_ENTIRE_DEVICE_PATH_SUBTYPE);
+}
+////~
+
+////#DevicePathLib
+BOOLEAN
+R8_DP_IS_END_SUBTYPE (
+  IN EFI_DEVICE_PATH_PROTOCOL  *Node
+  )
+/*++
+
+Routine Description:
+
+  Determines if a device path node sub type is an end node of an entire device path.
+
+Arguments:
+
+  Node        - A pointer to a device path node data structure.
+
+Returns:
+
+  TRUE        - The device path node specified by Node is the end of an entire device path.
+  FALSE       - The device path node specified by Node is not the end of an entire device path.
+
+--*/
+{
+  return (BOOLEAN) ((Node)->SubType == END_ENTIRE_DEVICE_PATH_SUBTYPE);
+}
+////~
+
+////#DevicePathLib
+BOOLEAN
+R8_EfiIsDevicePathEndSubType (
+  IN EFI_DEVICE_PATH_PROTOCOL  *Node
+  )
+/*++
+
+Routine Description:
+
+  Determines if a device path node sub type is an end node of an entire device path.
+
+Arguments:
+
+  Node        - A pointer to a device path node data structure.
+
+Returns:
+
+  TRUE        - The device path node specified by Node is the end of an entire device path.
+  FALSE       - The device path node specified by Node is not the end of an entire device path.
+
+--*/
+{
+  return (BOOLEAN) ((Node)->SubType == END_ENTIRE_DEVICE_PATH_SUBTYPE);
+}
+////~
+
+////#DevicePathLib
+BOOLEAN
+R8_EfiIsDevicePathEndInstanceSubType (
+  IN EFI_DEVICE_PATH_PROTOCOL   *Node
+  )
+/*++
+
+Routine Description:
+
+  Determines if a device path node sub type is an end node of an entire device path instance.
+
+Arguments:
+
+  Node        - A pointer to a device path node data structure.
+
+Returns:
+
+  TRUE        - The device path node specified by Node is the end of an entire device path instance.
+  FALSE       - The device path node specified by Node is not the end of an entire device path instance.
+
+--*/
+{
+  return (BOOLEAN) ((Node)->SubType == END_INSTANCE_DEVICE_PATH_SUBTYPE);
+}
+////~
