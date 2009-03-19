@@ -1082,3 +1082,176 @@ Returns:
   return (BOOLEAN) ((Node)->SubType == END_INSTANCE_DEVICE_PATH_SUBTYPE);
 }
 ////~
+
+////#DxeServiceLib
+EFI_STATUS
+R8_GetGraphicsBitMapFromFV (
+  IN  EFI_GUID      *FileNameGuid,
+  OUT VOID          **Image,
+  OUT UINTN         *ImageSize
+  )
+/*++
+
+Routine Description:
+
+  Return the graphics image file named FileNameGuid into Image and return it's
+  size in ImageSize. All Firmware Volumes (FV) in the system are searched for the
+  file name.
+
+Arguments:
+
+  FileNameGuid  - File Name of graphics file in the FV(s).
+
+  Image         - Pointer to pointer to return graphics image.  If NULL, a 
+                  buffer will be allocated.
+
+  ImageSize     - Size of the graphics Image in bytes. Zero if no image found.
+
+
+Returns: 
+
+  EFI_SUCCESS          - Image and ImageSize are valid. 
+  EFI_BUFFER_TOO_SMALL - Image not big enough. ImageSize has required size
+  EFI_NOT_FOUND        - FileNameGuid not found
+
+--*/
+{
+  EFI_STATUS  Status;
+  Status = GetSectionFromAnyFv  (
+             FileNameGuid,
+             EFI_SECTION_RAW,
+             0,
+             Image,
+             ImageSize
+           );
+  return Status;
+}
+////~
+
+////#DxeServiceLib
+EFI_STATUS
+GetGraphicsBitMapFromFVEx (
+  IN  EFI_HANDLE    ImageHandle,
+  IN  EFI_GUID      *FileNameGuid,
+  OUT VOID          **Image,
+  OUT UINTN         *ImageSize
+  )
+/*++
+
+Routine Description:
+
+  Find the graphics image file named FileNameGuid. Firstly search the FV on which
+  a image presented by ImageHandle also resides. If no found, then search all others FV.
+  Return the graphics image file named FileNameGuid into Image and return it's
+  size in ImageSize.
+
+Arguments:
+
+  ImageHandle   - The driver image handle of the caller. The parameter is used to
+                  optimize the loading of the image file so that the FV from which
+                  the driver image is loaded will be tried first. 
+
+  FileNameGuid  - File Name of graphics file in the FV(s).
+
+  Image         - Pointer to pointer to return graphics image.  If NULL, a 
+                  buffer will be allocated.
+
+  ImageSize     - Size of the graphics Image in bytes. Zero if no image found.
+
+
+Returns: 
+
+  EFI_SUCCESS          - Image and ImageSize are valid. 
+  EFI_BUFFER_TOO_SMALL - Image not big enough. ImageSize has required size
+  EFI_NOT_FOUND        - FileNameGuid not found
+
+--*/
+{
+  EFI_STATUS  Status;
+  UINT32      AuthenticationStatus;
+
+  *Image      = NULL;
+  *ImageSize  = 0;
+  Status      = EFI_NOT_FOUND;
+  
+  if (ImageHandle != NULL) {
+    //
+    // ImageHandle is not NULL, then first search Image in the same FV.
+    //
+    Status = gBS->HandleProtocol (
+               ImageHandle,
+               &gEfiLoadedImageProtocolGuid,
+               (VOID **) &LoadedImage
+               );
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+    Status = gBS->HandleProtocol (
+               LoadedImage->DeviceHandle,
+               &gEfiFirmwareVolume2ProtocolGuid,
+               (VOID **) &ImageFv
+               );
+    if (!EFI_ERROR (Status)) {
+      Status = ImageFv->ReadSection (
+                 ImageFv,
+                 NameGuid,
+                 EFI_SECTION_RAW,
+                 0,
+                 Image,
+                 ImageSize,
+                 &AuthenticationStatus
+                 );
+      return Status;
+    }
+  }
+
+  ASSERT_EFI_ERROR (Status);
+  //
+  // Don't find image in the FV which also contains ImageHandle
+  // Then search all others FV again.
+  //
+  Status = GetSectionFromAnyFv  (
+             FileNameGuid,
+             EFI_SECTION_RAW,
+             0,
+             Image,
+             ImageSize
+           );
+  return Status;
+}
+////~
+
+////#GenericBdsLib
+EFI_STATUS
+EnableQuietBootEx (
+  IN  EFI_GUID    *LogoFile,
+  IN  EFI_HANDLE  ImageHandle
+  )
+/*++
+
+Routine Description:
+
+  Use Console Control to turn off GOP/UGA based Simple Text Out consoles from going
+  to the GOP/UGA device. Put up LogoFile on every GOP/UGA device that is a console
+
+Arguments:
+
+  LogoFile    - File name of logo to display on the center of the screen.
+  ImageHandle - The driver image handle of the caller. The parameter is used to
+                optimize the loading of the logo file so that the FV from which
+                the driver image is loaded will be tried first.
+
+
+Returns: 
+
+  EFI_SUCCESS           - ConsoleControl has been flipped to graphics and logo
+                          displayed.
+  EFI_UNSUPPORTED       - Logo not found
+
+--*/
+{
+  EFI_STATUS Status;
+  Status = EnableQuietBoot (LogoFile);
+  return Status;
+}
+////~
