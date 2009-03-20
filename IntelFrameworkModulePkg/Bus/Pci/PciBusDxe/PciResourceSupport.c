@@ -946,7 +946,7 @@ DegradeResource (
     //
     // if no PMem32 request and no OptionRom request, still keep PMem64. Otherwise degrade to PMem32
     //
-    if ((PMem32Node != NULL && (PMem32Node->Length != 0 && Bridge->Parent != NULL)) || HasOprom) { 
+    if (PMem32Node != NULL && ( (!IsListEmpty(&PMem32Node->ChildList) && (Bridge->Parent != NULL && Bridge->Parent->Parent != NULL)) || HasOprom)) { 
       //
       // Fixed the issue that there is no resource for 64-bit (above 4G)
       //
