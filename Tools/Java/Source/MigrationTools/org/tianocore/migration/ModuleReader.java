@@ -379,6 +379,12 @@ public final class ModuleReader implements Common.ForDoAll {
                         templine = "#include <IndustryStandard/Pci.h>\n";
                     } else if (line.contains("acpi.h")) {
                         templine = "#include <IndustryStandard/Acpi.h>\n";
+                    } else if (line.contains("acpi1_0.h")) {
+                    	templine = "#include <IndustryStandard/Acpi10.h>\n";
+                    } else if (line.contains("acpi2_0.h")) {
+                    	templine = "#include <IndustryStandard/Acpi20.h>\n";
+                    } else if (line.contains("acpi3_0.h")) {
+                    	templine = "#include <IndustryStandard/Acpi30.h>\n";
                     } else if (line.contains("scsi.h")) {
                         templine = "#include <IndustryStandard/Scsi.h>\n";
                     } else if (line.contains("usb.h")) {
