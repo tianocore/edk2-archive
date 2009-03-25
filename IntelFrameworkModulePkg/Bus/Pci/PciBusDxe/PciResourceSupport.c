@@ -593,6 +593,13 @@ CreateResourceNode (
   Node->PciDev        = PciDev;
   Node->Length        = Length;
   Node->Alignment     = Alignment;
+  if(((ResType == PciBarTypeIo16) || (ResType == PciBarTypeIo32)) && ( Alignment == 0x0FFF))
+  {
+    if((PciDev->Decodes & EFI_BRIDGE_IOEN1K_DECODE_SUPPORTED) == EFI_BRIDGE_IOEN1K_DECODE_SUPPORTED)
+      Node->Alignment = 0x3FF;
+    else
+      Node->Alignment = 0xFFF;
+  }
   Node->Bar           = Bar;
   Node->ResType       = ResType;
   Node->Reserved      = FALSE;
@@ -934,7 +941,7 @@ DegradeResource (
 
   //
   // If bridge doesn't support Prefetchable
-  // memory64, degrade it to Prefetchable memory32
+  // memory64, degrade it to Mem64
   //
   if (!BridgeSupportResourceDecode (Bridge, EFI_BRIDGE_PMEM64_DECODE_SUPPORTED)) {
     MergeResourceTree (
@@ -983,6 +990,17 @@ DegradeResource (
       );
   }
 
+  //
+  // If both PMEM64 and PMEM32 exist, Merge PMEM32 to MEM32
+  //
+  if(PMem32Node != 0 && PMem64Node != NULL )
+  {
+    MergeResourceTree (
+      Mem32Node,
+      PMem32Node,
+      TRUE
+      );
+  }
   //
   // if bridge supports combined Pmem Mem decoding
   // merge these two type of resource
