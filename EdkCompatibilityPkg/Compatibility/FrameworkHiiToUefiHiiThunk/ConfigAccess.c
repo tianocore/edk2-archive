@@ -16,7 +16,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #include "HiiDatabase.h"
 #include "UefiIfrParser.h"
-
+ 
 BOOLEAN            mHiiPackageListUpdated = FALSE;
 
 CONFIG_ACCESS_PRIVATE gConfigAccessPrivateTempate = {
@@ -759,6 +759,9 @@ SyncBrowserDataForNvMapOverride (
       // 
       //
       BufferStorage = GetFirstStorageOfFormSet (ConfigAccess->ThunkContext->FormSet);
+      if (BufferStorage == NULL) {
+        return;
+      }
     }
 
     //
