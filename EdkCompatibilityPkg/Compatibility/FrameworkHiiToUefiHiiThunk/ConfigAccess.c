@@ -759,9 +759,6 @@ SyncBrowserDataForNvMapOverride (
       // 
       //
       BufferStorage = GetFirstStorageOfFormSet (ConfigAccess->ThunkContext->FormSet);
-      if (BufferStorage == NULL) {
-        return;
-      }
     }
 
     //
