@@ -353,22 +353,35 @@
   ## Base address of the NV variable range in flash device.
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase|0x0|UINT32|0x30000001
   
-  ## Size of the NV variable range.
+  ## Size of the NV variable range. Note that this value should less than or equal to PcdFlashNvStorageFtwSpareSize
+  # The root cause is that variable driver will use FTW protocol to reclaim variable region.
+  # If the length of variable region is larger than FTW spare size, it means the whole variable region can not
+  # be reflushed through the manner of fault tolerant write. 
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize|0x0|UINT32|0x30000002
   
-  ## Maximum buffer for the single variable.
+  ## The maximum size of single common variable, that is non-HwErr type varible.
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxVariableSize|0x400|UINT32|0x30000003
   
-  ## Maximum buffer for Hardware error record variable.
+  ## The maximum size of single hardware error record variable.
+  # In IA32/X64 platforms, this value should be larger than 1KB.
+  # In IA64 platforms, this value should be larger than 128KB.
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxHardwareErrorVariableSize|0x8000|UINT32|0x30000004
   
-  ## Maximum buffer for the total variable store.
+  ## The size of reserved HwErr variable space. This space is located at NV variable range.
+  # HwErr type variable is stored with common non-volatile variables in NV region.
+  # this value is used to guarantee the space of HwErr type variable and not populated by common variable.
+  gEfiMdeModulePkgTokenSpaceGuid.PcdHwErrStorageSize|0x8000|UINT32|0x30000006
+
+  ## The size of volatile buffer. This buffer is used to store VOLATILE attribute variable.
   gEfiMdeModulePkgTokenSpaceGuid.PcdVariableStoreSize|0x10000|UINT32|0x30000005
   
   ## Base address of the FTW spare block range in flash device.
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0x0|UINT32|0x30000013
   
-  ## Size of the FTW spare block range.
+  ## Size of the FTW spare block range. Note that this value should larger than PcdFlashNvStorageVariableSize
+  # The root cause is that variable driver will use FTW protocol to reclaim variable region.
+  # If the length of variable region is larger than FTW spare size, it means the whole variable region can not
+  # be reflushed through the manner of fault tolerant write.
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize|0x0|UINT32|0x30000014
   
   ## Base address of the FTW working block range in flash device.
