@@ -131,6 +131,7 @@
   gEfiCpuArchProtocolGuid                       # PROTOCOL ALWAYS_CONSUMED
   gEfiDevicePathProtocolGuid                    # PROTOCOL ALWAYS_CONSUMED
   gEfiLoadedImageProtocolGuid                   # PROTOCOL ALWAYS_PRODUCED
+  gEfiHiiPackageListProtocolGuid                # SOMETIMES_PRODUCES
   gEfiEbcProtocolGuid                           # PROTOCOL SOMETIMES_CONSUMED
   gEfiTcgPlatformProtocolGuid
   gEfiLoadedImageDevicePathProtocolGuid         # PROTOCOL ALWAYS_PRODUCED

@@ -51,6 +51,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Protocol/Performance.h>
 #include <Protocol/TcgService.h>
 #include <Protocol/TcgPlatform.h>
+#include <Protocol/HiiPackageList.h>
 #include <Guid/MemoryTypeInformation.h>
 #include <Guid/FirmwareFileSystem2.h>
 #include <Guid/HobList.h>
