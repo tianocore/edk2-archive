@@ -531,9 +531,23 @@ SCSIBusDriverBindingStop (
     // Close the bus driver
     //
     if (ScsiBusDev->ExtScsiSupport) {
+      //
+      // Close ExtPassThru Protocol from this controller handle
+      //
       gBS->CloseProtocol (
              Controller,
              &gEfiExtScsiPassThruProtocolGuid,
+             This->DriverBindingHandle,
+             Controller
+             );
+      //
+      // When Start() succeeds to open ExtPassThru, it always tries to open PassThru BY_DRIVER.
+      // Its intent is to prevent another SCSI Bus Driver from woking on the same host handle. 
+      // So Stop() needs to try to close PassThru if present here.
+      //
+      gBS->CloseProtocol (
+             Controller,
+             &gEfiScsiPassThruProtocolGuid,
              This->DriverBindingHandle,
              Controller
              );
@@ -1001,10 +1015,6 @@ ScsiScanCreateDevice (
                                           ScsiIoDevice->Lun,
                                           &ScsiDevicePath
                                           );
-    if (Status == EFI_OUT_OF_RESOURCES) {
-      FreePool (ScsiIoDevice);
-      return Status;
-    }
   } else {
     Status = ScsiIoDevice->ScsiPassThru->BuildDevicePath (
                                           ScsiIoDevice->ScsiPassThru,
@@ -1012,10 +1022,11 @@ ScsiScanCreateDevice (
                                           ScsiIoDevice->Lun,
                                           &ScsiDevicePath
                                           );
-    if (Status == EFI_OUT_OF_RESOURCES) {
-      FreePool (ScsiIoDevice);
-      return Status;
-    }
+  }
+
+  if (Status == EFI_OUT_OF_RESOURCES) {
+    FreePool (ScsiIoDevice);
+    return Status;
   }
 
   ScsiIoDevice->DevicePath = AppendDevicePathNode (
@@ -1043,6 +1054,7 @@ ScsiScanCreateDevice (
                   NULL
                   );
   if (EFI_ERROR (Status)) {
+    FreePool (ScsiIoDevice->DevicePath);
     FreePool (ScsiIoDevice);
     return EFI_OUT_OF_RESOURCES;
   } else {
