@@ -1081,6 +1081,7 @@ PxeBcDiscvBootService (
   UINT8                               VendorOptLen;
   CHAR8                               *SystemSerialNumber;
   EFI_DHCP4_HEADER                    *DhcpHeader;
+  UINT32                              Xid;
 
 
   Mode      = Private->PxeBc.Mode;
@@ -1148,7 +1149,8 @@ PxeBcDiscvBootService (
     DhcpHeader->HwAddrLen = sizeof (EFI_GUID);
   }
 
-  Token.Packet->Dhcp4.Header.Xid      = HTONL(NET_RANDOM (NetRandomInitSeed ()));
+  Xid = NET_RANDOM (NetRandomInitSeed ());
+  Token.Packet->Dhcp4.Header.Xid      = HTONL(Xid);
   Token.Packet->Dhcp4.Header.Reserved = HTONS((IsBCast) ? 0x8000 : 0);
   CopyMem (&Token.Packet->Dhcp4.Header.ClientAddr, &Private->StationIp, sizeof (EFI_IPv4_ADDRESS));
 
