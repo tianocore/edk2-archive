@@ -1,0 +1,129 @@
+#/** @file
+# ARM processor package.
+#
+# Copyright (c) 2009 - 2010, Apple Inc. All rights reserved.<BR>
+#
+#    This program and the accompanying materials
+#    are licensed and made available under the terms and conditions of the BSD License
+#    which accompanies this distribution. The full text of the license may be found at
+#    http://opensource.org/licenses/bsd-license.php
+#
+#    THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = ArmPkg
+  PACKAGE_GUID                   = 5CFBD99E-3C43-4E7F-8054-9CDEAFF7710F
+  PACKAGE_VERSION                = 0.1
+
+################################################################################
+#
+# Include Section - list of Include Paths that are provided by this package.
+#                   Comments are used for Keywords and Module Types.
+#
+# Supported Module Types:
+#  BASE SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER UEFI_APPLICATION
+#
+################################################################################
+[Includes.common]
+  Include                        # Root include for the package
+
+[LibraryClasses.common]
+  ArmLib|Include/Library/ArmLib.h
+  SemihostLib|Include/Library/Semihosting.h
+  UncachedMemoryAllocationLib|Include/Library/UncachedMemoryAllocationLib.h
+  DefaultExceptioHandlerLib|Include/Library/DefaultExceptioHandlerLib.h
+  ArmDisassemblerLib|Include/Library/ArmDisassemblerLib.h
+  
+[Guids.common]
+  gArmTokenSpaceGuid       = { 0xBB11ECFE, 0x820F, 0x4968, { 0xBB, 0xA6, 0xF7, 0x6A, 0xFE, 0x30, 0x25, 0x96 } }
+
+[Protocols.common]
+  gVirtualUncachedPagesProtocolGuid = { 0xAD651C7D, 0x3C22, 0x4DBF, { 0x92, 0xe8, 0x38, 0xa7, 0xcd, 0xae, 0x87, 0xb2 } }
+
+[PcdsFeatureFlag.common]
+  gArmTokenSpaceGuid.PcdCpuDxeProduceDebugSupport|FALSE|BOOLEAN|0x00000001
+
+  # On ARM Architecture with the Security Extension, the address for the
+  # Vector Table can be mapped anywhere in the memory map. It means we can
+  # point the Exception Vector Table to its location in CpuDxe.
+  # By default we copy the Vector Table at  PcdGet32(PcdCpuVectorBaseAddress)
+  gArmTokenSpaceGuid.PcdRelocateVectorTable|TRUE|BOOLEAN|0x00000022
+  # Set this PCD to TRUE if the Exception Vector is changed to add debugger support before
+  # it has been configured by the CPU DXE
+  gArmTokenSpaceGuid.PcdDebuggerExceptionSupport|FALSE|BOOLEAN|0x00000032
+  
+  gArmTokenSpaceGuid.PcdEfiUncachedMemoryToStronglyOrdered|FALSE|BOOLEAN|0x00000025
+
+[PcdsFixedAtBuild.common]
+  # This PCD should be a FeaturePcd. But we used this PCD as an '#if' in an ASM file.
+  # Using a FeaturePcd make a '(BOOLEAN) casting for its value which is not understood by the preprocessor.
+  gArmTokenSpaceGuid.PcdVFPEnabled|0|UINT32|0x00000024
+
+  gArmTokenSpaceGuid.PcdArmUncachedMemoryMask|0x0000000080000000|UINT64|0x00000002
+  gArmTokenSpaceGuid.PcdArmCacheOperationThreshold|1024|UINT32|0x00000003
+  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress|0xffff0000|UINT32|0x00000004
+  gArmTokenSpaceGuid.PcdCpuResetAddress|0x00000000|UINT32|0x00000005
+  
+  #
+  # ARM PL390 General Interrupt Controller
+  #
+  gArmTokenSpaceGuid.PcdGicDistributorBase|0|UINT32|0x0000000C
+  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0|UINT32|0x0000000D
+  gArmTokenSpaceGuid.PcdGicNumInterrupts|96|UINT32|0x00000023
+
+  #
+  # ARM Secure Firmware PCDs
+  #
+  gArmTokenSpaceGuid.PcdSecureFdBaseAddress|0|UINT32|0x00000015
+  gArmTokenSpaceGuid.PcdSecureFdSize|0|UINT32|0x00000016
+  gArmTokenSpaceGuid.PcdSecureFvBaseAddress|0x0|UINT32|0x0000002F
+  gArmTokenSpaceGuid.PcdSecureFvSize|0x0|UINT32|0x00000030
+
+  #
+  # ARM Normal (or Non Secure) Firmware PCDs
+  #
+  gArmTokenSpaceGuid.PcdNormalFdBaseAddress|0|UINT32|0x0000002B
+  gArmTokenSpaceGuid.PcdNormalFdSize|0|UINT32|0x0000002C
+  gArmTokenSpaceGuid.PcdNormalFvBaseAddress|0|UINT32|0x0000002D
+  gArmTokenSpaceGuid.PcdNormalFvSize|0|UINT32|0x0000002E
+
+  # System Memory (DRAM): These PCDs define the region of in-built system memory
+  # Some platforms can get DRAM extensions, these additional regions will be declared
+  # to UEFI by ArmPLatformPlib   
+  gArmTokenSpaceGuid.PcdSystemMemoryBase|0|UINT32|0x00000029
+  gArmTokenSpaceGuid.PcdSystemMemorySize|0|UINT32|0x0000002A
+
+  #
+  # ARM MPCore MailBox PCDs
+  #
+  # Address to Set/Get to Mailbox in Multicore system
+  gArmTokenSpaceGuid.PcdMPCoreMailboxSetAddress|0|UINT32|0x00000017
+  gArmTokenSpaceGuid.PcdMPCoreMailboxGetAddress|0|UINT32|0x00000018
+  # Address/Value to clear Mailbox in Multicore system
+  gArmTokenSpaceGuid.PcdMPCoreMailboxClearAddress|0|UINT32|0x00000019
+  gArmTokenSpaceGuid.PcdMPCoreMailboxClearValue|0|UINT32|0x0000001A
+
+  #
+  # ARM L2x0 PCDs
+  #
+  gArmTokenSpaceGuid.PcdL2x0ControllerBase|0|UINT32|0x0000001B
+  
+  #
+  # ARM PL390 General Interrupt Controller
+  #
+  gArmTokenSpaceGuid.PcdGicDistributorBase|0|UINT32|0x0000001C
+  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0|UINT32|0x0000001D
+  
+  # 
+  # BdsLib
+  #
+  gArmTokenSpaceGuid.PcdArmMachineType|0|UINT32|0x0000001E
+  # The compressed Linux kernel is expected to be under 128MB from the beginning of the System Memory
+  gArmTokenSpaceGuid.PcdArmLinuxKernelMaxOffset|0x08000000|UINT32|0x0000001F
+  # The Linux ATAGs are expected to be under 0x4000 (16KB) from the beginning of the System Memory
+  gArmTokenSpaceGuid.PcdArmLinuxAtagMaxOffset|0x4000|UINT32|0x00000020
+
