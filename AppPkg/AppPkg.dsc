@@ -41,6 +41,7 @@
   #
   UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
   ShellCEntryLib|ShellPkg/Library/UefiShellCEntryLib/UefiShellCEntryLib.inf
+  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
   #
   # Common Libraries
   #
@@ -95,11 +96,36 @@
   AppPkg/Applications/Hello/Hello.inf        # No LibC includes or functions.
   AppPkg/Applications/Main/Main.inf          # Simple invocation. No other LibC functions.
   AppPkg/Applications/Enquire/Enquire.inf
+
+#### After extracting the Python distribution, un-comment the following line to build Python.
 #  AppPkg/Applications/Python/PythonCore.inf
 
-###################################################################################################
+##########
+#    Socket Applications - LibC based
+##########
+  AppPkg/Applications/Sockets/DataSink/DataSink.inf
+  AppPkg/Applications/Sockets/DataSource/DataSource.inf
+#  SocketPkg/Application/FtpNew/FTP.inf
+  AppPkg/Applications/Sockets/GetHostByAddr/GetHostByAddr.inf
+  AppPkg/Applications/Sockets/GetHostByDns/GetHostByDns.inf
+  AppPkg/Applications/Sockets/GetHostByName/GetHostByName.inf
+  AppPkg/Applications/Sockets/GetNetByAddr/GetNetByAddr.inf
+  AppPkg/Applications/Sockets/GetNetByName/GetNetByName.inf
+  AppPkg/Applications/Sockets/GetServByName/GetServByName.inf
+  AppPkg/Applications/Sockets/GetServByPort/GetServByPort.inf
+  AppPkg/Applications/Sockets/RecvDgram/RecvDgram.inf
+#  SocketPkg/Application/route/route.inf
+  AppPkg/Applications/Sockets/SetHostName/SetHostName.inf
+  AppPkg/Applications/Sockets/SetSockOpt/SetSockOpt.inf
+  AppPkg/Applications/Sockets/TftpServer/TftpServer.inf
+  AppPkg/Applications/Sockets/WebServer/WebServer.inf {
+    <PcdsFixedAtBuild>
+      gStdLibTokenSpaceGuid.WebServer_HttpPort|80
+  }
+
+##############################################################################
 #
-#       Include Boilerplate text required for building with the Standard Libraries.
+#  Include Boilerplate text required for building with the Standard Libraries.
 #
-###################################################################################################
+##############################################################################
 !include StdLib/StdLib.inc
