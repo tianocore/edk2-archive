@@ -1966,6 +1966,11 @@ EslSocketOptionGet (
         Status = EFI_UNSUPPORTED;
         break;
 
+      case SO_OOBINLINE:
+        pOptionData = (UINT8 *)&pSocket->bOobInLine;
+        LengthInBytes = sizeof ( pSocket->bOobInLine );
+        break;
+
       case SO_RCVTIMEO:
         //
         //  Return the receive timeout
@@ -2016,7 +2021,18 @@ EslSocketOptionGet (
       if ( LengthInBytes > MaxBytes ) {
         LengthInBytes = MaxBytes;
       }
+
+      //
+      //  Return the value
+      //
       CopyMem ( pOptionValue, pOptionData, LengthInBytes );
+
+      //
+      //  Zero fill any remaining space
+      //
+      if ( LengthInBytes < MaxBytes ) {
+        ZeroMem ( &((UINT8 *)pOptionValue)[LengthInBytes], MaxBytes - LengthInBytes );
+      }
       errno = 0;
       Status = EFI_SUCCESS;
     }
@@ -2060,6 +2076,7 @@ EslSocketOptionSet (
   IN int * pErrno
   )
 {
+  BOOLEAN bTrueFalse;
   int errno;
   socklen_t LengthInBytes;
   UINT8 * pOptionData;
@@ -2101,7 +2118,32 @@ EslSocketOptionSet (
         errno = ENOTSUP;
         Status = EFI_UNSUPPORTED;
         break;
-  
+
+      case SO_OOBINLINE:
+        pOptionData = (UINT8 *)&pSocket->bOobInLine;
+        LengthInBytes = sizeof ( pSocket->bOobInLine );
+
+        //
+        //  Validate the option length
+        //
+        if ( sizeof ( UINT32 ) == OptionLength ) {
+          //
+          //  Restrict the input to TRUE or FALSE
+          //
+          bTrueFalse = TRUE;
+          if ( 0 == *(UINT32 *)pOptionValue ) {
+            bTrueFalse = FALSE;
+          }
+          pOptionValue = &bTrueFalse;
+        }
+        else {
+          //
+          //  Force an invalid option length error
+          //
+          OptionLength = LengthInBytes - 1;
+        }
+        break;
+
       case SO_RCVTIMEO:
         //
         //  Return the receive timeout

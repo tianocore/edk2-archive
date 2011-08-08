@@ -2617,7 +2617,7 @@ EslTcpRxComplete4 (
     //  Queue this packet
     //
     bUrgent = pPacket->Op.Tcp4Rx.RxData.UrgentFlag;
-    if ( bUrgent ) {
+    if ( bUrgent && ( !pSocket->bOobInLine )) {
       //
       //  Add packet to the urgent list
       //
@@ -2962,6 +2962,7 @@ EslTcpTxBuffer4 (
   )
 {
   BOOLEAN bUrgent;
+  BOOLEAN bUrgentQueue;
   DT_PACKET * pPacket;
   DT_PACKET * pPreviousPacket;
   DT_PACKET ** ppPacket;
@@ -2998,7 +2999,8 @@ EslTcpTxBuffer4 (
       //
       pTcp4 = &pPort->Context.Tcp4;
       bUrgent = (BOOLEAN)( 0 != ( Flags & MSG_OOB ));
-      if ( bUrgent ) {
+      bUrgentQueue = bUrgent & ( !pSocket->bOobInLine );
+      if ( bUrgentQueue ) {
         ppQueueHead = &pSocket->pTxOobPacketListHead;
         ppQueueTail = &pSocket->pTxOobPacketListTail;
         ppPacket = &pTcp4->pTxOobPacket;
@@ -3031,7 +3033,7 @@ EslTcpTxBuffer4 (
           //  Initialize the transmit operation
           //
           pTxData = &pPacket->Op.Tcp4Tx.TxData;
-          pTxData->Push = TRUE;
+          pTxData->Push = TRUE || bUrgent;
           pTxData->Urgent = bUrgent;
           pTxData->DataLength = (UINT32) BufferLength;
           pTxData->FragmentCount = 1;
@@ -3078,7 +3080,7 @@ EslTcpTxBuffer4 (
             DEBUG (( DEBUG_TX,
                       "0x%08x: Packet on %s transmit list\r\n",
                       pPacket,
-                      bUrgent ? L"urgent" : L"normal" ));
+                      bUrgentQueue ? L"urgent" : L"normal" ));
 
             //
             //  Account for the buffered data

@@ -295,6 +295,11 @@ typedef struct _DT_SOCKET {
   SOCKET_STATE State;           ///<  Socket state
 
   //
+  //  Socket options
+  //
+  BOOLEAN bOobInLine;           ///<  TRUE if out-of-band messages are to be received inline with normal data
+
+  //
   //  Socket data
   //
   int Domain;                   ///<  Specifies family of protocols
