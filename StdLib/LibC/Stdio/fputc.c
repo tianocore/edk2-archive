@@ -59,9 +59,9 @@ fputc(int c, FILE *fp)
   _DIAGASSERT(fp != NULL);
 
   if(fp != NULL) {
-    FLOCKFILE(fp);
-    r = __sputc(c, fp);
-    FUNLOCKFILE(fp);
+  FLOCKFILE(fp);
+  r = __sputc(c, fp);
+  FUNLOCKFILE(fp);
   }
   else {
     r = EOF;

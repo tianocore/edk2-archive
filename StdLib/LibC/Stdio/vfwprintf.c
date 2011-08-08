@@ -1321,7 +1321,7 @@ fp_begin:
        * defined manner.''
        *  -- ANSI X3J11
        */
-      ujval = (uintmax_t)GETARG(void *);
+      ujval = (uintmax_t) (UINTN) GETARG(void *);
       base = 16;
       xdigs = xdigs_lower;
       flags = flags | INTMAXT;

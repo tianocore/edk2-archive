@@ -62,10 +62,10 @@ __srget(FILE *fp)
   _DIAGASSERT(fp != NULL);
 
   if(fp != NULL) {
-    _SET_ORIENTATION(fp, -1);
-    if (__srefill(fp) == 0) {
-      fp->_r--;
-      return (*fp->_p++);
+  _SET_ORIENTATION(fp, -1);
+  if (__srefill(fp) == 0) {
+    fp->_r--;
+    return (*fp->_p++);
     }
   }
   return (EOF);

@@ -64,7 +64,7 @@ void
 BuildBitmap(unsigned char * bitmap, const char *s2, int n)
 {
   unsigned char bit;
-  int index;
+  int           index;
 
   // Initialize bitmap.  Bit 0 is always 1 which corresponds to '\0'
   for (BITMAP64[0] = index = 1; index < n; index++)

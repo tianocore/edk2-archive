@@ -75,25 +75,25 @@ __smakebuf(FILE *fp)
   _DIAGASSERT(fp != NULL);
 
   if (fp != NULL) {
-    if (fp->_flags & __SNBF) {
-      fp->_bf._base = fp->_p = fp->_nbuf;
-      fp->_bf._size = 1;
-      return;
-    }
-    flags = __swhatbuf(fp, &size, &couldbetty);
-    if ((p = malloc(size)) == NULL) {
-      fp->_flags |= __SNBF;
-      fp->_bf._base = fp->_p = fp->_nbuf;
-      fp->_bf._size = 1;
-      return;
-    }
-    gMD->cleanup = _cleanup;
-    flags |= __SMBF;
-    fp->_bf._base = fp->_p = p;
-    fp->_bf._size = (int)size;
-    if (couldbetty || isatty(fp->_file))
-      flags |= __SLBF;
-    fp->_flags |= flags;
+  if (fp->_flags & __SNBF) {
+    fp->_bf._base = fp->_p = fp->_nbuf;
+    fp->_bf._size = 1;
+    return;
+  }
+  flags = __swhatbuf(fp, &size, &couldbetty);
+  if ((p = malloc(size)) == NULL) {
+    fp->_flags |= __SNBF;
+    fp->_bf._base = fp->_p = fp->_nbuf;
+    fp->_bf._size = 1;
+    return;
+  }
+  gMD->cleanup = _cleanup;
+  flags |= __SMBF;
+  fp->_bf._base = fp->_p = p;
+  fp->_bf._size = (int)size;
+  if (couldbetty || isatty(fp->_file))
+    flags |= __SLBF;
+  fp->_flags |= flags;
   }
 }
 

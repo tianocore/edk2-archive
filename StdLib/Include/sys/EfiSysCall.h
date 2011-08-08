@@ -75,7 +75,7 @@ int       isatty    (int);
   int     fstat     (int, struct stat *);
   int     lstat     (const char *, struct stat *);
   int     stat      (const char *, void *);
-//  int      chmod     (const char *, mode_t);
+  int     chmod     (const char *, mode_t);
 #endif  // __STAT_SYSCALLS_DECLARED
 
 // These are also declared in sys/types.h

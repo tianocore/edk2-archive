@@ -113,4 +113,4 @@
 # Nasty things could happen if you do.
 #
 [BuildOptions]
-  MSFT:*_*_IA32_CC_FLAGS  = /GL-
+  MSFT:*_*_IA32_CC_FLAGS = /GL-

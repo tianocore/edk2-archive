@@ -395,18 +395,20 @@ da_ConOpen(
   wchar_t            *MPath           // Not used for console devices
   )
 {
-  ConInstance        *Stream;
+  ConInstance                      *Stream;
 
-  if((filp == NULL)     ||
+  if((filp == NULL)           ||
      (DevNode  == NULL))
   {
     EFIerrno = RETURN_INVALID_PARAMETER;
+    errno = EINVAL;
     return -1;
   }
   Stream = (ConInstance *)DevNode->InstanceList;
   // Quick check to see if Stream looks reasonable
   if(Stream->Cookie != CON_COOKIE) {    // Cookie == 'IoAb'
     EFIerrno = RETURN_INVALID_PARAMETER;
+    errno = EINVAL;
     return -1;    // Looks like a bad This pointer
   }
   gMD->StdIo[Stream->InstanceNum] = Stream;

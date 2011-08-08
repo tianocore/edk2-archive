@@ -6,6 +6,15 @@
 # the application is to be run in an emulation environment.
 ################################################################
 
+##########
+#  Socket Support Libraries
+##########
+
+[LibraryClasses.common]
+  BsdSocketLib|StdLib/BsdSocketLib/BsdSocketLib.inf
+  EfiSocketLib|StdLib/EfiSocketLib/EfiSocketLib.inf
+  UseSocketDxe|StdLib/UseSocketDxe/UseSocketDxe.inf
+
 [LibraryClasses.Common.UEFI_APPLICATION]
   #
   # C Standard Libraries
@@ -22,7 +31,7 @@
   LibUefi|StdLib/LibC/Uefi/Uefi.inf
   LibWchar|StdLib/LibC/Wchar/Wchar.inf
 
-  # Common Utilities for Networking Libraries
+# Common Utilities for Networking Libraries
   LibNetUtil|StdLib/LibC/NetUtil/NetUtil.inf
 
 # Additional libraries for POSIX functionality.
@@ -31,8 +40,8 @@
   LibGlob|StdLib/PosixLib/Glob/LibGlob.inf
   LibStringlist|StdLib/PosixLib/Stringlist/LibStringlist.inf
 
-  # Libraries for device abstractions within the Standard C Library
-  # Applications should not directly access any functions defined in these libraries.
+# Libraries for device abstractions within the Standard C Library
+# Applications should not directly access any functions defined in these libraries.
   LibGdtoa|StdLib/LibC/gdtoa/gdtoa.inf
   DevConsole|StdLib/LibC/Uefi/Devices/daConsole.inf
   DevShell|StdLib/LibC/Uefi/Devices/daShell.inf
@@ -54,8 +63,7 @@
   TimerLib|MdePkg/Library/SecPeiDxeTimerLibCpu/SecPeiDxeTimerLibCpu.inf
 
 !else
-  # Running in an Emulation Environment.
-  # Adds this to the end of the current [LibraryClasses.Common.UEFI_APPLICATION] section.
+  # Use this instance if Running in an Emulation Environment.
 [LibraryClasses.Common.UEFI_APPLICATION]
   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
 !endif
@@ -74,6 +82,12 @@
     <BuildOptions>
       MSFT:*_*_*_CC_FLAGS    = /X /Zc:wchar_t /GL-
   }
+
+##########
+#  Socket Layer
+##########
+  StdLib/SocketDxe/SocketDxe.inf
+
 
 ##############################################################################
 #

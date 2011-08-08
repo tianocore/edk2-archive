@@ -47,4 +47,4 @@
 # Nasty things could happen if you do.
 #
 [BuildOptions]
-  MSFT:*_*_*_CC_FLAGS     = /GL-
+  MSFT:*_*_*_CC_FLAGS    = /GL-

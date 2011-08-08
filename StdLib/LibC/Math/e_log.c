@@ -110,13 +110,13 @@ __ieee754_log(double x)
 
   k=0;
   if (hx < 0x00100000) {      /* x < 2**-1022  */
-      if (((hx&0x7fffffff)|lx)==0)
-    return -two54/zero;   /* log(+-0)=-inf */
+    if (((hx&0x7fffffff)|lx)==0)
+      return -two54/zero;     /* log(+-0)=-inf */
     if (hx<0) {
       errno = EDOM;
       return (x-x)/zero;      /* log(-#) = NaN */
     }
-      k -= 54; x *= two54; /* subnormal number, scale up x */
+      k -= 54; x *= two54;    /* subnormal number, scale up x */
       GET_HIGH_WORD(hx,x);
   }
   if (hx >= 0x7ff00000) return x+x;
@@ -127,12 +127,12 @@ __ieee754_log(double x)
   k += (i>>20);
   f = x-1.0;
   if((0x000fffff&(2+hx))<3) { /* |f| < 2**-20 */
-      if(f==zero) { if(k==0) return zero;  else {dk=(double)k;
-           return dk*ln2_hi+dk*ln2_lo;}
-      }
-      R = f*f*(0.5-0.33333333333333333*f);
-      if(k==0) return f-R; else {dk=(double)k;
-             return dk*ln2_hi-((R-dk*ln2_lo)-f);}
+    if(f==zero) { if(k==0) return zero;  else {dk=(double)k;
+         return dk*ln2_hi+dk*ln2_lo;}
+    }
+    R = f*f*(0.5-0.33333333333333333*f);
+    if(k==0) return f-R; else {dk=(double)k;
+           return dk*ln2_hi-((R-dk*ln2_lo)-f);}
   }
   s = f/(2.0+f);
   dk = (double)k;

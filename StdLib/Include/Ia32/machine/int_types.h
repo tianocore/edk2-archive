@@ -1,4 +1,4 @@
-/*	$NetBSD: int_types.h,v 1.10 2005/12/24 20:07:10 perry Exp $	*/
+/*  $NetBSD: int_types.h,v 1.10 2005/12/24 20:07:10 perry Exp $ */
 
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
@@ -28,11 +28,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	from: @(#)types.h	7.5 (Berkeley) 3/9/91
+ *  from: @(#)types.h 7.5 (Berkeley) 3/9/91
  */
 
-#ifndef	_I386_INT_TYPES_H_
-#define	_I386_INT_TYPES_H_
+#ifndef _I386_INT_TYPES_H_
+#define _I386_INT_TYPES_H_
 
 #include  <sys/EfiCdefs.h>
 
@@ -51,11 +51,11 @@ typedef UINT32  __uint32_t;
 typedef INT64   __int64_t;
 typedef UINT64  __uint64_t;
 
-#define	__BIT_TYPES_DEFINED__
+#define __BIT_TYPES_DEFINED__
 
 /* 7.18.1.4 Integer types capable of holding object pointers */
 
 typedef INTN    __intptr_t;
 typedef UINTN   __uintptr_t;
 
-#endif	/* !_I386_INT_TYPES_H_ */
+#endif  /* !_I386_INT_TYPES_H_ */

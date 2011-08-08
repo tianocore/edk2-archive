@@ -54,4 +54,4 @@
 # Nasty things could happen if you do.
 #
 [BuildOptions]
-   GCC:*_*_*_CC_FLAGS    = -fno-strict-overflow -no-builtin-strftime
+   GCC:*_*_*_CC_FLAGS    = -fno-strict-overflow -fno-builtin-strftime

@@ -28,7 +28,6 @@
 
 [Sources.common]
   DirFunctions.c
-  internal.h
   glob.c
 
 [Packages]
@@ -36,7 +35,6 @@
   ShellPkg/ShellPkg.dec
   StdLib/StdLib.dec
   StdLibPrivateInternalFiles/DoNotUse.dec
-#  SocketPkg/SocketPkg.dec
 
 [Libraries]
   MemoryAllocationLib

@@ -172,18 +172,18 @@ _closeX  (int fd, int NewState)
     Fp = &gMD->fdarray[fd];
     // Check if there are other users of this FileHandle
     if(Fp->RefCount == 1) { // There should be no other users
-      if(! IsDupFd(fd)) {
-        // Only do the close if no one else is using the FileHandle
+    if(! IsDupFd(fd)) {
+      // Only do the close if no one else is using the FileHandle
         if(Fp->f_iflags & FIF_DELCLOSE) {
           /* Handle files marked "Delete on Close". */
           if(Fp->f_ops->fo_delete != NULL) {
             retval = Fp->f_ops->fo_delete(Fp);
           }
-        }
-        else {
-          retval = Fp->f_ops->fo_close( Fp);
-        }
       }
+      else {
+          retval = Fp->f_ops->fo_close( Fp);
+      }
+    }
       Fp->f_iflags = NewState;    // Close this FD or reserve it
       Fp->RefCount = 0;           // No one using this FD
     }
@@ -232,7 +232,7 @@ unlink (const char *path)
 
     if(Fp->f_ops->fo_delete != NULL) {
       retval = Fp->f_ops->fo_delete(Fp);
-    }
+  }
     Fp->f_iflags = 0;    // Close this FD
     Fp->RefCount = 0;    // No one using this FD
   }
@@ -530,13 +530,13 @@ mkdir (const char *path, __mode_t perms)
     if(GenI == NULL) {
       errno   = EPERM;
       retval  = -1;
-    }
+      }
     else {
       //GenI += (Instance * Node->InstanceSize);
       retval = ((GenericInstance *)GenI)->Abstraction.fo_mkdir( path, perms);
-    }
+      }
     free(NewPath);
-  }
+    }
   else {
     retval = -1;
   }
@@ -588,43 +588,43 @@ open(
     if((Node == NULL)               ||
        (Node->InstanceList == NULL)) {
       errno   = EPERM;
-    }
+  }
     else {
-    // Could add a test to see if the file name begins with a period.
-    // If it does, then add the HIDDEN flag to Attributes.
+  // Could add a test to see if the file name begins with a period.
+  // If it does, then add the HIDDEN flag to Attributes.
 
-    // Get an available fd
+  // Get an available fd
       fd = FindFreeFD( VALID_CLOSED );
 
-      if( fd < 0 ) {
-        // All available FDs are in use
-        errno = EMFILE;
-      }
+  if( fd < 0 ) {
+    // All available FDs are in use
+    errno = EMFILE;
+  }
       else {
-        filp = &gMD->fdarray[fd];
-        // Save the flags and mode in the File Descriptor
-        filp->Oflags = oflags;
-        filp->Omode = mode;
+      filp = &gMD->fdarray[fd];
+      // Save the flags and mode in the File Descriptor
+      filp->Oflags = oflags;
+      filp->Omode = mode;
 
         doresult = Node->OpenFunc(Node, filp, Instance, NewPath, MPath);
-        if(doresult < 0) {
-          filp->f_iflags = 0;   // Release this FD
-          fd = -1;              // Indicate an error
-        }
-        else {
-          // Re-use OpenMode in order to build our final f_iflags value
-          OpenMode  = ( mode & S_ACC_READ )  ? S_ACC_READ : 0;
-          OpenMode |= ( mode & S_ACC_WRITE ) ? S_ACC_WRITE : 0;
-
-          filp->f_iflags |= (UINT32)OpenMode;
-          ++filp->RefCount;
-          FILE_SET_MATURE(filp);
-        }
+      if(doresult < 0) {
+        filp->f_iflags = 0;   // Release this FD
+        fd = -1;              // Indicate an error
       }
+      else {
+        // Re-use OpenMode in order to build our final f_iflags value
+        OpenMode  = ( mode & S_ACC_READ )  ? S_ACC_READ : 0;
+        OpenMode |= ( mode & S_ACC_WRITE ) ? S_ACC_WRITE : 0;
+
+        filp->f_iflags |= (UINT32)OpenMode;
+        ++filp->RefCount;
+        FILE_SET_MATURE(filp);
+      }
+          }
     }
     if(NewPath != NULL) {
-      free(NewPath);
-    }
+    free(NewPath);
+        }
   }
   if(MPath != NULL) {
     free(MPath);    // We don't need this any more.
@@ -651,7 +651,7 @@ open(
 
   @param [in] timeout   Length of time in milliseconds to wait for the event
 
-  @returns    The number of file descriptors with detected events.  Zero
+  @return     The number of file descriptors with detected events.  Zero
               indicates that the call timed out and -1 indicates an error.
 
  **/
@@ -753,8 +753,8 @@ poll (
         }
         else if ( EFI_NOT_READY == Status ) {
           Status = EFI_SUCCESS;
-        }
-      }
+    }
+    }
     } while (( 0 == SelectedFDs )
         && ( EFI_SUCCESS == Status ));
 
@@ -765,7 +765,7 @@ poll (
       gBS->SetTimer ( Timer,
                       TimerCancel,
                       0 );
-    }
+  }
   }
   else {
     SelectedFDs = -1;
@@ -834,13 +834,13 @@ rename(
     if(GenI == NULL) {
       errno   = EPERM;
       retval  = -1;
-    }
-    else {
+      }
+      else {
       //GenI += (Instance * FromNode->InstanceSize);
       retval = ((GenericInstance *)GenI)->Abstraction.fo_rename( from, to);
-    }
+              }
     free(FromPath);
-  }
+            }
   return retval;
 }
 
@@ -1090,11 +1090,11 @@ write  (int fd, const void *buf, size_t nbyte)
     filp = &gMD->fdarray[fd];
 
     BufSize = filp->f_ops->fo_write(filp, &filp->f_offset, nbyte, buf);
-  }
-  else {
+    }
+    else {
     errno = EBADF;
     BufSize = -EBADF;
-  }
+      }
   return BufSize;
 }
 
@@ -1122,7 +1122,7 @@ char
   if (size == 0 || buf == NULL) {
     errno = EINVAL;
     return NULL;
-  }
+    }
 
   Cwd = ShellGetCurrentDir(NULL);
   if (Cwd == NULL) {

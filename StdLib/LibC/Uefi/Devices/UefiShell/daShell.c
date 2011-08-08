@@ -385,54 +385,54 @@ da_ShellOpen(
   !!!!!!!!! instead of deleting and re-creating it.
   */
   do {  /* Do fake exception handling */
-    if((oflags & O_TRUNC) || ((oflags & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT))) {
+  if((oflags & O_TRUNC) || ((oflags & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT))) {
       Status = ShellIsFile( WPath );
-      if(Status == RETURN_SUCCESS) {
-        // The file exists
-        if(oflags & O_TRUNC) {
+    if(Status == RETURN_SUCCESS) {
+      // The file exists
+      if(oflags & O_TRUNC) {
           NPath = AllocateZeroPool(PATH_MAX);
-          if(NPath == NULL) {
-            errno = ENOMEM;
-            EFIerrno = RETURN_OUT_OF_RESOURCES;
+        if(NPath == NULL) {
+          errno = ENOMEM;
+          EFIerrno = RETURN_OUT_OF_RESOURCES;
             break;
-          }
+        }
           wcstombs(NPath, WPath, PATH_MAX);
-          // We do a truncate by deleting the existing file and creating a new one.
-          if(unlink(NPath) != 0) {
-            filp->f_iflags = 0;    // Release our reservation on this FD
-            FreePool(NPath);
-            break;
-          }
-          FreePool(NPath);
-        }
-        else if((oflags & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT)) {
-          errno = EEXIST;
-          EFIerrno = RETURN_ACCESS_DENIED;
+        // We do a truncate by deleting the existing file and creating a new one.
+        if(unlink(NPath) != 0) {
           filp->f_iflags = 0;    // Release our reservation on this FD
-          break;
+          FreePool(NPath);
+            break;
         }
+        FreePool(NPath);
+      }
+      else if((oflags & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT)) {
+        errno = EEXIST;
+        EFIerrno = RETURN_ACCESS_DENIED;
+        filp->f_iflags = 0;    // Release our reservation on this FD
+          break;
       }
     }
+  }
 
-    // Call the EFI Shell's Open function
+  // Call the EFI Shell's Open function
     Status = ShellOpenFileByName( WPath, &FileHandle, OpenMode, Attributes);
-    if(RETURN_ERROR(Status)) {
-      filp->f_iflags = 0;    // Release our reservation on this FD
-      // Set errno based upon Status
-      errno = EFI2errno(Status);
-      EFIerrno = Status;
+  if(RETURN_ERROR(Status)) {
+    filp->f_iflags = 0;    // Release our reservation on this FD
+    // Set errno based upon Status
+    errno = EFI2errno(Status);
+    EFIerrno = Status;
       break;
-    }
+  }
     retval = 0;
-    // Successfully got a regular File
-    filp->f_iflags |= S_IFREG;
+  // Successfully got a regular File
+  filp->f_iflags |= S_IFREG;
 
-    // Update the info in the fd
-    filp->devdata = (void *)FileHandle;
+  // Update the info in the fd
+  filp->devdata = (void *)FileHandle;
 
     Gip = (GenericInstance *)DevNode->InstanceList;
-    filp->f_offset = 0;
-    filp->f_ops = &Gip->Abstraction;
+  filp->f_offset = 0;
+  filp->f_ops = &Gip->Abstraction;
   //  filp->devdata = FileHandle;
   } while(FALSE);
 

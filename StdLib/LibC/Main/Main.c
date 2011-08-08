@@ -134,7 +134,7 @@ ShellAppMain (
 {
   struct __filedes   *mfd;
   char              **nArgv;
-  INTN                ExitVal;
+  INTN   ExitVal;
   int                 i;
 
   ExitVal = (INTN)RETURN_SUCCESS;
@@ -207,7 +207,7 @@ ShellAppMain (
         FreePool( gMD->NCmdLine );
       }
       FreePool( gMD );
-    }
+  }
   }
   return ExitVal;
 }

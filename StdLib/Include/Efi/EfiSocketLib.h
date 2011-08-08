@@ -5,7 +5,7 @@
   All rights reserved. This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
-  http://opensource.org/licenses/bsd-license.php
+  http://opensource.org/licenses/bsd-license
 
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
@@ -112,13 +112,13 @@ typedef struct _DT_SERVICE DT_SERVICE;  ///<  Forward delcaration
 
 typedef
 EFI_STATUS
-(* PFN_SB_INITIALIZE) (
+(EFIAPI * PFN_SB_INITIALIZE) (
     DT_SERVICE * pService
     );
 
 typedef
 VOID
-(* PFN_SB_SHUTDOWN) (
+(EFIAPI * PFN_SB_SHUTDOWN) (
     DT_SERVICE * pService
     );
 
@@ -249,14 +249,14 @@ EslServiceUnload (
 
 /**
   Creates a child handle and installs a protocol.
-  
-  The CreateChild() function installs a protocol on ChildHandle. 
-  If pChildHandle is a pointer to NULL, then a new handle is created and returned in pChildHandle. 
+
+  The CreateChild() function installs a protocol on ChildHandle.
+  If pChildHandle is a pointer to NULL, then a new handle is created and returned in pChildHandle.
   If pChildHandle is not a pointer to NULL, then the protocol installs on the existing pChildHandle.
 
   @param [in] pThis        Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
   @param [in] pChildHandle Pointer to the handle of the child to create. If it is NULL,
-                           then a new handle is created. If it is a pointer to an existing UEFI handle, 
+                           then a new handle is created. If it is a pointer to an existing UEFI handle,
                            then the protocol is added to the existing UEFI handle.
 
   @retval EFI_SUCCES            The protocol was added to ChildHandle.
@@ -275,9 +275,9 @@ EslSocketCreateChild (
 
 /**
   Destroys a child handle with a protocol installed on it.
-  
-  The DestroyChild() function does the opposite of CreateChild(). It removes a protocol 
-  that was installed by CreateChild() from ChildHandle. If the removed protocol is the 
+
+  The DestroyChild() function does the opposite of CreateChild(). It removes a protocol
+  that was installed by CreateChild() from ChildHandle. If the removed protocol is the
   last protocol on ChildHandle, then ChildHandle is destroyed.
 
   @param [in] pThis       Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
@@ -407,11 +407,11 @@ EslSocketCloseStart (
   @param [in] pSocketProtocol Address of the socket protocol structure.
 
   @param [in] pSockAddr       Network address of the remote system.
-    
+
   @param [in] SockAddrLength  Length in bytes of the network address.
-  
+
   @param [out] pErrno   Address to receive the errno value upon completion.
-  
+
   @retval EFI_SUCCESS   The connection was successfully established.
   @retval EFI_NOT_READY The connection is in progress, call this routine again.
   @retval Others        The connection attempt failed.
@@ -429,7 +429,7 @@ EslSocketConnect (
   Get the local address.
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
-  
+
   @param [out] pAddress       Network address to receive the local system address
 
   @param [in,out] pAddressLength  Length of the local network address structure
@@ -451,7 +451,7 @@ EslSocketGetLocalAddress (
   Get the peer address.
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
-  
+
   @param [out] pAddress       Network address to receive the remote system address
 
   @param [in,out] pAddressLength  Length of the remote network address structure
@@ -585,13 +585,13 @@ EslSocketPoll (
 
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
-  
+
   @param [in] Flags           Message control flags
-  
+
   @param [in] BufferLength    Length of the the buffer
-  
+
   @param [in] pBuffer         Address of a buffer to receive the data.
-  
+
   @param [in] pDataLength     Number of received data bytes in the buffer.
 
   @param [out] pAddress       Network address to receive the remote system address
@@ -616,19 +616,41 @@ EslSocketReceive (
   );
 
 /**
+  Shutdown the socket receive and transmit operations
+
+  The SocketShutdown routine stops the socket receive and transmit
+  operations.
+
+  @param [in] pSocketProtocol Address of the socket protocol structure.
+
+  @param [in] How             Which operations to stop
+
+  @param [out] pErrno         Address to receive the errno value upon completion.
+
+  @retval EFI_SUCCESS - Socket operations successfully shutdown
+
+ **/
+EFI_STATUS
+EslSocketShutdown (
+  IN EFI_SOCKET_PROTOCOL * pSocketProtocol,
+  IN int How,
+  IN int * pErrno
+  );
+
+/**
   Send data using a network connection.
 
   The SocketTransmit routine queues the data for transmission to the
   remote network connection.
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
-  
+
   @param [in] Flags           Message control flags
-  
+
   @param [in] BufferLength    Length of the the buffer
-  
+
   @param [in] pBuffer         Address of a buffer containing the data to send
-  
+
   @param [in] pDataLength     Address to receive the number of data bytes sent
 
   @param [in] pAddress        Network address of the remote system address

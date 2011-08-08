@@ -43,6 +43,7 @@
   #
   UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
   ShellCEntryLib|ShellPkg/Library/UefiShellCEntryLib/UefiShellCEntryLib.inf
+  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
   #
   # Common Libraries
   #
@@ -118,9 +119,14 @@
   StdLib/PosixLib/Glob/LibGlob.inf
   StdLib/PosixLib/Stringlist/LibStringlist.inf
 
-###################################################################################################
+#    Socket Libraries - LibC based
+  StdLib/BsdSocketLib/BsdSocketLib.inf
+  StdLib/EfiSocketLib/EfiSocketLib.inf
+  StdLib/UseSocketDxe/UseSocketDxe.inf
+
+##############################################################################
 #
-#       Include Boilerplate text required for building with the Standard Libraries.
+#  Include Boilerplate text required for building with the Standard Libraries.
 #
-###################################################################################################
+##############################################################################
 !include StdLib/StdLib.inc

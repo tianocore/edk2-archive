@@ -57,9 +57,9 @@ rewind(FILE *fp)
   _DIAGASSERT(fp != NULL);
 
   if(fp != NULL) {
-    FLOCKFILE(fp);
-    (void) fseek(fp, 0L, SEEK_SET);
-    __sclearerr(fp);
-    FUNLOCKFILE(fp);
+  FLOCKFILE(fp);
+  (void) fseek(fp, 0L, SEEK_SET);
+  __sclearerr(fp);
+  FUNLOCKFILE(fp);
   }
 }

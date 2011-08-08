@@ -187,13 +187,13 @@ strtol(const char * __restrict nptr, char ** __restrict endptr, int base)
   long        Result = 0;
   long        Previous;
   int         temp;
-  BOOLEAN     Negative    = FALSE;
+  BOOLEAN     Negative = FALSE;
 
   pEnd = nptr;
 
   if((base < 0) || (base == 1) || (base > 36)) {
     if(endptr != NULL) {
-      *endptr = NULL;
+    *endptr = NULL;
     }
     return 0;
   }
@@ -281,7 +281,7 @@ strtoul(const char * __restrict nptr, char ** __restrict endptr, int base)
 
   if((base < 0) || (base == 1) || (base > 36)) {
     if(endptr != NULL) {
-      *endptr = NULL;
+    *endptr = NULL;
     }
     return 0;
   }
@@ -351,13 +351,13 @@ strtoll(const char * __restrict nptr, char ** __restrict endptr, int base)
   long long   Result = 0;
   long long   Previous;
   int         temp;
-  BOOLEAN     Negative    = FALSE;
+  BOOLEAN     Negative = FALSE;
 
   pEnd = nptr;
 
   if((base < 0) || (base == 1) || (base > 36)) {
     if(endptr != NULL) {
-      *endptr = NULL;
+    *endptr = NULL;
     }
     return 0;
   }
@@ -445,7 +445,7 @@ strtoull(const char * __restrict nptr, char ** __restrict endptr, int base)
 
   if((base < 0) || (base == 1) || (base > 36)) {
     if(endptr != NULL) {
-      *endptr = NULL;
+    *endptr = NULL;
     }
     return 0;
   }

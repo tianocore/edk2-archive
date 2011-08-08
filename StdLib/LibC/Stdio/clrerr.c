@@ -58,8 +58,8 @@ clearerr(FILE *fp)
 {
   _DIAGASSERT(fp != NULL);
   if(fp != NULL) {
-    FLOCKFILE(fp);
-    __sclearerr(fp);
-    FUNLOCKFILE(fp);
+  FLOCKFILE(fp);
+  __sclearerr(fp);
+  FUNLOCKFILE(fp);
   }
 }

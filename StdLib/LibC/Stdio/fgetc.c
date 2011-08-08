@@ -59,9 +59,9 @@ fgetc(FILE *fp)
   _DIAGASSERT(fp != NULL);
 
   if(fp != NULL) {
-    FLOCKFILE(fp);
-    r = __sgetc(fp);
-    FUNLOCKFILE(fp);
+  FLOCKFILE(fp);
+  r = __sgetc(fp);
+  FUNLOCKFILE(fp);
   }
   else {
     r = EOF;

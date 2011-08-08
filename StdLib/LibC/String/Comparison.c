@@ -113,7 +113,7 @@ strcasecmp(const char *s1, const char *s2)
 
   while ( 0 == ( Difference = tolower(*us1) - tolower(*us2))) {
     if (*us1 == 0) {
-      return (0);
+    return (0);
     }
     us1 += 1;
     us2 += 1;
