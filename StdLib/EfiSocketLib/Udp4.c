@@ -1936,8 +1936,31 @@ EslUdpShutdown4 (
       pNextPort = pPort->pLinkSocket;
       pUdp4 = &pPort->Context.Udp4;
       pUdp4Protocol = pUdp4->pProtocol;
+      DEBUG (( DEBUG_TX,
+                "0x%08x: pPort Configuring for %d.%d.%d.%d:%d --> %d.%d.%d.%d:%d\r\n",
+                          pPort,
+                          pUdp4->ConfigData.StationAddress.Addr[0],
+                          pUdp4->ConfigData.StationAddress.Addr[1],
+                          pUdp4->ConfigData.StationAddress.Addr[2],
+                          pUdp4->ConfigData.StationAddress.Addr[3],
+                          pUdp4->ConfigData.StationPort,
+                          pUdp4->ConfigData.RemoteAddress.Addr[0],
+                          pUdp4->ConfigData.RemoteAddress.Addr[1],
+                          pUdp4->ConfigData.RemoteAddress.Addr[2],
+                          pUdp4->ConfigData.RemoteAddress.Addr[3],
+                          pUdp4->ConfigData.RemotePort ));
       Status = pUdp4Protocol->Configure ( pUdp4Protocol,
                                           &pUdp4->ConfigData );
+      if ( !EFI_ERROR ( Status )) {
+        //
+        //  Update the configuration data
+        //
+        Status = pUdp4Protocol->GetModeData ( pUdp4Protocol,
+                                              &pUdp4->ConfigData,
+                                              NULL,
+                                              NULL,
+                                              NULL );
+      }
       if ( EFI_ERROR ( Status )) {
         DEBUG (( DEBUG_LISTEN,
                   "ERROR - Failed to configure the Udp4 port, Status: %r\r\n",
@@ -2124,12 +2147,13 @@ EslUdpTxBuffer4 (
           //
           //  Set the remote system address if necessary
           //
+          pTxData->TxData.UdpSessionData = NULL;
           if ( NULL != pAddress ) {
             pRemoteAddress = (const struct sockaddr_in *)pAddress;
-            pTxData->Session.SourceAddress.Addr[0] = 0;
-            pTxData->Session.SourceAddress.Addr[1] = 0;
-            pTxData->Session.SourceAddress.Addr[2] = 0;
-            pTxData->Session.SourceAddress.Addr[3] = 0;
+            pTxData->Session.SourceAddress.Addr[0] = pUdp4->ConfigData.StationAddress.Addr[0];
+            pTxData->Session.SourceAddress.Addr[1] = pUdp4->ConfigData.StationAddress.Addr[1];
+            pTxData->Session.SourceAddress.Addr[2] = pUdp4->ConfigData.StationAddress.Addr[2];
+            pTxData->Session.SourceAddress.Addr[3] = pUdp4->ConfigData.StationAddress.Addr[3];
             pTxData->Session.SourcePort = 0;
             pTxData->Session.DestinationAddress.Addr[0] = (UINT8)pRemoteAddress->sin_addr.s_addr;
             pTxData->Session.DestinationAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
@@ -2287,8 +2311,9 @@ EslUdpTxComplete4 (
       pSocket->TxError = Status;
     }
     DEBUG (( DEBUG_TX | DEBUG_INFO,
-              "ERROR - Transmit failure for packet 0x%08x, Status: %r\r\n",
+              "ERROR - Transmit failure for packet 0x%08x on pPort 0x%08x, Status: %r\r\n",
               pPacket,
+              pPort,
               Status ));
   
     //
