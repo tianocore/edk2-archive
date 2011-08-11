@@ -1,5 +1,5 @@
 /** @file
-  Windows version of the OOB Receive application
+  Raw IP4 transmit test application
 
   Copyright (c) 2011, Intel Corporation
   All rights reserved. This program and the accompanying materials
@@ -12,45 +12,33 @@
 
 **/
 
-#include <OobRx.h>
+#include "RawIp4Tx.h"
 
 
 /**
-  Receive out-of-band messages from the remote system.
+  Transmit raw IP4 packets to the remote system.
 
-  @param [in] argc  The number of arguments
-  @param [in] argv  The argument value array
+  @param [in] Argc  The number of arguments
+  @param [in] Argv  The argument value array
 
   @retval  0        The application exited normally.
   @retval  Other    An error occurred.
 **/
 int
-main(
-  int argc,
-  char ** argv
+main (
+  IN int Argc,
+  IN char **Argv
   )
 {
   int RetVal;
-  WSADATA WsaData;
 
   //
-  //  Initialize the WinSock layer
+  //  Run the application
   //
-  RetVal = WSAStartup ( MAKEWORD ( 2, 2 ), &WsaData );
-  if ( 0 == RetVal ) {
-    //
-    //  Start the application
-    //
-    RetVal = OobRx ( argc, argv );
-
-    //
-    //  Done with the WinSock layer
-    //
-    WSACleanup ( );
-  }
+  RetVal = RawIp4Tx ( Argc, Argv );
 
   //
-  //  Return the final result
+  //  Return the operation status
   //
-  return RetVal;  
+  return RetVal;
 }

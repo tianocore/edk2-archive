@@ -1,5 +1,5 @@
 /** @file
-  Windows version of the OOB Receive application
+  Windows version of the raw IP4 receive application
 
   Copyright (c) 2011, Intel Corporation
   All rights reserved. This program and the accompanying materials
@@ -12,11 +12,11 @@
 
 **/
 
-#include <OobRx.h>
+#include <RawIp4Rx.h>
 
 
 /**
-  Receive out-of-band messages from the remote system.
+  Receive raw IP4 packets from a remote system.
 
   @param [in] argc  The number of arguments
   @param [in] argv  The argument value array
@@ -41,7 +41,7 @@ main(
     //
     //  Start the application
     //
-    RetVal = OobRx ( argc, argv );
+    RetVal = RawIp4Rx ( argc, argv );
 
     //
     //  Done with the WinSock layer
