@@ -21,7 +21,8 @@ CONST DT_PROTOCOL_API cEslTcp4Api = {
   EslTcpConnectPoll4,
   EslTcpGetLocalAddress4,
   EslTcpSocketIsConfigured4,
-  EslTcpReceive4
+  EslTcpReceive4,
+  EslTcpTxBuffer4
 };
 
 
@@ -2959,6 +2960,10 @@ EslTcpShutdown4 (
   
   @param [in] pDataLength     Number of received data bytes in the buffer.
 
+  @param [in] pAddress        Network address of the remote system address
+
+  @param [in] AddressLength   Length of the remote network address structure
+
   @retval EFI_SUCCESS - Socket data successfully buffered
 
  **/
@@ -2968,7 +2973,9 @@ EslTcpTxBuffer4 (
   IN int Flags,
   IN size_t BufferLength,
   IN CONST UINT8 * pBuffer,
-  OUT size_t * pDataLength
+  OUT size_t * pDataLength,
+  IN const struct sockaddr * pAddress,
+  IN socklen_t AddressLength
   )
 {
   BOOLEAN bUrgent;

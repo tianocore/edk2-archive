@@ -2840,61 +2840,34 @@ EslSocketTransmit (
             }
             else {
               //
-              //  Synchronize with the socket layer
+              //  Verify the API
               //
-              RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-              //
-              //  Validate the local address
-              //
-              switch ( pSocket->Domain ) {
-              default:
-                DEBUG (( DEBUG_RX,
-                          "ERROR - Invalid socket address family: %d\r\n",
-                          pSocket->Domain ));
-                Status = EFI_INVALID_PARAMETER;
-                pSocket->errno = EADDRNOTAVAIL;
-                break;
-
-              case AF_INET:
-                //
-                //  Determine the connection point within the network stack
-                //
-                switch ( pSocket->Type ) {
-                default:
-                  DEBUG (( DEBUG_RX,
-                            "ERROR - Invalid socket type: %d\r\n",
-                            pSocket->Type));
-                  Status = EFI_INVALID_PARAMETER;
-                  pSocket->errno = EADDRNOTAVAIL;
-                  break;
-
-                case SOCK_STREAM:
-                case SOCK_SEQPACKET:
-                  Status = EslTcpTxBuffer4 ( pSocket,
-                                             Flags,
-                                             BufferLength,
-                                             pBuffer,
-                                             pDataLength );
-                  break;
-
-                case SOCK_DGRAM:
-                  Status = EslUdpTxBuffer4 ( pSocket,
-                                             Flags,
-                                             BufferLength,
-                                             pBuffer,
-                                             pDataLength,
-                                             pAddress,
-                                             AddressLength );
-                  break;
-                }
-                break;
+              if ( NULL == pSocket->pApi->pfnReceive ) {
+                Status = EFI_UNSUPPORTED;
+                pSocket->errno = ENOTSUP;
               }
+              else {
+                //
+                //  Synchronize with the socket layer
+                //
+                RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-              //
-              //  Release the socket layer synchronization
-              //
-              RESTORE_TPL ( TplPrevious );
+                //
+                //  Attempt to buffer the packet for transmission
+                //
+                Status = pSocket->pApi->pfnTransmit ( pSocket,
+                                                      Flags,
+                                                      BufferLength,
+                                                      pBuffer,
+                                                      pDataLength,
+                                                      pAddress,
+                                                      AddressLength );
+
+                //
+                //  Release the socket layer synchronization
+                //
+                RESTORE_TPL ( TplPrevious );
+              }
             }
           }
         }

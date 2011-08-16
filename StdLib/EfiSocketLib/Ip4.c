@@ -21,7 +21,8 @@ CONST DT_PROTOCOL_API cEslIp4Api = {
   NULL,
   EslIpGetLocalAddress4,
   EslIpSocketIsConfigured4,
-  EslIpReceive4
+  EslIpReceive4,
+  EslIpTxBuffer4
 };
 
 
@@ -178,9 +179,9 @@ EslIpPortAllocate4 (
     pConfig->AcceptIcmpErrors = FALSE;
     pConfig->AcceptBroadcast = FALSE;
     pConfig->AcceptPromiscuous = FALSE;
-    pConfig->TypeOfService;
+    pConfig->TypeOfService = 0;
     pConfig->TimeToLive = 255;
-    pConfig->DoNotFragment = TRUE;
+    pConfig->DoNotFragment = FALSE;
     pConfig->RawData = FALSE;
     pConfig->ReceiveTimeout = 0;
     pConfig->TransmitTimeout = 0;
@@ -1924,6 +1925,242 @@ EslIpShutdown4 (
 
 
 /**
+  Buffer data for transmission over a network connection.
+
+  This routine is called by the socket layer API to buffer
+  data for transmission.  The data is copied into a local buffer
+  freeing the application buffer for reuse upon return.  When
+  necessary, this routine will start the transmit engine that
+  performs the data transmission on the network connection.  The
+  transmit engine transmits the data a packet at a time over the
+  network connection.
+
+  Transmission errors are returned during the next transmission or
+  during the close operation.  Only buffering errors are returned
+  during the current transmission attempt.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+
+  @param [in] Flags           Message control flags
+
+  @param [in] BufferLength    Length of the the buffer
+
+  @param [in] pBuffer         Address of a buffer to receive the data.
+
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @param [in] pAddress        Network address of the remote system address
+
+  @param [in] AddressLength   Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Socket data successfully buffered
+
+**/
+EFI_STATUS
+EslIpTxBuffer4 (
+  IN DT_SOCKET * pSocket,
+  IN int Flags,
+  IN size_t BufferLength,
+  IN CONST UINT8 * pBuffer,
+  OUT size_t * pDataLength,
+  IN const struct sockaddr * pAddress,
+  IN socklen_t AddressLength
+  )
+{
+  DT_PACKET * pPacket;
+  DT_PACKET * pPreviousPacket;
+  DT_PACKET ** ppPacket;
+  DT_PORT * pPort;
+  const struct sockaddr_in * pRemoteAddress;
+  DT_IP4_CONTEXT * pIp4;
+  EFI_IP4_COMPLETION_TOKEN * pToken;
+  size_t * pTxBytes;
+  DT_IP4_TX_DATA * pTxData;
+  EFI_STATUS Status;
+  EFI_TPL TplPrevious;
+
+  DBG_ENTER ( );
+
+  //
+  //  Assume failure
+  //
+  Status = EFI_UNSUPPORTED;
+  pSocket->errno = ENOTCONN;
+  * pDataLength = 0;
+
+  //
+  //  Verify that the socket is connected
+  //
+  if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+    //
+    //  Locate the port
+    //
+    pPort = pSocket->pPortList;
+    if ( NULL != pPort ) {
+      //
+      //  Determine the queue head
+      //
+      pIp4 = &pPort->Context.Ip4;
+      ppPacket = &pIp4->pTxPacket;
+      pToken = &pIp4->TxToken;
+      pTxBytes = &pSocket->TxBytes;
+
+      //
+      //  Verify that there is enough room to buffer another
+      //  transmit operation
+      //
+      if ( pSocket->MaxTxBuf > *pTxBytes ) {
+        //
+        //  Attempt to allocate the packet
+        //
+        Status = EslSocketPacketAllocate ( &pPacket,
+                                           sizeof ( pPacket->Op.Ip4Tx )
+                                           - sizeof ( pPacket->Op.Ip4Tx.Buffer )
+                                           + BufferLength,
+                                           DEBUG_TX );
+        if ( !EFI_ERROR ( Status )) {
+          //
+          //  Initialize the transmit operation
+          //
+          pTxData = &pPacket->Op.Ip4Tx;
+          pTxData->TxData.DestinationAddress.Addr[0] = pIp4->DestinationAddress.Addr[0];
+          pTxData->TxData.DestinationAddress.Addr[1] = pIp4->DestinationAddress.Addr[1];
+          pTxData->TxData.DestinationAddress.Addr[2] = pIp4->DestinationAddress.Addr[2];
+          pTxData->TxData.DestinationAddress.Addr[3] = pIp4->DestinationAddress.Addr[3];
+          pTxData->TxData.OverrideData = NULL;
+          pTxData->TxData.OptionsLength = 0;
+          pTxData->TxData.OptionsBuffer = NULL;
+          pTxData->TxData.TotalDataLength = (UINT32) BufferLength;
+          pTxData->TxData.FragmentCount = 1;
+          pTxData->TxData.FragmentTable[0].FragmentLength = (UINT32) BufferLength;
+          pTxData->TxData.FragmentTable[0].FragmentBuffer = &pPacket->Op.Ip4Tx.Buffer[0];
+
+          //
+          //  Set the remote system address if necessary
+          //
+          if ( NULL != pAddress ) {
+            pRemoteAddress = (const struct sockaddr_in *)pAddress;
+            pTxData->Override.SourceAddress.Addr[0] = pIp4->ModeData.ConfigData.StationAddress.Addr[0];
+            pTxData->Override.SourceAddress.Addr[1] = pIp4->ModeData.ConfigData.StationAddress.Addr[1];
+            pTxData->Override.SourceAddress.Addr[2] = pIp4->ModeData.ConfigData.StationAddress.Addr[2];
+            pTxData->Override.SourceAddress.Addr[3] = pIp4->ModeData.ConfigData.StationAddress.Addr[3];
+            pTxData->TxData.DestinationAddress.Addr[0] = (UINT8)pRemoteAddress->sin_addr.s_addr;
+            pTxData->TxData.DestinationAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
+            pTxData->TxData.DestinationAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
+            pTxData->TxData.DestinationAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
+            pTxData->Override.GatewayAddress.Addr[0] = 0;
+            pTxData->Override.GatewayAddress.Addr[1] = 0;
+            pTxData->Override.GatewayAddress.Addr[2] = 0;
+            pTxData->Override.GatewayAddress.Addr[3] = 0;
+            pTxData->Override.Protocol = (UINT8)pSocket->Protocol;
+            pTxData->Override.TypeOfService = 0;
+            pTxData->Override.TimeToLive = 255;
+            pTxData->Override.DoNotFragment = FALSE;
+
+            //
+            //  Use the remote system address when sending this packet
+            //
+            pTxData->TxData.OverrideData = &pTxData->Override;
+          }
+
+          //
+          //  Copy the data into the buffer
+          //
+          CopyMem ( &pPacket->Op.Ip4Tx.Buffer[0],
+                    pBuffer,
+                    BufferLength );
+
+          //
+          //  Synchronize with the socket layer
+          //
+          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+          //
+          //  Stop transmission after an error
+          //
+          if ( !EFI_ERROR ( pSocket->TxError )) {
+            //
+            //  Display the request
+            //
+            DEBUG (( DEBUG_TX,
+                      "Send %d %s bytes from 0x%08x\r\n",
+                      BufferLength,
+                      pBuffer ));
+
+            //
+            //  Queue the data for transmission
+            //
+            pPacket->pNext = NULL;
+            pPreviousPacket = pSocket->pTxPacketListTail;
+            if ( NULL == pPreviousPacket ) {
+              pSocket->pTxPacketListHead = pPacket;
+            }
+            else {
+              pPreviousPacket->pNext = pPacket;
+            }
+            pSocket->pTxPacketListTail = pPacket;
+            DEBUG (( DEBUG_TX,
+                      "0x%08x: Packet on transmit list\r\n",
+                      pPacket ));
+
+            //
+            //  Account for the buffered data
+            //
+            *pTxBytes += BufferLength;
+            *pDataLength = BufferLength;
+
+            //
+            //  Start the transmit engine if it is idle
+            //
+            if ( NULL == pIp4->pTxPacket ) {
+              EslIpTxStart4 ( pSocket->pPortList );
+            }
+          }
+          else {
+            //
+            //  Previous transmit error
+            //  Stop transmission
+            //
+            Status = pSocket->TxError;
+            pSocket->errno = EIO;
+
+            //
+            //  Free the packet
+            //
+            EslSocketPacketFree ( pPacket, DEBUG_TX );
+          }
+
+          //
+          //  Release the socket layer synchronization
+          //
+          RESTORE_TPL ( TplPrevious );
+        }
+        else {
+          //
+          //  Packet allocation failed
+          //
+          pSocket->errno = ENOMEM;
+        }
+      }
+      else {
+        //
+        //  Not enough buffer space available
+        //
+        pSocket->errno = EAGAIN;
+        Status = EFI_NOT_READY;
+      }
+    }
+  }
+
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
   Process the transmit completion
 
   @param  Event         The normal transmit completion event
@@ -2223,233 +2460,6 @@ EslIpRxCancel4 (
         //  The receive is complete
         //
         Status = EFI_SUCCESS;
-      }
-    }
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Buffer data for transmission over a network connection.
-
-  This routine is called by the socket layer API to buffer
-  data for transmission.  The data is copied into a local buffer
-  freeing the application buffer for reuse upon return.  When
-  necessary, this routine will start the transmit engine that
-  performs the data transmission on the network connection.  The
-  transmit engine transmits the data a packet at a time over the
-  network connection.
-
-  Transmission errors are returned during the next transmission or
-  during the close operation.  Only buffering errors are returned
-  during the current transmission attempt.
-
-  @param [in] pSocket         Address of a DT_SOCKET structure
-
-  @param [in] Flags           Message control flags
-
-  @param [in] BufferLength    Length of the the buffer
-
-  @param [in] pBuffer         Address of a buffer to receive the data.
-
-  @param [in] pDataLength     Number of received data bytes in the buffer.
-
-  @param [in] pAddress        Network address of the remote system address
-
-  @param [in] AddressLength   Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Socket data successfully buffered
-
-**/
-EFI_STATUS
-EslIpTxBuffer4 (
-  IN DT_SOCKET * pSocket,
-  IN int Flags,
-  IN size_t BufferLength,
-  IN CONST UINT8 * pBuffer,
-  OUT size_t * pDataLength,
-  IN const struct sockaddr * pAddress,
-  IN socklen_t AddressLength
-  )
-{
-  DT_PACKET * pPacket;
-  DT_PACKET * pPreviousPacket;
-  DT_PACKET ** ppPacket;
-  DT_PORT * pPort;
-  const struct sockaddr_in * pRemoteAddress;
-  DT_IP4_CONTEXT * pIp4;
-  EFI_IP4_COMPLETION_TOKEN * pToken;
-  size_t * pTxBytes;
-  DT_IP4_TX_DATA * pTxData;
-  EFI_STATUS Status;
-  EFI_TPL TplPrevious;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume failure
-  //
-  Status = EFI_UNSUPPORTED;
-  pSocket->errno = ENOTCONN;
-  * pDataLength = 0;
-
-  //
-  //  Verify that the socket is connected
-  //
-  if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
-    //
-    //  Locate the port
-    //
-    pPort = pSocket->pPortList;
-    if ( NULL != pPort ) {
-      //
-      //  Determine the queue head
-      //
-      pIp4 = &pPort->Context.Ip4;
-      ppPacket = &pIp4->pTxPacket;
-      pToken = &pIp4->TxToken;
-      pTxBytes = &pSocket->TxBytes;
-
-      //
-      //  Verify that there is enough room to buffer another
-      //  transmit operation
-      //
-      if ( pSocket->MaxTxBuf > *pTxBytes ) {
-        //
-        //  Attempt to allocate the packet
-        //
-        Status = EslSocketPacketAllocate ( &pPacket,
-                                           sizeof ( pPacket->Op.Ip4Tx )
-                                           - sizeof ( pPacket->Op.Ip4Tx.Buffer )
-                                           + BufferLength,
-                                           DEBUG_TX );
-        if ( !EFI_ERROR ( Status )) {
-          //
-          //  Initialize the transmit operation
-          //
-          pTxData = &pPacket->Op.Ip4Tx;
-          pTxData->TxData.GatewayAddress = NULL;
-          pTxData->TxData.UdpSessionData = NULL;
-          pTxData->TxData.DataLength = (UINT32) BufferLength;
-          pTxData->TxData.FragmentCount = 1;
-          pTxData->TxData.FragmentTable[0].FragmentLength = (UINT32) BufferLength;
-          pTxData->TxData.FragmentTable[0].FragmentBuffer = &pPacket->Op.Ip4Tx.Buffer[0];
-          pTxData->RetransmitCount = 0;
-
-          //
-          //  Set the remote system address if necessary
-          //
-          pTxData->TxData.UdpSessionData = NULL;
-          if ( NULL != pAddress ) {
-            pRemoteAddress = (const struct sockaddr_in *)pAddress;
-            pTxData->Session.SourceAddress.Addr[0] = pIp4->ModeData.ConfigData.StationAddress.Addr[0];
-            pTxData->Session.SourceAddress.Addr[1] = pIp4->ModeData.ConfigData.StationAddress.Addr[1];
-            pTxData->Session.SourceAddress.Addr[2] = pIp4->ModeData.ConfigData.StationAddress.Addr[2];
-            pTxData->Session.SourceAddress.Addr[3] = pIp4->ModeData.ConfigData.StationAddress.Addr[3];
-            pTxData->Session.SourcePort = 0;
-            pTxData->Session.DestinationAddress.Addr[0] = (UINT8)pRemoteAddress->sin_addr.s_addr;
-            pTxData->Session.DestinationAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
-            pTxData->Session.DestinationAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
-            pTxData->Session.DestinationAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
-            pTxData->Session.DestinationPort = SwapBytes16 ( pRemoteAddress->sin_port );
-
-            //
-            //  Use the remote system address when sending this packet
-            //
-            pTxData->TxData.UdpSessionData = &pTxData->Session;
-          }
-
-          //
-          //  Copy the data into the buffer
-          //
-          CopyMem ( &pPacket->Op.Ip4Tx.Buffer[0],
-                    pBuffer,
-                    BufferLength );
-
-          //
-          //  Synchronize with the socket layer
-          //
-          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-          //
-          //  Stop transmission after an error
-          //
-          if ( !EFI_ERROR ( pSocket->TxError )) {
-            //
-            //  Display the request
-            //
-            DEBUG (( DEBUG_TX,
-                      "Send %d %s bytes from 0x%08x\r\n",
-                      BufferLength,
-                      pBuffer ));
-
-            //
-            //  Queue the data for transmission
-            //
-            pPacket->pNext = NULL;
-            pPreviousPacket = pSocket->pTxPacketListTail;
-            if ( NULL == pPreviousPacket ) {
-              pSocket->pTxPacketListHead = pPacket;
-            }
-            else {
-              pPreviousPacket->pNext = pPacket;
-            }
-            pSocket->pTxPacketListTail = pPacket;
-            DEBUG (( DEBUG_TX,
-                      "0x%08x: Packet on transmit list\r\n",
-                      pPacket ));
-
-            //
-            //  Account for the buffered data
-            //
-            *pTxBytes += BufferLength;
-            *pDataLength = BufferLength;
-
-            //
-            //  Start the transmit engine if it is idle
-            //
-            if ( NULL == pIp4->pTxPacket ) {
-              EslIpTxStart4 ( pSocket->pPortList );
-            }
-          }
-          else {
-            //
-            //  Previous transmit error
-            //  Stop transmission
-            //
-            Status = pSocket->TxError;
-            pSocket->errno = EIO;
-
-            //
-            //  Free the packet
-            //
-            EslSocketPacketFree ( pPacket, DEBUG_TX );
-          }
-
-          //
-          //  Release the socket layer synchronization
-          //
-          RESTORE_TPL ( TplPrevious );
-        }
-        else {
-          //
-          //  Packet allocation failed
-          //
-          pSocket->errno = ENOMEM;
-        }
-      }
-      else {
-        //
-        //  Not enough buffer space available
-        //
-        pSocket->errno = EAGAIN;
-        Status = EFI_NOT_READY;
       }
     }
   }

@@ -21,7 +21,8 @@ CONST DT_PROTOCOL_API cEslUdp4Api = {
   NULL,
   EslUdpGetLocalAddress4,
   EslUdpSocketIsConfigured4,
-  EslUdpReceive4
+  EslUdpReceive4,
+  EslUdpTxBuffer4
 };
 
 

@@ -456,6 +456,38 @@ EFI_STATUS
   );
 
 /**
+  Buffer data for transmission over a network connection.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+
+  @param [in] Flags           Message control flags
+
+  @param [in] BufferLength    Length of the the buffer
+
+  @param [in] pBuffer         Address of a buffer to receive the data.
+
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @param [in] pAddress        Network address of the remote system address
+
+  @param [in] AddressLength   Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Socket data successfully buffered
+
+**/
+typedef
+EFI_STATUS
+(* PFN_API_TRANSMIT) (
+  IN DT_SOCKET * pSocket,
+  IN int Flags,
+  IN size_t BufferLength,
+  IN CONST UINT8 * pBuffer,
+  OUT size_t * pDataLength,
+  IN const struct sockaddr * pAddress,
+  IN socklen_t AddressLength
+  );
+
+/**
   Socket type control structure
 
   This driver uses this structure to define the API for the socket type.
@@ -468,6 +500,7 @@ typedef struct {
   PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr; ///<  Get local address
   PFN_API_IS_CONFIGURED pfnIsConfigured;  ///<  Determine if the socket is configured
   PFN_API_RECEIVE pfnReceive;             ///<  Attempt to receive some data
+  PFN_API_TRANSMIT pfnTransmit;           ///<  Attempt to buffer a packet for transmit
 } DT_PROTOCOL_API;
 
 
@@ -950,6 +983,49 @@ EslIpShutdown4 (
   );
 
 /**
+  Buffer data for transmission over a network connection.
+
+  This routine is called by the socket layer API to buffer
+  data for transmission.  The data is copied into a local buffer
+  freeing the application buffer for reuse upon return.  When
+  necessary, this routine will start the transmit engine that
+  performs the data transmission on the network connection.  The
+  transmit engine transmits the data a packet at a time over the
+  network connection.
+
+  Transmission errors are returned during the next transmission or
+  during the close operation.  Only buffering errors are returned
+  during the current transmission attempt.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+
+  @param [in] Flags           Message control flags
+
+  @param [in] BufferLength    Length of the the buffer
+
+  @param [in] pBuffer         Address of a buffer to receive the data.
+
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @param [in] pAddress        Network address of the remote system address
+
+  @param [in] AddressLength   Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Socket data successfully buffered
+
+**/
+EFI_STATUS
+EslIpTxBuffer4 (
+  IN DT_SOCKET * pSocket,
+  IN int Flags,
+  IN size_t BufferLength,
+  IN CONST UINT8 * pBuffer,
+  OUT size_t * pDataLength,
+  IN const struct sockaddr * pAddress,
+  IN socklen_t AddressLength
+  );
+
+/**
   Process the transmit completion
 
   @param  Event         The normal transmit completion event
@@ -1397,6 +1473,10 @@ EslTcpShutdown4 (
   
   @param [in] pDataLength     Number of received data bytes in the buffer.
 
+  @param [in] pAddress        Network address of the remote system address
+
+  @param [in] AddressLength   Length of the remote network address structure
+
   @retval EFI_SUCCESS - Socket data successfully buffered
 
  **/
@@ -1406,7 +1486,9 @@ EslTcpTxBuffer4 (
   IN int Flags,
   IN size_t BufferLength,
   IN CONST UINT8 * pBuffer,
-  OUT size_t * pDataLength
+  OUT size_t * pDataLength,
+  IN const struct sockaddr * pAddress,
+  IN socklen_t AddressLength
   );
 
 /**
