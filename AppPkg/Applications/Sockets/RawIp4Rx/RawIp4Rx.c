@@ -145,7 +145,7 @@ RawIp4Rx (
             //
             //  All done when the correct packet is received
             //
-            if (( mBuffer[8] == 0x80 ) && ( mBuffer[9] == RAW_PROTOCOL )) {
+            if ( mBuffer[9] == RAW_PROTOCOL ) {
               break;
             }
           }
