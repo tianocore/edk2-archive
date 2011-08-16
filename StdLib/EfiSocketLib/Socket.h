@@ -35,6 +35,7 @@
 #define MAX_RX_DATA         65536       ///<  Maximum receive data size
 #define MAX_TX_DATA         ( MAX_RX_DATA * 2 )
 #define RX_PACKET_DATA      16384       ///<  Maximum number of bytes in a RX packet
+#define MAX_UDP_RETRANSMIT  16          ///<  UDP retransmit attempts to handle address not mapped
 
 #define LAYER_SIGNATURE             SIGNATURE_32('S','k','t','L') ///<  DT_LAYER memory signature
 #define SERVICE_SIGNATURE           SIGNATURE_32('S','k','t','S') ///<  DT_SERVICE memory signature
@@ -44,7 +45,8 @@
 typedef enum
 {
   NETWORK_TYPE_UNKNOWN = 0,
-  NETWORK_TYPE_RAW,
+  NETWORK_TYPE_IP4,
+  NETWORK_TYPE_IP6,
   NETWORK_TYPE_TCP4,
   NETWORK_TYPE_TCP6,
   NETWORK_TYPE_UDP4,
@@ -92,6 +94,18 @@ typedef struct _DT_SOCKET DT_SOCKET;    ///<  Forward declaration
 
 typedef struct
 {
+  EFI_IP4_RECEIVE_DATA * pRxData;       ///<  Receive operation description
+} DT_IP4_RX_DATA;
+
+typedef struct
+{
+  EFI_IP4_OVERRIDE_DATA Override;       ///<  Override data
+  EFI_IP4_TRANSMIT_DATA TxData;         ///<  Transmit operation description
+  UINT8 Buffer [ 1 ];                   ///<  Data buffer
+} DT_IP4_TX_DATA;
+
+typedef struct
+{
   EFI_TCP4_RECEIVE_DATA RxData;         ///<  Receive operation description
   size_t ValidBytes;                    ///<  Length of valid data in bytes
   UINT8 * pBuffer;                      ///<  Current data pointer
@@ -106,14 +120,15 @@ typedef struct
 
 typedef struct
 {
-  EFI_UDP4_SESSION_DATA Session;        ///< * Remote network address
-  EFI_UDP4_RECEIVE_DATA * pRxData;      ///< * Receive operation description
+  EFI_UDP4_SESSION_DATA Session;        ///<  Remote network address
+  EFI_UDP4_RECEIVE_DATA * pRxData;      ///<  Receive operation description
 } DT_UDP4_RX_DATA;
 
 typedef struct
 {
   EFI_UDP4_SESSION_DATA Session;        ///<  Remote network address
   EFI_UDP4_TRANSMIT_DATA TxData;        ///<  Transmit operation description
+  UINTN RetransmitCount;                ///<  Retransmit to handle ARP negotiation
   UINT8 Buffer [ 1 ];                   ///<  Data buffer
 } DT_UDP4_TX_DATA;
 
@@ -121,6 +136,8 @@ typedef struct _DT_PACKET {
   DT_PACKET * pNext;                    ///<  Next packet in the receive list
   size_t PacketSize;                    ///<  Size of this data structure
   union {
+    DT_IP4_RX_DATA Ip4Rx;               ///<  Receive operation description
+    DT_IP4_TX_DATA Ip4Tx;               ///<  Transmit operation description
     DT_TCP4_RX_DATA Tcp4Rx;             ///<  Receive operation description
     DT_TCP4_TX_DATA Tcp4Tx;             ///<  Transmit operation description
     DT_UDP4_RX_DATA Udp4Rx;             ///<  Receive operation description
@@ -170,6 +187,35 @@ PFN_PORT_CLOSE_START (
   IN BOOLEAN bAbort,
   IN UINTN DebugFlags
   );
+
+/**
+  IP4 context structure
+
+  The driver uses this structure to manage the IP4 connections.
+**/
+typedef struct {
+  //
+  //  IP4 context
+  //
+  EFI_HANDLE Handle;                    ///<  IP4 port handle
+  EFI_IP4_PROTOCOL * pProtocol;         ///<  IP4 protocol pointer
+  EFI_IP4_MODE_DATA ModeData;           ///<  IP4 mode data, includes configuration data
+  BOOLEAN bConfigured;                  ///<  TRUE if configuration was successful
+  EFI_IPv4_ADDRESS DestinationAddress;  ///<  Default destination address
+
+  //
+  //  Receive data management
+  //
+  EFI_IP4_COMPLETION_TOKEN RxToken; ///<  Receive token
+  DT_PACKET * pReceivePending;      ///<  Receive operation in progress
+
+  //
+  //  Transmit data management
+  //
+  EFI_IP4_COMPLETION_TOKEN TxToken; ///<  Transmit token
+  DT_PACKET * pTxPacket;            ///<  Transmit in progress
+} DT_IP4_CONTEXT;
+
 
 /**
   TCP4 context structure
@@ -268,10 +314,162 @@ typedef struct _DT_PORT {
   BOOLEAN bCloseNow;            ///<  TRUE = Close the port immediately
   
   union {
+    DT_IP4_CONTEXT Ip4;         ///<  IPv4 management data
     DT_TCP4_CONTEXT Tcp4;       ///<  TCPv4 management data
     DT_UDP4_CONTEXT Udp4;       ///<  UDPv4 management data
   } Context;
 }GCC_DT_PORT;
+
+/**
+  Bind a name to a socket.
+
+  @param [in] pSocket   Address of the socket structure.
+
+  @param [in] pSockAddr Address of a sockaddr structure that contains the
+                        connection point on the local machine.  An IPv4 address
+                        of INADDR_ANY specifies that the connection is made to
+                        all of the network stacks on the platform.  Specifying a
+                        specific IPv4 address restricts the connection to the
+                        network stack supporting that address.  Specifying zero
+                        for the port causes the network layer to assign a port
+                        number from the dynamic range.  Specifying a specific
+                        port number causes the network layer to use that port.
+
+  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_BIND) (
+  IN DT_SOCKET * pSocket,
+  IN const struct sockaddr * pSockAddr,
+  IN socklen_t SockAddrLength
+  );
+
+/**
+  Connect to a remote system via the network.
+
+  @param [in] pSocket         Address of the socket structure.
+
+  @param [in] pSockAddr       Network address of the remote system.
+    
+  @param [in] SockAddrLength  Length in bytes of the network address.
+  
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval EFI_NOT_READY The connection is in progress, call this routine again.
+  @retval Others        The connection attempt failed.
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_CONNECT_START) (
+  IN DT_SOCKET * pSocket,
+  IN const struct sockaddr * pSockAddr,
+  IN socklen_t SockAddrLength
+  );
+
+/**
+  Poll for completion of the connection attempt.
+
+  @param [in] pSocket         Address of the socket structure.
+
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval EFI_NOT_READY The connection is in progress, call this routine again.
+  @retval Others        The connection attempt failed.
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_CONNECT_POLL) (
+  IN DT_SOCKET * pSocket
+  );
+
+/**
+  Get the local socket address
+
+  @param [in] pSocket             Address of the socket structure.
+
+  @param [out] pAddress           Network address to receive the local system address
+
+  @param [in,out] pAddressLength  Length of the local network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+typedef
+EFI_STATUS
+(* PFN_API_GET_LOCAL_ADDR) (
+  IN DT_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Determine if the socket is configured.
+
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  
+  @retval EFI_SUCCESS - The port is connected
+  @retval EFI_NOT_STARTED - The port is not connected
+
+ **/
+ typedef
+ EFI_STATUS
+ (* PFN_API_IS_CONFIGURED) (
+  IN DT_SOCKET * pSocket
+  );
+
+/**
+  Receive data from a network connection.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  
+  @param [in] Flags           Message control flags
+  
+  @param [in] BufferLength    Length of the the buffer
+  
+  @param [in] pBuffer         Address of a buffer to receive the data.
+  
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @param [out] pAddress       Network address to receive the remote system address
+
+  @param [in,out] pAddressLength  Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Socket data successfully received
+
+**/
+typedef
+EFI_STATUS
+(* PFN_API_RECEIVE) (
+  IN DT_SOCKET * pSocket,
+  IN INT32 Flags,
+  IN size_t BufferLength,
+  IN UINT8 * pBuffer,
+  OUT size_t * pDataLength,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Socket type control structure
+
+  This driver uses this structure to define the API for the socket type.
+**/
+typedef struct {
+  int DefaultProtocol;                    ///<  Default protocol
+  PFN_API_BIND pfnBind;                   ///<  Bind API for the protocol
+  PFN_API_CONNECT_START pfnConnectStart;  ///<  Start the connection to a remote system
+  PFN_API_CONNECT_POLL pfnConnectPoll;    ///<  Poll for connection complete
+  PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr; ///<  Get local address
+  PFN_API_IS_CONFIGURED pfnIsConfigured;  ///<  Determine if the socket is configured
+  PFN_API_RECEIVE pfnReceive;             ///<  Attempt to receive some data
+} DT_PROTOCOL_API;
+
 
 /**
   Socket control structure
@@ -285,6 +483,7 @@ typedef struct _DT_SOCKET {
   //  Protocol binding
   //
   EFI_SOCKET_PROTOCOL SocketProtocol; ///<  Socket protocol declaration
+  CONST DT_PROTOCOL_API * pApi;       ///<  API for the protocol
 
   //
   //  Socket management
@@ -378,6 +577,7 @@ typedef struct {
   //
   //  Network services
   //
+  DT_SERVICE * pIp4List;        ///<  List of Ip4 services
   DT_SERVICE * pTcp4List;       ///<  List of Tcp4 services
   DT_SERVICE * pUdp4List;       ///<  List of Udp4 services
 
@@ -402,6 +602,10 @@ typedef struct {
 //------------------------------------------------------------------------------
 
 extern DT_LAYER mEslLayer;
+
+extern CONST DT_PROTOCOL_API cEslIp4Api;
+extern CONST DT_PROTOCOL_API cEslTcp4Api;
+extern CONST DT_PROTOCOL_API cEslUdp4Api;
 
 //------------------------------------------------------------------------------
 // Socket Support Routines
@@ -440,6 +644,19 @@ EslSocketAllocate (
   );
 
 /**
+  Determine if the socket is configured
+
+  @param [in] pSocket       The DT_SOCKET structure address
+
+  @retval EFI_SUCCESS - The socket is configured
+
+**/
+EFI_STATUS
+EslSocketIsConfigured (
+  DT_SOCKET * pSocket
+  );
+
+/**
   Allocate a packet for a receive or transmit operation
 
   @param [in] ppPacket      Address to receive the DT_PACKET structure
@@ -469,6 +686,292 @@ EFI_STATUS
 EslSocketPacketFree (
   IN DT_PACKET * pPacket,
   IN UINTN DebugFlags
+  );
+
+//------------------------------------------------------------------------------
+// Ip4 Routines
+//------------------------------------------------------------------------------
+
+/**
+  Bind a name to a socket.
+
+  The ::IpBind4 routine connects a name to a IP4 stack on the local machine.
+
+  The configure call to the IP4 driver occurs on the first poll, recv, recvfrom,
+  send or sentto call.  Until then, all changes are made in the local IP context
+  structure.
+  
+  @param [in] pSocket   Address of the socket structure.
+
+  @param [in] pSockAddr Address of a sockaddr structure that contains the
+                        connection point on the local machine.  An IPv4 address
+                        of INADDR_ANY specifies that the connection is made to
+                        all of the network stacks on the platform.  Specifying a
+                        specific IPv4 address restricts the connection to the
+                        network stack supporting that address.  Specifying zero
+                        for the port causes the network layer to assign a port
+                        number from the dynamic range.  Specifying a specific
+                        port number causes the network layer to use that port.
+
+  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+EFI_STATUS
+EslIpBind4 (
+  IN DT_SOCKET * pSocket,
+  IN const struct sockaddr * pSockAddr,
+  IN socklen_t SockAddrLength
+  );
+
+/**
+  Connect to a remote system via the network.
+
+  The ::IpConnectStart4= routine sets the remote address for the connection.
+
+  @param [in] pSocket         Address of the socket structure.
+
+  @param [in] pSockAddr       Network address of the remote system.
+    
+  @param [in] SockAddrLength  Length in bytes of the network address.
+  
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval EFI_NOT_READY The connection is in progress, call this routine again.
+  @retval Others        The connection attempt failed.
+
+ **/
+EFI_STATUS
+EslIpConnect4 (
+  IN DT_SOCKET * pSocket,
+  IN const struct sockaddr * pSockAddr,
+  IN socklen_t SockAddrLength
+  );
+
+/**
+  Get the local socket address
+
+  @param [in] pSocket             Address of the socket structure.
+
+  @param [out] pAddress           Network address to receive the local system address
+
+  @param [in,out] pAddressLength  Length of the local network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+EFI_STATUS
+EslIpGetLocalAddress4 (
+  IN DT_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Initialize the IP4 service.
+
+  This routine initializes the IP4 service after its service binding
+  protocol was located on a controller.
+
+  @param [in] pService        DT_SERVICE structure address
+
+  @retval EFI_SUCCESS         The service was properly initialized
+  @retval other               A failure occurred during the service initialization
+
+**/
+EFI_STATUS
+EFIAPI
+EslIpInitialize4 (
+  IN DT_SERVICE * pService
+  );
+
+/**
+  Close a IP4 port.
+
+  This routine releases the resources allocated by
+  ::IpPortAllocate4().
+  
+  @param [in] pPort       Address of the port structure.
+
+  @retval EFI_SUCCESS     The port is closed
+  @retval other           Port close error
+
+**/
+EFI_STATUS
+EslIpPortClose4 (
+  IN DT_PORT * pPort
+  );
+
+/**
+  Start the close operation on a IP4 port, state 1.
+
+  Closing a port goes through the following states:
+  1. Port close starting - Mark the port as closing and wait for transmission to complete
+  2. Port TX close done - Transmissions complete, close the port and abort the receives
+  3. Port RX close done - Receive operations complete, close the port
+  4. Port closed - Release the port resources
+  
+  @param [in] pPort       Address of the port structure.
+  @param [in] bCloseNow   Set TRUE to abort active transfers
+  @param [in] DebugFlags  Flags for debug messages
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port has started the closing process
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslIpPortCloseStart4 (
+  IN DT_PORT * pPort,
+  IN BOOLEAN bCloseNow,
+  IN UINTN DebugFlags
+  );
+
+/**
+  Port close state 2
+
+  Continue the close operation after the transmission is complete.
+
+  @param [in] pPort       Address of the port structure.
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port is still closing
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslIpPortCloseTxDone4 (
+  IN DT_PORT * pPort
+  );
+
+/**
+  Receive data from a network connection.
+
+  To minimize the number of buffer copies, the ::IpRxComplete4
+  routine queues the IP4 driver's buffer to a list of datagrams
+  waiting to be received.  The socket driver holds on to the
+  buffers from the IP4 driver until the application layer requests
+  the data or the socket is closed.
+
+  The application calls this routine in the socket layer to
+  receive datagrams from one or more remote systems. This routine
+  removes the next available datagram from the list of datagrams
+  and copies the data from the IP4 driver's buffer into the
+  application's buffer.  The IP4 driver's buffer is then returned.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+
+  @param [in] Flags           Message control flags
+
+  @param [in] BufferLength    Length of the the buffer
+
+  @param [in] pBuffer         Address of a buffer to receive the data.
+
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @param [out] pAddress       Network address to receive the remote system address
+
+  @param [in,out] pAddressLength  Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Socket data successfully received
+
+**/
+EFI_STATUS
+EslIpReceive4 (
+  IN DT_SOCKET * pSocket,
+  IN INT32 Flags,
+  IN size_t BufferLength,
+  IN UINT8 * pBuffer,
+  OUT size_t * pDataLength,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Process the receive completion
+
+  Keep the IP4 driver's buffer and append it to the list of
+  datagrams for the application to receive.  The IP4 driver's
+  buffer will be returned by either ::IpReceive4 or
+  ::IpPortCloseTxDone4.
+
+  @param  Event         The receive completion event
+
+  @param  pPort         The DT_PORT structure address
+
+**/
+VOID
+EslIpRxComplete4 (
+  IN EFI_EVENT Event,
+  IN DT_PORT * pPort
+  );
+
+/**
+  Start a receive operation
+
+  @param [in] pPort       Address of the DT_PORT structure.
+
+ **/
+VOID
+EslIpRxStart4 (
+  IN DT_PORT * pPort
+  );
+
+/**
+  Shutdown the IP4 service.
+
+  This routine undoes the work performed by ::IpInitialize4.
+
+  @param [in] pService        DT_SERVICE structure address
+
+**/
+VOID
+EFIAPI
+EslIpShutdown4 (
+  IN DT_SERVICE * pService
+  );
+
+/**
+  Determine if the sockedt is configured.
+
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  
+  @retval EFI_SUCCESS - The port is connected
+  @retval EFI_NOT_STARTED - The port is not connected
+
+ **/
+ EFI_STATUS
+ EslIpSocketIsConfigured4 (
+  IN DT_SOCKET * pSocket
+  );
+
+/**
+  Process the transmit completion
+
+  @param  Event         The normal transmit completion event
+
+  @param  pPort         The DT_PORT structure address
+
+**/
+VOID
+EslIpTxComplete4 (
+  IN EFI_EVENT Event,
+  IN DT_PORT * pPort
+  );
+
+/**
+  Transmit data using a network connection.
+
+  @param [in] pPort           Address of a DT_PORT structure
+
+ **/
+VOID
+EslIpTxStart4 (
+  IN DT_PORT * pPort
   );
 
 //------------------------------------------------------------------------------

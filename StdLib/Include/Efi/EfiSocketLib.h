@@ -113,13 +113,13 @@ typedef struct _DT_SERVICE DT_SERVICE;  ///<  Forward delcaration
 typedef
 EFI_STATUS
 (EFIAPI * PFN_SB_INITIALIZE) (
-    DT_SERVICE * pService
+    IN DT_SERVICE * pService
     );
 
 typedef
 VOID
 (EFIAPI * PFN_SB_SHUTDOWN) (
-    DT_SERVICE * pService
+    IN DT_SERVICE * pService
     );
 
 /**
@@ -140,6 +140,7 @@ typedef struct {
 //------------------------------------------------------------------------------
 
 extern CONST EFI_GUID mEslRawServiceGuid;
+extern CONST EFI_GUID mEslIp4ServiceGuid;
 extern CONST EFI_GUID mEslTcp4ServiceGuid;
 extern CONST EFI_GUID mEslUdp4ServiceGuid;
 

@@ -25,6 +25,11 @@
   List the network stack connection points for the socket driver.
 **/
 CONST DT_SOCKET_BINDING cEslSocketBinding [] = {
+  { L"Ip4",
+    &gEfiIp4ServiceBindingProtocolGuid,
+    &mEslIp4ServiceGuid,
+    EslIpInitialize4,
+    EslIpShutdown4 },
   { L"Tcp4",
     &gEfiTcp4ServiceBindingProtocolGuid,
     &mEslTcp4ServiceGuid,
@@ -38,6 +43,20 @@ CONST DT_SOCKET_BINDING cEslSocketBinding [] = {
 };
 
 CONST UINTN cEslSocketBindingEntries = DIM ( cEslSocketBinding );
+
+/**
+  APIs to support the various socket types
+**/
+CONST DT_PROTOCOL_API * cEslAfInetApi [] = {
+  NULL,             //  0
+  &cEslTcp4Api,     //  SOCK_STREAM
+  &cEslUdp4Api,     //  SOCK_DGRAM
+  &cEslIp4Api,      //  SOCK_RAW
+  NULL,             //  SOCK_RDM
+  &cEslTcp4Api      //  SOCK_SEQPACKET
+};
+
+CONST int cEslAfInetApiSize = DIM ( cEslAfInetApi );
 
 DT_LAYER mEslLayer;
 
@@ -97,6 +116,9 @@ EslSocket (
   IN int * pErrno
   )
 {
+  CONST DT_PROTOCOL_API * pApi;
+  CONST DT_PROTOCOL_API ** ppApiArray;
+  int ApiArraySize;
   DT_SOCKET * pSocket;
   EFI_STATUS Status;
   int errno;
@@ -139,6 +161,17 @@ EslSocket (
     }
 
     //
+    //  Determine the protocol APIs
+    //
+    ppApiArray = NULL;
+    ApiArraySize = 0;
+    if (( AF_INET == domain )
+      || ( AF_LOCAL == domain )) {
+      ppApiArray = &cEslAfInetApi[0];
+      ApiArraySize = cEslAfInetApiSize;
+    }
+
+    //
     //  Set the default type if necessary
     //
     if ( 0 == type ) {
@@ -148,36 +181,29 @@ EslSocket (
     //
     //  Validate the type value
     //
-    if (( SOCK_STREAM == type )
-      || ( SOCK_SEQPACKET == type )) {
-      //
-      //  Set the default protocol if necessary
-      //
-      if ( 0 == protocol ) {
-        protocol = IPPROTO_TCP;
-      }
-    }
-    else if ( SOCK_DGRAM == type ) {
-      //
-      //  Set the default protocol if necessary
-      //
-      if ( 0 == protocol ) {
-        protocol = IPPROTO_UDP;
-      }
-    }
-    else {
+    if (( type >= ApiArraySize )
+      || ( NULL == ppApiArray )
+      || ( NULL == ppApiArray [ type ])) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
-                "ERROR - Invalid type value" ));
+                "ERROR - Invalid type value\r\n" ));
       Status = EFI_INVALID_PARAMETER;
       errno = EINVAL;
       break;
     }
 
     //
+    //  Set the default protocol if necessary
+    //
+    pApi = ppApiArray [ type ];
+    if ( 0 == protocol ) {
+      protocol = pApi->DefaultProtocol;
+    }
+
+    //
     //  Validate the protocol value
     //
-    if (( IPPROTO_TCP != protocol )
-      && ( IPPROTO_UDP != protocol )) {
+    if (( pApi->DefaultProtocol != protocol )
+      && ( SOCK_RAW != type )) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
                 "ERROR - Invalid protocol value" ));
       Status = EFI_INVALID_PARAMETER;
@@ -188,6 +214,7 @@ EslSocket (
     //
     //  Save the socket attributes
     //
+    pSocket->pApi = pApi;
     pSocket->Domain = domain;
     pSocket->Type = type;
     pSocket->Protocol = protocol;
@@ -654,62 +681,37 @@ EslSocketBind (
         }
 
         //
-        //  Synchronize with the socket layer
+        //  Verify the API
         //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-        //
-        //  Validate the local address
-        //
-        switch ( pSockAddr->sa_family ) {
-        default:
-          DEBUG (( DEBUG_BIND,
-                    "ERROR - Invalid bind address family: %d\r\n",
-                    pSockAddr->sa_family ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
+        if ( NULL == pSocket->pApi->pfnBind ) {
+          Status = EFI_UNSUPPORTED;
+          pSocket->errno = ENOTSUP;
+        }
+        else {
           //
-          //  Determine the connection point within the network stack
+          //  Synchronize with the socket layer
           //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_BIND,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            pSocket->errno = EADDRNOTAVAIL;
-            break;
+          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            Status = EslTcpBind4 ( pSocket,
-                                   pSockAddr,
-                                   SockAddrLength );
-            break;
+          //
+          //  Bind the socket
+          //
+          Status = pSocket->pApi->pfnBind ( pSocket,
+                                            pSockAddr,
+                                            SockAddrLength );
 
-          case SOCK_DGRAM:
-            Status = EslUdpBind4 ( pSocket,
-                                   pSockAddr,
-                                   SockAddrLength );
-            break;
+          //
+          //  Mark this socket as bound if successful
+          //
+          if ( !EFI_ERROR ( Status )) {
+            pSocket->State = SOCKET_STATE_BOUND;
           }
-          break;
-        }
 
-        //
-        //  Mark this socket as bound if successful
-        //
-        if ( !EFI_ERROR ( Status )) {
-          pSocket->State = SOCKET_STATE_BOUND;
+          //
+          //  Release the socket layer synchronization
+          //
+          RESTORE_TPL ( TplPrevious );
         }
-
-        //
-        //  Release the socket layer synchronization
-        //
-        RESTORE_TPL ( TplPrevious );
       }
     }
   }
@@ -1079,112 +1081,54 @@ EslSocketConnect (
       case SOCKET_STATE_NOT_CONFIGURED:
       case SOCKET_STATE_BOUND:
         //
-        //  Validate the local address
+        //  Verify the API
         //
-        switch ( pSockAddr->sa_family ) {
-        default:
-          DEBUG (( DEBUG_CONNECT,
-                    "ERROR - Invalid bind address family: %d\r\n",
-                    pSockAddr->sa_family ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
+        if ( NULL == pSocket->pApi->pfnConnectStart ) {
+          Status = EFI_UNSUPPORTED;
+          pSocket->errno = ENOTSUP;
+        }
+        else {
           //
-          //  Determine the connection point within the network stack
+          //  Initiate the connection with the remote system
           //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_CONNECT,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            pSocket->errno = EADDRNOTAVAIL;
-            break;
+          Status = pSocket->pApi->pfnConnectStart ( pSocket,
+                                                    pSockAddr,
+                                                    SockAddrLength );
 
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Start the connection processing
-            //
-            Status = EslTcpConnectStart4 ( pSocket,
-                                           pSockAddr,
-                                           SockAddrLength );
-
-            //
-            //  Set the next state if connecting
-            //
-            if ( EFI_NOT_READY == Status ) {
-              pSocket->State = SOCKET_STATE_CONNECTING;
-            }
-            break;
-
-          case SOCK_DGRAM:
-            Status = EslUdpConnect4 ( pSocket,
-                                      pSockAddr,
-                                      SockAddrLength );
-            break;
+          //
+          //  Set the next state if connecting
+          //
+          if ( EFI_NOT_READY == Status ) {
+            pSocket->State = SOCKET_STATE_CONNECTING;
           }
-          break;
         }
         break;
 
       case SOCKET_STATE_CONNECTING:
         //
-        //  Validate the local address
+        //  Poll for connection completion
         //
-        switch ( pSockAddr->sa_family ) {
-        default:
-          DEBUG (( DEBUG_CONNECT,
-                    "ERROR - Invalid bind address family: %d\r\n",
-                    pSockAddr->sa_family ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
+        if ( NULL == pSocket->pApi->pfnConnectPoll ) {
           //
-          //  Determine the connection point within the network stack
+          //  Already connected
           //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_CONNECT,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            pSocket->errno = EADDRNOTAVAIL;
-            break;
+          pSocket->errno = EISCONN;
+          Status = EFI_ALREADY_STARTED;
+        }
+        else {
+          Status = pSocket->pApi->pfnConnectPoll ( pSocket );
 
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Determine if the connection processing is completed
-            //
-            Status = EslTcpConnectPoll4 ( pSocket );
-
-            //
-            //  Set the next state if connected
-            //
-            if ( EFI_NOT_READY != Status ) {
-              if ( !EFI_ERROR ( Status )) {
-                pSocket->State = SOCKET_STATE_CONNECTED;
-              }
-              else {
-                pSocket->State = SOCKET_STATE_BOUND;
-              }
+          //
+          //  Set the next state if connected
+          //
+          if ( EFI_NOT_READY != Status ) {
+            if ( !EFI_ERROR ( Status )) {
+              pSocket->State = SOCKET_STATE_CONNECTED;
             }
-            break;
-
-          case SOCK_DGRAM:
-            //
-            //  Already connected
-            //
-            pSocket->errno = EISCONN;
-            Status = EFI_ALREADY_STARTED;
-            break;
+            else {
+              pSocket->State = SOCKET_STATE_BOUND;
+            }
           }
-          break;
         }
         break;
 
@@ -1476,77 +1420,53 @@ EslSocketGetLocalAddress (
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
 
     //
-    //  Verify the address buffer and length address
+    //  Verify the socket state
     //
-    if (( NULL != pAddress ) && ( NULL != pAddressLength )) {
+    Status = EslSocketIsConfigured ( pSocket );
+    if ( !EFI_ERROR ( Status )) {
       //
-      //  Verify the socket state
+      //  Verify the address buffer and length address
       //
-      if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+      if (( NULL != pAddress ) && ( NULL != pAddressLength )) {
         //
-        //  Synchronize with the socket layer
+        //  Verify the socket state
         //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-        //
-        //  Validate the local address
-        //
-        switch ( pSocket->Domain ) {
-        default:
-          DEBUG (( DEBUG_RX,
-                    "ERROR - Invalid socket address family: %d\r\n",
-                    pSocket->Domain ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
+        if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
           //
-          //  Determine the connection point within the network stack
+          //  Verify the API
           //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            break;
-
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Get the local address
-            //
-            Status = EslTcpGetLocalAddress4 ( pSocket,
-                                              pAddress,
-                                              pAddressLength );
-            break;
-
-          case SOCK_DGRAM:
-            //
-            //  Get the local address
-            //
-            Status = EslUdpGetLocalAddress4 ( pSocket,
-                                              pAddress,
-                                              pAddressLength );
-            break;
+          if ( NULL == pSocket->pApi->pfnGetLocalAddr ) {
+            Status = EFI_UNSUPPORTED;
+            pSocket->errno = ENOTSUP;
           }
-          break;
-        }
+          else {
+            //
+            //  Synchronize with the socket layer
+            //
+            RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-        //
-        //  Release the socket layer synchronization
-        //
-        RESTORE_TPL ( TplPrevious );
+            //
+            //  Get the local address
+            //
+            Status = pSocket->pApi->pfnGetLocalAddr ( pSocket,
+                                                      pAddress,
+                                                      pAddressLength );
+
+            //
+            //  Release the socket layer synchronization
+            //
+            RESTORE_TPL ( TplPrevious );
+          }
+        }
+        else {
+          pSocket->errno = ENOTCONN;
+          Status = EFI_NOT_STARTED;
+        }
       }
       else {
-        pSocket->errno = ENOTCONN;
-        Status = EFI_NOT_STARTED;
+        pSocket->errno = EINVAL;
+        Status = EFI_INVALID_PARAMETER;
       }
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
     }
   }
   
@@ -1697,6 +1617,70 @@ EslSocketGetPeerAddress (
     }
   }
   DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Determine if the socket is configured
+
+  @param [in] pSocket       The DT_SOCKET structure address
+
+  @retval EFI_SUCCESS - The socket is configured
+
+**/
+EFI_STATUS
+EslSocketIsConfigured (
+  DT_SOCKET * pSocket
+  )
+{
+  EFI_STATUS Status;
+  EFI_TPL TplPrevious;
+
+  //
+  //  Assume success
+  //
+  Status = EFI_SUCCESS;
+
+  //
+  //  Verify the socket state
+  //
+  if ( !pSocket->bConfigured ) {
+    //
+    //  Verify the API
+    //
+    if ( NULL == pSocket->pApi->pfnIsConfigured ) {
+      Status = EFI_UNSUPPORTED;
+      pSocket->errno = ENOTSUP;
+    }
+    else {
+      //
+      //  Synchronize with the socket layer
+      //
+      RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+      //
+      //  Determine if the socket is configured
+      //
+      Status = pSocket->pApi->pfnIsConfigured ( pSocket );
+
+      //
+      //  Release the socket layer synchronization
+      //
+      RESTORE_TPL ( TplPrevious );
+
+      //
+      //  Set errno if a failure occurs
+      //
+      if ( EFI_ERROR ( Status )) {
+        pSocket->errno = EADDRNOTAVAIL;
+      }
+    }
+  }
+
+  //
+  //  Return the configuration status
+  //
   return Status;
 }
 
@@ -2333,7 +2317,6 @@ EslSocketPoll (
   short DetectedEvents;
   DT_SOCKET * pSocket;
   EFI_STATUS Status;
-  EFI_TPL TplPrevious;
   short ValidEvents;
 
   DEBUG (( DEBUG_POLL, "Entering SocketPoll\r\n" ));
@@ -2349,60 +2332,7 @@ EslSocketPoll (
   //
   //  Verify the socket state
   //
-  if ( !pSocket->bConfigured ) {
-    //
-    //  Synchronize with the socket layer
-    //
-    RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-    //
-    //  Validate the local address
-    //
-    switch ( pSocket->Domain ) {
-    default:
-      DEBUG (( DEBUG_RX,
-                "ERROR - Invalid socket address family: %d\r\n",
-                pSocket->Domain ));
-      Status = EFI_INVALID_PARAMETER;
-      pSocket->errno = EADDRNOTAVAIL;
-      break;
-
-    case AF_INET:
-      //
-      //  Determine the connection point within the network stack
-      //
-      switch ( pSocket->Type ) {
-      default:
-        DEBUG (( DEBUG_RX,
-                  "ERROR - Invalid socket type: %d\r\n",
-                  pSocket->Type));
-        Status = EFI_INVALID_PARAMETER;
-        pSocket->errno = EADDRNOTAVAIL;
-        break;
-
-      case SOCK_STREAM:
-      case SOCK_SEQPACKET:
-        //
-        //  Verify the port state
-        //
-        Status = EslTcpSocketIsConfigured4 ( pSocket );
-        break;
-
-      case SOCK_DGRAM:
-        //
-        //  Verify the port state
-        //
-        Status = EslUdpSocketIsConfigured4 ( pSocket );
-        break;
-      }
-      break;
-    }
-
-    //
-    //  Release the socket layer synchronization
-    //
-    RESTORE_TPL ( TplPrevious );
-  }
+  Status = EslSocketIsConfigured ( pSocket );
   if ( !EFI_ERROR ( Status )) {
     //
     //  Check for invalid events
@@ -2578,66 +2508,7 @@ EslSocketReceive (
       //
       //  Verify the socket state
       //
-      if ( !pSocket->bConfigured ) {
-        //
-        //  Synchronize with the socket layer
-        //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-        //
-        //  Validate the local address
-        //
-        switch ( pSocket->Domain ) {
-        default:
-          DEBUG (( DEBUG_RX,
-                    "ERROR - Invalid socket address family: %d\r\n",
-                    pSocket->Domain ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
-          //
-          //  Determine the connection point within the network stack
-          //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            break;
-
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Verify the port state
-            //
-            Status = EslTcpSocketIsConfigured4 ( pSocket );
-            break;
-
-          case SOCK_DGRAM:
-            //
-            //  Verify the port state
-            //
-            Status = EslUdpSocketIsConfigured4 ( pSocket );
-            break;
-          }
-          break;
-        }
-
-        //
-        //  Release the socket layer synchronization
-        //
-        RESTORE_TPL ( TplPrevious );
-
-        //
-        //  Set errno if a failure occurs
-        //
-        if ( EFI_ERROR ( Status )) {
-          pSocket->errno = EADDRNOTAVAIL;
-        }
-      }
+      Status = EslSocketIsConfigured ( pSocket );
       if ( !EFI_ERROR ( Status )) {
         //
         //  Validate the buffer length
@@ -2662,63 +2533,34 @@ EslSocketReceive (
         }
         else{
           //
-          //  Synchronize with the socket layer
+          //  Verify the API
           //
-          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-          //
-          //  Validate the local address
-          //
-          switch ( pSocket->Domain ) {
-          default:
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Invalid socket address family: %d\r\n",
-                      pSocket->Domain ));
-            Status = EFI_INVALID_PARAMETER;
-            pSocket->errno = EADDRNOTAVAIL;
-            break;
-
-          case AF_INET:
-            //
-            //  Determine the connection point within the network stack
-            //
-            switch ( pSocket->Type ) {
-            default:
-              DEBUG (( DEBUG_RX,
-                        "ERROR - Invalid socket type: %d\r\n",
-                        pSocket->Type));
-              Status = EFI_INVALID_PARAMETER;
-              pSocket->errno = EADDRNOTAVAIL;
-              break;
-
-            case SOCK_STREAM:
-            case SOCK_SEQPACKET:
-              Status = EslTcpReceive4 ( pSocket,
-                                        Flags,
-                                        BufferLength,
-                                        pBuffer,
-                                        pDataLength,
-                                        pAddress,
-                                        pAddressLength );
-              break;
-
-            case SOCK_DGRAM:
-              Status = EslUdpReceive4 ( pSocket,
-                                        Flags,
-                                        BufferLength,
-                                        pBuffer,
-                                        pDataLength,
-                                        pAddress,
-                                        pAddressLength);
-              break;
-            }
-            break;
+          if ( NULL == pSocket->pApi->pfnReceive ) {
+            Status = EFI_UNSUPPORTED;
+            pSocket->errno = ENOTSUP;
           }
+          else {
+            //
+            //  Synchronize with the socket layer
+            //
+            RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-          //
-          //  Release the socket layer synchronization
-          //
-          RESTORE_TPL ( TplPrevious );
+            //
+            //  Attempt to receive a packet
+            //
+            Status = pSocket->pApi->pfnReceive ( pSocket,
+                                                 Flags,
+                                                 BufferLength,
+                                                 pBuffer,
+                                                 pDataLength,
+                                                 pAddress,
+                                                 pAddressLength);
+
+            //
+            //  Release the socket layer synchronization
+            //
+            RESTORE_TPL ( TplPrevious );
+          }
         }
       }
     }
@@ -2958,66 +2800,7 @@ EslSocketTransmit (
       //
       //  Verify the socket state
       //
-      if ( !pSocket->bConfigured ) {
-        //
-        //  Synchronize with the socket layer
-        //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-        //
-        //  Validate the local address
-        //
-        switch ( pSocket->Domain ) {
-        default:
-          DEBUG (( DEBUG_RX,
-                    "ERROR - Invalid socket address family: %d\r\n",
-                    pSocket->Domain ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
-          //
-          //  Determine the connection point within the network stack
-          //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            break;
-
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Verify the port state
-            //
-            Status = EslTcpSocketIsConfigured4 ( pSocket );
-            break;
-
-          case SOCK_DGRAM:
-            //
-            //  Verify the port state
-            //
-            Status = EslUdpSocketIsConfigured4 ( pSocket );
-            break;
-          }
-          break;
-        }
-
-        //
-        //  Release the socket layer synchronization
-        //
-        RESTORE_TPL ( TplPrevious );
-
-        //
-        //  Set errno if a failure occurs
-        //
-        if ( EFI_ERROR ( Status )) {
-          pSocket->errno = EADDRNOTAVAIL;
-        }
-      }
+      Status = EslSocketIsConfigured ( pSocket );
       if ( !EFI_ERROR ( Status )) {
         //
         //  Verify that transmit is still allowed

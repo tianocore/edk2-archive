@@ -29,6 +29,7 @@
 
 [Sources.common]
   Init.c
+  Ip4.c
   Service.c
   Socket.c
   Tcp4.c
@@ -47,6 +48,8 @@
   UefiLib
 
 [Protocols]
+  gEfiIp4ProtocolGuid
+  gEfiIp4ServiceBindingProtocolGuid
   gEfiTcp4ProtocolGuid
   gEfiTcp4ServiceBindingProtocolGuid
   gEfiUdp4ProtocolGuid

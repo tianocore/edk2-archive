@@ -14,6 +14,16 @@
 
 #include "Socket.h"
 
+CONST DT_PROTOCOL_API cEslTcp4Api = {
+  IPPROTO_TCP,
+  EslTcpBind4,
+  EslTcpConnectStart4,
+  EslTcpConnectPoll4,
+  EslTcpGetLocalAddress4,
+  EslTcpSocketIsConfigured4,
+  EslTcpReceive4
+};
+
 
 /**
   Accept a network connection.
