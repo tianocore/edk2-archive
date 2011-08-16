@@ -139,7 +139,6 @@ typedef struct {
 // GUIDs
 //------------------------------------------------------------------------------
 
-extern CONST EFI_GUID mEslRawServiceGuid;
 extern CONST EFI_GUID mEslIp4ServiceGuid;
 extern CONST EFI_GUID mEslTcp4ServiceGuid;
 extern CONST EFI_GUID mEslUdp4ServiceGuid;
