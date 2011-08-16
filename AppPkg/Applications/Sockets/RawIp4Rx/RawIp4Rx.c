@@ -38,7 +38,7 @@ RawIp4Rx (
   socklen_t RemotePortLength;
   int RetVal;
   SOCKET s;
-  UINT32 TotalBytesReceived;
+  UINT64 TotalBytesReceived;
 
   //
   //  Create the socket
@@ -163,7 +163,7 @@ RawIp4Rx (
         //  Display the bytes received
         //
         if ( 0 == RetVal ) {
-          printf ( "Total Bytes Received:  %d\r\n", TotalBytesReceived );
+          printf ( "Total Bytes Received:  %Ld\r\n", TotalBytesReceived );
         }
 
         //
