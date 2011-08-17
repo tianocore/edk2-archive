@@ -16,12 +16,16 @@
 
 CONST DT_PROTOCOL_API cEslTcp4Api = {
   IPPROTO_TCP,
+  EslTcpAccept4,
   EslTcpBind4,
   EslTcpConnectStart4,
   EslTcpConnectPoll4,
   EslTcpGetLocalAddress4,
+  EslTcpGetRemoteAddress4,
   EslTcpSocketIsConfigured4,
+  EslTcpListen4,
   EslTcpReceive4,
+  EslTcpRxCancel4,
   EslTcpTxBuffer4
 };
 

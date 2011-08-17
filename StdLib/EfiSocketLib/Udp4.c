@@ -16,12 +16,16 @@
 
 CONST DT_PROTOCOL_API cEslUdp4Api = {
   IPPROTO_UDP,
+  NULL,   //  Accept
   EslUdpBind4,
   EslUdpConnect4,
-  NULL,
+  NULL,   //  ConnectPoll
   EslUdpGetLocalAddress4,
+  EslUdpGetRemoteAddress4,
   EslUdpSocketIsConfigured4,
+  NULL,   //  Listen
   EslUdpReceive4,
+  EslUdpRxCancel4,
   EslUdpTxBuffer4
 };
 

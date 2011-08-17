@@ -16,12 +16,16 @@
 
 CONST DT_PROTOCOL_API cEslIp4Api = {
   IPPROTO_IP,
+  NULL,   //  Accept
   EslIpBind4,
   EslIpConnect4,
-  NULL,
+  NULL,   //  ConnectPoll
   EslIpGetLocalAddress4,
+  EslIpGetRemoteAddress4,
   EslIpSocketIsConfigured4,
+  NULL,   //  Listen
   EslIpReceive4,
+  EslIpRxCancel4,
   EslIpTxBuffer4
 };
 
@@ -545,6 +549,81 @@ EslIpGetLocalAddress4 (
       CopyMem ( &pLocalAddress->sin_addr,
                 &pIp4->ModeData.ConfigData.StationAddress.Addr[0],
                 sizeof ( pLocalAddress->sin_addr ));
+      pSocket->errno = 0;
+      Status = EFI_SUCCESS;
+    }
+    else {
+      pSocket->errno = EINVAL;
+      Status = EFI_INVALID_PARAMETER;
+    }
+  }
+  else {
+    pSocket->errno = ENOTCONN;
+    Status = EFI_NOT_STARTED;
+  }
+  
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Get the remote socket address
+
+  @param [in] pSocket             Address of the socket structure.
+
+  @param [out] pAddress           Network address to receive the remote system address
+
+  @param [in,out] pAddressLength  Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+EFI_STATUS
+EslIpGetRemoteAddress4 (
+  IN DT_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  )
+{
+  socklen_t LengthInBytes;
+  DT_PORT * pPort;
+  struct sockaddr_in * pRemoteAddress;
+  DT_IP4_CONTEXT * pIp4;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  Verify that there is just a single connection
+  //
+  pPort = pSocket->pPortList;
+  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
+    //
+    //  Verify the address length
+    //
+    LengthInBytes = sizeof ( struct sockaddr_in );
+    if ( LengthInBytes <= * pAddressLength ) {
+      //
+      //  Return the local address
+      //
+      pIp4 = &pPort->Context.Ip4;
+      pRemoteAddress = (struct sockaddr_in *)pAddress;
+      ZeroMem ( pRemoteAddress, LengthInBytes );
+      pRemoteAddress->sin_family = AF_INET;
+      pRemoteAddress->sin_len = (uint8_t)LengthInBytes;
+      CopyMem ( &pRemoteAddress->sin_addr,
+                &pIp4->DestinationAddress.Addr[0],
+                sizeof ( pRemoteAddress->sin_addr ));
       pSocket->errno = 0;
       Status = EFI_SUCCESS;
     }
@@ -1428,6 +1507,66 @@ EslIpReceive4 (
           Status = EFI_NOT_READY;
           pSocket->errno = EAGAIN;
         }
+      }
+    }
+  }
+
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Cancel the receive operations
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  
+  @retval EFI_SUCCESS - The cancel was successful
+
+ **/
+EFI_STATUS
+EslIpRxCancel4 (
+  IN DT_SOCKET * pSocket
+  )
+{
+  DT_PACKET * pPacket;
+  DT_PORT * pPort;
+  DT_IP4_CONTEXT * pIp4;
+  EFI_IP4_PROTOCOL * pIp4Protocol;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Assume failure
+  //
+  Status = EFI_NOT_FOUND;
+
+  //
+  //  Locate the port
+  //
+  pPort = pSocket->pPortList;
+  if ( NULL != pPort ) {
+    //
+    //  Determine if a receive is pending
+    //
+    pIp4 = &pPort->Context.Ip4;
+    pPacket = pIp4->pReceivePending;
+    if ( NULL != pPacket ) {
+      //
+      //  Attempt to cancel the receive operation
+      //
+      pIp4Protocol = pIp4->pProtocol;
+      Status = pIp4Protocol->Cancel ( pIp4Protocol,
+                                       &pIp4->RxToken );
+      if ( EFI_NOT_FOUND == Status ) {
+        //
+        //  The receive is complete
+        //
+        Status = EFI_SUCCESS;
       }
     }
   }
@@ -2328,148 +2467,3 @@ EslIpTxStart4 (
 
   DBG_EXIT ( );
 }
-
-
-
-
-
-
-
-#if 0
-/**
-  Get the remote socket address
-
-  @param [in] pSocket             Address of the socket structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslIpGetRemoteAddress4 (
-  IN DT_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  )
-{
-  socklen_t LengthInBytes;
-  DT_PORT * pPort;
-  struct sockaddr_in * pRemoteAddress;
-  DT_IP4_CONTEXT * pIp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
-    //
-    //  Verify the address length
-    //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= * pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pIp4 = &pPort->Context.Ip4;
-      pRemoteAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pRemoteAddress, LengthInBytes );
-      pRemoteAddress->sin_family = AF_INET;
-      pRemoteAddress->sin_len = (uint8_t)LengthInBytes;
-      pRemoteAddress->sin_port = SwapBytes16 ( pIp4->ModeData.ConfigData.RemotePort );
-      CopyMem ( &pRemoteAddress->sin_addr,
-                &pIp4->ModeData.ConfigData.RemoteAddress.Addr[0],
-                sizeof ( pRemoteAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Cancel the receive operations
-
-  @param [in] pSocket         Address of a DT_SOCKET structure
-  
-  @retval EFI_SUCCESS - The cancel was successful
-
- **/
-EFI_STATUS
-EslIpRxCancel4 (
-  IN DT_SOCKET * pSocket
-  )
-{
-  DT_PACKET * pPacket;
-  DT_PORT * pPort;
-  DT_IP4_CONTEXT * pIp4;
-  EFI_IP4_PROTOCOL * pIp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume failure
-  //
-  Status = EFI_NOT_FOUND;
-
-  //
-  //  Locate the port
-  //
-  pPort = pSocket->pPortList;
-  if ( NULL != pPort ) {
-    //
-    //  Determine if a receive is pending
-    //
-    pIp4 = &pPort->Context.Ip4;
-    pPacket = pIp4->pReceivePending;
-    if ( NULL != pPacket ) {
-      //
-      //  Attempt to cancel the receive operation
-      //
-      pIp4Protocol = pIp4->pProtocol;
-      Status = pIp4Protocol->Cancel ( pIp4Protocol,
-                                       &pIp4->RxToken );
-      if ( EFI_NOT_FOUND == Status ) {
-        //
-        //  The receive is complete
-        //
-        Status = EFI_SUCCESS;
-      }
-    }
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-#endif  //  0

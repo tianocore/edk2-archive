@@ -291,134 +291,110 @@ EslSocketAccept (
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
 
     //
-    //  Validate the sockaddr
+    //  Verify the API
     //
-    if (( NULL != pSockAddr )
-      && ( NULL == pSockAddrLength )) {
-      DEBUG (( DEBUG_ACCEPT,
-                "ERROR - pSockAddr is NULL!\r\n" ));
-      Status = EFI_INVALID_PARAMETER;
-      pSocket->errno = EFAULT;
+    if ( NULL == pSocket->pApi->pfnAccept ) {
+      Status = EFI_UNSUPPORTED;
+      pSocket->errno = ENOTSUP;
     }
     else {
       //
-      //  Synchronize with the socket layer
+      //  Validate the sockaddr
       //
-      RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-      //
-      //  Verify that the socket is in the listen state
-      //
-      if ( SOCKET_STATE_LISTENING != pSocket->State ) {
+      if (( NULL != pSockAddr )
+        && ( NULL == pSockAddrLength )) {
         DEBUG (( DEBUG_ACCEPT,
-                  "ERROR - Socket is not listening!\r\n" ));
-        Status = EFI_NOT_STARTED;
-        pSocket->errno = EOPNOTSUPP;
+                  "ERROR - pSockAddr is NULL!\r\n" ));
+        Status = EFI_INVALID_PARAMETER;
+        pSocket->errno = EFAULT;
       }
       else {
         //
-        //  Determine if a socket is available
+        //  Synchronize with the socket layer
         //
-        if ( 0 == pSocket->FifoDepth ) {
-          //
-          //  No connections available
-          //  Determine if any ports are available
-          //
-          if ( NULL == pSocket->pPortList ) {
-            //
-            //  No ports available
-            //
-            Status = EFI_DEVICE_ERROR;
-            pSocket->errno = EINVAL;
+        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-            //
-            //  Update the socket state
-            //
-            pSocket->State = SOCKET_STATE_NO_PORTS;
-          }
-          else {
-            //
-            //  Ports are available
-            //  No connection requests at this time
-            //
-            Status = EFI_NOT_READY;
-            pSocket->errno = EAGAIN;
-          }
+        //
+        //  Verify that the socket is in the listen state
+        //
+        if ( SOCKET_STATE_LISTENING != pSocket->State ) {
+          DEBUG (( DEBUG_ACCEPT,
+                    "ERROR - Socket is not listening!\r\n" ));
+          Status = EFI_NOT_STARTED;
+          pSocket->errno = EOPNOTSUPP;
         }
         else {
-  
           //
-          //  Get the remote network address
+          //  Determine if a socket is available
           //
-          pNewSocket = pSocket->pFifoHead;
-          ASSERT ( NULL != pNewSocket );
-          switch ( pSocket->Domain ) {
-          default:
-            DEBUG (( DEBUG_ACCEPT,
-                      "ERROR - Invalid socket address family: %d\r\n",
-                      pSocket->Domain ));
-            Status = EFI_INVALID_PARAMETER;
-            pSocket->errno = EADDRNOTAVAIL;
-            break;
-
-          case AF_INET:
+          if ( 0 == pSocket->FifoDepth ) {
             //
-            //  Determine the connection point within the network stack
+            //  No connections available
+            //  Determine if any ports are available
             //
-            switch ( pSocket->Type ) {
-            default:
-              DEBUG (( DEBUG_ACCEPT,
-                        "ERROR - Invalid socket type: %d\r\n",
-                        pSocket->Type));
-              Status = EFI_INVALID_PARAMETER;
-              pSocket->errno = EADDRNOTAVAIL;
-              break;
+            if ( NULL == pSocket->pPortList ) {
+              //
+              //  No ports available
+              //
+              Status = EFI_DEVICE_ERROR;
+              pSocket->errno = EINVAL;
 
-            case SOCK_STREAM:
-            case SOCK_SEQPACKET:
-              Status = EslTcpAccept4 ( pNewSocket,
-                                       pSockAddr,
-                                       pSockAddrLength );
-              break;
-
-  /*
-            case SOCK_DGRAM:
-              Status = UdpAccept4 ( pSocket );
-              break;
-  */
+              //
+              //  Update the socket state
+              //
+              pSocket->State = SOCKET_STATE_NO_PORTS;
             }
-            break;
+            else {
+              //
+              //  Ports are available
+              //  No connection requests at this time
+              //
+              Status = EFI_NOT_READY;
+              pSocket->errno = EAGAIN;
+            }
           }
-          if ( !EFI_ERROR ( Status )) {
+          else {
+
             //
-            //  Remove the new socket from the list
+            //  Attempt to accept the connection and
+            //  get the remote network address
             //
-            pSocket->pFifoHead = pNewSocket->pNextConnection;
-            if ( NULL == pSocket->pFifoHead ) {
-              pSocket->pFifoTail = NULL;
+            pNewSocket = pSocket->pFifoHead;
+            ASSERT ( NULL != pNewSocket );
+            Status = pSocket->pApi->pfnAccept ( pNewSocket,
+                                                pSockAddr,
+                                                pSockAddrLength );
+            if ( !EFI_ERROR ( Status )) {
+              //
+              //  Remove the new socket from the list
+              //
+              pSocket->pFifoHead = pNewSocket->pNextConnection;
+              if ( NULL == pSocket->pFifoHead ) {
+                pSocket->pFifoTail = NULL;
+              }
+
+              //
+              //  Account for this socket
+              //
+              pSocket->FifoDepth -= 1;
+
+              //
+              //  Update the new socket's state
+              //
+              pNewSocket->State = SOCKET_STATE_CONNECTED;
+              pNewSocket->bConfigured = TRUE;
+              DEBUG (( DEBUG_ACCEPT,
+                        "0x%08x: Socket connected\r\n",
+                        pNewSocket ));
             }
-
-            //
-            //  Account for this socket
-            //
-            pSocket->FifoDepth -= 1;
-
-            //
-            //  Update the new socket's state
-            //
-            pNewSocket->State = SOCKET_STATE_CONNECTED;
-            pNewSocket->bConfigured = TRUE;
-            DEBUG (( DEBUG_ACCEPT,
-                      "0x%08x: Socket connected\r\n",
-                      pNewSocket ));
           }
         }
-      }
 
-      //
-      //  Release the socket layer synchronization
-      //
-      RESTORE_TPL ( TplPrevious );
+        //
+        //  Release the socket layer synchronization
+        //
+        RESTORE_TPL ( TplPrevious );
+      }
     }
   }
 
@@ -1529,80 +1505,50 @@ EslSocketGetPeerAddress (
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
 
     //
-    //  Verify the address buffer and length address
+    //  Verify the API
     //
-    if (( NULL != pAddress ) && ( NULL != pAddressLength )) {
-      //
-      //  Verify the socket state
-      //
-      if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
-        //
-        //  Synchronize with the socket layer
-        //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-        //
-        //  Validate the local address
-        //
-        switch ( pSocket->Domain ) {
-        default:
-          DEBUG (( DEBUG_RX,
-                    "ERROR - Invalid socket address family: %d\r\n",
-                    pSocket->Domain ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
-          //
-          //  Determine the connection point within the network stack
-          //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            break;
-
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Verify the port state
-            //
-            Status = EslTcpGetRemoteAddress4 ( pSocket,
-                                               pAddress,
-                                               pAddressLength );
-            break;
-
-          case SOCK_DGRAM:
-            //
-            //  Verify the port state
-            //
-            Status = EslUdpGetRemoteAddress4 ( pSocket,
-                                               pAddress,
-                                               pAddressLength );
-            break;
-          }
-          break;
-        }
-
-        //
-        //  Release the socket layer synchronization
-        //
-        RESTORE_TPL ( TplPrevious );
-      }
-      else {
-        pSocket->errno = ENOTCONN;
-        Status = EFI_NOT_STARTED;
-      }
+    if ( NULL == pSocket->pApi->pfnGetRemoteAddr ) {
+      Status = EFI_UNSUPPORTED;
+      pSocket->errno = ENOTSUP;
     }
     else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
+      //
+      //  Verify the address buffer and length address
+      //
+      if (( NULL != pAddress ) && ( NULL != pAddressLength )) {
+        //
+        //  Verify the socket state
+        //
+        if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+          //
+          //  Synchronize with the socket layer
+          //
+          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+          //
+          //  Get the remote address
+          //
+          Status = pSocket->pApi->pfnGetRemoteAddr ( pSocket,
+                                                     pAddress,
+                                                     pAddressLength );
+
+          //
+          //  Release the socket layer synchronization
+          //
+          RESTORE_TPL ( TplPrevious );
+        }
+        else {
+          pSocket->errno = ENOTCONN;
+          Status = EFI_NOT_STARTED;
+        }
+      }
+      else {
+        pSocket->errno = EINVAL;
+        Status = EFI_INVALID_PARAMETER;
+      }
     }
   }
-  
+
   //
   //  Return the operation status
   //
@@ -1735,127 +1681,102 @@ EslSocketListen (
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
 
     //
-    //  Assume success
+    //  Verify the API
     //
-    pSocket->Status = EFI_SUCCESS;
-    pSocket->errno = 0;
-
-    //
-    //  Verify that the bind operation was successful
-    //
-    if ( SOCKET_STATE_BOUND == pSocket->State ) {
+    if ( NULL == pSocket->pApi->pfnListen ) {
+      Status = EFI_UNSUPPORTED;
+      pSocket->errno = ENOTSUP;
+    }
+    else {
       //
-      //  Synchronize with the socket layer
+      //  Assume success
       //
-      RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+      pSocket->Status = EFI_SUCCESS;
+      pSocket->errno = 0;
 
       //
-      //  Create the event for SocketAccept completion
+      //  Verify that the bind operation was successful
       //
-      Status = gBS->CreateEvent ( 0,
-                                  TplPrevious,
-                                  NULL,
-                                  NULL,
-                                  &pSocket->WaitAccept );
-      if ( !EFI_ERROR ( Status )) {
-        DEBUG (( DEBUG_POOL,
-                  "0x%08x: Created WaitAccept event\r\n",
-                  pSocket->WaitAccept ));
+      if ( SOCKET_STATE_BOUND == pSocket->State ) {
         //
-        //  Set the maximum FIFO depth
+        //  Synchronize with the socket layer
         //
-        if ( 0 >= Backlog ) {
-          Backlog = MAX_PENDING_CONNECTIONS;
-        }
-        else {
-          if ( SOMAXCONN < Backlog ) {
-            Backlog = SOMAXCONN;
-          }
-          else {
-            pSocket->MaxFifoDepth = Backlog;
-          }
-        }
+        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
         //
-        //  Validate the local address
+        //  Create the event for SocketAccept completion
         //
-        switch ( pSocket->Domain ) {
-        default:
-          DEBUG (( DEBUG_BIND,
-                    "ERROR - Invalid socket address family: %d\r\n",
-                    pSocket->Domain ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-
-        case AF_INET:
-          //
-          //  Determine the connection point within the network stack
-          //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_BIND,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            pSocket->errno = EADDRNOTAVAIL;
-            break;
-
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            Status = EslTcpListen4 ( pSocket );
-            break;
-
-/*
-          case SOCK_DGRAM:
-            Status = UdpListen4 ( pSocket );
-            break;
-*/
-          }
-          break;
-        }
-
-        //
-        //  Place the socket in the listen state if successful
-        //
+        Status = gBS->CreateEvent ( 0,
+                                    TplPrevious,
+                                    NULL,
+                                    NULL,
+                                    &pSocket->WaitAccept );
         if ( !EFI_ERROR ( Status )) {
-          pSocket->State = SOCKET_STATE_LISTENING;
-        }
-        else {
+          DEBUG (( DEBUG_POOL,
+                    "0x%08x: Created WaitAccept event\r\n",
+                    pSocket->WaitAccept ));
           //
-          //  Not waiting for SocketAccept to complete
+          //  Set the maximum FIFO depth
           //
-          TempStatus = gBS->CloseEvent ( pSocket->WaitAccept );
-          if ( !EFI_ERROR ( TempStatus )) {
-            DEBUG (( DEBUG_POOL,
-                      "0x%08x: Closed WaitAccept event\r\n",
-                      pSocket->WaitAccept ));
-            pSocket->WaitAccept = NULL;
+          if ( 0 >= Backlog ) {
+            Backlog = MAX_PENDING_CONNECTIONS;
           }
           else {
-            DEBUG (( DEBUG_ERROR | DEBUG_POOL,
-                      "ERROR - Failed to close WaitAccept event, Status: %r\r\n",
-                      TempStatus ));
-            ASSERT ( EFI_SUCCESS == TempStatus );
+            if ( SOMAXCONN < Backlog ) {
+              Backlog = SOMAXCONN;
+            }
+            else {
+              pSocket->MaxFifoDepth = Backlog;
+            }
+          }
+
+          //
+          //  Initiate the connection attempt listen
+          //
+          Status = pSocket->pApi->pfnListen ( pSocket );
+
+          //
+          //  Place the socket in the listen state if successful
+          //
+          if ( !EFI_ERROR ( Status )) {
+            pSocket->State = SOCKET_STATE_LISTENING;
+          }
+          else {
+            //
+            //  Not waiting for SocketAccept to complete
+            //
+            TempStatus = gBS->CloseEvent ( pSocket->WaitAccept );
+            if ( !EFI_ERROR ( TempStatus )) {
+              DEBUG (( DEBUG_POOL,
+                        "0x%08x: Closed WaitAccept event\r\n",
+                        pSocket->WaitAccept ));
+              pSocket->WaitAccept = NULL;
+            }
+            else {
+              DEBUG (( DEBUG_ERROR | DEBUG_POOL,
+                        "ERROR - Failed to close WaitAccept event, Status: %r\r\n",
+                        TempStatus ));
+              ASSERT ( EFI_SUCCESS == TempStatus );
+            }
           }
         }
+        else {
+          DEBUG (( DEBUG_ERROR | DEBUG_LISTEN,
+                    "ERROR - Failed to create the WaitAccept event, Status: %r\r\n",
+                    Status ));
+          pSocket->errno = ENOMEM;
+        }
+
+        //
+        //  Release the socket layer synchronization
+        //
+        RESTORE_TPL ( TplPrevious );
       }
       else {
         DEBUG (( DEBUG_ERROR | DEBUG_LISTEN,
-                  "ERROR - Failed to create the WaitAccept event, Status: %r\r\n",
-                  Status ));
-        pSocket->errno = ENOMEM;
+                  "ERROR - Bind operation must be performed first!\r\n" ));
+        pSocket->errno = EDESTADDRREQ;
       }
-
-      //
-      //  Release the socket layer synchronization
-      //
-      RESTORE_TPL ( TplPrevious );
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DEBUG_LISTEN,
-                "ERROR - Bind operation must be performed first!\r\n" ));
-      pSocket->errno = EDESTADDRREQ;
     }
   }
 
@@ -2531,7 +2452,7 @@ EslSocketReceive (
           Status = EFI_INVALID_PARAMETER;
           pSocket->errno = EFAULT;
         }
-        else{
+        else {
           //
           //  Verify the API
           //
@@ -2629,89 +2550,61 @@ EslSocketShutdown (
     //
     if ( pSocket->bConnected ) {
       //
-      //  Validate the How value
+      //  Verify the API
       //
-      if (( SHUT_RD <= How ) && ( SHUT_RDWR >= How )) {
-        //
-        //  Synchronize with the socket layer
-        //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-        //
-        //  Disable the receiver if requested
-        //
-        if (( SHUT_RD == How ) || ( SHUT_RDWR == How )) {
-          pSocket->bRxDisable = TRUE;
-        }
-
-        //
-        //  Disable the transmitter if requested
-        //
-        if (( SHUT_WR == How ) || ( SHUT_RDWR == How )) {
-          pSocket->bTxDisable = TRUE;
-        }
-
-        //
-        //  Validate the local address
-        //
-        switch ( pSocket->Domain ) {
-        default:
-          DEBUG (( DEBUG_RX,
-                    "ERROR - Invalid socket address family: %d\r\n",
-                    pSocket->Domain ));
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EADDRNOTAVAIL;
-          break;
-        
-        case AF_INET:
-          //
-          //  Determine the connection point within the network stack
-          //
-          switch ( pSocket->Type ) {
-          default:
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Invalid socket type: %d\r\n",
-                      pSocket->Type));
-            Status = EFI_INVALID_PARAMETER;
-            break;
-        
-          case SOCK_STREAM:
-          case SOCK_SEQPACKET:
-            //
-            //  Cancel the pending receive operation
-            //
-            Status = EslTcpRxCancel4 ( pSocket );
-            break;
-        
-          case SOCK_DGRAM:
-            //
-            //  Cancel the pending receive operation
-            //
-            Status = EslUdpRxCancel4 ( pSocket );
-            break;
-          }
-          break;
-        }
-        
-        //
-        //  Release the socket layer synchronization
-        //
-        RESTORE_TPL ( TplPrevious );
+      if ( NULL == pSocket->pApi->pfnRxCancel ) {
+        Status = EFI_UNSUPPORTED;
+        pSocket->errno = ENOTSUP;
       }
       else {
         //
-        //  The socket is not connected
+        //  Validate the How value
         //
-        pSocket->errno = ENOTCONN;
-        Status = EFI_NOT_STARTED;
+        if (( SHUT_RD <= How ) && ( SHUT_RDWR >= How )) {
+          //
+          //  Synchronize with the socket layer
+          //
+          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+          //
+          //  Disable the receiver if requested
+          //
+          if (( SHUT_RD == How ) || ( SHUT_RDWR == How )) {
+            pSocket->bRxDisable = TRUE;
+          }
+
+          //
+          //  Disable the transmitter if requested
+          //
+          if (( SHUT_WR == How ) || ( SHUT_RDWR == How )) {
+            pSocket->bTxDisable = TRUE;
+          }
+
+          //
+          //  Cancel the pending receive operation
+          //
+          Status = pSocket->pApi->pfnRxCancel ( pSocket );
+
+          //
+          //  Release the socket layer synchronization
+          //
+          RESTORE_TPL ( TplPrevious );
+        }
+        else {
+          //
+          //  Invalid How value
+          //
+          pSocket->errno = EINVAL;
+          Status = EFI_INVALID_PARAMETER;
+        }
       }
     }
     else {
       //
-      //  Invalid How value
+      //  The socket is not connected
       //
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
+      pSocket->errno = ENOTCONN;
+      Status = EFI_NOT_STARTED;
     }
   }
 
@@ -2842,7 +2735,7 @@ EslSocketTransmit (
               //
               //  Verify the API
               //
-              if ( NULL == pSocket->pApi->pfnReceive ) {
+              if ( NULL == pSocket->pApi->pfnTransmit ) {
                 Status = EFI_UNSUPPORTED;
                 pSocket->errno = ENOTSUP;
               }

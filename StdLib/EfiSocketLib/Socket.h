@@ -321,6 +321,30 @@ typedef struct _DT_PORT {
 }GCC_DT_PORT;
 
 /**
+  Accept a network connection.
+
+  @param [in] pSocket   Address of the socket structure.
+
+  @param [in] pSockAddr       Address of a buffer to receive the remote
+                              network address.
+
+  @param [in, out] pSockAddrLength  Length in bytes of the address buffer.
+                                    On output specifies the length of the
+                                    remote network address.
+
+  @retval EFI_SUCCESS   Remote address is available
+  @retval Others        Remote address not available
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_ACCEPT) (
+  IN DT_SOCKET * pSocket,
+  IN struct sockaddr * pSockAddr,
+  IN OUT socklen_t * pSockAddrLength
+  );
+
+/**
   Bind a name to a socket.
 
   @param [in] pSocket   Address of the socket structure.
@@ -408,6 +432,27 @@ EFI_STATUS
   );
 
 /**
+  Get the remote socket address
+
+  @param [in] pSocket             Address of the socket structure.
+
+  @param [out] pAddress           Network address to receive the remote system address
+
+  @param [in,out] pAddressLength  Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+typedef
+EFI_STATUS
+(* PFN_API_GET_RMT_ADDR) (
+  IN DT_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  );
+
+/**
   Determine if the socket is configured.
 
 
@@ -420,6 +465,21 @@ EFI_STATUS
  typedef
  EFI_STATUS
  (* PFN_API_IS_CONFIGURED) (
+  IN DT_SOCKET * pSocket
+  );
+
+/**
+  Establish the known port to listen for network connections.
+
+  @param [in] pSocket     Address of the socket structure.
+
+  @retval EFI_SUCCESS - Socket successfully created
+  @retval Other - Failed to enable the socket for listen
+
+**/
+typedef
+EFI_STATUS
+(* PFN_API_LISTEN) (
   IN DT_SOCKET * pSocket
   );
 
@@ -453,6 +513,20 @@ EFI_STATUS
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Cancel the receive operations
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  
+  @retval EFI_SUCCESS - The cancel was successful
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_RX_CANCEL) (
+  IN DT_SOCKET * pSocket
   );
 
 /**
@@ -494,12 +568,16 @@ EFI_STATUS
 **/
 typedef struct {
   int DefaultProtocol;                    ///<  Default protocol
+  PFN_API_ACCEPT pfnAccept;               ///<  Accept a network connection
   PFN_API_BIND pfnBind;                   ///<  Bind API for the protocol
   PFN_API_CONNECT_START pfnConnectStart;  ///<  Start the connection to a remote system
   PFN_API_CONNECT_POLL pfnConnectPoll;    ///<  Poll for connection complete
   PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr; ///<  Get local address
+  PFN_API_GET_RMT_ADDR pfnGetRemoteAddr;  ///<  Get remote address
   PFN_API_IS_CONFIGURED pfnIsConfigured;  ///<  Determine if the socket is configured
+  PFN_API_LISTEN pfnListen;               ///<  Listen for connections on known server port
   PFN_API_RECEIVE pfnReceive;             ///<  Attempt to receive some data
+  PFN_API_RX_CANCEL pfnRxCancel;          ///<  Cancel a receive operation
   PFN_API_TRANSMIT pfnTransmit;           ///<  Attempt to buffer a packet for transmit
 } DT_PROTOCOL_API;
 
@@ -802,6 +880,26 @@ EslIpGetLocalAddress4 (
   );
 
 /**
+  Get the remote socket address
+
+  @param [in] pSocket             Address of the socket structure.
+
+  @param [out] pAddress           Network address to receive the remote system address
+
+  @param [in,out] pAddressLength  Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+EFI_STATUS
+EslIpGetRemoteAddress4 (
+  IN DT_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  );
+
+/**
   Initialize the IP4 service.
 
   This routine initializes the IP4 service after its service binding
@@ -921,6 +1019,19 @@ EslIpReceive4 (
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Cancel the receive operations
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  
+  @retval EFI_SUCCESS - The cancel was successful
+
+ **/
+EFI_STATUS
+EslIpRxCancel4 (
+  IN DT_SOCKET * pSocket
   );
 
 /**
