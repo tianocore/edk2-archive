@@ -1,5 +1,6 @@
 /** @file
-  Windows version of the raw IP4 transmit application
+  Windows version of the port scan application
+  
 
   Copyright (c) 2011, Intel Corporation
   All rights reserved. This program and the accompanying materials
@@ -12,13 +13,14 @@
 
 **/
 
-#include <RawIp4Tx.h>
+#include <PortScan.h>
 
 
 /**
-  Transmit raw IP4 packets to the remote system.
+  Determine which TCP ports are open on a remote system
 
   Please note that this program must be run with administrator privileges!
+  See http://msdn.microsoft.com/en-us/library/ms740548(v=vs.85).aspx
 
   @param [in] argc  The number of arguments
   @param [in] argv  The argument value array
@@ -42,9 +44,8 @@ main(
   if ( 0 == RetVal ) {
     //
     //  Start the application
-    //  See http://msdn.microsoft.com/en-us/library/ms740548(v=vs.85).aspx
     //
-    RetVal = RawIp4Tx ( argc, argv );
+    RetVal = PortScan ( argc, argv );
     if ( WSAEACCES == RetVal ) {
       printf ( "Requires administrator privileges to run!\r\n" );
     }

@@ -18,6 +18,8 @@
 /**
   Receive raw IP4 packets from a remote system.
 
+  Please note that this program must be run with administrator privileges!
+
   @param [in] argc  The number of arguments
   @param [in] argv  The argument value array
 
@@ -42,6 +44,9 @@ main(
     //  Start the application
     //
     RetVal = RawIp4Rx ( argc, argv );
+    if ( WSAEACCES == RetVal ) {
+      printf ( "Requires administrator privileges to run!\r\n" );
+    }
 
     //
     //  Done with the WinSock layer

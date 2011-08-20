@@ -15,6 +15,7 @@
   AppPkg/Applications/Sockets/GetServByPort/GetServByPort.inf
   AppPkg/Applications/Sockets/OobRx/OobRx.inf
   AppPkg/Applications/Sockets/OobTx/OobTx.inf
+  AppPkg/Applications/Sockets/PortScan/PortScan.inf
   AppPkg/Applications/Sockets/RawIp4Rx/RawIp4Rx.inf
   AppPkg/Applications/Sockets/RawIp4Tx/RawIp4Tx.inf
   AppPkg/Applications/Sockets/RecvDgram/RecvDgram.inf
