@@ -1855,10 +1855,24 @@ EslSocketOptionGet (
     switch ( level ) {
     default:
       //
-      //  Protocol level not supported
+      //  See if the protocol will handle the option
       //
-      errno = ENOTSUP;
-      Status = EFI_UNSUPPORTED;
+      if ( NULL != pSocket->pApi->pfnOptionGet ) {
+        Status = pSocket->pApi->pfnOptionGet ( pSocket,
+                                               level,
+                                               OptionName,
+                                               &pOptionData,
+                                               &LengthInBytes );
+        errno = pSocket->errno;
+      }
+      else {
+        //
+        //  Protocol level not supported
+        //
+        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid option level\r\n" ));
+        errno = ENOTSUP;
+        Status = EFI_UNSUPPORTED;
+      }
       break;
 
     case SOL_SOCKET:
@@ -1867,6 +1881,7 @@ EslSocketOptionGet (
         //
         //  Option not supported
         //
+        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid socket option\r\n" ));
         errno = ENOTSUP;
         Status = EFI_UNSUPPORTED;
         break;
@@ -1968,7 +1983,7 @@ EslSocketOptionGet (
   @param [in] OptionLength    Length of the buffer in bytes
   @param [out] pErrno         Address to receive the errno value upon completion.
 
-  @retval EFI_SUCCESS - Socket data successfully received
+  @retval EFI_SUCCESS - Option successfully set
 
  **/
 EFI_STATUS
@@ -1995,7 +2010,7 @@ EslSocketOptionSet (
   //
   errno = EINVAL;
   Status = EFI_INVALID_PARAMETER;
-  
+
   //
   //  Validate the socket
   //
@@ -2008,10 +2023,23 @@ EslSocketOptionSet (
     switch ( level ) {
     default:
       //
-      //  Protocol level not supported
+      //  See if the protocol will handle the option
       //
-      errno = ENOTSUP;
-      Status = EFI_UNSUPPORTED;
+      if ( NULL != pSocket->pApi->pfnOptionSet ) {
+        Status = pSocket->pApi->pfnOptionSet ( pSocket,
+                                               level,
+                                               OptionName,
+                                               pOptionValue,
+                                               OptionLength );
+        errno = pSocket->errno;
+      }
+      else {
+        //
+        //  Protocol level not supported
+        //
+        errno = ENOTSUP;
+        Status = EFI_UNSUPPORTED;
+      }
       break;
   
     case SOL_SOCKET:

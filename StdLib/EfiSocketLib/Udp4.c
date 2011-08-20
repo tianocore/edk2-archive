@@ -24,6 +24,8 @@ CONST DT_PROTOCOL_API cEslUdp4Api = {
   EslUdpGetRemoteAddress4,
   EslUdpSocketIsConfigured4,
   NULL,   //  Listen
+  NULL,   //  OptionGet
+  NULL,   //  OptionSet
   EslUdpReceive4,
   EslUdpRxCancel4,
   EslUdpTxBuffer4

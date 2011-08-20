@@ -30,6 +30,7 @@
 #define DEBUG_TX            0x00400000  ///<  Display transmit messages
 #define DEBUG_CLOSE         0x00200000  ///<  Display close messages
 #define DEBUG_CONNECT       0x00100000  ///<  Display connect messages
+#define DEBUG_OPTION        0x00080000  ///<  Display option messages
 
 #define MAX_PENDING_CONNECTIONS     1   ///<  Maximum connection FIFO depth
 #define MAX_RX_DATA         65536       ///<  Maximum receive data size
@@ -484,6 +485,54 @@ EFI_STATUS
   );
 
 /**
+  Get the option value
+
+  Retrieve the protocol options one at a time by name.
+
+  @param [in] pSocket           Address of a DT_SOCKET structure
+  @param [in] level             Option protocol level
+  @param [in] OptionName        Name of the option
+  @param [out] ppOptionData     Buffer to receive address of option value
+  @param [out] pOptionLength    Buffer to receive the option length
+
+  @retval EFI_SUCCESS - Socket data successfully received
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_OPTION_GET) (
+  IN DT_SOCKET * pSocket,
+  IN int level,
+  IN int OptionName,
+  OUT CONST void ** __restrict ppOptionData,
+  OUT socklen_t * __restrict pOptionLength
+  );
+
+/**
+  Set the option value
+
+  Adjust the protocol options one at a time by name.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] level           Option protocol level
+  @param [in] OptionName      Name of the option
+  @param [in] pOptionValue    Buffer containing the option value
+  @param [in] OptionLength    Length of the buffer in bytes
+
+  @retval EFI_SUCCESS - Option successfully set
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_OPTION_SET) (
+  IN DT_SOCKET * pSocket,
+  IN int level,
+  IN int OptionName,
+  IN CONST void * pOptionValue,
+  IN socklen_t OptionLength
+  );
+
+/**
   Receive data from a network connection.
 
   @param [in] pSocket         Address of a DT_SOCKET structure
@@ -576,6 +625,8 @@ typedef struct {
   PFN_API_GET_RMT_ADDR pfnGetRemoteAddr;  ///<  Get remote address
   PFN_API_IS_CONFIGURED pfnIsConfigured;  ///<  Determine if the socket is configured
   PFN_API_LISTEN pfnListen;               ///<  Listen for connections on known server port
+  PFN_API_OPTION_GET pfnOptionGet;        ///<  Get the option value
+  PFN_API_OPTION_SET pfnOptionSet;        ///<  Set the option value
   PFN_API_RECEIVE pfnReceive;             ///<  Attempt to receive some data
   PFN_API_RX_CANCEL pfnRxCancel;          ///<  Cancel a receive operation
   PFN_API_TRANSMIT pfnTransmit;           ///<  Attempt to buffer a packet for transmit
@@ -608,6 +659,7 @@ typedef struct _DT_SOCKET {
   //  Socket options
   //
   BOOLEAN bOobInLine;           ///<  TRUE if out-of-band messages are to be received inline with normal data
+  BOOLEAN bIncludeHeader;       ///<  TRUE if including the IP header
 
   //
   //  Socket data
@@ -915,6 +967,52 @@ EFI_STATUS
 EFIAPI
 EslIpInitialize4 (
   IN DT_SERVICE * pService
+  );
+
+/**
+  Get the option value
+
+  Retrieve the protocol options one at a time by name.
+
+  @param [in] pSocket           Address of a DT_SOCKET structure
+  @param [in] level             Option protocol level
+  @param [in] OptionName        Name of the option
+  @param [out] ppOptionData     Buffer to receive address of option value
+  @param [out] pOptionLength    Buffer to receive the option length
+
+  @retval EFI_SUCCESS - Socket data successfully received
+
+ **/
+EFI_STATUS
+EslIpOptionGet4 (
+  IN DT_SOCKET * pSocket,
+  IN int level,
+  IN int OptionName,
+  OUT CONST void ** __restrict ppOptionData,
+  OUT socklen_t * __restrict pOptionLength
+  );
+
+/**
+  Set the option value
+
+  Adjust the protocol options one at a time by name.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] level           Option protocol level
+  @param [in] OptionName      Name of the option
+  @param [in] pOptionValue    Buffer containing the option value
+  @param [in] OptionLength    Length of the buffer in bytes
+
+  @retval EFI_SUCCESS - Option successfully set
+
+ **/
+EFI_STATUS
+EslIpOptionSet4 (
+  IN DT_SOCKET * pSocket,
+  IN int level,
+  IN int OptionName,
+  IN CONST void * pOptionValue,
+  IN socklen_t OptionLength
   );
 
 /**

@@ -24,6 +24,8 @@ CONST DT_PROTOCOL_API cEslIp4Api = {
   EslIpGetRemoteAddress4,
   EslIpSocketIsConfigured4,
   NULL,   //  Listen
+  EslIpOptionGet4,
+  EslIpOptionSet4,
   EslIpReceive4,
   EslIpRxCancel4,
   EslIpTxBuffer4
@@ -168,6 +170,9 @@ EslIpPortAllocate4 (
       && ( 0 == pIpAddress[2])
       && ( 0 == pIpAddress[3])) {
       pConfig->UseDefaultAddress = TRUE;
+      DEBUG (( DebugFlags,
+                "0x%08x: Port using default IP address\r\n",
+                pPort ));
     }
     else {
       pConfig->StationAddress.Addr[0] = pIpAddress[0];
@@ -178,6 +183,13 @@ EslIpPortAllocate4 (
       pConfig->SubnetMask.Addr[1] = 0xff;
       pConfig->SubnetMask.Addr[2] = 0xff;
       pConfig->SubnetMask.Addr[3] = 0xff;
+      DEBUG (( DebugFlags,
+                "0x%08x: Port using IP address: %d.%d.%d.%d\r\n",
+                pPort,
+                pConfig->StationAddress.Addr[0],
+                pConfig->StationAddress.Addr[1],
+                pConfig->StationAddress.Addr[2],
+                pConfig->StationAddress.Addr[3]));
     }
     pConfig->AcceptAnyProtocol = (BOOLEAN)( 0 == pConfig->UseDefaultAddress);
     pConfig->AcceptIcmpErrors = FALSE;
@@ -691,6 +703,188 @@ EslIpInitialize4 (
   DBG_EXIT_STATUS ( Status );
   return Status;
 }
+
+
+/**
+  Get the option value
+
+  Retrieve the protocol options one at a time by name.
+
+  @param [in] pSocket           Address of a DT_SOCKET structure
+  @param [in] level             Option protocol level
+  @param [in] OptionName        Name of the option
+  @param [out] ppOptionData     Buffer to receive address of option value
+  @param [out] pOptionLength    Buffer to receive the option length
+
+  @retval EFI_SUCCESS - Socket data successfully received
+
+ **/
+EFI_STATUS
+EslIpOptionGet4 (
+  IN DT_SOCKET * pSocket,
+  IN int level,
+  IN int OptionName,
+  OUT CONST void ** __restrict ppOptionData,
+  OUT socklen_t * __restrict pOptionLength
+  )
+{
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Assume success
+  //
+  pSocket->errno = 0;
+  Status = EFI_SUCCESS;
+
+  //
+  //  Attempt to get the option
+  //
+  switch ( level ) {
+  default:
+    //
+    //  Protocol level not supported
+    //
+    pSocket->errno = ENOTSUP;
+    Status = EFI_UNSUPPORTED;
+    break;
+
+  case IPPROTO_IP:
+    switch ( OptionName ) {
+    default:
+      //
+      //  Option not supported
+      //
+      pSocket->errno = ENOTSUP;
+      Status = EFI_UNSUPPORTED;
+      break;
+
+    case IP_HDRINCL:
+      *ppOptionData = (void *)pSocket->bIncludeHeader;
+      *pOptionLength = sizeof ( pSocket->bIncludeHeader );
+      break;
+    }
+  }
+
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Set the option value
+
+  Adjust the protocol options one at a time by name.
+
+  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] level           Option protocol level
+  @param [in] OptionName      Name of the option
+  @param [in] pOptionValue    Buffer containing the option value
+  @param [in] OptionLength    Length of the buffer in bytes
+
+  @retval EFI_SUCCESS - Option successfully set
+
+ **/
+EFI_STATUS
+EslIpOptionSet4 (
+  IN DT_SOCKET * pSocket,
+  IN int level,
+  IN int OptionName,
+  IN CONST void * pOptionValue,
+  IN socklen_t OptionLength
+  )
+{
+  BOOLEAN bTrueFalse;
+  socklen_t LengthInBytes;
+  UINT8 * pOptionData;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Assume failure
+  //
+  pSocket->errno = EINVAL;
+  Status = EFI_INVALID_PARAMETER;
+
+  //
+  //  Determine if the option protocol matches
+  //
+  LengthInBytes = 0;
+  pOptionData = NULL;
+  switch ( level ) {
+  default:
+    //
+    //  Protocol level not supported
+    //
+    DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid option level\r\n" ));
+    pSocket->errno = ENOTSUP;
+    Status = EFI_UNSUPPORTED;
+    break;
+
+  case IPPROTO_IP:
+    switch ( OptionName ) {
+    default:
+      //
+      //  Protocol level not supported
+      //
+      DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid protocol option\r\n" ));
+      pSocket->errno = ENOTSUP;
+      Status = EFI_UNSUPPORTED;
+      break;
+
+    case IP_HDRINCL:
+
+      //
+      //  Validate the option length
+      //
+      if ( sizeof ( UINT32 ) == OptionLength ) {
+        //
+        //  Restrict the input to TRUE or FALSE
+        //
+        bTrueFalse = TRUE;
+        if ( 0 == *(UINT32 *)pOptionValue ) {
+          bTrueFalse = FALSE;
+        }
+        pOptionValue = &bTrueFalse;
+
+        //
+        //  Set the option value
+        //
+        pOptionData = (UINT8 *)&pSocket->bIncludeHeader;
+        LengthInBytes = sizeof ( pSocket->bIncludeHeader );
+      }
+      break;
+      
+    }
+    break;
+  }
+
+  //
+  //  Validate the option length
+  //
+  if ( LengthInBytes <= OptionLength ) {
+    //
+    //  Set the option value
+    //
+    if ( NULL != pOptionData ) {
+      CopyMem ( pOptionData, pOptionValue, LengthInBytes );
+      pSocket->errno = 0;
+      Status = EFI_SUCCESS;
+    }
+  }
+  
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
 
 
 /**
@@ -1959,10 +2153,20 @@ EslIpShutdown4 (
     pPort = pSocket->pPortList;
     while ( NULL != pPort ) {
       //
+      //  Update the raw setting
+      //
+      pIp4 = &pPort->Context.Ip4;
+      if ( pSocket->bIncludeHeader ) {
+        //
+        //  IP header will be included with the data on transmit
+        //
+        pIp4->ModeData.ConfigData.RawData = TRUE;
+      }
+
+      //
       //  Attempt to configure the port
       //
       pNextPort = pPort->pLinkSocket;
-      pIp4 = &pPort->Context.Ip4;
       pIp4Protocol = pIp4->pProtocol;
       DEBUG (( DEBUG_TX,
                 "0x%08x: pPort Configuring for %d.%d.%d.%d --> %d.%d.%d.%d\r\n",
