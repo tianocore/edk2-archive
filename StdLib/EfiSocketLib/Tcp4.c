@@ -399,9 +399,9 @@ EslTcpConnectAttempt4 (
   connection attempt was successful, then release all of the other
   ports.
 
-  @param  Event         The connect completion event
+  @param [in] Event     The connect completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -439,10 +439,10 @@ EslTcpConnectComplete4 (
     DEBUG (( DEBUG_CONNECT,
               "0x%08x: Port connected to %d.%d.%d.%d:%d\r\n",
               pPort,
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [0],
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [1],
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [2],
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [3],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3],
               pTcp4->ConfigData.AccessPoint.RemotePort ));
 
     //
@@ -457,10 +457,10 @@ EslTcpConnectComplete4 (
     DEBUG (( DEBUG_CONNECT,
               "0x%08x: Port connection to %d.%d.%d.%d:%d failed, Status: %r\r\n",
               pPort,
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [0],
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [1],
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [2],
-              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr [3],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3],
               pTcp4->ConfigData.AccessPoint.RemotePort,
               Status ));
 
@@ -813,7 +813,7 @@ EslTcpGetLocalAddress4 (
     //  Verify the address length
     //
     LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= * pAddressLength ) {
+    if ( LengthInBytes <= *pAddressLength ) {
       //
       //  Return the local address
       //
@@ -889,7 +889,7 @@ EslTcpGetRemoteAddress4 (
     //  Verify the address length
     //
     LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= * pAddressLength ) {
+    if ( LengthInBytes <= *pAddressLength ) {
       //
       //  Return the local address
       //
@@ -1095,8 +1095,7 @@ EslTcpListen4 (
       //
       //  Close the port upon error
       //
-      if ( EFI_ERROR ( Status ))
-      {
+      if ( EFI_ERROR ( Status )) {
         EslTcpPortCloseStart4 ( pPort, TRUE, DEBUG_LISTEN );
       }
 
@@ -1149,9 +1148,9 @@ EslTcpListen4 (
   A system has initiated a connection attempt with a socket in the
   listen state.  Attempt to complete the connection.
 
-  @param  Event         The listen completion event
+  @param [in] Event     The listen completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1920,9 +1919,9 @@ EslTcpPortClose4 (
 /**
   Process the port close completion
 
-  @param  Event         The close completion event
+  @param [in] Event     The close completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -2077,8 +2076,7 @@ EslTcpPortCloseRxDone4 (
         //
         Status = EslTcpPortClose4 ( pPort );
       }
-      else
-      {
+      else {
         DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
                   "0x%08x: Port Close: Close operation still pending!\r\n",
                   pPort ));
@@ -2588,9 +2586,9 @@ EslTcpRxCancel4 (
 
   Buffer the data that was just received.
 
-  @param  Event         The receive completion event
+  @param [in] Event     The receive completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -2694,8 +2692,7 @@ EslTcpRxComplete4 (
                 pSocket->RxBytes ));
     }
   }
-  else
-  {
+  else {
     DEBUG (( DEBUG_RX | DEBUG_INFO,
               "ERROR - Receiving packet 0x%08x, on port 0x%08x, Status:%r\r\n",
               pPacket,
@@ -2798,8 +2795,8 @@ EslTcpRxStart4 (
         pTcp4->RxToken.Packet.RxData = &pPacket->Op.Tcp4Rx.RxData;
         pPacket->Op.Tcp4Rx.RxData.DataLength = (UINT32) LengthInBytes;
         pPacket->Op.Tcp4Rx.RxData.FragmentCount = 1;
-        pPacket->Op.Tcp4Rx.RxData.FragmentTable [0].FragmentLength = (UINT32) LengthInBytes;
-        pPacket->Op.Tcp4Rx.RxData.FragmentTable [0].FragmentBuffer = &pPacket->Op.Tcp4Rx.Buffer [0];
+        pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentLength = (UINT32) LengthInBytes;
+        pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentBuffer = &pPacket->Op.Tcp4Rx.Buffer[0];
         pTcp4->pReceivePending = pPacket;
 
         //
@@ -3006,7 +3003,7 @@ EslTcpTxBuffer4 (
   //
   Status = EFI_UNSUPPORTED;
   pSocket->errno = ENOTCONN;
-  * pDataLength = 0;
+  *pDataLength = 0;
 
   //
   //  Verify that the socket is connected
@@ -3169,9 +3166,9 @@ EslTcpTxBuffer4 (
 /**
   Process the normal data transmit completion
 
-  @param  Event         The normal transmit completion event
+  @param [in] Event     The normal transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -3231,8 +3228,7 @@ EslTcpTxComplete4 (
     pSocket->pTxPacketListTail = NULL;
     pPacket = pCurrentPacket;
   }
-  else
-  {
+  else {
     DEBUG (( DEBUG_TX | DEBUG_INFO,
               "0x%08x: Packet transmitted %d bytes successfully\r\n",
               pPacket,
@@ -3274,9 +3270,9 @@ EslTcpTxComplete4 (
 /**
   Process the urgent data transmit completion
 
-  @param  Event         The urgent transmit completion event
+  @param [in] Event     The urgent transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -3337,8 +3333,7 @@ EslTcpTxOobComplete4 (
     pSocket->pTxOobPacketListTail = NULL;
     pPacket = pCurrentPacket;
   }
-  else
-  {
+  else {
     DEBUG (( DEBUG_TX | DEBUG_INFO,
               "0x%08x: Urgent packet transmitted %d bytes successfully\r\n",
               pPacket,

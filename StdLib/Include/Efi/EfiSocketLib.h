@@ -147,7 +147,7 @@ extern CONST EFI_GUID mEslUdp4ServiceGuid;
 // Data
 //------------------------------------------------------------------------------
 
-extern CONST DT_SOCKET_BINDING cEslSocketBinding [];
+extern CONST DT_SOCKET_BINDING cEslSocketBinding[];
 extern CONST UINTN cEslSocketBindingEntries;
 
 //------------------------------------------------------------------------------

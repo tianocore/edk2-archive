@@ -15,28 +15,28 @@
 #ifndef _SOCKLIB_INTERNALS_H_
 #define _SOCKLIB_INTERNALS_H_
 
-void	_sethosthtent(int);
-void	_endhosthtent(void);
-void	_sethostdnsent(int);
-void	_endhostdnsent(void);
-void	_setnethtent(int);
-void	_endnethtent(void);
-void	_setnetdnsent(int);
-void	_endnetdnsent(void);
+void _sethosthtent (int);
+void _endhosthtent (void);
+void _sethostdnsent (int);
+void _endhostdnsent (void);
+void _setnethtent (int);
+void _endnethtent (void);
+void _setnetdnsent (int);
+void _endnetdnsent (void);
 
-struct hostent * _gethostbyhtname(const char *, int);
-struct hostent * _gethostbydnsname(const char *, int);
-struct hostent * _gethostbynisname(const char *, int);
-struct hostent * _gethostbyhtaddr(const char *, int, int);
-struct hostent * _gethostbydnsaddr(const char *, int, int);
-struct hostent * _gethostbynisaddr(const char *, int, int);
-struct netent *  _getnetbyhtname(const char *);
-struct netent *  _getnetbydnsname(const char *);
-struct netent *  _getnetbynisname(const char *);
-struct netent *  _getnetbyhtaddr(unsigned long, int);
-struct netent *  _getnetbydnsaddr(unsigned long, int);
-struct netent *  _getnetbynisaddr(unsigned long, int);
-void _map_v4v6_address(const char *src, char *dst);
-void _map_v4v6_hostent(struct hostent *hp, char **bp, int *len);
+struct hostent * _gethostbyhtname (const char *, int);
+struct hostent * _gethostbydnsname (const char *, int);
+struct hostent * _gethostbynisname (const char *, int);
+struct hostent * _gethostbyhtaddr (const char *, int, int);
+struct hostent * _gethostbydnsaddr (const char *, int, int);
+struct hostent * _gethostbynisaddr (const char *, int, int);
+struct netent *  _getnetbyhtname (const char *);
+struct netent *  _getnetbydnsname (const char *);
+struct netent *  _getnetbynisname (const char *);
+struct netent *  _getnetbyhtaddr (unsigned long, int);
+struct netent *  _getnetbydnsaddr (unsigned long, int);
+struct netent *  _getnetbynisaddr (unsigned long, int);
+void _map_v4v6_address (const char *src, char *dst);
+void _map_v4v6_hostent (struct hostent *hp, char **bp, int *len);
 #endif
 

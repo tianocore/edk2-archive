@@ -24,7 +24,7 @@
 
   List the network stack connection points for the socket driver.
 **/
-CONST DT_SOCKET_BINDING cEslSocketBinding [] = {
+CONST DT_SOCKET_BINDING cEslSocketBinding[] = {
   { L"Ip4",
     &gEfiIp4ServiceBindingProtocolGuid,
     &mEslIp4ServiceGuid,
@@ -47,7 +47,7 @@ CONST UINTN cEslSocketBindingEntries = DIM ( cEslSocketBinding );
 /**
   APIs to support the various socket types
 **/
-CONST DT_PROTOCOL_API * cEslAfInetApi [] = {
+CONST DT_PROTOCOL_API * cEslAfInetApi[] = {
   NULL,             //  0
   &cEslTcp4Api,     //  SOCK_STREAM
   &cEslUdp4Api,     //  SOCK_DGRAM
@@ -151,8 +151,7 @@ EslSocket (
     //  Validate the domain value
     //
     if (( AF_INET != domain )
-      && ( AF_LOCAL != domain ))
-    {
+      && ( AF_LOCAL != domain )) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
                 "ERROR - Invalid domain value" ));
       Status = EFI_INVALID_PARAMETER;
@@ -183,7 +182,7 @@ EslSocket (
     //
     if (( type >= ApiArraySize )
       || ( NULL == ppApiArray )
-      || ( NULL == ppApiArray [ type ])) {
+      || ( NULL == ppApiArray[ type ])) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
                 "ERROR - Invalid type value\r\n" ));
       Status = EFI_INVALID_PARAMETER;
@@ -194,7 +193,7 @@ EslSocket (
     //
     //  Set the default protocol if necessary
     //
-    pApi = ppApiArray [ type ];
+    pApi = ppApiArray[ type ];
     if ( 0 == protocol ) {
       protocol = pApi->DefaultProtocol;
     }
@@ -413,8 +412,7 @@ EslSocketAccept (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -699,8 +697,7 @@ EslSocketBind (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -1131,8 +1128,7 @@ EslSocketConnect (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       //
       //  Bad socket protocol
       //
@@ -1453,8 +1449,7 @@ EslSocketGetLocalAddress (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -1556,8 +1551,7 @@ EslSocketGetPeerAddress (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -1787,8 +1781,7 @@ EslSocketListen (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -2522,8 +2515,7 @@ EslSocketReceive (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -2643,8 +2635,7 @@ EslSocketShutdown (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }
@@ -2810,8 +2801,7 @@ EslSocketTransmit (
     if ( NULL != pSocket ) {
       *pErrno = pSocket->errno;
     }
-    else
-    {
+    else {
       Status = EFI_INVALID_PARAMETER;
       *pErrno = EBADF;
     }

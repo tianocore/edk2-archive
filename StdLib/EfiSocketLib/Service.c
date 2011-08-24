@@ -14,7 +14,7 @@
 
 #include "Socket.h"
 
-EFI_TCP4_PROTOCOL * mpEfiTcpClose4 [ 1024 ];
+EFI_TCP4_PROTOCOL * mpEfiTcpClose4[ 1024 ];
 
 
 /**

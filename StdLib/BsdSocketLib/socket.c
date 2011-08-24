@@ -79,7 +79,7 @@ BslFdToSocketProtocol (
     //
     //  Get the descriptor for the file
     //
-    pDescriptor = &gMD->fdarray [ s ];
+    pDescriptor = &gMD->fdarray[ s ];
 
     //
     //  Validate that the descriptor is associated with sockets
@@ -125,7 +125,7 @@ BslSocketProtocolToFd (
   //  Locate a file descriptor
   //
   FileDescriptor = FindFreeFD ( VALID_CLOSED );
-  if( FileDescriptor < 0 ) {
+  if ( FileDescriptor < 0 ) {
     //
     // All available FDs are in use
     //
@@ -135,7 +135,7 @@ BslSocketProtocolToFd (
     //
     //  Initialize the file descriptor
     //
-    pDescriptor = &gMD->fdarray [ FileDescriptor ];
+    pDescriptor = &gMD->fdarray[ FileDescriptor ];
     pDescriptor->f_offset = 0;
     pDescriptor->f_flag = 0;
     pDescriptor->f_iflags = DTYPE_SOCKET;
@@ -226,8 +226,7 @@ socket (
                                           type,
                                           protocol,
                                           &errno );
-    if ( !EFI_ERROR ( Status ))
-    {
+    if ( !EFI_ERROR ( Status )) {
       //
       //  Build the file descriptor for the socket
       //

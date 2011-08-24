@@ -107,8 +107,8 @@ EslServiceNetworkConnect (
   //
   //  Connect the network devices
   //
-  pSocketBinding = &cEslSocketBinding [0];
-  pEnd = &pSocketBinding [ cEslSocketBindingEntries ];
+  pSocketBinding = &cEslSocketBinding[0];
+  pEnd = &pSocketBinding[ cEslSocketBindingEntries ];
   while ( pEnd > pSocketBinding ) {
     //
     //  Attempt to locate the network adapters
@@ -129,7 +129,7 @@ EslServiceNetworkConnect (
       //
       for ( Index = 0; HandleCount > Index; Index++ ) {
         Status = EslServiceConnect ( gImageHandle,
-                                     pHandles [ Index ]);
+                                     pHandles[ Index ]);
         if ( EFI_ERROR ( Status )) {
           break;
         }
@@ -183,8 +183,8 @@ EslServiceNetworkDisconnect (
   //
   //  Disconnect the network devices
   //
-  pSocketBinding = &cEslSocketBinding [0];
-  pEnd = &pSocketBinding [ cEslSocketBindingEntries ];
+  pSocketBinding = &cEslSocketBinding[0];
+  pEnd = &pSocketBinding[ cEslSocketBindingEntries ];
   while ( pEnd > pSocketBinding ) {
     //
     //  Attempt to locate the network adapters
@@ -205,7 +205,7 @@ EslServiceNetworkDisconnect (
       //
       for ( Index = 0; HandleCount > Index; Index++ ) {
         Status = EslServiceDisconnect ( gImageHandle,
-                                        pHandles [ Index ]);
+                                        pHandles[ Index ]);
         if ( EFI_ERROR ( Status )) {
           break;
         }

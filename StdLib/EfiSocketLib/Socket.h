@@ -38,10 +38,10 @@
 #define RX_PACKET_DATA      16384       ///<  Maximum number of bytes in a RX packet
 #define MAX_UDP_RETRANSMIT  16          ///<  UDP retransmit attempts to handle address not mapped
 
-#define LAYER_SIGNATURE             SIGNATURE_32('S','k','t','L') ///<  DT_LAYER memory signature
-#define SERVICE_SIGNATURE           SIGNATURE_32('S','k','t','S') ///<  DT_SERVICE memory signature
-#define SOCKET_SIGNATURE            SIGNATURE_32('S','c','k','t') ///<  DT_SOCKET memory signature
-#define PORT_SIGNATURE              SIGNATURE_32('P','o','r','t') ///<  DT_PORT memory signature
+#define LAYER_SIGNATURE           SIGNATURE_32 ('S','k','t','L')  ///<  DT_LAYER memory signature
+#define SERVICE_SIGNATURE         SIGNATURE_32 ('S','k','t','S')  ///<  DT_SERVICE memory signature
+#define SOCKET_SIGNATURE          SIGNATURE_32 ('S','c','k','t')  ///<  DT_SOCKET memory signature
+#define PORT_SIGNATURE            SIGNATURE_32 ('P','o','r','t')  ///<  DT_PORT memory signature
 
 typedef enum
 {
@@ -102,7 +102,7 @@ typedef struct
 {
   EFI_IP4_OVERRIDE_DATA Override;       ///<  Override data
   EFI_IP4_TRANSMIT_DATA TxData;         ///<  Transmit operation description
-  UINT8 Buffer [ 1 ];                   ///<  Data buffer
+  UINT8 Buffer[ 1 ];                    ///<  Data buffer
 } DT_IP4_TX_DATA;
 
 typedef struct
@@ -110,13 +110,13 @@ typedef struct
   EFI_TCP4_RECEIVE_DATA RxData;         ///<  Receive operation description
   size_t ValidBytes;                    ///<  Length of valid data in bytes
   UINT8 * pBuffer;                      ///<  Current data pointer
-  UINT8 Buffer [ RX_PACKET_DATA ];      ///<  Data buffer
+  UINT8 Buffer[ RX_PACKET_DATA ];       ///<  Data buffer
 } DT_TCP4_RX_DATA;
 
 typedef struct
 {
   EFI_TCP4_TRANSMIT_DATA TxData;        ///<  Transmit operation description
-  UINT8 Buffer [ 1 ];                   ///<  Data buffer
+  UINT8 Buffer[ 1 ];                    ///<  Data buffer
 } DT_TCP4_TX_DATA;
 
 typedef struct
@@ -130,7 +130,7 @@ typedef struct
   EFI_UDP4_SESSION_DATA Session;        ///<  Remote network address
   EFI_UDP4_TRANSMIT_DATA TxData;        ///<  Transmit operation description
   UINTN RetransmitCount;                ///<  Retransmit to handle ARP negotiation
-  UINT8 Buffer [ 1 ];                   ///<  Data buffer
+  UINT8 Buffer[ 1 ];                    ///<  Data buffer
 } DT_UDP4_TX_DATA;
 
 typedef struct _DT_PACKET {
@@ -717,7 +717,7 @@ typedef struct _DT_SOCKET {
   DT_PACKET * pTxPacketListTail;    ///<  Normal data list tail
 }GCC_DT_SOCKET;
 
-#define SOCKET_FROM_PROTOCOL(a)  CR(a, DT_SOCKET, SocketProtocol, SOCKET_SIGNATURE) ///< Locate DT_SOCKET from protocol
+#define SOCKET_FROM_PROTOCOL(a)  CR (a, DT_SOCKET, SocketProtocol, SOCKET_SIGNATURE)  ///< Locate DT_SOCKET from protocol
 
 /**
   Socket layer control structure
@@ -758,7 +758,7 @@ typedef struct {
   EFI_TCP4_PROTOCOL ** ppTcpClose4; ///<  Ring buffer to close TCP4 ports
 } DT_LAYER;
 
-#define LAYER_FROM_SERVICE(a) CR(a, DT_LAYER, ServiceBinding, LAYER_SIGNATURE) ///< Locate DT_LAYER from service binding
+#define LAYER_FROM_SERVICE(a) CR (a, DT_LAYER, ServiceBinding, LAYER_SIGNATURE) ///< Locate DT_LAYER from service binding
 
 //------------------------------------------------------------------------------
 // Data
@@ -1140,9 +1140,9 @@ EslIpRxCancel4 (
   buffer will be returned by either ::IpReceive4 or
   ::IpPortCloseTxDone4.
 
-  @param  Event         The receive completion event
+  @param [in] Event     The receive completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1237,9 +1237,9 @@ EslIpTxBuffer4 (
 /**
   Process the transmit completion
 
-  @param  Event         The normal transmit completion event
+  @param [in] Event     The normal transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1446,9 +1446,9 @@ EslTcpListen4 (
   A system has initiated a connection attempt with a socket in the
   listen state.  Attempt to complete the connection.
 
-  @param  Event         The listeen completion event
+  @param [in] Event     The listeen completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1502,9 +1502,9 @@ EslTcpPortClose4 (
 /**
   Process the port close completion
 
-  @param  Event         The close completion event
+  @param [in] Event     The close completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1613,9 +1613,9 @@ EslTcpRxCancel4 (
 
   Buffer the data that was just received.
 
-  @param  Event         The receive completion event
+  @param [in] Event     The receive completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1703,9 +1703,9 @@ EslTcpTxBuffer4 (
 /**
   Process the normal data transmit completion
 
-  @param  Event         The normal transmit completion event
+  @param [in] Event     The normal transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1717,9 +1717,9 @@ EslTcpTxComplete4 (
 /**
   Process the urgent data transmit completion
 
-  @param  Event         The urgent transmit completion event
+  @param [in] Event     The urgent transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -2012,9 +2012,9 @@ EslUdpRxCancel4 (
   buffer will be returned by either ::UdpReceive4 or
   ::UdpPortCloseTxDone4.
 
-  @param  Event         The receive completion event
+  @param [in] Event     The receive completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -2052,9 +2052,9 @@ EslUdpRxStart4 (
 /**
   Process the transmit completion
 
-  @param  Event         The normal transmit completion event
+  @param [in] Event     The normal transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID

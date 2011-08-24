@@ -549,7 +549,7 @@ EslIpGetLocalAddress4 (
     //  Verify the address length
     //
     LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= * pAddressLength ) {
+    if ( LengthInBytes <= *pAddressLength ) {
       //
       //  Return the local address
       //
@@ -624,7 +624,7 @@ EslIpGetRemoteAddress4 (
     //  Verify the address length
     //
     LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= * pAddressLength ) {
+    if ( LengthInBytes <= *pAddressLength ) {
       //
       //  Return the local address
       //
@@ -1781,9 +1781,9 @@ EslIpRxCancel4 (
   buffer will be returned by either ::IpReceive4 or
   ::IpPortCloseTxDone4.
 
-  @param  Event         The receive completion event
+  @param [in] Event     The receive completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -1887,8 +1887,7 @@ EslIpRxComplete4 (
       EslSocketPacketFree ( pPacket, DEBUG_RX );
     }
   }
-  else
-  {
+  else {
     DEBUG (( DEBUG_RX | DEBUG_INFO,
               "ERROR - Receiving packet 0x%08x, on port 0x%08x, Status:%r\r\n",
               pPacket,
@@ -2329,7 +2328,7 @@ EslIpTxBuffer4 (
   //
   Status = EFI_UNSUPPORTED;
   pSocket->errno = ENOTCONN;
-  * pDataLength = 0;
+  *pDataLength = 0;
 
   //
   //  Verify that the socket is connected
@@ -2506,9 +2505,9 @@ EslIpTxBuffer4 (
 /**
   Process the transmit completion
 
-  @param  Event         The normal transmit completion event
+  @param [in] Event     The normal transmit completion event
 
-  @param  pPort         The DT_PORT structure address
+  @param [in] pPort     The DT_PORT structure address
 
 **/
 VOID
@@ -2571,8 +2570,7 @@ EslIpTxComplete4 (
     pSocket->pTxPacketListTail = NULL;
     pPacket = pCurrentPacket;
   }
-  else
-  {
+  else {
     DEBUG (( DEBUG_TX | DEBUG_INFO,
               "0x%08x: Packet transmitted %d bytes successfully\r\n",
               pPacket,
