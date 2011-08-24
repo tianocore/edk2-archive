@@ -314,7 +314,7 @@ PortScan (
                 //
                 //  Finish computing the TCP header checksum
                 //
-                Checksum = TcpChecksum + htons( *(UINT16 *)&pTcpHeader[2]);
+                Checksum = TcpChecksum + htons ( *(UINT16 *)&pTcpHeader[2]);
                 while ( 0xffff < Checksum ) {
                   Checksum = ( Checksum >> 16 ) + ( Checksum & 0xffff );
                 }
@@ -355,7 +355,7 @@ PortScan (
                         //  Validate the response (SYN ACK)
                         //
                         pRxIpHeader = &mRxBuffer[0];
-                        pRxTcpHeader = &pRxIpHeader [( pRxIpHeader [0] & 0xf ) << 2 ];
+                        pRxTcpHeader = &pRxIpHeader[( pRxIpHeader[0] & 0xf ) << 2 ];
                         if (( pIpHeader[12] == pRxIpHeader[16])   //  Our address
                           && ( pIpHeader[13] == pRxIpHeader[17])
                           && ( pIpHeader[14] == pRxIpHeader[18])

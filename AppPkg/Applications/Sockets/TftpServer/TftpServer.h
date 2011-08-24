@@ -155,13 +155,13 @@ typedef struct _TSDT_CONNECTION_CONTEXT {
   BOOLEAN bEofSent;             ///<  End of file sent
   UINT8 * pBuffer;              ///<  Pointer into the file data
   UINT8 * pEnd;                 ///<  End of the file data
-  UINT8 FileData [ 64 * TFTP_MAX_BLOCK_SIZE ];  ///<  File data to send
+  UINT8 FileData[ 64 * TFTP_MAX_BLOCK_SIZE ]; ///<  File data to send
 
   //
   //  Buffer management
   //
   ssize_t   TxBytes;            ///<  Bytes in the TX buffer
-  UINT8     TxBuffer [ 2 + 2 + TFTP_MAX_BLOCK_SIZE ]; ///<  Transmit buffer
+  UINT8     TxBuffer[ 2 + 2 + TFTP_MAX_BLOCK_SIZE ];  ///<  Transmit buffer
 }GCC_TSDT_CONNECTION_CONTEXT;
 
 /**
@@ -188,7 +188,7 @@ typedef struct {
   //
   struct sockaddr_in RemoteAddress; ///<  Remote address
   ssize_t   RxBytes;                ///<  Receive data length in bytes
-  UINT8     RxBuffer [ 2 + 2 + TFTP_MAX_BLOCK_SIZE ]; ///<  Receive buffer
+  UINT8     RxBuffer[ 2 + 2 + TFTP_MAX_BLOCK_SIZE ];  ///<  Receive buffer
 
   //
   //  Client port management
