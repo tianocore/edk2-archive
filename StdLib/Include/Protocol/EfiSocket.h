@@ -565,9 +565,7 @@ typedef struct _EFI_SOCKET_PROTOCOL {
 //------------------------------------------------------------------------------
 
 /**
-  Non blocking version of accept.
-
-  See ::accept
+  Non blocking version of ::accept.
 
   @param [in] s         Socket file descriptor returned from ::socket.
 
@@ -578,7 +576,7 @@ typedef struct _EFI_SOCKET_PROTOCOL {
                                 contains the length of the remote network address.
 
   @return     This routine returns zero if successful and -1 when an error occurs.
-              In the case of an error, errno contains more details.
+              In the case of an error, ::errno contains more details.
 
  **/
 int
@@ -589,12 +587,12 @@ AcceptNB (
   );
 
 /**
-  Connect to the socket driver
+  Connect to the EFI socket library
 
   @param [in] ppSocketProtocol  Address to receive the socket protocol address
 
-  @retval 0             Successfully returned the socket protocol
-  @retval other         Value for errno
+  @return       Value for ::errno, zero (0) indicates success.
+
  **/
 int
 EslServiceGetProtocol (

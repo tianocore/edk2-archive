@@ -16,7 +16,7 @@
 
 
 /**
-  Worker routine for ::Accept and ::AcceptNB
+  Worker routine for ::accept and ::AcceptNB
 
   @param [in] s         Socket file descriptor returned from ::socket.
 
@@ -27,8 +27,8 @@
                                 of the remote network address buffer.  Upon return,
                                 contains the length of the remote network address.
 
-  @return     ::accept returns zero if successful and -1 when an error occurs.
-              In the case of an error, errno contains more details.
+  @return     AcceptWork returns zero if successful and -1 when an error occurs.
+              In the case of an error, ::errno contains more details.
 
  **/
 int
@@ -94,9 +94,10 @@ AcceptWork (
 /**
   Accept a network connection.
 
-  The ::accept routine waits for a network connection to the socket.
-  It is able to return the remote network address to the caller if
-  requested.  The
+  The accept routine waits for a network connection to the socket.
+  It returns the remote network address to the caller if requested.
+
+  The
   <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/accept.html">POSIX</a>
   documentation is available online.
 
@@ -108,8 +109,8 @@ AcceptWork (
                                 of the remote network address buffer.  Upon return,
                                 contains the length of the remote network address.
 
-  @return     ::accept returns zero if successful and -1 when an error occurs.
-              In the case of an error, errno contains more details.
+  @return     The accept routine returns zero if successful and -1 when an error occurs.
+              In the case of an error, ::errno contains more details.
 
  **/
 int
@@ -127,9 +128,7 @@ accept (
 
 
 /**
-  Non blocking version of accept.
-
-  See ::accept
+  Non blocking version of ::accept.
 
   @param [in] s         Socket file descriptor returned from ::socket.
 
@@ -140,7 +139,7 @@ accept (
                                 contains the length of the remote network address.
 
   @return     This routine returns zero if successful and -1 when an error occurs.
-              In the case of an error, errno contains more details.
+              In the case of an error, ::errno contains more details.
 
  **/
 int

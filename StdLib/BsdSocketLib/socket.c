@@ -47,7 +47,7 @@ const struct fileops SocketOperations = {
                             address for the file
   @param [in] pErrno        Address of the errno variable
 
-  @return   A pointer to the socket protocol structure or NULL if
+  @return   A pointer to the EFI_SOCKET_PROTOCOL structure or NULL if
             an invalid file descriptor was passed in.
 
  **/
@@ -162,10 +162,12 @@ BslSocketProtocolToFd (
 /**
   Creates an endpoint for network communication.
 
-  The ::Socket routine initializes the communication endpoint by providing
-  the support for the socket library function ::socket.  The
+  The socket routine initializes the communication endpoint and returns a
+  file descriptor.
+
+  The
   <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/socket.html">POSIX</a>
-  documentation for the socket routine is available online for reference.
+  documentation is available online.
 
   @param [in] domain    Select the family of protocols for the client or server
                         application.
@@ -192,9 +194,14 @@ BslSocketProtocolToFd (
                         <ul>
                           <li>IPPROTO_TCP</li> - This value must be combined with SOCK_STREAM.</li>
                           <li>IPPROTO_UDP</li> - This value must be combined with SOCK_DGRAM.</li>
+                          <li>0 - 254</li> - An assigned
+                            <a href="http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml">protocol number</a>
+                            is combined with SOCK_RAW.
+                          </li>
                         </ul>
 
-  @return  This routine returns a file descriptor for the socket.
+  @return  This routine returns a file descriptor for the socket.  If an error
+           occurs -1 is returned and ::errno contains more details.
 
  **/
 INT32
@@ -249,7 +256,7 @@ socket (
 
   @param [in] pErrno      Address of the errno variable
 
-  @return   A pointer to the socket protocol structure or NULL if
+  @return   A pointer to the EFI_SOCKET_PROTOCOL structure or NULL if
             an invalid file descriptor was passed in.
 
  **/

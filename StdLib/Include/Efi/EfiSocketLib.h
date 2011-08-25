@@ -49,12 +49,12 @@
 #define DBG_EXIT_STATUS(Status) DEBUG (( DEBUG_INFO, "Exiting " __FUNCTION__ ", Status: %r\n", Status ))      ///<  Display routine exit with status value
 #define DBG_EXIT_TF(Status)     DEBUG (( DEBUG_INFO, "Exiting " __FUNCTION__ ", returning %s\n", (FALSE == Status) ? L"FALSE" : L"TRUE" ))  ///<  Display routine with TRUE/FALSE value
 #else   //  _MSC_VER
-#define DBG_ENTER()
-#define DBG_EXIT()
-#define DBG_EXIT_DEC(Status)
-#define DBG_EXIT_HEX(Status)
-#define DBG_EXIT_STATUS(Status)
-#define DBG_EXIT_TF(Status)
+#define DBG_ENTER()               ///<  Display routine entry
+#define DBG_EXIT()                ///<  Display routine exit
+#define DBG_EXIT_DEC(Status)      ///<  Display routine exit with decimal value
+#define DBG_EXIT_HEX(Status)      ///<  Display routine exit with hex value
+#define DBG_EXIT_STATUS(Status)   ///<  Display routine exit with status value
+#define DBG_EXIT_TF(Status)       ///<  Display routine with TRUE/FALSE value
 #endif  //  _MSC_VER
 
 #define DIM(x)    ( sizeof ( x ) / sizeof ( x[0] ))   ///<  Compute the number of entries in an array
@@ -71,6 +71,9 @@
 
 #if !defined(MDEPKG_NDEBUG)
 
+/**
+  Verify that the TPL is at the correct level
+**/
 #define VERIFY_TPL(tpl)                           \
 {                                                 \
   EFI_TPL PreviousTpl;                            \
@@ -87,10 +90,13 @@
 
 #else   //  MDEPKG_NDEBUG
 
-#define VERIFY_TPL(tpl)
+#define VERIFY_TPL(tpl)       ///<  Verify that the TPL is at the correct level
 
 #endif  //  MDEPKG_NDEBUG
 
+/**
+  Raise TPL to the specified level
+**/
 #define RAISE_TPL(PreviousTpl, tpl)     \
   VERIFY_TPL ( tpl );                   \
   PreviousTpl = gBS->RaiseTPL ( tpl );  \
@@ -98,6 +104,9 @@
           "%d: TPL\r\n",                \
           tpl ))
 
+/**
+  Restore the TPL to the previous value
+**/
 #define RESTORE_TPL(tpl)            \
   gBS->RestoreTPL ( tpl );          \
   DEBUG (( DEBUG_TPL | DEBUG_TPL,   \
@@ -110,12 +119,18 @@
 
 typedef struct _DT_SERVICE DT_SERVICE;  ///<  Forward delcaration
 
+/**
+  Initialize the network layer
+**/
 typedef
 EFI_STATUS
 (EFIAPI * PFN_SB_INITIALIZE) (
     IN DT_SERVICE * pService
     );
 
+/**
+  Shutdown the network layer
+**/
 typedef
 VOID
 (EFIAPI * PFN_SB_SHUTDOWN) (
@@ -139,16 +154,16 @@ typedef struct {
 // GUIDs
 //------------------------------------------------------------------------------
 
-extern CONST EFI_GUID mEslIp4ServiceGuid;
-extern CONST EFI_GUID mEslTcp4ServiceGuid;
-extern CONST EFI_GUID mEslUdp4ServiceGuid;
+extern CONST EFI_GUID mEslIp4ServiceGuid;   ///<  Tag GUID for the IPv4 layer
+extern CONST EFI_GUID mEslTcp4ServiceGuid;  ///<  Tag GUID for the TCPv4 layer
+extern CONST EFI_GUID mEslUdp4ServiceGuid;  ///<  Tag GUID for the UDPv4 layer
 
 //------------------------------------------------------------------------------
 // Data
 //------------------------------------------------------------------------------
 
-extern CONST DT_SOCKET_BINDING cEslSocketBinding[];
-extern CONST UINTN cEslSocketBindingEntries;
+extern CONST DT_SOCKET_BINDING cEslSocketBinding[]; ///<  List of network service bindings
+extern CONST UINTN cEslSocketBindingEntries;        ///<  Number of network service bindings
 
 //------------------------------------------------------------------------------
 // Service Support Routines
@@ -305,7 +320,7 @@ EslSocketDestroyChild (
 /**
   Bind a name to a socket.
 
-  The ::SocketBind routine connects a name to a socket on the local machine.  The
+  The ::EslSocketBind routine connects a name to a socket on the local machine.  The
   <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/bind.html">POSIX</a>
   documentation for the bind routine is available online for reference.
 
@@ -321,7 +336,7 @@ EslSocketDestroyChild (
                         number from the dynamic range.  Specifying a specific
                         port number causes the network layer to use that port.
 
-  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
 
   @param [out] pErrno   Address to receive the errno value upon completion.
 
@@ -339,7 +354,7 @@ EslSocketBind (
 /**
   Determine if the socket is closed
 
-  Reverses the operations of the ::SocketAllocate() routine.
+  Reverses the operations of the ::EslSocketAllocate() routine.
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
   @param [out] pErrno         Address to receive the errno value upon completion.
@@ -360,7 +375,7 @@ EslSocketClosePoll (
   Start the close operation on the socket
 
   Start closing the socket by closing all of the ports.  Upon
-  completion, the ::SocketPoll() routine finishes closing the
+  completion, the ::EslSocketPoll() routine finishes closing the
   socket.
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
@@ -383,7 +398,7 @@ EslSocketCloseStart (
 /**
   Connect to a remote system via the network.
 
-  The ::SocketConnect routine attempts to establish a connection to a
+  The ::EslSocketConnect routine attempts to establish a connection to a
   socket on the local or remote system using the specified address.
   The POSIX
   <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/connect.html">connect</a>
@@ -472,9 +487,9 @@ EslSocketGetPeerAddress (
 /**
   Establish the known port to listen for network connections.
 
-  The ::SocketListen routine places the port into a state that enables connection
+  The ::EslSocketListen routine places the port into a state that enables connection
   attempts.  Connections are placed into FIFO order in a queue to be serviced
-  by the application.  The application calls the ::SocketAccept routine to remove
+  by the application.  The application calls the ::EslSocketAccept routine to remove
   the next connection from the queue and get the associated socket.  The
   <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/listen.html">POSIX</a>
   documentation for the bind routine is available online for reference.

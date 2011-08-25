@@ -18,7 +18,11 @@
 /**
   Send data using a network connection.
 
-  The ::send routine queues data to the network for transmission.
+  The sendto routine queues data to the network for transmission.
+  This routine is typically used for SOCK_DGRAM sockets that are shared
+  between multiple machine where it is required to specify the target
+  system address when sending the data.
+
   The
   <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/send.html">POSIX</a>
   documentation is available online.
@@ -35,9 +39,9 @@
 
   @param [in] tolen     Length of remote system address structure
 
-  @return     ::send returns the number of data bytes that were
+  @return     This routine returns the number of data bytes that were
               sent and -1 when an error occurs.  In the case of
-              an error, errno contains more details.
+              an error, ::errno contains more details.
 
  **/
 ssize_t

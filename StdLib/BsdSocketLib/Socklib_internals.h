@@ -1,4 +1,4 @@
-/** @file
+/*
   Definitions for the socket library functions that are used internally.
 
   Copyright (c) 2011, Intel Corporation
@@ -10,7 +10,7 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-**/
+*/
 
 #ifndef _SOCKLIB_INTERNALS_H_
 #define _SOCKLIB_INTERNALS_H_

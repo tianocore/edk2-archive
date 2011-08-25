@@ -58,6 +58,17 @@ CONST DT_PROTOCOL_API * cEslAfInetApi[] = {
 
 CONST int cEslAfInetApiSize = DIM ( cEslAfInetApi );
 
+CONST DT_PROTOCOL_API * cEslAfInet6Api[] = {
+  NULL,             //  0
+  NULL,             //  SOCK_STREAM
+  NULL,             //  SOCK_DGRAM
+  NULL,             //  SOCK_RAW
+  NULL,             //  SOCK_RDM
+  NULL              //  SOCK_SEQPACKET
+};
+
+CONST int cEslAfInet6ApiSize = DIM ( cEslAfInet6Api );
+
 DT_LAYER mEslLayer;
 
 
@@ -168,6 +179,10 @@ EslSocket (
       || ( AF_LOCAL == domain )) {
       ppApiArray = &cEslAfInetApi[0];
       ApiArraySize = cEslAfInetApiSize;
+    }
+    else {
+      ppApiArray = &cEslAfInet6Api[0];
+      ApiArraySize = cEslAfInet6ApiSize;
     }
 
     //

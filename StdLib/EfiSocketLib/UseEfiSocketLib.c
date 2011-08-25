@@ -33,8 +33,8 @@ CONST EFI_GUID mEslUdp4ServiceGuid = {
 
   @param [in] ppSocketProtocol  Address to receive the socket protocol address
 
-  @retval 0             Successfully returned the socket protocol
-  @retval other         Value for errno
+  @return       Value for ::errno, zero (0) indicates success.
+
  **/
 int
 EslServiceGetProtocol (
