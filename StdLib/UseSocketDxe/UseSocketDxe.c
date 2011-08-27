@@ -23,12 +23,17 @@
 
 
 /**
-  Connect to the socket driver
+  Connect to the EFI socket library
+
+  This routine is called from the socket routine in BsdSocketLib
+  to create the data structure for a socket.  This specific
+  implementation is used when an application links to UseSocketDxe
+  and redirects all requests to the SocketDxe driver.
 
   @param [in] ppSocketProtocol  Address to receive the socket protocol address
 
-  @retval 0             Successfully returned the socket protocol
-  @retval other         Value for errno
+  @return       Value for ::errno, zero (0) indicates success.
+
  **/
 int
 EslServiceGetProtocol (

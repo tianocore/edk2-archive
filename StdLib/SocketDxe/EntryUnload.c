@@ -15,14 +15,25 @@
 #include "Socket.h"
 
 
+/**
+  Tag GUID - IPv4 in use by SocketDxe
+**/
 CONST EFI_GUID mEslIp4ServiceGuid = {
   0x4e3a82e6, 0xe43f, 0x460a, { 0x86, 0x6e, 0x9b, 0x5a, 0xab, 0x80, 0x44, 0x48 }
 };
 
+
+/**
+  Tag GUID - TCPv4 in use by SocketDxe
+**/
 CONST EFI_GUID mEslTcp4ServiceGuid = {
     0x4dcaab0a, 0x1990, 0x4352, { 0x8d, 0x2f, 0x2d, 0x8f, 0x13, 0x55, 0x98, 0xa5 }
 };
 
+
+/**
+  Tag GUID - UDPv4 in use by SocketDxe
+**/
 CONST EFI_GUID mEslUdp4ServiceGuid = {
     0x43a110ce, 0x9ccd, 0x402b, { 0x8c, 0x29, 0x4a, 0x6d, 0x8a, 0xf7, 0x79, 0x90 }
 };
@@ -131,7 +142,7 @@ DriverUnload (
   //  Done with the socket layer
   //
   if ( !EFI_ERROR ( Status )) {
-    Status = EslServiceUninstall ( ImageHandle );
+    Status = EslDxeUninstall ( ImageHandle );
     if ( !EFI_ERROR ( Status )) {
       //
       //  Remove the protocols installed by the EntryPoint routine.
@@ -250,7 +261,7 @@ EntryPoint (
       //  Make the socket serivces available to other drivers
       //  and applications
       //
-      Status = EslServiceInstall ( &ImageHandle );
+      Status = EslDxeInstall ( &ImageHandle );
       if ( EFI_ERROR ( Status )) {
         //
         //  Disconnect from the network
@@ -292,5 +303,14 @@ EntryPoint (
 }
 
 
-PFN_ESL_xSTRUCTOR mpfnEslConstructor = NULL;
-PFN_ESL_xSTRUCTOR mpfnEslDestructor = NULL;
+/**
+  Socket layer's service binding protocol delcaration.
+**/
+CONST EFI_SERVICE_BINDING_PROTOCOL mEfiServiceBinding = {
+  EslDxeCreateChild,
+  EslDxeDestroyChild
+};
+
+
+PFN_ESL_xSTRUCTOR mpfnEslConstructor = NULL;  ///<  No EfiSocketLib constructor needed for SocketDxe
+PFN_ESL_xSTRUCTOR mpfnEslDestructor = NULL;   ///<  No EfiSocketLib destructor needed for SocketDxe

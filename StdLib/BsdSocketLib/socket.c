@@ -170,22 +170,25 @@ BslSocketProtocolToFd (
   documentation is available online.
 
   @param [in] domain    Select the family of protocols for the client or server
-                        application.
+                        application.  The supported values are:
+                        <ul>
+                          <li>AF_INET - Version 4 UEFI network stack</li>
+                        </ul>
 
   @param [in] type      Specifies how to make the network connection.  The following values
                         are supported:
                         <ul>
                           <li>
+                            SOCK_DGRAM - Connect to UDP, provides a datagram service that is
+                            manipulated by recvfrom and sendto.
+                          </li>
+                          <li>
                             SOCK_STREAM - Connect to TCP, provides a byte stream
                             that is manipluated by read, recv, send and write.
                           </li>
                           <li>
-                            SOCK_SEQPACKET - Connect to TCP, provides sequenced packet stream
-                            that is manipulated by read, recv, send and write.
-                          </li>
-                          <li>
-                            SOCK_DGRAM - Connect to UDP, provides a datagram service that is
-                            manipulated by recvfrom and sendto.
+                            SOCK_RAW - Connect to IP, provides a datagram service that
+                            is manipulated by recvfrom and sendto.
                           </li>
                         </ul>
 

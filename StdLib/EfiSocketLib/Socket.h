@@ -730,7 +730,7 @@ typedef struct {
   //
   //  Service binding interface
   //
-  EFI_SERVICE_BINDING_PROTOCOL ServiceBinding;///<  Driver's binding
+  CONST EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding; ///<  Driver's binding
 
   //
   //  Image data
@@ -748,14 +748,6 @@ typedef struct {
   //  Socket management
   //
   DT_SOCKET * pSocketList;      ///<  List of sockets
-  
-  //
-  //  TCP4 service
-  //
-  UINTN TcpCloseMax4;           ///<  Number of entries in the ring buffer
-  UINTN TcpCloseIn4;            ///<  Offset into TcpClose4 ring buffer - Close request
-  UINTN TcpCloseOut4;           ///<  Offset into TcpClose4 ring buffer - Close operation
-  EFI_TCP4_PROTOCOL ** ppTcpClose4; ///<  Ring buffer to close TCP4 ports
 } DT_LAYER;
 
 #define LAYER_FROM_SERVICE(a) CR (a, DT_LAYER, ServiceBinding, LAYER_SIGNATURE) ///< Locate DT_LAYER from service binding
@@ -769,6 +761,8 @@ extern DT_LAYER mEslLayer;
 extern CONST DT_PROTOCOL_API cEslIp4Api;
 extern CONST DT_PROTOCOL_API cEslTcp4Api;
 extern CONST DT_PROTOCOL_API cEslUdp4Api;
+
+extern CONST EFI_SERVICE_BINDING_PROTOCOL mEfiServiceBinding;
 
 //------------------------------------------------------------------------------
 // Socket Support Routines

@@ -1197,6 +1197,7 @@ EslTcpListenComplete4 (
       //
       //  Clone the socket parameters
       //
+      pNewSocket->pApi = pSocket->pApi;
       pNewSocket->Domain = pSocket->Domain;
       pNewSocket->Protocol = pSocket->Protocol;
       pNewSocket->Type = pSocket->Type;

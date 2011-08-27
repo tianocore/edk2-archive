@@ -78,14 +78,14 @@ sendto (
     pData = buffer;
     do {
       errno = 0;
-      Status = pSocketProtocol->pfnSend ( pSocketProtocol,
-                                          flags,
-                                          length,
-                                          pData,
-                                          (size_t *)&LengthInBytes,
-                                          to,
-                                          tolen,
-                                          &errno );
+      Status = pSocketProtocol->pfnTransmit ( pSocketProtocol,
+                                              flags,
+                                              length,
+                                              pData,
+                                              (size_t *)&LengthInBytes,
+                                              to,
+                                              tolen,
+                                              &errno );
       if ( EFI_ERROR ( Status ) && ( EFI_NOT_READY != Status )) {
         LengthInBytes = -1;
         break;

@@ -18,6 +18,11 @@
 /**
   EFI Socket Library Constructor
 
+  Constructor listed in the EfiSocketLib.inf file.  This routine
+  supports an implementation dependent constructor depending upon
+  whether the library is linked to an application or to the SocketDxe
+  driver.
+
   @retval EFI_SUCCESS       The initialization was successful
 
  **/
@@ -53,6 +58,11 @@ EslConstructor (
 
 /**
   EFI Socket Library Destructor
+
+  Destructor listed in the EfiSocketLib.inf file.  This routine
+  supports an implementation dependent destructor depending upon
+  whether the library is linked to an application or to the SocketDxe
+  driver.
 
   @retval EFI_SUCCESS       The shutdown was successful
 

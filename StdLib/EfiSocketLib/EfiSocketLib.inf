@@ -28,6 +28,7 @@
 #
 
 [Sources.common]
+  DxeSupport.c
   Init.c
   Ip4.c
   Service.c

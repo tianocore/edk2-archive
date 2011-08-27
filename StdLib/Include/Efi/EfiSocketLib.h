@@ -166,6 +166,97 @@ extern CONST DT_SOCKET_BINDING cEslSocketBinding[]; ///<  List of network servic
 extern CONST UINTN cEslSocketBindingEntries;        ///<  Number of network service bindings
 
 //------------------------------------------------------------------------------
+// DXE Support Routines
+//------------------------------------------------------------------------------
+
+/**
+  Creates a child handle and installs a protocol.
+
+  When the socket application is linked against UseSocketDxe, the ::socket
+  routine indirectly calls this routine in SocketDxe to create a child
+  handle if necessary and install the socket protocol on the handle.
+  Upon return, EslServiceGetProtocol in UseSocketLib returns the
+  ::EFI_SOCKET_PROTOCOL address to the socket routine.
+
+  @param [in] pThis        Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
+  @param [in] pChildHandle Pointer to the handle of the child to create. If it is NULL,
+                           then a new handle is created. If it is a pointer to an existing UEFI handle, 
+                           then the protocol is added to the existing UEFI handle.
+
+  @retval EFI_SUCCESS           The protocol was added to ChildHandle.
+  @retval EFI_INVALID_PARAMETER ChildHandle is NULL.
+  @retval EFI_OUT_OF_RESOURCES  There are not enough resources availabe to create
+                                the child
+  @retval other                 The child handle was not created
+
+**/
+EFI_STATUS
+EFIAPI
+EslDxeCreateChild (
+  IN     EFI_SERVICE_BINDING_PROTOCOL * pThis,
+  IN OUT EFI_HANDLE * pChildHandle
+  );
+
+/**
+  Destroys a child handle with a protocol installed on it.
+  
+  When the socket application is linked against UseSocketDxe, the ::close
+  routine indirectly calls this routine in SocketDxe to undo the operations
+  done by the ::EslDxeCreateChild routine.  This routine removes the socket
+  protocol from the handle and then destroys the child handle if there are
+  no other protocols attached.
+
+  @param [in] pThis       Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
+  @param [in] ChildHandle Handle of the child to destroy
+
+  @retval EFI_SUCCESS           The protocol was removed from ChildHandle.
+  @retval EFI_UNSUPPORTED       ChildHandle does not support the protocol that is being removed.
+  @retval EFI_INVALID_PARAMETER Child handle is not a valid UEFI Handle.
+  @retval EFI_ACCESS_DENIED     The protocol could not be removed from the ChildHandle
+                                because its services are being used.
+  @retval other                 The child handle was not destroyed
+
+**/
+EFI_STATUS
+EFIAPI
+EslDxeDestroyChild (
+  IN EFI_SERVICE_BINDING_PROTOCOL * pThis,
+  IN EFI_HANDLE ChildHandle
+  );
+
+/**
+Install the socket service
+
+SocketDxe uses this routine to announce the socket interface to
+the rest of EFI.
+
+@param [in] pImageHandle      Address of the image handle
+
+@retval EFI_SUCCESS     Service installed successfully
+**/
+EFI_STATUS
+EFIAPI
+EslDxeInstall (
+  IN EFI_HANDLE * pImageHandle
+  );
+
+/**
+Uninstall the socket service
+
+SocketDxe uses this routine to notify EFI that the socket layer
+is no longer available.
+
+@param [in] ImageHandle       Handle for the image.
+
+@retval EFI_SUCCESS     Service installed successfully
+**/
+EFI_STATUS
+EFIAPI
+EslDxeUninstall (
+  IN EFI_HANDLE ImageHandle
+  );
+
+//------------------------------------------------------------------------------
 // Service Support Routines
 //------------------------------------------------------------------------------
 
@@ -173,8 +264,11 @@ extern CONST UINTN cEslSocketBindingEntries;        ///<  Number of network serv
   Connect to the network service bindings
 
   Walk the network service protocols on the controller handle and
-  locate any that are not in use.  Create service structures to
-  manage the service binding for the socket driver.
+  locate any that are not in use.  Create ::DT_SERVICE structures to
+  manage the network layer interfaces for the socket driver.  Tag
+  each of the network interfaces that are being used.  Finally, this
+  routine calls DT_SOCKET_BINDING::pfnInitialize to prepare the network
+  interface for use by the socket layer.
 
   @param [in] BindingHandle    Handle for protocol binding.
   @param [in] Controller       Handle of device to work with.
@@ -191,12 +285,14 @@ EslServiceConnect (
   );
 
 /**
-  Shutdown the network connections to this controller by removing
-  NetworkInterfaceIdentifier protocol and closing the DevicePath
-  and PciIo protocols on Controller.
+  Shutdown the connections to the network layer by locating the
+  tags on the network interfaces established by ::EslServiceConnect.
+  This routine calls DT_SOCKET_BINDING::pfnShutdown to shutdown the any
+  activity on the network interface and then free the ::DT_SERVICE
+  structures.
 
   @param [in] BindingHandle    Handle for protocol binding.
-  @param [in] Controller           Handle of device to stop driver on.
+  @param [in] Controller       Handle of device to stop driver on.
 
   @retval EFI_SUCCESS          This driver is removed Controller.
   @retval EFI_DEVICE_ERROR     The device could not be stopped due to a device error.
@@ -208,19 +304,6 @@ EFIAPI
 EslServiceDisconnect (
   IN  EFI_HANDLE BindingHandle,
   IN  EFI_HANDLE Controller
-  );
-
-/**
-Install the socket service
-
-@param [in] pImageHandle      Address of the image handle
-
-@retval EFI_SUCCESS     Service installed successfully
-**/
-EFI_STATUS
-EFIAPI
-EslServiceInstall (
-  IN EFI_HANDLE * pImageHandle
   );
 
 /**
@@ -236,19 +319,6 @@ EslServiceLoad (
   );
 
 /**
-Uninstall the socket service
-
-@param [in] ImageHandle       Handle for the image.
-
-@retval EFI_SUCCESS     Service installed successfully
-**/
-EFI_STATUS
-EFIAPI
-EslServiceUninstall (
-  IN EFI_HANDLE ImageHandle
-  );
-
-/**
   Shutdown the service layer
 
 **/
@@ -259,72 +329,19 @@ EslServiceUnload (
   );
 
 //------------------------------------------------------------------------------
-// Socket Service Binding Protocol Routines
-//------------------------------------------------------------------------------
-
-/**
-  Creates a child handle and installs a protocol.
-
-  The CreateChild() function installs a protocol on ChildHandle.
-  If pChildHandle is a pointer to NULL, then a new handle is created and returned in pChildHandle.
-  If pChildHandle is not a pointer to NULL, then the protocol installs on the existing pChildHandle.
-
-  @param [in] pThis        Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
-  @param [in] pChildHandle Pointer to the handle of the child to create. If it is NULL,
-                           then a new handle is created. If it is a pointer to an existing UEFI handle,
-                           then the protocol is added to the existing UEFI handle.
-
-  @retval EFI_SUCCES            The protocol was added to ChildHandle.
-  @retval EFI_INVALID_PARAMETER ChildHandle is NULL.
-  @retval EFI_OUT_OF_RESOURCES  There are not enough resources availabe to create
-                                the child
-  @retval other                 The child handle was not created
-
-**/
-EFI_STATUS
-EFIAPI
-EslSocketCreateChild (
-  IN     EFI_SERVICE_BINDING_PROTOCOL * pThis,
-  IN OUT EFI_HANDLE * pChildHandle
-  );
-
-/**
-  Destroys a child handle with a protocol installed on it.
-
-  The DestroyChild() function does the opposite of CreateChild(). It removes a protocol
-  that was installed by CreateChild() from ChildHandle. If the removed protocol is the
-  last protocol on ChildHandle, then ChildHandle is destroyed.
-
-  @param [in] pThis       Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
-  @param [in] ChildHandle Handle of the child to destroy
-
-  @retval EFI_SUCCES            The protocol was removed from ChildHandle.
-  @retval EFI_UNSUPPORTED       ChildHandle does not support the protocol that is being removed.
-  @retval EFI_INVALID_PARAMETER Child handle is not a valid UEFI Handle.
-  @retval EFI_ACCESS_DENIED     The protocol could not be removed from the ChildHandle
-                                because its services are being used.
-  @retval other                 The child handle was not destroyed
-
-**/
-EFI_STATUS
-EFIAPI
-EslSocketDestroyChild (
-  IN EFI_SERVICE_BINDING_PROTOCOL * pThis,
-  IN EFI_HANDLE ChildHandle
-  );
-
-//------------------------------------------------------------------------------
 // Socket Protocol Routines
 //------------------------------------------------------------------------------
 
 /**
   Bind a name to a socket.
 
-  The ::EslSocketBind routine connects a name to a socket on the local machine.  The
-  <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/bind.html">POSIX</a>
-  documentation for the bind routine is available online for reference.
+  This routine calls the network specific layer to save the network
+  address of the local connection point.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::bind routine calls this routine to connect a name
+  (network address and port) to a socket on the local machine.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr Address of a sockaddr structure that contains the
                         connection point on the local machine.  An IPv4 address
@@ -336,7 +353,7 @@ EslSocketDestroyChild (
                         number from the dynamic range.  Specifying a specific
                         port number causes the network layer to use that port.
 
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
+  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
 
   @param [out] pErrno   Address to receive the errno value upon completion.
 
@@ -354,9 +371,14 @@ EslSocketBind (
 /**
   Determine if the socket is closed
 
-  Reverses the operations of the ::EslSocketAllocate() routine.
+  This routine checks the state of the socket to determine if
+  the network specific layer has completed the close operation.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::close routine polls this routine to determine when the
+  close operation is complete.  The close operation needs to
+  reverse the operations of the ::EslSocketAllocate routine.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
   @param [out] pErrno         Address to receive the errno value upon completion.
 
   @retval EFI_SUCCESS     Socket successfully closed
@@ -374,11 +396,19 @@ EslSocketClosePoll (
 /**
   Start the close operation on the socket
 
-  Start closing the socket by closing all of the ports.  Upon
-  completion, the ::EslSocketPoll() routine finishes closing the
-  socket.
+  This routine calls the network specific layer to initiate the
+  close state machine.  This routine then calls the network
+  specific layer to determine if the close state machine has gone
+  to completion.  The result from this poll is returned to the
+  caller.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::close routine calls this routine to start the close
+  operation which reverses the operations of the
+  ::EslSocketAllocate routine.  The close routine then polls
+  the ::EslSocketClosePoll routine to determine when the
+  socket is closed.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
   @param [in] bCloseNow       Boolean to control close behavior
   @param [out] pErrno         Address to receive the errno value upon completion.
 
@@ -398,35 +428,23 @@ EslSocketCloseStart (
 /**
   Connect to a remote system via the network.
 
-  The ::EslSocketConnect routine attempts to establish a connection to a
-  socket on the local or remote system using the specified address.
-  The POSIX
-  <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/connect.html">connect</a>
-  documentation is available online.
+  This routine calls the network specific layer to establish
+  the remote system address and establish the connection to
+  the remote system.
 
-  There are three states associated with a connection:
-  <ul>
-    <li>Not connected</li>
-    <li>Connection in progress</li>
-    <li>Connected</li>
-  </ul>
-  In the "Not connected" state, calls to ::connect start the connection
-  processing and update the state to "Connection in progress".  During
-  the "Connection in progress" state, connect polls for connection completion
-  and moves the state to "Connected" after the connection is established.
-  Note that these states are only visible when the file descriptor is marked
-  with O_NONBLOCK.  Also, the POLL_WRITE bit is set when the connection
-  completes and may be used by poll or select as an indicator to call
-  connect again.
-
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::connect routine calls this routine to establish a
+  connection with the specified remote system.  This routine
+  is designed to be polled by the connect routine for completion
+  of the network connection.
+  
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr       Network address of the remote system.
-
+    
   @param [in] SockAddrLength  Length in bytes of the network address.
-
+  
   @param [out] pErrno   Address to receive the errno value upon completion.
-
+  
   @retval EFI_SUCCESS   The connection was successfully established.
   @retval EFI_NOT_READY The connection is in progress, call this routine again.
   @retval Others        The connection attempt failed.
@@ -443,8 +461,14 @@ EslSocketConnect (
 /**
   Get the local address.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  This routine calls the network specific layer to get the network
+  address of the local host connection point.
 
+  The ::getsockname routine calls this routine to obtain the network
+  address associated with the local host connection point.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  
   @param [out] pAddress       Network address to receive the local system address
 
   @param [in,out] pAddressLength  Length of the local network address structure
@@ -465,8 +489,14 @@ EslSocketGetLocalAddress (
 /**
   Get the peer address.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  This routine calls the network specific layer to get the remote
+  system connection point.
 
+  The ::getpeername routine calls this routine to obtain the network
+  address of the remote connection point.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  
   @param [out] pAddress       Network address to receive the remote system address
 
   @param [in,out] pAddressLength  Length of the remote network address structure
@@ -487,12 +517,16 @@ EslSocketGetPeerAddress (
 /**
   Establish the known port to listen for network connections.
 
-  The ::EslSocketListen routine places the port into a state that enables connection
-  attempts.  Connections are placed into FIFO order in a queue to be serviced
-  by the application.  The application calls the ::EslSocketAccept routine to remove
-  the next connection from the queue and get the associated socket.  The
-  <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/listen.html">POSIX</a>
-  documentation for the bind routine is available online for reference.
+  This routine calls into the network protocol layer to establish
+  a handler that is called upon connection completion.  The handler
+  is responsible for inserting the connection into the FIFO.
+
+  The ::listen routine indirectly calls this routine to place the
+  socket into a state that enables connection attempts.  Connections
+  are placed in a FIFO that is serviced by the application.  The
+  application calls the ::accept (::EslSocketAccept) routine to
+  remove the next connection from the FIFO and get the associated
+  socket and address.
 
   @param [in] pSocketProtocol Address of the socket protocol structure.
 
@@ -517,17 +551,19 @@ EslSocketListen (
 /**
   Get the socket options
 
-  Retrieve the socket options one at a time by name.  The
-  <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockopt.html">POSIX</a>
-  documentation is available online.
+  This routine handles the socket level options and passes the
+  others to the network specific layer.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
-  @param [in] level           Option protocol level
-  @param [in] option_name     Name of the option
-  @param [out] option_value   Buffer to receive the option value
-  @param [in,out] option_len  Length of the buffer in bytes,
-                              upon return length of the option value in bytes
-  @param [out] pErrno         Address to receive the errno value upon completion.
+  The ::getsockopt routine calls this routine to retrieve the
+  socket options one at a time by name.
+
+  @param [in] pSocketProtocol   Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] level             Option protocol level
+  @param [in] OptionName        Name of the option
+  @param [out] pOptionValue     Buffer to receive the option value
+  @param [in,out] pOptionLength Length of the buffer in bytes,
+                                upon return length of the option value in bytes
+  @param [out] pErrno           Address to receive the errno value upon completion.
 
   @retval EFI_SUCCESS - Socket data successfully received
 
@@ -545,18 +581,20 @@ EslSocketOptionGet (
 /**
   Set the socket options
 
-  Adjust the socket options one at a time by name.  The
-  <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setsockopt.html">POSIX</a>
-  documentation is available online.
+  This routine handles the socket level options and passes the
+  others to the network specific layer.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::setsockopt routine calls this routine to adjust the socket
+  options one at a time by name.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
   @param [in] level           Option protocol level
-  @param [in] option_name     Name of the option
-  @param [in] option_value    Buffer containing the option value
-  @param [in] option_len      Length of the buffer in bytes
+  @param [in] OptionName      Name of the option
+  @param [in] pOptionValue    Buffer containing the option value
+  @param [in] OptionLength    Length of the buffer in bytes
   @param [out] pErrno         Address to receive the errno value upon completion.
 
-  @retval EFI_SUCCESS - Socket data successfully received
+  @retval EFI_SUCCESS - Option successfully set
 
  **/
 EFI_STATUS
@@ -572,10 +610,14 @@ EslSocketOptionSet (
 /**
   Poll a socket for pending activity.
 
-  The SocketPoll routine checks a socket for pending activity associated
-  with the event mask.  Activity is returned in the detected event buffer.
+  This routine builds a detected event mask which is returned to
+  the caller in the buffer provided.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::poll routine calls this routine to determine if the socket
+  needs to be serviced as a result of connection, error, receive or
+  transmit activity.
+
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] Events    Events of interest for this socket
 
@@ -598,15 +640,22 @@ EslSocketPoll (
 /**
   Receive data from a network connection.
 
+  This routine calls the network specific routine to remove the
+  next portion of data from the receive queue and return it to the
+  caller.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::recvfrom routine calls this routine to determine if any data
+  is received from the remote system.  Note that the other routines
+  ::recv and ::read are layered on top of ::recvfrom.
 
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  
   @param [in] Flags           Message control flags
-
+  
   @param [in] BufferLength    Length of the the buffer
-
+  
   @param [in] pBuffer         Address of a buffer to receive the data.
-
+  
   @param [in] pDataLength     Number of received data bytes in the buffer.
 
   @param [out] pAddress       Network address to receive the remote system address
@@ -633,13 +682,16 @@ EslSocketReceive (
 /**
   Shutdown the socket receive and transmit operations
 
-  The SocketShutdown routine stops the socket receive and transmit
-  operations.
+  This routine sets a flag to stop future transmissions and calls
+  the network specific layer to cancel the pending receive operation.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::shutdown routine calls this routine to stop receive and transmit
+  operations on the socket.
 
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  
   @param [in] How             Which operations to stop
-
+  
   @param [out] pErrno         Address to receive the errno value upon completion.
 
   @retval EFI_SUCCESS - Socket operations successfully shutdown
@@ -655,17 +707,23 @@ EslSocketShutdown (
 /**
   Send data using a network connection.
 
-  The SocketTransmit routine queues the data for transmission to the
-  remote network connection.
+  This routine calls the network specific layer to queue the data
+  for transmission.  Eventually the buffer will reach the head of
+  the queue and will get transmitted over the network.  For datagram
+  sockets there is no guarantee that the data reaches the application
+  running on the remote system.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  The ::sendto routine calls this routine to send data to the remote
+  system.  Note that ::send and ::write are layered on top of ::sendto.
 
+  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  
   @param [in] Flags           Message control flags
-
+  
   @param [in] BufferLength    Length of the the buffer
-
+  
   @param [in] pBuffer         Address of a buffer containing the data to send
-
+  
   @param [in] pDataLength     Address to receive the number of data bytes sent
 
   @param [in] pAddress        Network address of the remote system address
@@ -674,7 +732,7 @@ EslSocketShutdown (
 
   @param [out] pErrno         Address to receive the errno value upon completion.
 
-  @retval EFI_SUCCESS - Socket data successfully received
+  @retval EFI_SUCCESS - Socket data successfully queued for transmit
 
  **/
 EFI_STATUS

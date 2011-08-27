@@ -14,15 +14,16 @@
 
 #include "Socket.h"
 
-EFI_TCP4_PROTOCOL * mpEfiTcpClose4[ 1024 ];
-
 
 /**
   Connect to the network service bindings
 
   Walk the network service protocols on the controller handle and
-  locate any that are not in use.  Create service structures to
-  manage the service binding for the socket driver.
+  locate any that are not in use.  Create ::DT_SERVICE structures to
+  manage the network layer interfaces for the socket driver.  Tag
+  each of the network interfaces that are being used.  Finally, this
+  routine calls DT_SOCKET_BINDING::pfnInitialize to prepare the network
+  interface for use by the socket layer.
 
   @param [in] BindingHandle    Handle for protocol binding.
   @param [in] Controller       Handle of device to work with.
@@ -253,12 +254,14 @@ EslServiceConnect (
 
 
 /**
-  Shutdown the network connections to this controller by removing
-  NetworkInterfaceIdentifier protocol and closing the DevicePath
-  and PciIo protocols on Controller.
+  Shutdown the connections to the network layer by locating the
+  tags on the network interfaces established by ::EslServiceConnect.
+  This routine calls DT_SOCKET_BINDING::pfnShutdown to shutdown the any
+  activity on the network interface and then free the ::DT_SERVICE
+  structures.
 
   @param [in] BindingHandle    Handle for protocol binding.
-  @param [in] Controller           Handle of device to stop driver on.
+  @param [in] Controller       Handle of device to stop driver on.
 
   @retval EFI_SUCCESS          This driver is removed Controller.
   @retval EFI_DEVICE_ERROR     The device could not be stopped due to a device error.
@@ -388,48 +391,6 @@ EslServiceDisconnect (
 
 
 /**
-Install the socket service
-
-@param [in] pImageHandle      Address of the image handle
-
-@retval EFI_SUCCESS     Service installed successfully
-**/
-EFI_STATUS
-EFIAPI
-EslServiceInstall (
-  IN EFI_HANDLE * pImageHandle
-  )
-{
-  EFI_STATUS Status;
-
-  //
-  //  Install the socket service binding protocol
-  //
-  Status = gBS->InstallMultipleProtocolInterfaces (
-                  pImageHandle,
-                  &gEfiSocketServiceBindingProtocolGuid,
-                  &mEslLayer.ServiceBinding,
-                  NULL
-                  );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( DEBUG_POOL | DEBUG_INIT | DEBUG_INFO,
-              "Installed: gEfiSocketServiceBindingProtocolGuid on   0x%08x\r\n",
-              *pImageHandle ));
-  }
-  else {
-    DEBUG (( DEBUG_ERROR | DEBUG_POOL | DEBUG_INIT,
-              "ERROR - InstallMultipleProtocolInterfaces failed, Status: %r\r\n",
-              Status ));
-  }
-
-  //
-  //  Return the operation status
-  //
-  return Status;
-}
-
-
-/**
 Initialize the service layer
 
 @param [in] ImageHandle       Handle for the image.
@@ -447,63 +408,14 @@ EslServiceLoad (
   //  Save the image handle
   //
   pLayer = &mEslLayer;
+  ZeroMem ( pLayer, sizeof ( *pLayer ));
   pLayer->Signature = LAYER_SIGNATURE;
   pLayer->ImageHandle = ImageHandle;
 
   //
-  //  Initialize the TCP4 close
-  //
-  pLayer->TcpCloseMax4 = DIM ( mpEfiTcpClose4 );
-  pLayer->ppTcpClose4 = mpEfiTcpClose4;
-
-  //
   //  Connect the service binding protocol to the image handle
   //
-  pLayer->ServiceBinding.CreateChild = EslSocketCreateChild;
-  pLayer->ServiceBinding.DestroyChild = EslSocketDestroyChild;
-}
-
-
-/**
-Uninstall the socket service
-
-@param [in] ImageHandle       Handle for the image.
-
-@retval EFI_SUCCESS     Service installed successfully
-**/
-EFI_STATUS
-EFIAPI
-EslServiceUninstall (
-  IN EFI_HANDLE ImageHandle
-  )
-{
-  EFI_STATUS Status;
-
-  //
-  //  Install the socket service binding protocol
-  //
-  Status = gBS->UninstallMultipleProtocolInterfaces (
-              ImageHandle,
-              &gEfiSocketServiceBindingProtocolGuid,
-              &mEslLayer.ServiceBinding,
-              NULL
-              );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( DEBUG_POOL | DEBUG_INIT,
-                "Removed:   gEfiSocketServiceBindingProtocolGuid from 0x%08x\r\n",
-                ImageHandle ));
-  }
-  else {
-    DEBUG (( DEBUG_ERROR | DEBUG_POOL | DEBUG_INIT,
-                "ERROR - Failed to remove gEfiSocketServiceBindingProtocolGuid from 0x%08x, Status: %r\r\n",
-                ImageHandle,
-                Status ));
-  }
-
-  //
-  //  Return the operation status
-  //
-  return Status;
+  pLayer->pServiceBinding = &mEfiServiceBinding;
 }
 
 
@@ -524,6 +436,5 @@ EslServiceUnload (
   //
   pLayer = &mEslLayer;
   pLayer->ImageHandle = NULL;
-  pLayer->ServiceBinding.CreateChild = NULL;
-  pLayer->ServiceBinding.DestroyChild = NULL;
+  pLayer->pServiceBinding = NULL;
 }

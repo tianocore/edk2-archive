@@ -15,14 +15,25 @@
 #include "Socket.h"
 
 
+/**
+  Tag GUID - IPv4 in use by an application using EfiSocketLib
+**/
 CONST EFI_GUID mEslIp4ServiceGuid = {
   0x9c756011, 0x5d44, 0x4ee0, { 0xbc, 0xe7, 0xc3, 0x82, 0x18, 0xfe, 0x39, 0x8d }
 };
 
+
+/**
+  Tag GUID - TCPv4 in use by an application using EfiSocketLib
+**/
 CONST EFI_GUID mEslTcp4ServiceGuid = {
   0xffc659c2, 0x4ef2, 0x4532, { 0xb8, 0x75, 0xcd, 0x9a, 0xa4, 0x27, 0x4c, 0xde }
 };
 
+
+/**
+  Tag GUID - UDPv4 in use by an application using EfiSocketLib
+**/
 CONST EFI_GUID mEslUdp4ServiceGuid = {
   0x44e03a55, 0x8d97, 0x4511, { 0xbf, 0xef, 0xa, 0x8b, 0xc6, 0x2c, 0x25, 0xae }
 };
@@ -30,6 +41,11 @@ CONST EFI_GUID mEslUdp4ServiceGuid = {
 
 /**
   Connect to the EFI socket library
+
+  This routine is called from the socket routine in BsdSocketLib
+  to create the data structure for a socket.  This specific
+  implementation is used when an application links directly to
+  the EslSocketLib.
 
   @param [in] ppSocketProtocol  Address to receive the socket protocol address
 
@@ -80,6 +96,10 @@ EslServiceGetProtocol (
 
 /**
   Connect to the network layer
+
+  Constructor for the EfiSocketLib when the library is linked
+  directly to an application.  This routine locates the network
+  devices and makes them available to EfiSocketLib.
 
   @retval EFI_SUCCESS   Successfully connected to the network layer
 
@@ -157,6 +177,10 @@ EslServiceNetworkConnect (
 
 /**
   Disconnect from the network layer
+
+  Destructor for the EfiSocketLib when the library is linked
+  directly to an application.  This routine breaks any connections
+  to the network devices and removes them from use by EfiSocketLib.
 
   @retval EFI_SUCCESS   Successfully disconnected from the network layer
 
@@ -238,5 +262,14 @@ EslServiceNetworkDisconnect (
 }
 
 
-PFN_ESL_xSTRUCTOR mpfnEslConstructor = EslServiceNetworkConnect;
-PFN_ESL_xSTRUCTOR mpfnEslDestructor = EslServiceNetworkDisconnect;
+/**
+  Socket layer's service binding protocol delcaration.
+**/
+CONST EFI_SERVICE_BINDING_PROTOCOL mEfiServiceBinding = {
+  NULL,
+  NULL
+};
+
+
+PFN_ESL_xSTRUCTOR mpfnEslConstructor = EslServiceNetworkConnect;    ///<  Constructor for EfiSocketLib
+PFN_ESL_xSTRUCTOR mpfnEslDestructor = EslServiceNetworkDisconnect;  ///<  Destructor for EfiSocketLib
