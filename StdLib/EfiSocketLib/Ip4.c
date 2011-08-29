@@ -14,7 +14,7 @@
 
 #include "Socket.h"
 
-CONST DT_PROTOCOL_API cEslIp4Api = {
+CONST ESL_PROTOCOL_API cEslIp4Api = {
   IPPROTO_IP,
   NULL,   //  Accept
   EslIpBind4,
@@ -33,33 +33,33 @@ CONST DT_PROTOCOL_API cEslIp4Api = {
 
 
 /**
-  Allocate and initialize a DT_PORT structure.
+  Allocate and initialize a ESL_PORT structure.
 
   @param [in] pSocket     Address of the socket structure.
-  @param [in] pService    Address of the DT_SERVICE structure.
+  @param [in] pService    Address of the ESL_SERVICE structure.
   @param [in] ChildHandle Ip4 child handle
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new DT_PORT structure address
+  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
  **/
 EFI_STATUS
 EslIpPortAllocate4 (
-  IN DT_SOCKET * pSocket,
-  IN DT_SERVICE * pService,
+  IN ESL_SOCKET * pSocket,
+  IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
   IN CONST UINT8 * pIpAddress,
   IN UINTN DebugFlags,
-  OUT DT_PORT ** ppPort
+  OUT ESL_PORT ** ppPort
   )
 {
   UINTN LengthInBytes;
   EFI_IP4_CONFIG_DATA * pConfig;
-  DT_LAYER * pLayer;
-  DT_PORT * pPort;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_LAYER * pLayer;
+  ESL_PORT * pPort;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -275,7 +275,7 @@ EslIpPortAllocate4 (
  **/
 EFI_STATUS
 EslIpBind4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   )
@@ -283,9 +283,9 @@ EslIpBind4 (
   EFI_HANDLE ChildHandle;
   CONST struct sockaddr_in * pIp4Address;
   EFI_SERVICE_BINDING_PROTOCOL * pIp4Service;
-  DT_LAYER * pLayer;
-  DT_PORT * pPort;
-  DT_SERVICE * pService;
+  ESL_LAYER * pLayer;
+  ESL_PORT * pPort;
+  ESL_SERVICE * pService;
   EFI_STATUS Status;
   EFI_STATUS TempStatus;
   
@@ -420,15 +420,15 @@ EslIpBind4 (
  **/
 EFI_STATUS
 EslIpConnect4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   )
 {
   struct sockaddr_in LocalAddress;
-  DT_PORT * pPort;
+  ESL_PORT * pPort;
   struct sockaddr_in * pRemoteAddress;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -522,15 +522,15 @@ EslIpConnect4 (
 **/
 EFI_STATUS
 EslIpGetLocalAddress4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
   )
 {
   socklen_t LengthInBytes;
-  DT_PORT * pPort;
+  ESL_PORT * pPort;
   struct sockaddr_in * pLocalAddress;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -597,15 +597,15 @@ EslIpGetLocalAddress4 (
 **/
 EFI_STATUS
 EslIpGetRemoteAddress4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
   )
 {
   socklen_t LengthInBytes;
-  DT_PORT * pPort;
+  ESL_PORT * pPort;
   struct sockaddr_in * pRemoteAddress;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -663,7 +663,7 @@ EslIpGetRemoteAddress4 (
   This routine initializes the IP4 service after its service binding
   protocol was located on a controller.
 
-  @param [in] pService        DT_SERVICE structure address
+  @param [in] pService        ESL_SERVICE structure address
 
   @retval EFI_SUCCESS         The service was properly initialized
   @retval other               A failure occurred during the service initialization
@@ -672,10 +672,10 @@ EslIpGetRemoteAddress4 (
 EFI_STATUS
 EFIAPI
 EslIpInitialize4 (
-  IN DT_SERVICE * pService
+  IN ESL_SERVICE * pService
   )
 {
-  DT_LAYER * pLayer;
+  ESL_LAYER * pLayer;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -710,7 +710,7 @@ EslIpInitialize4 (
 
   Retrieve the protocol options one at a time by name.
 
-  @param [in] pSocket           Address of a DT_SOCKET structure
+  @param [in] pSocket           Address of a ESL_SOCKET structure
   @param [in] level             Option protocol level
   @param [in] OptionName        Name of the option
   @param [out] ppOptionData     Buffer to receive address of option value
@@ -721,7 +721,7 @@ EslIpInitialize4 (
  **/
 EFI_STATUS
 EslIpOptionGet4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   IN int level,
   IN int OptionName,
   OUT CONST void ** __restrict ppOptionData,
@@ -780,7 +780,7 @@ EslIpOptionGet4 (
 
   Adjust the protocol options one at a time by name.
 
-  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] pSocket         Address of a ESL_SOCKET structure
   @param [in] level           Option protocol level
   @param [in] OptionName      Name of the option
   @param [in] pOptionValue    Buffer containing the option value
@@ -791,7 +791,7 @@ EslIpOptionGet4 (
  **/
 EFI_STATUS
 EslIpOptionSet4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   IN int level,
   IN int OptionName,
   IN CONST void * pOptionValue,
@@ -901,17 +901,17 @@ EslIpOptionSet4 (
 **/
 EFI_STATUS
 EslIpPortClose4 (
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
   UINTN DebugFlags;
-  DT_LAYER * pLayer;
-  DT_PACKET * pPacket;
-  DT_PORT * pPreviousPort;
-  DT_SERVICE * pService;
-  DT_SOCKET * pSocket;
+  ESL_LAYER * pLayer;
+  ESL_PACKET * pPacket;
+  ESL_PORT * pPreviousPort;
+  ESL_SERVICE * pService;
+  ESL_SOCKET * pSocket;
   EFI_SERVICE_BINDING_PROTOCOL * pIp4Service;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -1130,12 +1130,12 @@ EslIpPortClose4 (
 **/
 EFI_STATUS
 EslIpPortCloseRxDone4 (
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
   PORT_STATE PortState;
-  DT_SOCKET * pSocket;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_SOCKET * pSocket;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -1212,12 +1212,12 @@ EslIpPortCloseRxDone4 (
 **/
 EFI_STATUS
 EslIpPortCloseStart4 (
-  IN DT_PORT * pPort,
+  IN ESL_PORT * pPort,
   IN BOOLEAN bCloseNow,
   IN UINTN DebugFlags
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -1274,12 +1274,12 @@ EslIpPortCloseStart4 (
 **/
 EFI_STATUS
 EslIpPortCloseTxDone4 (
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
-  DT_PACKET * pPacket;
-  DT_SOCKET * pSocket;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_PACKET * pPacket;
+  ESL_SOCKET * pSocket;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_PROTOCOL * pIp4Protocol;
   EFI_STATUS Status;
 
@@ -1422,7 +1422,7 @@ EslIpPortCloseTxDone4 (
   and copies the data from the IP4 driver's buffer into the
   application's buffer.  The IP4 driver's buffer is then returned.
 
-  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] pSocket         Address of a ESL_SOCKET structure
 
   @param [in] Flags           Message control flags
 
@@ -1441,7 +1441,7 @@ EslIpPortCloseTxDone4 (
 **/
 EFI_STATUS
 EslIpReceive4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   IN INT32 Flags,
   IN size_t BufferLength,
   IN UINT8 * pBuffer,
@@ -1458,11 +1458,11 @@ EslIpReceive4 (
   in_addr_t IpAddress;
   size_t LengthInBytes;
   UINT8 * pData;
-  DT_PACKET * pPacket;
-  DT_PORT * pPort;
+  ESL_PACKET * pPacket;
+  ESL_PORT * pPort;
   struct sockaddr_in * pRemoteAddress;
   EFI_IP4_RECEIVE_DATA * pRxData;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_IP4_CONTEXT * pIp4;
   struct sockaddr_in RemoteAddress;
   EFI_STATUS Status;
 
@@ -1716,19 +1716,19 @@ EslIpReceive4 (
 /**
   Cancel the receive operations
 
-  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] pSocket         Address of a ESL_SOCKET structure
   
   @retval EFI_SUCCESS - The cancel was successful
 
  **/
 EFI_STATUS
 EslIpRxCancel4 (
-  IN DT_SOCKET * pSocket
+  IN ESL_SOCKET * pSocket
   )
 {
-  DT_PACKET * pPacket;
-  DT_PORT * pPort;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_PACKET * pPacket;
+  ESL_PORT * pPort;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_PROTOCOL * pIp4Protocol;
   EFI_STATUS Status;
 
@@ -1783,21 +1783,21 @@ EslIpRxCancel4 (
 
   @param [in] Event     The receive completion event
 
-  @param [in] pPort     The DT_PORT structure address
+  @param [in] pPort     The ESL_PORT structure address
 
 **/
 VOID
 EslIpRxComplete4 (
   IN EFI_EVENT Event,
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
   size_t LengthInBytes;
-  DT_PACKET * pPacket;
-  DT_PACKET * pPrevious;
+  ESL_PACKET * pPacket;
+  ESL_PACKET * pPrevious;
   EFI_IP4_RECEIVE_DATA * pRxData;
-  DT_SOCKET * pSocket;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_SOCKET * pSocket;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -1922,17 +1922,17 @@ EslIpRxComplete4 (
 /**
   Start a receive operation
 
-  @param [in] pPort       Address of the DT_PORT structure.
+  @param [in] pPort       Address of the ESL_PORT structure.
 
  **/
 VOID
 EslIpRxStart4 (
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
-  DT_PACKET * pPacket;
-  DT_SOCKET * pSocket;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_PACKET * pPacket;
+  ESL_SOCKET * pSocket;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_PROTOCOL * pIp4Protocol;
   EFI_STATUS Status;
 
@@ -2034,18 +2034,18 @@ EslIpRxStart4 (
 
   This routine undoes the work performed by ::IpInitialize4.
 
-  @param [in] pService        DT_SERVICE structure address
+  @param [in] pService        ESL_SERVICE structure address
 
 **/
 VOID
 EFIAPI
 EslIpShutdown4 (
-  IN DT_SERVICE * pService
+  IN ESL_SERVICE * pService
   )
 {
-  DT_LAYER * pLayer;
-  DT_PORT * pPort;
-  DT_SERVICE * pPreviousService;
+  ESL_LAYER * pLayer;
+  ESL_PORT * pPort;
+  ESL_SERVICE * pPreviousService;
 
   DBG_ENTER ( );
 
@@ -2104,7 +2104,7 @@ EslIpShutdown4 (
   Determine if the sockedt is configured.
 
 
-  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] pSocket         Address of a ESL_SOCKET structure
   
   @retval EFI_SUCCESS - The port is connected
   @retval EFI_NOT_STARTED - The port is not connected
@@ -2112,12 +2112,12 @@ EslIpShutdown4 (
  **/
  EFI_STATUS
  EslIpSocketIsConfigured4 (
-  IN DT_SOCKET * pSocket
+  IN ESL_SOCKET * pSocket
   )
 {
-  DT_PORT * pPort;
-  DT_PORT * pNextPort;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_PORT * pPort;
+  ESL_PORT * pNextPort;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_PROTOCOL * pIp4Protocol;
   EFI_STATUS Status;
   struct sockaddr_in LocalAddress;
@@ -2281,7 +2281,7 @@ EslIpShutdown4 (
   during the close operation.  Only buffering errors are returned
   during the current transmission attempt.
 
-  @param [in] pSocket         Address of a DT_SOCKET structure
+  @param [in] pSocket         Address of a ESL_SOCKET structure
 
   @param [in] Flags           Message control flags
 
@@ -2300,7 +2300,7 @@ EslIpShutdown4 (
 **/
 EFI_STATUS
 EslIpTxBuffer4 (
-  IN DT_SOCKET * pSocket,
+  IN ESL_SOCKET * pSocket,
   IN int Flags,
   IN size_t BufferLength,
   IN CONST UINT8 * pBuffer,
@@ -2309,15 +2309,15 @@ EslIpTxBuffer4 (
   IN socklen_t AddressLength
   )
 {
-  DT_PACKET * pPacket;
-  DT_PACKET * pPreviousPacket;
-  DT_PACKET ** ppPacket;
-  DT_PORT * pPort;
+  ESL_PACKET * pPacket;
+  ESL_PACKET * pPreviousPacket;
+  ESL_PACKET ** ppPacket;
+  ESL_PORT * pPort;
   const struct sockaddr_in * pRemoteAddress;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_COMPLETION_TOKEN * pToken;
   size_t * pTxBytes;
-  DT_IP4_TX_DATA * pTxData;
+  ESL_IP4_TX_DATA * pTxData;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -2507,22 +2507,22 @@ EslIpTxBuffer4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The DT_PORT structure address
+  @param [in] pPort     The ESL_PORT structure address
 
 **/
 VOID
 EslIpTxComplete4 (
   IN EFI_EVENT Event,
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
   UINT32 LengthInBytes;
-  DT_PACKET * pCurrentPacket;
-  DT_PACKET * pNextPacket;
-  DT_PACKET * pPacket;
-  DT_SOCKET * pSocket;
-  DT_IP4_TX_DATA * pTxData;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_PACKET * pCurrentPacket;
+  ESL_PACKET * pNextPacket;
+  ESL_PACKET * pPacket;
+  ESL_SOCKET * pSocket;
+  ESL_IP4_TX_DATA * pTxData;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -2610,18 +2610,18 @@ EslIpTxComplete4 (
 /**
   Transmit data using a network connection.
 
-  @param [in] pPort           Address of a DT_PORT structure
+  @param [in] pPort           Address of a ESL_PORT structure
 
  **/
 VOID
 EslIpTxStart4 (
-  IN DT_PORT * pPort
+  IN ESL_PORT * pPort
   )
 {
-  DT_PACKET * pNextPacket;
-  DT_PACKET * pPacket;
-  DT_SOCKET * pSocket;
-  DT_IP4_CONTEXT * pIp4;
+  ESL_PACKET * pNextPacket;
+  ESL_PACKET * pPacket;
+  ESL_SOCKET * pSocket;
+  ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_PROTOCOL * pIp4Protocol;
   EFI_STATUS Status;
 

@@ -43,7 +43,7 @@ EslDxeCreateChild (
   IN OUT EFI_HANDLE * pChildHandle
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -90,9 +90,9 @@ EslDxeDestroyChild (
   IN EFI_HANDLE ChildHandle
   )
 {
-  DT_LAYER * pLayer;
-  DT_SOCKET * pSocket;
-  DT_SOCKET * pSocketPrevious;
+  ESL_LAYER * pLayer;
+  ESL_SOCKET * pSocket;
+  ESL_SOCKET * pSocketPrevious;
   EFI_SOCKET_PROTOCOL * pSocketProtocol;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;

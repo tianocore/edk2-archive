@@ -58,7 +58,7 @@ EslServiceGetProtocol (
   )
 {
   EFI_HANDLE ChildHandle;
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   int RetVal;
   EFI_STATUS Status;
 
@@ -110,10 +110,10 @@ EslServiceNetworkConnect (
   )
 {
   UINTN HandleCount;
-  EFI_HANDLE * pHandles;
   UINTN Index;
-  CONST DT_SOCKET_BINDING * pSocketBinding;
-  CONST DT_SOCKET_BINDING * pEnd;
+  CONST ESL_SOCKET_BINDING * pEnd;
+  EFI_HANDLE * pHandles;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -191,10 +191,10 @@ EslServiceNetworkDisconnect (
   )
 {
   UINTN HandleCount;
-  EFI_HANDLE * pHandles;
   UINTN Index;
-  CONST DT_SOCKET_BINDING * pSocketBinding;
-  CONST DT_SOCKET_BINDING * pEnd;
+  CONST ESL_SOCKET_BINDING * pEnd;
+  EFI_HANDLE * pHandles;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
 
   DBG_ENTER ( );

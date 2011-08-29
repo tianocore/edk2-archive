@@ -117,7 +117,7 @@
 // Data Types
 //------------------------------------------------------------------------------
 
-typedef struct _DT_SERVICE DT_SERVICE;  ///<  Forward delcaration
+typedef struct _ESL_SERVICE ESL_SERVICE;  ///<  Forward delcaration
 
 /**
   Initialize the network layer
@@ -125,7 +125,7 @@ typedef struct _DT_SERVICE DT_SERVICE;  ///<  Forward delcaration
 typedef
 EFI_STATUS
 (EFIAPI * PFN_SB_INITIALIZE) (
-    IN DT_SERVICE * pService
+    IN ESL_SERVICE * pService
     );
 
 /**
@@ -134,7 +134,7 @@ EFI_STATUS
 typedef
 VOID
 (EFIAPI * PFN_SB_SHUTDOWN) (
-    IN DT_SERVICE * pService
+    IN ESL_SERVICE * pService
     );
 
 /**
@@ -148,7 +148,9 @@ typedef struct {
   CONST EFI_GUID * pTagGuid;      ///<  Tag to mark protocol in use
   PFN_SB_INITIALIZE pfnInitialize;///<  Routine to initialize the service
   PFN_SB_SHUTDOWN pfnShutdown;    ///<  Routine to shutdown the service
-} DT_SOCKET_BINDING;
+  UINTN TxIoNormal;               ///<  Number of transmit ESL_IO_MGMT structures for normal data
+  UINTN TxIoUrgent;               ///<  Number of transmit ESL_IO_MGMT structures for urgent data
+} ESL_SOCKET_BINDING;
 
 //------------------------------------------------------------------------------
 // GUIDs
@@ -162,7 +164,7 @@ extern CONST EFI_GUID mEslUdp4ServiceGuid;  ///<  Tag GUID for the UDPv4 layer
 // Data
 //------------------------------------------------------------------------------
 
-extern CONST DT_SOCKET_BINDING cEslSocketBinding[]; ///<  List of network service bindings
+extern CONST ESL_SOCKET_BINDING cEslSocketBinding[];///<  List of network service bindings
 extern CONST UINTN cEslSocketBindingEntries;        ///<  Number of network service bindings
 
 //------------------------------------------------------------------------------
@@ -264,10 +266,10 @@ EslDxeUninstall (
   Connect to the network service bindings
 
   Walk the network service protocols on the controller handle and
-  locate any that are not in use.  Create ::DT_SERVICE structures to
+  locate any that are not in use.  Create ::ESL_SERVICE structures to
   manage the network layer interfaces for the socket driver.  Tag
   each of the network interfaces that are being used.  Finally, this
-  routine calls DT_SOCKET_BINDING::pfnInitialize to prepare the network
+  routine calls ESL_SOCKET_BINDING::pfnInitialize to prepare the network
   interface for use by the socket layer.
 
   @param [in] BindingHandle    Handle for protocol binding.
@@ -287,8 +289,8 @@ EslServiceConnect (
 /**
   Shutdown the connections to the network layer by locating the
   tags on the network interfaces established by ::EslServiceConnect.
-  This routine calls DT_SOCKET_BINDING::pfnShutdown to shutdown the any
-  activity on the network interface and then free the ::DT_SERVICE
+  This routine calls ESL_SOCKET_BINDING::pfnShutdown to shutdown the any
+  activity on the network interface and then free the ::ESL_SERVICE
   structures.
 
   @param [in] BindingHandle    Handle for protocol binding.

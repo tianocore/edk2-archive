@@ -38,9 +38,9 @@ DriverSupported (
   IN EFI_DEVICE_PATH_PROTOCOL * pRemainingDevicePath
   )
 {
-  CONST DT_SOCKET_BINDING * pEnd;
+  CONST ESL_SOCKET_BINDING * pEnd;
   VOID * pInterface;
-  CONST DT_SOCKET_BINDING * pSocketBinding;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
 
   //

@@ -19,10 +19,10 @@
   Connect to the network service bindings
 
   Walk the network service protocols on the controller handle and
-  locate any that are not in use.  Create ::DT_SERVICE structures to
+  locate any that are not in use.  Create ::ESL_SERVICE structures to
   manage the network layer interfaces for the socket driver.  Tag
   each of the network interfaces that are being used.  Finally, this
-  routine calls DT_SOCKET_BINDING::pfnInitialize to prepare the network
+  routine calls ESL_SOCKET_BINDING::pfnInitialize to prepare the network
   interface for use by the socket layer.
 
   @param [in] BindingHandle    Handle for protocol binding.
@@ -41,11 +41,11 @@ EslServiceConnect (
 {
   BOOLEAN bInUse;
   UINTN LengthInBytes;
-  CONST DT_SOCKET_BINDING * pEnd;
+  CONST ESL_SOCKET_BINDING * pEnd;
   VOID * pJunk;
   VOID * pInterface;
-  DT_SERVICE * pService;
-  CONST DT_SOCKET_BINDING * pSocketBinding;
+  ESL_SERVICE * pService;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -256,8 +256,8 @@ EslServiceConnect (
 /**
   Shutdown the connections to the network layer by locating the
   tags on the network interfaces established by ::EslServiceConnect.
-  This routine calls DT_SOCKET_BINDING::pfnShutdown to shutdown the any
-  activity on the network interface and then free the ::DT_SERVICE
+  This routine calls ESL_SOCKET_BINDING::pfnShutdown to shutdown the any
+  activity on the network interface and then free the ::ESL_SERVICE
   structures.
 
   @param [in] BindingHandle    Handle for protocol binding.
@@ -275,9 +275,9 @@ EslServiceDisconnect (
   IN  EFI_HANDLE Controller
   )
 {
-  CONST DT_SOCKET_BINDING * pEnd;
-  DT_SERVICE * pService;
-  CONST DT_SOCKET_BINDING * pSocketBinding;
+  CONST ESL_SOCKET_BINDING * pEnd;
+  ESL_SERVICE * pService;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
   
@@ -402,7 +402,7 @@ EslServiceLoad (
   IN EFI_HANDLE ImageHandle
   )
 {
-  DT_LAYER * pLayer;
+  ESL_LAYER * pLayer;
 
   //
   //  Save the image handle
@@ -429,7 +429,7 @@ EslServiceUnload (
   VOID
   )
 {
-  DT_LAYER * pLayer;
+  ESL_LAYER * pLayer;
 
   //
   //  Undo the work by ServiceLoad

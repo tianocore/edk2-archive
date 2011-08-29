@@ -24,22 +24,28 @@
 
   List the network stack connection points for the socket driver.
 **/
-CONST DT_SOCKET_BINDING cEslSocketBinding[] = {
+CONST ESL_SOCKET_BINDING cEslSocketBinding[] = {
   { L"Ip4",
     &gEfiIp4ServiceBindingProtocolGuid,
     &mEslIp4ServiceGuid,
     EslIpInitialize4,
-    EslIpShutdown4 },
+    EslIpShutdown4,
+    0,
+    0 },
   { L"Tcp4",
     &gEfiTcp4ServiceBindingProtocolGuid,
     &mEslTcp4ServiceGuid,
     EslTcpInitialize4,
-    EslTcpShutdown4 },
+    EslTcpShutdown4,
+    4,
+    4 },
   { L"Udp4",
     &gEfiUdp4ServiceBindingProtocolGuid,
     &mEslUdp4ServiceGuid,
     EslUdpInitialize4,
-    EslUdpShutdown4 }
+    EslUdpShutdown4,
+    0,
+    0 }
 };
 
 CONST UINTN cEslSocketBindingEntries = DIM ( cEslSocketBinding );
@@ -47,7 +53,7 @@ CONST UINTN cEslSocketBindingEntries = DIM ( cEslSocketBinding );
 /**
   APIs to support the various socket types
 **/
-CONST DT_PROTOCOL_API * cEslAfInetApi[] = {
+CONST ESL_PROTOCOL_API * cEslAfInetApi[] = {
   NULL,             //  0
   &cEslTcp4Api,     //  SOCK_STREAM
   &cEslUdp4Api,     //  SOCK_DGRAM
@@ -58,7 +64,7 @@ CONST DT_PROTOCOL_API * cEslAfInetApi[] = {
 
 CONST int cEslAfInetApiSize = DIM ( cEslAfInetApi );
 
-CONST DT_PROTOCOL_API * cEslAfInet6Api[] = {
+CONST ESL_PROTOCOL_API * cEslAfInet6Api[] = {
   NULL,             //  0
   NULL,             //  SOCK_STREAM
   NULL,             //  SOCK_DGRAM
@@ -69,7 +75,7 @@ CONST DT_PROTOCOL_API * cEslAfInet6Api[] = {
 
 CONST int cEslAfInet6ApiSize = DIM ( cEslAfInet6Api );
 
-DT_LAYER mEslLayer;
+ESL_LAYER mEslLayer;
 
 
 /**
@@ -104,10 +110,10 @@ EslSocket (
   IN int * pErrno
   )
 {
-  CONST DT_PROTOCOL_API * pApi;
-  CONST DT_PROTOCOL_API ** ppApiArray;
+  CONST ESL_PROTOCOL_API * pApi;
+  CONST ESL_PROTOCOL_API ** ppApiArray;
   int ApiArraySize;
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   int errno;
 
@@ -267,8 +273,8 @@ EslSocketAccept (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pNewSocket;
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pNewSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -421,9 +427,9 @@ EslSocketAccept (
 
 
 /**
-  Allocate and initialize a DT_SOCKET structure.
+  Allocate and initialize a ESL_SOCKET structure.
   
-  This support function allocates a ::DT_SOCKET structure
+  This support function allocates a ::ESL_SOCKET structure
   and installs a protocol on ChildHandle.  If pChildHandle is a
   pointer to NULL, then a new handle is created and returned in
   pChildHandle.  If pChildHandle is not a pointer to NULL, then
@@ -435,7 +441,7 @@ EslSocketAccept (
                                 then the protocol is added to the existing UEFI
                                 handle.
   @param [in] DebugFlags        Flags for debug messages
-  @param [in, out] ppSocket     The buffer to receive the ::DT_SOCKET structure address.
+  @param [in, out] ppSocket     The buffer to receive the ::ESL_SOCKET structure address.
 
   @retval EFI_SUCCESS           The protocol was added to ChildHandle.
   @retval EFI_INVALID_PARAMETER ChildHandle is NULL.
@@ -449,12 +455,12 @@ EFIAPI
 EslSocketAllocate (
   IN OUT EFI_HANDLE * pChildHandle,
   IN     UINTN DebugFlags,
-  IN OUT DT_SOCKET ** ppSocket
+  IN OUT ESL_SOCKET ** ppSocket
   )
 {
   UINTN LengthInBytes;
-  DT_LAYER * pLayer;
-  DT_SOCKET * pSocket;
+  ESL_LAYER * pLayer;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -606,7 +612,7 @@ EslSocketBind (
   OUT int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -733,9 +739,9 @@ EslSocketClosePoll (
   )
 {
   int errno;
-  DT_LAYER * pLayer;
-  DT_SOCKET * pNextSocket;
-  DT_SOCKET * pSocket;
+  ESL_LAYER * pLayer;
+  ESL_SOCKET * pNextSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -878,9 +884,9 @@ EslSocketCloseStart (
   )
 {
   int errno;
-  DT_PORT * pNextPort;
-  DT_PORT * pPort;
-  DT_SOCKET * pSocket;
+  ESL_PORT * pNextPort;
+  ESL_PORT * pPort;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -992,7 +998,7 @@ EslSocketConnect (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
   
@@ -1176,7 +1182,7 @@ EslSocketGetLocalAddress (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
   
@@ -1290,7 +1296,7 @@ EslSocketGetPeerAddress (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
   
@@ -1391,14 +1397,14 @@ EslSocketGetPeerAddress (
     <li>::EslSocketTransmit</li>
   </ul>
 
-  @param [in] pSocket       The ::DT_SOCKET structure address
+  @param [in] pSocket       The ::ESL_SOCKET structure address
 
   @retval EFI_SUCCESS - The socket is configured
 
 **/
 EFI_STATUS
 EslSocketIsConfigured (
-  DT_SOCKET * pSocket
+  ESL_SOCKET * pSocket
   )
 {
   EFI_STATUS Status;
@@ -1486,7 +1492,7 @@ EslSocketListen (
   OUT int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_STATUS TempStatus;
   EFI_TPL TplPrevious;
@@ -1656,7 +1662,7 @@ EslSocketOptionGet (
   socklen_t LengthInBytes;
   socklen_t MaxBytes;
   UINT8 * pOptionData;
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -1841,7 +1847,7 @@ EslSocketOptionSet (
   int errno;
   socklen_t LengthInBytes;
   UINT8 * pOptionData;
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -1993,7 +1999,7 @@ EslSocketOptionSet (
   This support routine is called by the network specific RxStart
   and TxBuffer routines to get buffer space for the next operation.
 
-  @param [in] ppPacket      Address to receive the ::DT_PACKET structure
+  @param [in] ppPacket      Address to receive the ::ESL_PACKET structure
   @param [in] LengthInBytes Length of the packet structure
   @param [in] DebugFlags    Flags for debug messages
 
@@ -2002,12 +2008,12 @@ EslSocketOptionSet (
  **/
 EFI_STATUS
 EslSocketPacketAllocate (
-  IN DT_PACKET ** ppPacket,
+  IN ESL_PACKET ** ppPacket,
   IN size_t LengthInBytes,
   IN UINTN DebugFlags
   )
 {
-  DT_PACKET * pPacket;
+  ESL_PACKET * pPacket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -2054,9 +2060,9 @@ EslSocketPacketAllocate (
   This support routine is called by the network specific Close
   and TxComplete routines and during error cases in RxComplete
   and TxBuffer.  Note that the network layers typically place
-  receive packets on the DT_SOCKET::pRxFree list for reuse.
+  receive packets on the ESL_SOCKET::pRxFree list for reuse.
 
-  @param [in] pPacket     Address of the DT_PACKET structure
+  @param [in] pPacket     Address of the ESL_PACKET structure
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - The packet was allocated successfully
@@ -2064,7 +2070,7 @@ EslSocketPacketAllocate (
  **/
 EFI_STATUS
 EslSocketPacketFree (
-  IN DT_PACKET * pPacket,
+  IN ESL_PACKET * pPacket,
   IN UINTN DebugFlags
   )
 {
@@ -2130,7 +2136,7 @@ EslSocketPoll (
   )
 {
   short DetectedEvents;
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   short ValidEvents;
 
@@ -2300,7 +2306,7 @@ EslSocketReceive (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -2430,7 +2436,7 @@ EslSocketShutdown (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
   
@@ -2571,7 +2577,7 @@ EslSocketTransmit (
   IN int * pErrno
   )
 {
-  DT_SOCKET * pSocket;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
