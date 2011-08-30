@@ -942,6 +942,29 @@ EslSocketPacketFree (
   );
 
 /**
+  Complete the transmit operation
+
+  This support routine removes the ESL_IO_MGMT structure from
+  the active queue and returns it to the free queue.
+
+  The network specific code calls this routine during its transmit
+  complete processing.
+
+  @param [in] pPort           Address of a ESL_PORT structure
+  @param [in] pIo             Address of the ESL_IO_MGMT structure
+  @param [in] ppActive        Active transmit queue address
+  @param [in] ppFree          Free transmit queue address
+
+ **/
+VOID
+EslSocketTxComplete (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT * pIo,
+  IN ESL_IO_MGMT ** ppActive,
+  IN ESL_IO_MGMT ** ppFree
+  );
+
+/**
   Transmit data using a network connection.
 
   This support routine starts a transmit operation on the

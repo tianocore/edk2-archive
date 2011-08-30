@@ -1386,6 +1386,7 @@ EslTcpPortAllocate4 (
 {
   UINTN LengthInBytes;
   EFI_TCP4_ACCESS_POINT * pAccessPoint;
+  UINT8 * pBuffer;
   ESL_IO_MGMT * pIo;
   ESL_LAYER * pLayer;
   ESL_PORT * pPort;
@@ -1433,7 +1434,10 @@ EslTcpPortAllocate4 (
     pPort->DebugFlags = DebugFlags;
     pSocket->TxTokenOffset = OFFSET_OF ( EFI_TCP4_IO_TOKEN, Packet.TxData );
     pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Tcp4Tx.TxData );
-    pIo = (ESL_IO_MGMT *)&pPort[ 1 ];
+    pBuffer = (UINT8 *)&pPort[ 1 ];
+    pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
+    pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
+    pIo = (ESL_IO_MGMT *)pBuffer;
 
     //
     //  Allocate the receive event
@@ -2128,8 +2132,8 @@ EslTcpPortCloseTxDone4 (
     pSocket = pPort->pSocket;
     if ( pPort->bCloseNow
          || ( EFI_SUCCESS != pSocket->TxError )
-         || (( 0 == pSocket->TxOobBytes )
-                && ( 0 == pSocket->TxBytes ))) {
+         || (( NULL == pPort->pTxActive )
+                && ( NULL == pPort->pTxOobActive ))) {
       //
       //  Start the close operation on the port
       //
@@ -3168,7 +3172,6 @@ EslTcpTxComplete4 (
 {
   UINT32 LengthInBytes;
   ESL_PACKET * pCurrentPacket;
-  ESL_IO_MGMT * pIoNext;
   ESL_PACKET * pNextPacket;
   ESL_PACKET * pPacket;
   ESL_PORT * pPort;
@@ -3195,26 +3198,12 @@ EslTcpTxComplete4 (
   Status = pIo->Token.Tcp4Tx.CompletionToken.Status;
 
   //
-  //  Remove the IO structure from the active list
+  //  Release the IO structure
   //
-  pIoNext = pPort->pTxActive;
-  while (( NULL != pIoNext ) && ( pIoNext != pIo ) && ( pIoNext->pNext != pIo ))
-  {
-    pIoNext = pIoNext->pNext;
-  }
-  ASSERT ( NULL != pIoNext );
-  if ( pIoNext == pIo ) {
-    pPort->pTxActive = pIo->pNext;  //  Beginning of list
-  }
-  else {
-    pIoNext->pNext = pIo->pNext;    //  Middle of list
-  }
-
-  //
-  //  Free the IO structure
-  //
-  pIo->pNext = pPort->pTxFree;
-  pPort->pTxFree = pIo;
+  EslSocketTxComplete ( pPort,
+                        pIo,
+                        &pPort->pTxActive,
+                        &pPort->pTxFree );
 
   //
   //  Save any transmit error
@@ -3297,7 +3286,6 @@ EslTcpTxOobComplete4 (
 {
   UINT32 LengthInBytes;
   ESL_PACKET * pCurrentPacket;
-  ESL_IO_MGMT * pIoNext;
   ESL_PACKET * pNextPacket;
   ESL_PACKET * pPacket;
   ESL_PORT * pPort;
@@ -3324,26 +3312,12 @@ EslTcpTxOobComplete4 (
   Status = pIo->Token.Tcp4Tx.CompletionToken.Status;
 
   //
-  //  Remove the IO structure from the active list
+  //  Release the IO structure
   //
-  pIoNext = pPort->pTxOobActive;
-  while (( NULL != pIoNext ) && ( pIoNext != pIo ) && ( pIoNext->pNext != pIo ))
-  {
-    pIoNext = pIoNext->pNext;
-  }
-  ASSERT ( NULL != pIoNext );
-  if ( pIoNext == pIo ) {
-    pPort->pTxOobActive = pIo->pNext;  //  Beginning of list
-  }
-  else {
-    pIoNext->pNext = pIo->pNext;    //  Middle of list
-  }
-
-  //
-  //  Free the IO structure
-  //
-  pIo->pNext = pPort->pTxOobFree;
-  pPort->pTxOobFree = pIo;
+  EslSocketTxComplete ( pPort,
+                        pIo,
+                        &pPort->pTxOobActive,
+                        &pPort->pTxOobFree );
 
   //
   //  Save any transmit error

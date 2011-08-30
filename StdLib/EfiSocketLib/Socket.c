@@ -1412,6 +1412,8 @@ EslSocketIoFree (
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
+  DBG_ENTER ( );
+
   //
   //  Assume success
   //
@@ -1453,6 +1455,7 @@ EslSocketIoFree (
   //
   //  Return the operation status
   //
+  DBG_EXIT_STATUS ( Status );
   return Status;
 }
 
@@ -1492,6 +1495,8 @@ EslSocketIoInit (
   ESL_IO_MGMT * pIo;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
+
+  DBG_ENTER ( );
 
   //
   //  Assume success
@@ -1554,6 +1559,7 @@ EslSocketIoInit (
   //
   //  Return the operation status
   //
+  DBG_EXIT_STATUS ( Status );
   return Status;
 }
 
@@ -2883,6 +2889,62 @@ EslSocketTransmit (
 
 
 /**
+  Complete the transmit operation
+
+  This support routine removes the ESL_IO_MGMT structure from
+  the active queue and returns it to the free queue.
+
+  The network specific code calls this routine during its transmit
+  complete processing.
+
+  @param [in] pPort           Address of a ESL_PORT structure
+  @param [in] pIo             Address of the ESL_IO_MGMT structure
+  @param [in] ppActive        Active transmit queue address
+  @param [in] ppFree          Free transmit queue address
+
+ **/
+VOID
+EslSocketTxComplete (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT * pIo,
+  IN ESL_IO_MGMT ** ppActive,
+  IN ESL_IO_MGMT ** ppFree
+  )
+{
+  ESL_IO_MGMT * pIoNext;
+
+  //
+  //  Remove the IO structure from the active list
+  //
+  pIoNext = *ppActive;
+  while (( NULL != pIoNext ) && ( pIoNext != pIo ) && ( pIoNext->pNext != pIo ))
+  {
+    pIoNext = pIoNext->pNext;
+  }
+  ASSERT ( NULL != pIoNext );
+  if ( pIoNext == pIo ) {
+    *ppActive = pIo->pNext;       //  Beginning of list
+  }
+  else {
+    pIoNext->pNext = pIo->pNext;  //  Middle of list
+  }
+
+  //
+  //  Free the IO structure
+  //
+  pIo->pNext = *ppFree;
+  *ppFree = pIo;
+
+  //
+  //  Display the results
+  //
+  DEBUG (( DEBUG_TX | DEBUG_INFO,
+            "0x%08x: pIo Released\r\n",
+            pIo ));
+}
+
+
+/**
   Transmit data using a network connection.
 
   This support routine starts a transmit operation on the
@@ -2960,6 +3022,14 @@ EslSocketTxStart (
     pBuffer = (UINT8 *)pPacket;
     pBuffer = &pBuffer[ pSocket->TxPacketOffset ];
     *ppTokenData = (VOID **)pBuffer;
+
+    //
+    //  Display the results
+    //
+    DEBUG (( DEBUG_TX | DEBUG_INFO,
+              "0x%08x: pIo allocated for pPacket: 0x%08x\r\n",
+              pIo,
+              pPacket ));
 
     //
     //  Start the transmit operation
