@@ -33,221 +33,6 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
 
 
 /**
-  Allocate and initialize a ESL_PORT structure.
-
-  @param [in] pSocket     Address of the socket structure.
-  @param [in] pService    Address of the ESL_SERVICE structure.
-  @param [in] ChildHandle Ip4 child handle
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslIpPortAllocate4 (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
-  IN CONST UINT8 * pIpAddress,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
-  )
-{
-  UINTN LengthInBytes;
-  EFI_IP4_CONFIG_DATA * pConfig;
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_IP4_CONTEXT * pIp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Use for/break instead of goto
-  for ( ; ; ) {
-    //
-    //  Allocate a port structure
-    //
-    pLayer = &mEslLayer;
-    LengthInBytes = sizeof ( *pPort );
-    Status = gBS->AllocatePool ( EfiRuntimeServicesData,
-                                 LengthInBytes,
-                                 (VOID **)&pPort );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
-                "ERROR - Failed to allocate the port structure, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      pPort = NULL;
-      break;
-    }
-    DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
-              "0x%08x: Allocate pPort, %d bytes\r\n",
-              pPort,
-              LengthInBytes ));
-
-    //
-    //  Initialize the port
-    //
-    ZeroMem ( pPort, LengthInBytes );
-    pPort->Signature = PORT_SIGNATURE;
-    pPort->pService = pService;
-    pPort->pSocket = pSocket;
-    pPort->pfnCloseStart = EslIpPortCloseStart4;
-    pPort->DebugFlags = DebugFlags;
-
-    //
-    //  Allocate the receive event
-    //
-    pIp4 = &pPort->Context.Ip4;
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslIpRxComplete4,
-                                 pPort,
-                                 &pIp4->RxToken.Event);
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the receive event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      break;
-    }
-    DEBUG (( DEBUG_RX | DEBUG_POOL,
-              "0x%08x: Created receive event\r\n",
-              pIp4->RxToken.Event ));
-
-    //
-    //  Allocate the transmit event
-    //
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslIpTxComplete4,
-                                 pPort,
-                                 &pIp4->TxToken.Event);
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the transmit event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      break;
-    }
-    DEBUG (( DEBUG_CLOSE | DEBUG_POOL,
-              "0x%08x: Created transmit event\r\n",
-              pIp4->TxToken.Event ));
-
-    //
-    //  Open the port protocol
-    //
-    Status = gBS->OpenProtocol (
-                    ChildHandle,
-                    &gEfiIp4ProtocolGuid,
-                    (VOID **) &pIp4->pProtocol,
-                    pLayer->ImageHandle,
-                    NULL,
-                    EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to open gEfiIp4ProtocolGuid on controller 0x%08x\r\n",
-                pIp4->Handle ));
-      pSocket->errno = EEXIST;
-      break;
-    }
-    DEBUG (( DebugFlags,
-              "0x%08x: gEfiIp4ProtocolGuid opened on controller 0x%08x\r\n",
-              pIp4->pProtocol,
-              ChildHandle ));
-
-    //
-    //  Set the port address
-    //
-    pIp4->Handle = ChildHandle;
-    pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
-    pConfig->DefaultProtocol = (UINT8)pSocket->Protocol;
-    if (( 0 == pIpAddress[0])
-      && ( 0 == pIpAddress[1])
-      && ( 0 == pIpAddress[2])
-      && ( 0 == pIpAddress[3])) {
-      pConfig->UseDefaultAddress = TRUE;
-      DEBUG (( DebugFlags,
-                "0x%08x: Port using default IP address\r\n",
-                pPort ));
-    }
-    else {
-      pConfig->StationAddress.Addr[0] = pIpAddress[0];
-      pConfig->StationAddress.Addr[1] = pIpAddress[1];
-      pConfig->StationAddress.Addr[2] = pIpAddress[2];
-      pConfig->StationAddress.Addr[3] = pIpAddress[3];
-      pConfig->SubnetMask.Addr[0] = 0xff;
-      pConfig->SubnetMask.Addr[1] = 0xff;
-      pConfig->SubnetMask.Addr[2] = 0xff;
-      pConfig->SubnetMask.Addr[3] = 0xff;
-      DEBUG (( DebugFlags,
-                "0x%08x: Port using IP address: %d.%d.%d.%d\r\n",
-                pPort,
-                pConfig->StationAddress.Addr[0],
-                pConfig->StationAddress.Addr[1],
-                pConfig->StationAddress.Addr[2],
-                pConfig->StationAddress.Addr[3]));
-    }
-    pConfig->AcceptAnyProtocol = (BOOLEAN)( 0 == pConfig->UseDefaultAddress);
-    pConfig->AcceptIcmpErrors = FALSE;
-    pConfig->AcceptBroadcast = FALSE;
-    pConfig->AcceptPromiscuous = FALSE;
-    pConfig->TypeOfService = 0;
-    pConfig->TimeToLive = 255;
-    pConfig->DoNotFragment = FALSE;
-    pConfig->RawData = FALSE;
-    pConfig->ReceiveTimeout = 0;
-    pConfig->TransmitTimeout = 0;
-
-    //
-    //  Verify the socket layer synchronization
-    //
-    VERIFY_TPL ( TPL_SOCKETS );
-
-    //
-    //  Add this port to the socket
-    //
-    pPort->pLinkSocket = pSocket->pPortList;
-    pSocket->pPortList = pPort;
-    DEBUG (( DebugFlags,
-              "0x%08x: Socket adding port: 0x%08x\r\n",
-              pSocket,
-              pPort ));
-
-    //
-    //  Add this port to the service
-    //
-    pPort->pLinkService = pService->pPortList;
-    pService->pPortList = pPort;
-
-    //
-    //  Return the port
-    //
-    *ppPort = pPort;
-    break;
-  }
-
-  //
-  //  Clean up after the error if necessary
-  //
-  if (( EFI_ERROR ( Status )) && ( NULL != pPort )) {
-    //
-    //  Close the port
-    //
-    EslIpPortClose4 ( pPort );
-  }
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
   Bind a name to a socket.
 
   The ::IpBind4 routine connects a name to a IP4 stack on the local machine.
@@ -888,6 +673,234 @@ EslIpOptionSet4 (
 
 
 /**
+  Allocate and initialize a ESL_PORT structure.
+
+  @param [in] pSocket     Address of the socket structure.
+  @param [in] pService    Address of the ESL_SERVICE structure.
+  @param [in] ChildHandle Ip4 child handle
+  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] DebugFlags  Flags for debug messages
+  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+EFI_STATUS
+EslIpPortAllocate4 (
+  IN ESL_SOCKET * pSocket,
+  IN ESL_SERVICE * pService,
+  IN EFI_HANDLE ChildHandle,
+  IN CONST UINT8 * pIpAddress,
+  IN UINTN DebugFlags,
+  OUT ESL_PORT ** ppPort
+  )
+{
+  UINTN LengthInBytes;
+  UINT8 * pBuffer;
+  EFI_IP4_CONFIG_DATA * pConfig;
+  ESL_IO_MGMT * pIo;
+  ESL_LAYER * pLayer;
+  ESL_PORT * pPort;
+  ESL_IP4_CONTEXT * pIp4;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Use for/break instead of goto
+  for ( ; ; ) {
+    //
+    //  Allocate a port structure
+    //
+    pLayer = &mEslLayer;
+    LengthInBytes = sizeof ( *pPort )
+                  + ESL_STRUCTURE_ALIGNMENT_BYTES
+                  + ( pService->pSocketBinding->TxIoNormal
+                      * sizeof ( ESL_IO_MGMT ));
+    Status = gBS->AllocatePool ( EfiRuntimeServicesData,
+                                 LengthInBytes,
+                                 (VOID **)&pPort );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
+                "ERROR - Failed to allocate the port structure, Status: %r\r\n",
+                Status ));
+      pSocket->errno = ENOMEM;
+      pPort = NULL;
+      break;
+    }
+    DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
+              "0x%08x: Allocate pPort, %d bytes\r\n",
+              pPort,
+              LengthInBytes ));
+
+    //
+    //  Initialize the port
+    //
+    ZeroMem ( pPort, LengthInBytes );
+    pPort->Signature = PORT_SIGNATURE;
+    pPort->pService = pService;
+    pPort->pSocket = pSocket;
+    pPort->pfnCloseStart = EslIpPortCloseStart4;
+    pPort->DebugFlags = DebugFlags;
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
+    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Ip4Tx.TxData );
+    pBuffer = (UINT8 *)&pPort[ 1 ];
+    pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
+    pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
+    pIo = (ESL_IO_MGMT *)pBuffer;
+
+    //
+    //  Allocate the receive event
+    //
+    pIp4 = &pPort->Context.Ip4;
+    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
+                                 TPL_SOCKETS,
+                                 (EFI_EVENT_NOTIFY)EslIpRxComplete4,
+                                 pPort,
+                                 &pIp4->RxToken.Event);
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags,
+                "ERROR - Failed to create the receive event, Status: %r\r\n",
+                Status ));
+      pSocket->errno = ENOMEM;
+      break;
+    }
+    DEBUG (( DEBUG_RX | DEBUG_POOL,
+              "0x%08x: Created receive event\r\n",
+              pIp4->RxToken.Event ));
+
+    //
+    //  Allocate the transmit events
+    //
+    Status = EslSocketIoInit ( pPort,
+                               &pIo,
+                               pService->pSocketBinding->TxIoNormal,
+                               &pPort->pTxFree,
+                               DebugFlags | DEBUG_POOL,
+                               "transmit",
+                               OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event ),
+                               EslIpTxComplete4 );
+    if ( EFI_ERROR ( Status )) {
+      break;
+    }
+
+    //
+    //  Open the port protocol
+    //
+    Status = gBS->OpenProtocol (
+                    ChildHandle,
+                    &gEfiIp4ProtocolGuid,
+                    (VOID **) &pIp4->pProtocol,
+                    pLayer->ImageHandle,
+                    NULL,
+                    EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags,
+                "ERROR - Failed to open gEfiIp4ProtocolGuid on controller 0x%08x\r\n",
+                pIp4->Handle ));
+      pSocket->errno = EEXIST;
+      break;
+    }
+    DEBUG (( DebugFlags,
+              "0x%08x: gEfiIp4ProtocolGuid opened on controller 0x%08x\r\n",
+              pIp4->pProtocol,
+              ChildHandle ));
+
+    //
+    //  Save the transmit address
+    //
+    pPort->pProtocol = (VOID *)pIp4->pProtocol;
+    pPort->pfnTxStart = (PFN_NET_TX_START)pIp4->pProtocol->Transmit;
+
+    //
+    //  Set the port address
+    //
+    pIp4->Handle = ChildHandle;
+    pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
+    pConfig->DefaultProtocol = (UINT8)pSocket->Protocol;
+    if (( 0 == pIpAddress[0])
+      && ( 0 == pIpAddress[1])
+      && ( 0 == pIpAddress[2])
+      && ( 0 == pIpAddress[3])) {
+      pConfig->UseDefaultAddress = TRUE;
+      DEBUG (( DebugFlags,
+                "0x%08x: Port using default IP address\r\n",
+                pPort ));
+    }
+    else {
+      pConfig->StationAddress.Addr[0] = pIpAddress[0];
+      pConfig->StationAddress.Addr[1] = pIpAddress[1];
+      pConfig->StationAddress.Addr[2] = pIpAddress[2];
+      pConfig->StationAddress.Addr[3] = pIpAddress[3];
+      pConfig->SubnetMask.Addr[0] = 0xff;
+      pConfig->SubnetMask.Addr[1] = 0xff;
+      pConfig->SubnetMask.Addr[2] = 0xff;
+      pConfig->SubnetMask.Addr[3] = 0xff;
+      DEBUG (( DebugFlags,
+                "0x%08x: Port using IP address: %d.%d.%d.%d\r\n",
+                pPort,
+                pConfig->StationAddress.Addr[0],
+                pConfig->StationAddress.Addr[1],
+                pConfig->StationAddress.Addr[2],
+                pConfig->StationAddress.Addr[3]));
+    }
+    pConfig->AcceptAnyProtocol = (BOOLEAN)( 0 == pConfig->UseDefaultAddress);
+    pConfig->AcceptIcmpErrors = FALSE;
+    pConfig->AcceptBroadcast = FALSE;
+    pConfig->AcceptPromiscuous = FALSE;
+    pConfig->TypeOfService = 0;
+    pConfig->TimeToLive = 255;
+    pConfig->DoNotFragment = FALSE;
+    pConfig->RawData = FALSE;
+    pConfig->ReceiveTimeout = 0;
+    pConfig->TransmitTimeout = 0;
+
+    //
+    //  Verify the socket layer synchronization
+    //
+    VERIFY_TPL ( TPL_SOCKETS );
+
+    //
+    //  Add this port to the socket
+    //
+    pPort->pLinkSocket = pSocket->pPortList;
+    pSocket->pPortList = pPort;
+    DEBUG (( DebugFlags,
+              "0x%08x: Socket adding port: 0x%08x\r\n",
+              pSocket,
+              pPort ));
+
+    //
+    //  Add this port to the service
+    //
+    pPort->pLinkService = pService->pPortList;
+    pService->pPortList = pPort;
+
+    //
+    //  Return the port
+    //
+    *ppPort = pPort;
+    break;
+  }
+
+  //
+  //  Clean up after the error if necessary
+  //
+  if (( EFI_ERROR ( Status )) && ( NULL != pPort )) {
+    //
+    //  Close the port
+    //
+    EslIpPortClose4 ( pPort );
+  }
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
   Close a IP4 port.
 
   This routine releases the resources allocated by
@@ -1019,22 +1032,13 @@ EslIpPortClose4 (
   }
 
   //
-  //  Done with the transmit event
+  //  Done with the transmit events
   //
-  if ( NULL != pIp4->TxToken.Event ) {
-    Status = gBS->CloseEvent ( pIp4->TxToken.Event );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Closed normal transmit event\r\n",
-                pIp4->TxToken.Event ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close the normal transmit event, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
+  Status = EslSocketIoFree ( pPort,
+                             &pPort->pTxFree,
+                             DebugFlags | DEBUG_POOL,
+                             "transmit",
+                             OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event ));
 
   //
   //  Done with the IP protocol
@@ -2311,11 +2315,9 @@ EslIpTxBuffer4 (
 {
   ESL_PACKET * pPacket;
   ESL_PACKET * pPreviousPacket;
-  ESL_PACKET ** ppPacket;
   ESL_PORT * pPort;
   const struct sockaddr_in * pRemoteAddress;
   ESL_IP4_CONTEXT * pIp4;
-  EFI_IP4_COMPLETION_TOKEN * pToken;
   size_t * pTxBytes;
   ESL_IP4_TX_DATA * pTxData;
   EFI_STATUS Status;
@@ -2343,8 +2345,6 @@ EslIpTxBuffer4 (
       //  Determine the queue head
       //
       pIp4 = &pPort->Context.Ip4;
-      ppPacket = &pIp4->pTxPacket;
-      pToken = &pIp4->TxToken;
       pTxBytes = &pSocket->TxBytes;
 
       //
@@ -2454,8 +2454,12 @@ EslIpTxBuffer4 (
             //
             //  Start the transmit engine if it is idle
             //
-            if ( NULL == pIp4->pTxPacket ) {
-              EslIpTxStart4 ( pSocket->pPortList );
+            if ( NULL != pPort->pTxFree ) {
+              EslSocketTxStart ( pPort,
+                                 &pSocket->pTxPacketListHead,
+                                 &pSocket->pTxPacketListTail,
+                                 &pPort->pTxActive,
+                                 &pPort->pTxFree );
             }
           }
           else {
@@ -2507,18 +2511,19 @@ EslIpTxBuffer4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslIpTxComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   )
 {
   UINT32 LengthInBytes;
   ESL_PACKET * pCurrentPacket;
   ESL_PACKET * pNextPacket;
+  ESL_PORT * pPort;
   ESL_PACKET * pPacket;
   ESL_SOCKET * pSocket;
   ESL_IP4_TX_DATA * pTxData;
@@ -2530,18 +2535,26 @@ EslIpTxComplete4 (
   //
   //  Locate the active transmit packet
   //
+  pPacket = pIo->pPacket;
+  pPort = pIo->pPort;
   pSocket = pPort->pSocket;
   pIp4 = &pPort->Context.Ip4;
-  pPacket = pIp4->pTxPacket;
   pTxData = &pPacket->Op.Ip4Tx;
-  Status = pIp4->TxToken.Status;
-  
+
   //
   //  Mark this packet as complete
   //
-  pIp4->pTxPacket = NULL;
   LengthInBytes = pPacket->Op.Ip4Tx.TxData.TotalDataLength;
   pSocket->TxBytes -= LengthInBytes;
+  Status = pIo->Token.Ip4Tx.Status;
+
+  //
+  //  Release the IO structure
+  //
+  EslSocketTxComplete ( pPort,
+                        pIo,
+                        &pPort->pTxActive,
+                        &pPort->pTxFree );
 
   //
   //  Save any transmit error
@@ -2583,7 +2596,11 @@ EslIpTxComplete4 (
       //
       //  Start the next packet transmission
       //
-      EslIpTxStart4 ( pPort );
+      EslSocketTxStart ( pPort,
+                         &pSocket->pTxPacketListHead,
+                         &pSocket->pTxPacketListTail,
+                         &pPort->pTxActive,
+                         &pPort->pTxFree );
     }
   }
 
@@ -2597,75 +2614,11 @@ EslIpTxComplete4 (
   //
   if (( PORT_STATE_CLOSE_STARTED <= pPort->State )
     && ( NULL == pSocket->pTxPacketListHead )
-    && ( NULL == pIp4->pTxPacket )) {
+    && ( NULL == pPort->pTxActive )) {
     //
     //  Indicate that the transmit is complete
     //
     EslIpPortCloseTxDone4 ( pPort );
   }
-  DBG_EXIT ( );
-}
-
-
-/**
-  Transmit data using a network connection.
-
-  @param [in] pPort           Address of a ESL_PORT structure
-
- **/
-VOID
-EslIpTxStart4 (
-  IN ESL_PORT * pPort
-  )
-{
-  ESL_PACKET * pNextPacket;
-  ESL_PACKET * pPacket;
-  ESL_SOCKET * pSocket;
-  ESL_IP4_CONTEXT * pIp4;
-  EFI_IP4_PROTOCOL * pIp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume success
-  //
-  Status = EFI_SUCCESS;
-
-  //
-  //  Get the packet from the queue head
-  //
-  pSocket = pPort->pSocket;
-  pPacket = pSocket->pTxPacketListHead;
-  if ( NULL != pPacket ) {
-    //
-    //  Remove the packet from the queue
-    //
-    pNextPacket = pPacket->pNext;
-    pSocket->pTxPacketListHead = pNextPacket;
-    if ( NULL == pNextPacket ) {
-      pSocket->pTxPacketListTail = NULL;
-    }
-
-    //
-    //  Set the packet as active
-    //
-    pIp4 = &pPort->Context.Ip4;
-    pIp4->pTxPacket = pPacket;
-
-    //
-    //  Start the transmit operation
-    //
-    pIp4Protocol = pIp4->pProtocol;
-    pIp4->TxToken.Packet.TxData = &pPacket->Op.Ip4Tx.TxData;
-    Status = pIp4Protocol->Transmit ( pIp4Protocol, &pIp4->TxToken );
-    if ( EFI_ERROR ( Status )) {
-      pSocket = pPort->pSocket;
-      if ( EFI_SUCCESS == pSocket->TxError ) {
-        pSocket->TxError = Status;
-      }
-    }
-  }
-
   DBG_EXIT ( );
 }

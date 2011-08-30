@@ -228,12 +228,6 @@ typedef struct {
   //
   EFI_IP4_COMPLETION_TOKEN RxToken; ///<  Receive token
   ESL_PACKET * pReceivePending;     ///<  Receive operation in progress
-
-  //
-  //  Transmit data management
-  //
-  EFI_IP4_COMPLETION_TOKEN TxToken; ///<  Transmit token
-  ESL_PACKET * pTxPacket;           ///<  Transmit in progress
 } ESL_IP4_CONTEXT;
 
 
@@ -1155,6 +1149,29 @@ EslIpOptionSet4 (
   );
 
 /**
+  Allocate and initialize a ESL_PORT structure.
+
+  @param [in] pSocket     Address of the socket structure.
+  @param [in] pService    Address of the ESL_SERVICE structure.
+  @param [in] ChildHandle Ip4 child handle
+  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] DebugFlags  Flags for debug messages
+  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+EFI_STATUS
+EslIpPortAllocate4 (
+  IN ESL_SOCKET * pSocket,
+  IN ESL_SERVICE * pService,
+  IN EFI_HANDLE ChildHandle,
+  IN CONST UINT8 * pIpAddress,
+  IN UINTN DebugFlags,
+  OUT ESL_PORT ** ppPort
+  );
+
+/**
   Close a IP4 port.
 
   This routine releases the resources allocated by
@@ -1378,24 +1395,13 @@ EslIpTxBuffer4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslIpTxComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
-  );
-
-/**
-  Transmit data using a network connection.
-
-  @param [in] pPort           Address of a ESL_PORT structure
-
- **/
-VOID
-EslIpTxStart4 (
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   );
 
 //------------------------------------------------------------------------------

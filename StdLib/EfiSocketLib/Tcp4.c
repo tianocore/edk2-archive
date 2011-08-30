@@ -3192,7 +3192,6 @@ EslTcpTxComplete4 (
   //
   //  Mark this packet as complete
   //
-  pIo->pPacket = NULL;
   LengthInBytes = pPacket->Op.Tcp4Tx.TxData.DataLength;
   pSocket->TxBytes -= LengthInBytes;
   Status = pIo->Token.Tcp4Tx.CompletionToken.Status;

@@ -30,7 +30,7 @@ CONST ESL_SOCKET_BINDING cEslSocketBinding[] = {
     &mEslIp4ServiceGuid,
     EslIpInitialize4,
     EslIpShutdown4,
-    0,
+    4,
     0 },
   { L"Tcp4",
     &gEfiTcp4ServiceBindingProtocolGuid,
@@ -44,7 +44,7 @@ CONST ESL_SOCKET_BINDING cEslSocketBinding[] = {
     &mEslUdp4ServiceGuid,
     EslUdpInitialize4,
     EslUdpShutdown4,
-    0,
+    4,
     0 }
 };
 
@@ -1464,7 +1464,28 @@ EslSocketIoFree (
   Initialize the ESL_IO_MGMT structures
 
   This support routine initializes the ESL_IO_MGMT structure and
-  places it on to a free list.
+  places them on to a free list.
+
+  The transmit engine uses the ESL_IO_MGMT structures to manage
+  multiple transmit buffers.  During their lifetime, the ESL_IO_MGMT
+  structures will move from the free list to the active list and back
+  again.  The active list contains the packets that are actively being
+  processed by the network stack.  Eventually the ESL_IO_MGMT structures
+  will be removed from the free list and be deallocated.
+
+  The network specific code calls the ::EslSocketTxStart routine
+  to hand a packet to the network stack.  EslSocketTxStart connects
+  the transmit packet (::ESL_PACKET) to an ::ESL_IO_MGMT structure
+  and then queues the result to one of the active lists:
+  ESL_PORT::pTxActive or ESL_PORT::pTxOobActive.  The routine then
+  hands the packet to the network stack.
+
+  Upon completion, the network specific TxComplete calls
+  ::EslSocketTxComplete to disconnect the transmit packet from the
+  ESL_IO_MGMT structure.  The routine also releases the structure
+  to to the appropriate free queue: ESL_PORT::pTxFree or
+  ESL_PORT::pTxOobFree.  The network specific Close routine
+  calls ::EslSocketIoFree to deallocate the ESL_IO_MGMT structures.
 
   @param [in] pPort         The ESL_PORT structure address
   @param [in, out], ppIo    Address containing the first structure address.  Upon
@@ -2912,6 +2933,11 @@ EslSocketTxComplete (
   )
 {
   ESL_IO_MGMT * pIoNext;
+
+  //
+  //  No more packet
+  //
+  pIo->pPacket = NULL;
 
   //
   //  Remove the IO structure from the active list
