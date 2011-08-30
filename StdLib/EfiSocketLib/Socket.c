@@ -1383,6 +1383,182 @@ EslSocketGetPeerAddress (
 
 
 /**
+  Free the ESL_IO_MGMT event and structure
+
+  This support routine walks the free list to close the event in
+  the ESL_IO_MGMT structure and remove the structure from the free
+  list.
+
+  @param [in] pPort         The ESL_PORT structure address
+  @param [in] ppFreeQueue   Address of the free queue head
+  @param [in] DebugFlags    Flags for debug messages
+  @param [in] pEventName    Zero terminated string containing the event name
+  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+
+  @retval EFI_SUCCESS - The structures were properly initialized
+
+**/
+EFI_STATUS
+EslSocketIoFree (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT ** ppFreeQueue,
+  IN UINTN DebugFlags,
+  IN CHAR8 * pEventName,
+  IN UINT32 EventOffset )
+{
+  UINT8 * pBuffer;
+  EFI_EVENT * pEvent;
+  ESL_IO_MGMT * pIo;
+  ESL_SOCKET * pSocket;
+  EFI_STATUS Status;
+
+  //
+  //  Assume success
+  //
+  Status = EFI_SUCCESS;
+
+  //
+  //  Walk the list of IO structures
+  //
+  pSocket = pPort->pSocket;
+  while ( *ppFreeQueue ) {
+    //
+    //  Free the event for this structure
+    //
+    pIo = *ppFreeQueue;
+    pBuffer = (UINT8 *)pIo;
+    pBuffer = &pBuffer[ EventOffset ];
+    pEvent = (EFI_EVENT *)pBuffer;
+    Status = gBS->CloseEvent ( *pEvent );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags,
+                "ERROR - Failed to close the %a event, Status: %r\r\n",
+                pEventName,
+                Status ));
+      pSocket->errno = ENOMEM;
+      break;
+    }
+    DEBUG (( DebugFlags,
+              "0x%08x: Closed %a event 0x%08x\r\n",
+              pIo,
+              pEventName,
+              *pEvent ));
+
+    //
+    //  Remove this structure from the queue
+    //
+    *ppFreeQueue = pIo->pNext;
+  }
+
+  //
+  //  Return the operation status
+  //
+  return Status;
+}
+
+
+/**
+  Initialize the ESL_IO_MGMT structures
+
+  This support routine initializes the ESL_IO_MGMT structure and
+  places it on to a free list.
+
+  @param [in] pPort         The ESL_PORT structure address
+  @param [in, out], ppIo    Address containing the first structure address.  Upon
+                            return this buffer contains the next structure address.
+  @param [in] TokenCount    Number of structures to initialize
+  @param [in] ppFreeQueue   Address of the free queue head
+  @param [in] DebugFlags    Flags for debug messages
+  @param [in] pEventName    Zero terminated string containing the event name
+  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+  @param [in] pfnCompletion Completion routine address
+
+  @retval EFI_SUCCESS - The structures were properly initialized
+
+**/
+EFI_STATUS
+EslSocketIoInit (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT ** ppIo,
+  IN UINTN TokenCount,
+  IN ESL_IO_MGMT ** ppFreeQueue,
+  IN UINTN DebugFlags,
+  IN CHAR8 * pEventName,
+  IN UINTN EventOffset,
+  IN EFI_EVENT_NOTIFY pfnCompletion )
+{
+  ESL_IO_MGMT * pEnd;
+  EFI_EVENT * pEvent;
+  ESL_IO_MGMT * pIo;
+  ESL_SOCKET * pSocket;
+  EFI_STATUS Status;
+
+  //
+  //  Assume success
+  //
+  Status = EFI_SUCCESS;
+
+  //
+  //  Walk the list of IO structures
+  //
+  pSocket = pPort->pSocket;
+  pIo = *ppIo;
+  pEnd = &pIo [ TokenCount ];
+  while ( pEnd > pIo ) {
+    //
+    //  Initialize the IO structure
+    //
+    pIo->pPort = pPort;
+    pIo->pPacket = NULL;
+
+    //
+    //  Allocate the event for this structure
+    //
+    pEvent = (EFI_EVENT *)&(((UINT8 *)pIo)[ EventOffset ]);
+    Status = gBS->CreateEvent ( EVT_NOTIFY_SIGNAL,
+                                TPL_SOCKETS,
+                                (EFI_EVENT_NOTIFY)pfnCompletion,
+                                pIo,
+                                pEvent );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags,
+                "ERROR - Failed to create the %a event, Status: %r\r\n",
+                pEventName,
+                Status ));
+      pSocket->errno = ENOMEM;
+      break;
+    }
+    DEBUG (( DebugFlags,
+              "0x%08x: Created %a event 0x%08x\r\n",
+              pIo,
+              pEventName,
+              *pEvent ));
+
+    //
+    //  Add this structure to the queue
+    //
+    pIo->pNext = *ppFreeQueue;
+    *ppFreeQueue = pIo;
+
+    //
+    //  Set the next structure
+    //
+    pIo += 1;
+  }
+
+  //
+  //  Save the next structure
+  //
+  *ppIo = pIo;
+
+  //
+  //  Return the operation status
+  //
+  return Status;
+}
+
+
+/**
   Determine if the socket is configured
 
   This support routine is called to determine if the socket if the
@@ -1404,7 +1580,7 @@ EslSocketGetPeerAddress (
 **/
 EFI_STATUS
 EslSocketIsConfigured (
-  ESL_SOCKET * pSocket
+  IN ESL_SOCKET * pSocket
   )
 {
   EFI_STATUS Status;
@@ -2703,4 +2879,99 @@ EslSocketTransmit (
   }
   DBG_EXIT_STATUS ( Status );
   return Status;
+}
+
+
+/**
+  Transmit data using a network connection.
+
+  This support routine starts a transmit operation on the
+  underlying network layer.
+
+  The network specific code calls this routine to start a
+  transmit operation.
+
+  @param [in] pPort           Address of a ESL_PORT structure
+  @param [in] pToken          Address of either the OOB or normal transmit token
+  @param [in] ppQueueHead     Transmit queue head address
+  @param [in] ppQueueTail     Transmit queue tail address
+  @param [in] ppActive        Active transmit queue address
+  @param [in] ppFree          Free transmit queue address
+
+ **/
+VOID
+EslSocketTxStart (
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET ** ppQueueHead,
+  IN ESL_PACKET ** ppQueueTail,
+  IN ESL_IO_MGMT ** ppActive,
+  IN ESL_IO_MGMT ** ppFree
+  )
+{
+  UINT8 * pBuffer;
+  ESL_IO_MGMT * pIo;
+  ESL_PACKET * pNextPacket;
+  ESL_PACKET * pPacket;
+  VOID ** ppTokenData;
+  ESL_SOCKET * pSocket;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Assume success
+  //
+  Status = EFI_SUCCESS;
+
+  //
+  //  Get the packet from the queue head
+  //
+  pPacket = *ppQueueHead;
+  pIo = *ppFree;
+  if (( NULL != pPacket ) && ( NULL != pIo )) {
+    //
+    //  Remove the packet from the queue
+    //
+    pNextPacket = pPacket->pNext;
+    *ppQueueHead = pNextPacket;
+    if ( NULL == pNextPacket ) {
+      *ppQueueTail = NULL;
+    }
+
+    //
+    //  Remove the IO structure from the queue
+    //
+    *ppFree = pIo->pNext;
+
+    //
+    //  Mark this packet as active
+    //
+    pIo->pPacket = pPacket;
+    pIo->pNext = *ppActive;
+    *ppActive = pIo;
+
+    //
+    //  Connect the token to the transmit data
+    //
+    pSocket = pPort->pSocket;
+    pBuffer = (UINT8 *)&pIo->Token;
+    pBuffer = &pBuffer[ pSocket->TxTokenOffset ];
+    ppTokenData = (VOID **)pBuffer;
+    pBuffer = (UINT8 *)pPacket;
+    pBuffer = &pBuffer[ pSocket->TxPacketOffset ];
+    *ppTokenData = (VOID **)pBuffer;
+
+    //
+    //  Start the transmit operation
+    //
+    Status = pPort->pfnTxStart ( pPort->pProtocol,
+                                 &pIo->Token );
+    if ( EFI_ERROR ( Status )) {
+      if ( EFI_SUCCESS == pSocket->TxError ) {
+        pSocket->TxError = Status;
+      }
+    }
+  }
+
+  DBG_EXIT ( );
 }

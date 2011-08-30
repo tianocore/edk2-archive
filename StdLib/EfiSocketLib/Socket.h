@@ -38,6 +38,9 @@
 #define RX_PACKET_DATA      16384       ///<  Maximum number of bytes in a RX packet
 #define MAX_UDP_RETRANSMIT  16          ///<  UDP retransmit attempts to handle address not mapped
 
+#define ESL_STRUCTURE_ALIGNMENT_BYTES   15
+#define ESL_STRUCTURE_ALIGNMENT_MASK    ( ~ESL_STRUCTURE_ALIGNMENT_BYTES )
+
 #define LAYER_SIGNATURE           SIGNATURE_32 ('S','k','t','L')  ///<  ESL_LAYER memory signature
 #define SERVICE_SIGNATURE         SIGNATURE_32 ('S','k','t','S')  ///<  ESL_SERVICE memory signature
 #define SOCKET_SIGNATURE          SIGNATURE_32 ('S','c','k','t')  ///<  ESL_SOCKET memory signature
@@ -89,6 +92,7 @@ typedef enum
 //  Data Types
 //------------------------------------------------------------------------------
 
+typedef struct _ESL_IO_MGMT ESL_IO_MGMT;///<  Forward declaration
 typedef struct _ESL_PACKET ESL_PACKET;  ///<  Forward declaration
 typedef struct _ESL_PORT ESL_PORT;      ///<  Forward declaration
 typedef struct _ESL_SOCKET ESL_SOCKET;  ///<  Forward declaration
@@ -194,14 +198,13 @@ PFN_PORT_CLOSE_START (
 
   This structure manages a single operation with the network.
 **/
-typedef struct _ESL_IO_MGMT ESL_IO_MGMT;
 typedef struct _ESL_IO_MGMT {
-  ESL_IO_MGMT * pNext;            ///<  Next TX management structure
-  ESL_PORT * pPort;               ///<  Port structure address
-  ESL_PACKET * pPacket;           ///<  Packet structure address
+  ESL_IO_MGMT * pNext;              ///<  Next TX management structure
+  ESL_PORT * pPort;                 ///<  Port structure address
+  ESL_PACKET * pPacket;             ///<  Packet structure address
   union {
-    EFI_IP4_COMPLETION_TOKEN Ip4; ///<  IP4 transmit token
-    EFI_TCP4_IO_TOKEN Tcp4;       ///<  TCP4 transmit token
+    EFI_IP4_COMPLETION_TOKEN Ip4Tx; ///<  IP4 transmit token
+    EFI_TCP4_IO_TOKEN Tcp4Tx;       ///<  TCP4 transmit token
   } Token;
 };
 
@@ -261,15 +264,6 @@ typedef struct {
   //
   EFI_TCP4_IO_TOKEN RxToken;        ///<  Receive token
   ESL_PACKET * pReceivePending;     ///<  Receive operation in progress
-
-  //
-  //  Transmit data management
-  //
-  EFI_TCP4_IO_TOKEN TxOobToken;     ///<  Urgent data token
-  ESL_PACKET * pTxOobPacket;        ///<  Urgent data in progress
-
-  EFI_TCP4_IO_TOKEN TxToken;        ///<  Normal data token
-  ESL_PACKET * pTxPacket;           ///<  Normal transmit in progress
 } ESL_TCP4_CONTEXT;
 
 /**
@@ -299,6 +293,22 @@ typedef struct {
   ESL_PACKET * pTxPacket;           ///<  Transmit in progress
 } ESL_UDP4_CONTEXT;
 
+
+/**
+  Hand an I/O operation to the network layer.
+
+  @param [in] pProtocol   Protocol structure address
+  @param [in] pToken      Completion token address
+
+  @return   Returns EFI_SUCCESS if the operation is successfully
+            started.
+**/
+typedef
+EFI_STATUS
+(* PFN_NET_TX_START) (
+  IN VOID * pProtocol,
+  IN VOID * pToken
+  );
 
 /**
   Port control structure
@@ -333,6 +343,7 @@ typedef struct _ESL_PORT {
   //
   //  Transmit data management
   //
+  PFN_NET_TX_START pfnTxStart;  ///<  Start a transmit on the network
   ESL_IO_MGMT * pTxActive;      ///<  Normal data queue
   ESL_IO_MGMT * pTxFree;        ///<  Normal free queue
 
@@ -342,6 +353,7 @@ typedef struct _ESL_PORT {
   //
   //  Protocol specific management data
   //
+  VOID * pProtocol;             ///<  Copy of the network layer protocol
   union {
     ESL_IP4_CONTEXT Ip4;        ///<  IPv4 management data
     ESL_TCP4_CONTEXT Tcp4;      ///<  TCPv4 management data
@@ -738,6 +750,8 @@ typedef struct _ESL_SOCKET {
   //
   //  Transmit data management
   //
+  UINTN TxTokenOffset;              ///<  Offset for data pointer in TX token
+  UINTN TxPacketOffset;             ///<  Offset for data pointer in ::ESL_PACKET
   UINT32 MaxTxBuf;                  ///<  Maximum size of the transmit buffer
   ESL_PACKET * pTxOobPacketListHead;///<  Urgent data list head
   ESL_PACKET * pTxOobPacketListTail;///<  Urgent data list tail
@@ -829,6 +843,60 @@ EslSocketAllocate (
   );
 
 /**
+  Free the ESL_IO_MGMT event and structure
+
+  This support routine walks the free list to close the event in
+  the ESL_IO_MGMT structure and remove the structure from the free
+  list.
+
+  @param [in] pPort         The ESL_PORT structure address
+  @param [in] ppFreeQueue   Address of the free queue head
+  @param [in] DebugFlags    Flags for debug messages
+  @param [in] pEventName    Zero terminated string containing the event name
+  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+
+  @retval EFI_SUCCESS - The structures were properly initialized
+
+**/
+EFI_STATUS
+EslSocketIoFree (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT ** ppFreeQueue,
+  IN UINTN DebugFlags,
+  IN CHAR8 * pEventName,
+  IN UINT32 EventOffset );
+
+/**
+  Initialize the ESL_IO_MGMT structures
+
+  This support routine initializes the ESL_IO_MGMT structure and
+  places it on to a free list.
+
+  @param [in] pPort         The ESL_PORT structure address
+  @param [in, out], ppIo    Address containing the first structure address.  Upon
+                            return this buffer contains the next structure address.
+  @param [in] TokenCount    Number of structures to initialize
+  @param [in] ppFreeQueue   Address of the free queue head
+  @param [in] DebugFlags    Flags for debug messages
+  @param [in] pEventName    Zero terminated string containing the event name
+  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+  @param [in] pfnCompletion Completion routine address
+
+  @retval EFI_SUCCESS - The structures were properly initialized
+
+**/
+EFI_STATUS
+EslSocketIoInit (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT ** ppIo,
+  IN UINTN TokenCount,
+  IN ESL_IO_MGMT ** ppFreeQueue,
+  IN UINTN DebugFlags,
+  IN CHAR8 * pEventName,
+  IN UINTN EventOffset,
+  IN EFI_EVENT_NOTIFY pfnCompletion );
+
+/**
   Determine if the socket is configured
 
   @param [in] pSocket       The ESL_SOCKET structure address
@@ -838,7 +906,7 @@ EslSocketAllocate (
 **/
 EFI_STATUS
 EslSocketIsConfigured (
-  ESL_SOCKET * pSocket
+  IN ESL_SOCKET * pSocket
   );
 
 /**
@@ -871,6 +939,32 @@ EFI_STATUS
 EslSocketPacketFree (
   IN ESL_PACKET * pPacket,
   IN UINTN DebugFlags
+  );
+
+/**
+  Transmit data using a network connection.
+
+  This support routine starts a transmit operation on the
+  underlying network layer.
+
+  The network specific code calls this routine to start a
+  transmit operation.
+
+  @param [in] pPort           Address of a ESL_PORT structure
+  @param [in] pToken          Address of either the OOB or normal transmit token
+  @param [in] ppQueueHead     Transmit queue head address
+  @param [in] ppQueueTail     Transmit queue tail address
+  @param [in] ppActive        Active transmit queue address
+  @param [in] ppFree          Free transmit queue address
+
+ **/
+VOID
+EslSocketTxStart (
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET ** ppQueueHead,
+  IN ESL_PACKET ** ppQueueTail,
+  IN ESL_IO_MGMT ** ppActive,
+  IN ESL_IO_MGMT ** ppFree
   );
 
 //------------------------------------------------------------------------------
@@ -1727,13 +1821,13 @@ EslTcpTxBuffer4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslTcpTxComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   );
 
 /**
@@ -1741,33 +1835,13 @@ EslTcpTxComplete4 (
 
   @param [in] Event     The urgent transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslTcpTxOobComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
-  );
-
-/**
-  Transmit data using a network connection.
-
-
-  @param [in] pPort           Address of a ESL_PORT structure
-  @param [in] pToken          Address of either the OOB or normal transmit token
-  @param [in] ppQueueHead     Transmit queue head address
-  @param [in] ppQueueTail     Transmit queue tail address
-  @param [in] ppPacket        Active transmit packet address
-
- **/
-VOID
-EslTcpTxStart4 (
-  IN ESL_PORT * pPort,
-  IN EFI_TCP4_IO_TOKEN * pToken,
-  IN ESL_PACKET ** ppQueueHead,
-  IN ESL_PACKET ** ppQueueTail,
-  IN ESL_PACKET ** ppPacket
+  IN ESL_IO_MGMT * pIo
   );
 
 //------------------------------------------------------------------------------

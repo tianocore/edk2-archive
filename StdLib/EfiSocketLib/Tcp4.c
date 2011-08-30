@@ -1386,6 +1386,7 @@ EslTcpPortAllocate4 (
 {
   UINTN LengthInBytes;
   EFI_TCP4_ACCESS_POINT * pAccessPoint;
+  ESL_IO_MGMT * pIo;
   ESL_LAYER * pLayer;
   ESL_PORT * pPort;
   ESL_TCP4_CONTEXT * pTcp4;
@@ -1400,7 +1401,11 @@ EslTcpPortAllocate4 (
     //  Allocate a port structure
     //
     pLayer = &mEslLayer;
-    LengthInBytes = sizeof ( *pPort );
+    LengthInBytes = sizeof ( *pPort )
+                  + ESL_STRUCTURE_ALIGNMENT_BYTES
+                  + (( pService->pSocketBinding->TxIoNormal
+                       + pService->pSocketBinding->TxIoUrgent )
+                     * sizeof ( ESL_IO_MGMT ));
     Status = gBS->AllocatePool ( EfiRuntimeServicesData,
                                  LengthInBytes,
                                  (VOID **)&pPort );
@@ -1426,6 +1431,9 @@ EslTcpPortAllocate4 (
     pPort->pSocket = pSocket;
     pPort->pfnCloseStart = EslTcpPortCloseStart4;
     pPort->DebugFlags = DebugFlags;
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_TCP4_IO_TOKEN, Packet.TxData );
+    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Tcp4Tx.TxData );
+    pIo = (ESL_IO_MGMT *)&pPort[ 1 ];
 
     //
     //  Allocate the receive event
@@ -1448,42 +1456,34 @@ EslTcpPortAllocate4 (
               pTcp4->RxToken.CompletionToken.Event ));
 
     //
-    //  Allocate the urgent transmit event
+    //  Initialize the urgent transmit structures
     //
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslTcpTxOobComplete4,
-                                 pPort,
-                                 &pTcp4->TxOobToken.CompletionToken.Event);
+    Status = EslSocketIoInit ( pPort,
+                               &pIo,
+                               pService->pSocketBinding->TxIoUrgent,
+                               &pPort->pTxOobFree,
+                               DebugFlags | DEBUG_POOL,
+                               "urgent transmit",
+                               OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event ),
+                               EslTcpTxOobComplete4 );
     if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the urgent transmit event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
       break;
     }
-    DEBUG (( DEBUG_CLOSE | DEBUG_POOL,
-              "0x%08x: Created urgent transmit event\r\n",
-              pTcp4->TxOobToken.CompletionToken.Event ));
 
     //
-    //  Allocate the normal transmit event
+    //  Initialize the normal transmit structures
     //
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslTcpTxComplete4,
-                                 pPort,
-                                 &pTcp4->TxToken.CompletionToken.Event);
+    Status = EslSocketIoInit ( pPort,
+                               &pIo,
+                               pService->pSocketBinding->TxIoNormal,
+                               &pPort->pTxFree,
+                               DebugFlags | DEBUG_POOL,
+                               "normal transmit",
+                               OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event ),
+                               EslTcpTxComplete4 );
     if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the normal transmit event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
       break;
     }
-    DEBUG (( DEBUG_CLOSE | DEBUG_POOL,
-              "0x%08x: Created normal transmit event\r\n",
-              pTcp4->TxToken.CompletionToken.Event ));
 
     //
     //  Allocate the close event
@@ -1544,6 +1544,12 @@ EslTcpPortAllocate4 (
               "0x%08x: gEfiTcp4ProtocolGuid opened on controller 0x%08x\r\n",
               pTcp4->pProtocol,
               ChildHandle ));
+
+    //
+    //  Save the transmit address
+    //
+    pPort->pProtocol = (VOID *)pTcp4->pProtocol;
+    pPort->pfnTxStart = (PFN_NET_TX_START)pTcp4->pProtocol->Transmit;
 
     //
     //  Set the port address
@@ -1813,40 +1819,22 @@ EslTcpPortClose4 (
   }
 
   //
-  //  Done with the normal transmit event
+  //  Done with the normal transmit events
   //
-  if ( NULL != pTcp4->TxToken.CompletionToken.Event ) {
-    Status = gBS->CloseEvent ( pTcp4->TxToken.CompletionToken.Event );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Closed normal transmit event\r\n",
-                pTcp4->TxToken.CompletionToken.Event ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close the normal transmit event, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
+  Status = EslSocketIoFree ( pPort,
+                             &pPort->pTxFree,
+                             DebugFlags | DEBUG_POOL,
+                             "normal transmit",
+                             OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event ));
 
   //
-  //  Done with the urgent transmit event
+  //  Done with the urgent transmit events
   //
-  if ( NULL != pTcp4->TxOobToken.CompletionToken.Event ) {
-    Status = gBS->CloseEvent ( pTcp4->TxOobToken.CompletionToken.Event );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Closed urgent transmit event\r\n",
-                pTcp4->TxOobToken.CompletionToken.Event ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close the urgent transmit event, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
+  Status = EslSocketIoFree ( pPort,
+                             &pPort->pTxOobFree,
+                             DebugFlags | DEBUG_POOL,
+                             "urgent transmit",
+                             OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event ));
 
   //
   //  Done with the TCP protocol
@@ -2985,13 +2973,13 @@ EslTcpTxBuffer4 (
   BOOLEAN bUrgent;
   BOOLEAN bUrgentQueue;
   ESL_PACKET * pPacket;
-  ESL_PACKET * pPreviousPacket;
-  ESL_PACKET ** ppPacket;
+  ESL_IO_MGMT ** ppActive;
+  ESL_IO_MGMT ** ppFree;
+  ESL_PORT * pPort;
   ESL_PACKET ** ppQueueHead;
   ESL_PACKET ** ppQueueTail;
-  ESL_PORT * pPort;
+  ESL_PACKET * pPreviousPacket;
   ESL_TCP4_CONTEXT * pTcp4;
-  EFI_TCP4_IO_TOKEN * pToken;
   size_t * pTxBytes;
   EFI_TCP4_TRANSMIT_DATA * pTxData;
   EFI_STATUS Status;
@@ -3024,15 +3012,15 @@ EslTcpTxBuffer4 (
       if ( bUrgentQueue ) {
         ppQueueHead = &pSocket->pTxOobPacketListHead;
         ppQueueTail = &pSocket->pTxOobPacketListTail;
-        ppPacket = &pTcp4->pTxOobPacket;
-        pToken = &pTcp4->TxOobToken;
+        ppActive = &pPort->pTxOobActive;
+        ppFree = &pPort->pTxOobFree;
         pTxBytes = &pSocket->TxOobBytes;
       }
       else {
         ppQueueHead = &pSocket->pTxPacketListHead;
         ppQueueTail = &pSocket->pTxPacketListTail;
-        ppPacket = &pTcp4->pTxPacket;
-        pToken = &pTcp4->TxToken;
+        ppActive = &pPort->pTxActive;
+        ppFree = &pPort->pTxFree;
         pTxBytes = &pSocket->TxBytes;
       }
 
@@ -3112,12 +3100,12 @@ EslTcpTxBuffer4 (
             //
             //  Start the transmit engine if it is idle
             //
-            if ( NULL == *ppPacket ) {
-              EslTcpTxStart4 ( pSocket->pPortList,
-                               pToken,
-                               ppQueueHead,
-                               ppQueueTail,
-                               ppPacket );
+            if ( NULL != *ppFree ) {
+              EslSocketTxStart ( pPort,
+                                 ppQueueHead,
+                                 ppQueueTail,
+                                 ppActive,
+                                 ppFree );
             }
           }
           else {
@@ -3169,19 +3157,21 @@ EslTcpTxBuffer4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslTcpTxComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   )
 {
   UINT32 LengthInBytes;
   ESL_PACKET * pCurrentPacket;
+  ESL_IO_MGMT * pIoNext;
   ESL_PACKET * pNextPacket;
   ESL_PACKET * pPacket;
+  ESL_PORT * pPort;
   ESL_SOCKET * pSocket;
   ESL_TCP4_CONTEXT * pTcp4;
   EFI_STATUS Status;
@@ -3191,21 +3181,44 @@ EslTcpTxComplete4 (
   //
   //  Locate the active transmit packet
   //
+  pPacket = pIo->pPacket;
+  pPort = pIo->pPort;
   pSocket = pPort->pSocket;
   pTcp4 = &pPort->Context.Tcp4;
-  pPacket = pTcp4->pTxPacket;
   
   //
   //  Mark this packet as complete
   //
-  pTcp4->pTxPacket = NULL;
+  pIo->pPacket = NULL;
   LengthInBytes = pPacket->Op.Tcp4Tx.TxData.DataLength;
   pSocket->TxBytes -= LengthInBytes;
-  
+  Status = pIo->Token.Tcp4Tx.CompletionToken.Status;
+
+  //
+  //  Remove the IO structure from the active list
+  //
+  pIoNext = pPort->pTxActive;
+  while (( NULL != pIoNext ) && ( pIoNext != pIo ) && ( pIoNext->pNext != pIo ))
+  {
+    pIoNext = pIoNext->pNext;
+  }
+  ASSERT ( NULL != pIoNext );
+  if ( pIoNext == pIo ) {
+    pPort->pTxActive = pIo->pNext;  //  Beginning of list
+  }
+  else {
+    pIoNext->pNext = pIo->pNext;    //  Middle of list
+  }
+
+  //
+  //  Free the IO structure
+  //
+  pIo->pNext = pPort->pTxFree;
+  pPort->pTxFree = pIo;
+
   //
   //  Save any transmit error
   //
-  Status = pTcp4->TxToken.CompletionToken.Status;
   if ( EFI_ERROR ( Status )) {
     if ( !EFI_ERROR ( pSocket->TxError )) {
       pSocket->TxError = Status;
@@ -3242,11 +3255,11 @@ EslTcpTxComplete4 (
       //
       //  Start the next packet transmission
       //
-      EslTcpTxStart4 ( pPort,
-                       &pTcp4->TxToken,
-                       &pSocket->pTxPacketListHead,
-                       &pSocket->pTxPacketListTail,
-                       &pTcp4->pTxPacket );
+      EslSocketTxStart ( pPort,
+                         &pSocket->pTxPacketListHead,
+                         &pSocket->pTxPacketListTail,
+                         &pPort->pTxActive,
+                         &pPort->pTxFree );
     }
   }
 
@@ -3273,19 +3286,21 @@ EslTcpTxComplete4 (
 
   @param [in] Event     The urgent transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslTcpTxOobComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   )
 {
   UINT32 LengthInBytes;
   ESL_PACKET * pCurrentPacket;
+  ESL_IO_MGMT * pIoNext;
   ESL_PACKET * pNextPacket;
   ESL_PACKET * pPacket;
+  ESL_PORT * pPort;
   ESL_SOCKET * pSocket;
   ESL_TCP4_CONTEXT * pTcp4;
   EFI_STATUS Status;
@@ -3295,21 +3310,44 @@ EslTcpTxOobComplete4 (
   //
   //  Locate the active transmit packet
   //
+  pPacket = pIo->pPacket;
+  pPort = pIo->pPort;
   pSocket = pPort->pSocket;
   pTcp4 = &pPort->Context.Tcp4;
-  pPacket = pTcp4->pTxOobPacket;
 
   //
   //  Mark this packet as complete
   //
-  pTcp4->pTxOobPacket = NULL;
+  pIo->pPacket = NULL;
   LengthInBytes = pPacket->Op.Tcp4Tx.TxData.DataLength;
   pSocket->TxOobBytes -= LengthInBytes;
+  Status = pIo->Token.Tcp4Tx.CompletionToken.Status;
+
+  //
+  //  Remove the IO structure from the active list
+  //
+  pIoNext = pPort->pTxOobActive;
+  while (( NULL != pIoNext ) && ( pIoNext != pIo ) && ( pIoNext->pNext != pIo ))
+  {
+    pIoNext = pIoNext->pNext;
+  }
+  ASSERT ( NULL != pIoNext );
+  if ( pIoNext == pIo ) {
+    pPort->pTxOobActive = pIo->pNext;  //  Beginning of list
+  }
+  else {
+    pIoNext->pNext = pIo->pNext;    //  Middle of list
+  }
+
+  //
+  //  Free the IO structure
+  //
+  pIo->pNext = pPort->pTxOobFree;
+  pPort->pTxOobFree = pIo;
 
   //
   //  Save any transmit error
   //
-  Status = pTcp4->TxOobToken.CompletionToken.Status;
   if ( EFI_ERROR ( Status )) {
     if ( !EFI_ERROR ( Status )) {
       pSocket->TxError = Status;
@@ -3347,11 +3385,11 @@ EslTcpTxOobComplete4 (
       //
       //  Start the next packet transmission
       //
-      EslTcpTxStart4 ( pPort,
-                       &pTcp4->TxOobToken,
-                       &pSocket->pTxOobPacketListHead,
-                       &pSocket->pTxOobPacketListTail,
-                       &pTcp4->pTxOobPacket );
+      EslSocketTxStart ( pPort,
+                         &pSocket->pTxOobPacketListHead,
+                         &pSocket->pTxOobPacketListTail,
+                         &pPort->pTxOobActive,
+                         &pPort->pTxOobFree );
     }
   }
 
@@ -3369,75 +3407,5 @@ EslTcpTxOobComplete4 (
     //
     EslTcpPortCloseTxDone4 ( pPort );
   }
-  DBG_EXIT ( );
-}
-
-
-/**
-  Transmit data using a network connection.
-
-
-  @param [in] pPort           Address of a ESL_PORT structure
-  @param [in] pToken          Address of either the OOB or normal transmit token
-  @param [in] ppQueueHead     Transmit queue head address
-  @param [in] ppQueueTail     Transmit queue tail address
-  @param [in] ppPacket        Active transmit packet address
-
- **/
-VOID
-EslTcpTxStart4 (
-  IN ESL_PORT * pPort,
-  IN EFI_TCP4_IO_TOKEN * pToken,
-  IN ESL_PACKET ** ppQueueHead,
-  IN ESL_PACKET ** ppQueueTail,
-  IN ESL_PACKET ** ppPacket
-  )
-{
-  ESL_PACKET * pNextPacket;
-  ESL_PACKET * pPacket;
-  ESL_SOCKET * pSocket;
-  EFI_TCP4_PROTOCOL * pTcp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume success
-  //
-  Status = EFI_SUCCESS;
-
-  //
-  //  Get the packet from the queue head
-  //
-  pPacket = *ppQueueHead;
-  if ( NULL != pPacket ) {
-    //
-    //  Remove the packet from the queue
-    //
-    pNextPacket = pPacket->pNext;
-    *ppQueueHead = pNextPacket;
-    if ( NULL == pNextPacket ) {
-      *ppQueueTail = NULL;
-    }
-
-    //
-    //  Set the packet as active
-    //
-    *ppPacket = pPacket;
-
-    //
-    //  Start the transmit operation
-    //
-    pTcp4Protocol = pPort->Context.Tcp4.pProtocol;
-    pToken->Packet.TxData = &pPacket->Op.Tcp4Tx.TxData;
-    Status = pTcp4Protocol->Transmit ( pTcp4Protocol, pToken );
-    if ( EFI_ERROR ( Status )) {
-      pSocket = pPort->pSocket;
-      if ( EFI_SUCCESS == pSocket->TxError ) {
-        pSocket->TxError = Status;
-      }
-    }
-  }
-
   DBG_EXIT ( );
 }
