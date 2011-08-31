@@ -199,12 +199,13 @@ PFN_PORT_CLOSE_START (
   This structure manages a single operation with the network.
 **/
 typedef struct _ESL_IO_MGMT {
-  ESL_IO_MGMT * pNext;              ///<  Next TX management structure
-  ESL_PORT * pPort;                 ///<  Port structure address
-  ESL_PACKET * pPacket;             ///<  Packet structure address
+  ESL_IO_MGMT * pNext;                ///<  Next TX management structure
+  ESL_PORT * pPort;                   ///<  Port structure address
+  ESL_PACKET * pPacket;               ///<  Packet structure address
   union {
-    EFI_IP4_COMPLETION_TOKEN Ip4Tx; ///<  IP4 transmit token
-    EFI_TCP4_IO_TOKEN Tcp4Tx;       ///<  TCP4 transmit token
+    EFI_IP4_COMPLETION_TOKEN Ip4Tx;   ///<  IP4 transmit token
+    EFI_TCP4_IO_TOKEN Tcp4Tx;         ///<  TCP4 transmit token
+    EFI_UDP4_COMPLETION_TOKEN Udp4Tx; ///<  UDP4 transmit token
   } Token;
 };
 
@@ -279,12 +280,6 @@ typedef struct {
   //
   EFI_UDP4_COMPLETION_TOKEN RxToken;///<  Receive token
   ESL_PACKET * pReceivePending;     ///<  Receive operation in progress
-
-  //
-  //  Transmit data management
-  //
-  EFI_UDP4_COMPLETION_TOKEN TxToken;///<  Transmit token
-  ESL_PACKET * pTxPacket;           ///<  Transmit in progress
 } ESL_UDP4_CONTEXT;
 
 
@@ -2179,13 +2174,13 @@ EslUdpRxStart4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslUdpTxComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   );
 
 /**

@@ -1306,7 +1306,7 @@ EslIpPortCloseTxDone4 (
     pSocket = pPort->pSocket;
     if ( pPort->bCloseNow
          || ( EFI_SUCCESS != pSocket->TxError )
-         || ( 0 == pSocket->TxBytes )) {
+         || ( NULL == pPort->pTxActive )) {
       //
       //  Start the close operation on the port
       //

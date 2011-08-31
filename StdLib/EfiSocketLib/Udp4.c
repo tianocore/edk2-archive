@@ -262,7 +262,9 @@ EslUdpPortAllocate4 (
   )
 {
   UINTN LengthInBytes;
+  UINT8 * pBuffer;
   EFI_UDP4_CONFIG_DATA * pConfig;
+  ESL_IO_MGMT * pIo;
   ESL_LAYER * pLayer;
   ESL_PORT * pPort;
   ESL_UDP4_CONTEXT * pUdp4;
@@ -277,7 +279,10 @@ EslUdpPortAllocate4 (
     //  Allocate a port structure
     //
     pLayer = &mEslLayer;
-    LengthInBytes = sizeof ( *pPort );
+    LengthInBytes = sizeof ( *pPort )
+                  + ESL_STRUCTURE_ALIGNMENT_BYTES
+                  + ( pService->pSocketBinding->TxIoNormal
+                      * sizeof ( ESL_IO_MGMT ));
     Status = gBS->AllocatePool ( EfiRuntimeServicesData,
                                  LengthInBytes,
                                  (VOID **)&pPort );
@@ -303,6 +308,12 @@ EslUdpPortAllocate4 (
     pPort->pSocket = pSocket;
     pPort->pfnCloseStart = EslUdpPortCloseStart4;
     pPort->DebugFlags = DebugFlags;
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
+    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
+    pBuffer = (UINT8 *)&pPort[ 1 ];
+    pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
+    pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
+    pIo = (ESL_IO_MGMT *)pBuffer;
 
     //
     //  Allocate the receive event
@@ -325,23 +336,19 @@ EslUdpPortAllocate4 (
               pUdp4->RxToken.Event ));
 
     //
-    //  Allocate the transmit event
+    //  Allocate the transmit events
     //
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslUdpTxComplete4,
-                                 pPort,
-                                 &pUdp4->TxToken.Event);
+    Status = EslSocketIoInit ( pPort,
+                               &pIo,
+                               pService->pSocketBinding->TxIoNormal,
+                               &pPort->pTxFree,
+                               DebugFlags | DEBUG_POOL,
+                               "transmit",
+                               OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event ),
+                               EslUdpTxComplete4 );
     if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the transmit event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
       break;
     }
-    DEBUG (( DEBUG_CLOSE | DEBUG_POOL,
-              "0x%08x: Created transmit event\r\n",
-              pUdp4->TxToken.Event ));
 
     //
     //  Open the port protocol
@@ -364,6 +371,12 @@ EslUdpPortAllocate4 (
               "0x%08x: gEfiUdp4ProtocolGuid opened on controller 0x%08x\r\n",
               pUdp4->pProtocol,
               ChildHandle ));
+
+    //
+    //  Save the transmit address
+    //
+    pPort->pProtocol = (VOID *)pUdp4->pProtocol;
+    pPort->pfnTxStart = (PFN_NET_TX_START)pUdp4->pProtocol->Transmit;
 
     //
     //  Set the port address
@@ -571,22 +584,13 @@ EslUdpPortClose4 (
   }
 
   //
-  //  Done with the transmit event
+  //  Done with the transmit events
   //
-  if ( NULL != pUdp4->TxToken.Event ) {
-    Status = gBS->CloseEvent ( pUdp4->TxToken.Event );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Closed normal transmit event\r\n",
-                pUdp4->TxToken.Event ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close the normal transmit event, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
+  Status = EslSocketIoFree ( pPort,
+                             &pPort->pTxFree,
+                             DebugFlags | DEBUG_POOL,
+                             "transmit",
+                             OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event ));
 
   //
   //  Done with the UDP protocol
@@ -854,7 +858,7 @@ EslUdpPortCloseTxDone4 (
     pSocket = pPort->pSocket;
     if ( pPort->bCloseNow
          || ( EFI_SUCCESS != pSocket->TxError )
-         || ( 0 == pSocket->TxBytes )) {
+         || ( NULL == pPort->pTxActive )) {
       //
       //  Start the close operation on the port
       //
@@ -2100,11 +2104,9 @@ EslUdpTxBuffer4 (
 {
   ESL_PACKET * pPacket;
   ESL_PACKET * pPreviousPacket;
-  ESL_PACKET ** ppPacket;
   ESL_PORT * pPort;
   const struct sockaddr_in * pRemoteAddress;
   ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_COMPLETION_TOKEN * pToken;
   size_t * pTxBytes;
   ESL_UDP4_TX_DATA * pTxData;
   EFI_STATUS Status;
@@ -2132,8 +2134,6 @@ EslUdpTxBuffer4 (
       //  Determine the queue head
       //
       pUdp4 = &pPort->Context.Udp4;
-      ppPacket = &pUdp4->pTxPacket;
-      pToken = &pUdp4->TxToken;
       pTxBytes = &pSocket->TxBytes;
 
       //
@@ -2234,8 +2234,12 @@ EslUdpTxBuffer4 (
             //
             //  Start the transmit engine if it is idle
             //
-            if ( NULL == pUdp4->pTxPacket ) {
-              EslUdpTxStart4 ( pSocket->pPortList );
+            if ( NULL != pPort->pTxFree ) {
+              EslSocketTxStart ( pPort,
+                                 &pSocket->pTxPacketListHead,
+                                 &pSocket->pTxPacketListTail,
+                                 &pPort->pTxActive,
+                                 &pPort->pTxFree );
             }
           }
           else {
@@ -2287,19 +2291,20 @@ EslUdpTxBuffer4 (
 
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pIo       The ESL_IO_MGMT structure address
 
 **/
 VOID
 EslUdpTxComplete4 (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   )
 {
   BOOLEAN bRetransmit;
   UINT32 LengthInBytes;
   ESL_PACKET * pCurrentPacket;
   ESL_PACKET * pNextPacket;
+  ESL_PORT * pPort;
   ESL_PACKET * pPacket;
   ESL_SOCKET * pSocket;
   ESL_UDP4_TX_DATA * pTxData;
@@ -2312,12 +2317,13 @@ EslUdpTxComplete4 (
   //
   //  Locate the active transmit packet
   //
+  pPacket = pIo->pPacket;
+  pPort = pIo->pPort;
   pSocket = pPort->pSocket;
   pUdp4 = &pPort->Context.Udp4;
-  pPacket = pUdp4->pTxPacket;
   pTxData = &pPacket->Op.Udp4Tx;
-  Status = pUdp4->TxToken.Status;
-  
+  Status = pIo->Token.Udp4Tx.Status;
+
   //
   //  Check for MAC address not available (ARP not complete)
   //
@@ -2330,7 +2336,7 @@ EslUdpTxComplete4 (
     //  Retransmit this packet
     //
     pUdp4Protocol = pUdp4->pProtocol;
-    Status = pUdp4Protocol->Transmit ( pUdp4Protocol, &pUdp4->TxToken );
+    Status = pUdp4Protocol->Transmit ( pUdp4Protocol, &pIo->Token.Udp4Tx );
     if ( !EFI_ERROR ( Status )) {
       bRetransmit = TRUE;
     }
@@ -2343,9 +2349,16 @@ EslUdpTxComplete4 (
     //
     //  Mark this packet as complete
     //
-    pUdp4->pTxPacket = NULL;
     LengthInBytes = pPacket->Op.Udp4Tx.TxData.DataLength;
     pSocket->TxBytes -= LengthInBytes;
+
+    //
+    //  Release the IO structure
+    //
+    EslSocketTxComplete ( pPort,
+                          pIo,
+                          &pPort->pTxActive,
+                          &pPort->pTxFree );
 
     //
     //  Save any transmit error
@@ -2387,7 +2400,11 @@ EslUdpTxComplete4 (
         //
         //  Start the next packet transmission
         //
-        EslUdpTxStart4 ( pPort );
+        EslSocketTxStart ( pPort,
+                           &pSocket->pTxPacketListHead,
+                           &pSocket->pTxPacketListTail,
+                           &pPort->pTxActive,
+                           &pPort->pTxFree );
       }
     }
 
@@ -2401,7 +2418,7 @@ EslUdpTxComplete4 (
     //
     if (( PORT_STATE_CLOSE_STARTED <= pPort->State )
       && ( NULL == pSocket->pTxPacketListHead )
-      && ( NULL == pUdp4->pTxPacket )) {
+      && ( NULL == pPort->pTxActive )) {
       //
       //  Indicate that the transmit is complete
       //
@@ -2410,68 +2427,3 @@ EslUdpTxComplete4 (
   }
   DBG_EXIT ( );
 }
-
-
-/**
-  Transmit data using a network connection.
-
-  @param [in] pPort           Address of a ESL_PORT structure
-
- **/
-VOID
-EslUdpTxStart4 (
-  IN ESL_PORT * pPort
-  )
-{
-  ESL_PACKET * pNextPacket;
-  ESL_PACKET * pPacket;
-  ESL_SOCKET * pSocket;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_PROTOCOL * pUdp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume success
-  //
-  Status = EFI_SUCCESS;
-
-  //
-  //  Get the packet from the queue head
-  //
-  pSocket = pPort->pSocket;
-  pPacket = pSocket->pTxPacketListHead;
-  if ( NULL != pPacket ) {
-    //
-    //  Remove the packet from the queue
-    //
-    pNextPacket = pPacket->pNext;
-    pSocket->pTxPacketListHead = pNextPacket;
-    if ( NULL == pNextPacket ) {
-      pSocket->pTxPacketListTail = NULL;
-    }
-
-    //
-    //  Set the packet as active
-    //
-    pUdp4 = &pPort->Context.Udp4;
-    pUdp4->pTxPacket = pPacket;
-
-    //
-    //  Start the transmit operation
-    //
-    pUdp4Protocol = pUdp4->pProtocol;
-    pUdp4->TxToken.Packet.TxData = &pPacket->Op.Udp4Tx.TxData;
-    Status = pUdp4Protocol->Transmit ( pUdp4Protocol, &pUdp4->TxToken );
-    if ( EFI_ERROR ( Status )) {
-      pSocket = pPort->pSocket;
-      if ( EFI_SUCCESS == pSocket->TxError ) {
-        pSocket->TxError = Status;
-      }
-    }
-  }
-
-  DBG_EXIT ( );
-}
-

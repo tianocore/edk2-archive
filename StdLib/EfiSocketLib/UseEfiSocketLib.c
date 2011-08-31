@@ -109,6 +109,7 @@ EslServiceNetworkConnect (
   VOID
   )
 {
+  BOOLEAN bSomethingFound;
   UINTN HandleCount;
   UINTN Index;
   CONST ESL_SOCKET_BINDING * pEnd;
@@ -122,6 +123,7 @@ EslServiceNetworkConnect (
   //  Initialize the socket layer
   //
   Status = EFI_SUCCESS;
+  bSomethingFound = FALSE;
   EslServiceLoad ( gImageHandle );
 
   //
@@ -141,24 +143,30 @@ EslServiceNetworkConnect (
                                        &HandleCount,
                                        &pHandles );
     if ( EFI_ERROR ( Status )) {
-      break;
+      DEBUG (( DEBUG_ERROR,
+               "ERROR with %s layer, Status: %r\r\n",
+               pSocketBinding->pName,
+               Status ));
     }
-    if ( NULL != pHandles ) {
-      //
-      //  Attempt to connect to this network adapter
-      //
-      for ( Index = 0; HandleCount > Index; Index++ ) {
-        Status = EslServiceConnect ( gImageHandle,
-                                     pHandles[ Index ]);
-        if ( EFI_ERROR ( Status )) {
-          break;
+    else {
+      if ( NULL != pHandles ) {
+        //
+        //  Attempt to connect to this network adapter
+        //
+        for ( Index = 0; HandleCount > Index; Index++ ) {
+          Status = EslServiceConnect ( gImageHandle,
+                                       pHandles[ Index ]);
+          if ( EFI_ERROR ( Status )) {
+            break;
+          }
+          bSomethingFound = TRUE;
         }
-      }
 
-      //
-      //  Done with the handles
-      //
-      gBS->FreePool ( pHandles );
+        //
+        //  Done with the handles
+        //
+        gBS->FreePool ( pHandles );
+      }
     }
 
     //
@@ -170,6 +178,9 @@ EslServiceNetworkConnect (
   //
   //  Return the network connection status
   //
+  if ( bSomethingFound ) {
+    Status = EFI_SUCCESS;
+  }
   DBG_EXIT_STATUS ( Status );
   return Status;
 }
