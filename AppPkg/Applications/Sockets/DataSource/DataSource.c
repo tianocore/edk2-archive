@@ -1497,12 +1497,15 @@ main (
   //
   //  Validate the command line
   //
-  if ( 2 != Argc ) {
-    Print ( L"%s  <remote IP address>\r\n", Argv[0] );
+  if ( 2 > Argc ) {
+    Print ( L"%s  <remote IP address> [Use TCP]\r\n", Argv[0] );
     return -1;
   }
 
-bTcp4 = TRUE;
+  //
+  //  Determine if TCP should be used
+  //
+  bTcp4 = (BOOLEAN)( 2 < Argc );
 
   //
   //  Determine the support routines
@@ -1536,10 +1539,6 @@ bTcp4 = TRUE;
     RemoteHostAddress.sin_len = sizeof ( RemoteHostAddress );
     RemoteHostAddress.sin_family = AF_INET;
     RemoteHostAddress.sin_port = htons ( PcdGet16 ( DataSource_Port ));
-
-Print ( L"Argc: %d\r\n", Argc);
-Print ( L"Argv[0]: %a\r\n", Argv[0]);
-Print ( L"Argv[1]: %a\r\n", Argv[1]);
 
     //
     //  Get the IP address
