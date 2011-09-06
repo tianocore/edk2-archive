@@ -1010,7 +1010,7 @@ EslSocketTxStart (
 
  **/
 EFI_STATUS
-EslIpBind4 (
+EslIp4Bind (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -1033,7 +1033,7 @@ EslIpBind4 (
 
  **/
 EFI_STATUS
-EslIpConnect4 (
+EslIp4Connect (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -1053,7 +1053,7 @@ EslIpConnect4 (
 
 **/
 EFI_STATUS
-EslIpGetLocalAddress4 (
+EslIp4GetLocalAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -1073,7 +1073,7 @@ EslIpGetLocalAddress4 (
 
 **/
 EFI_STATUS
-EslIpGetRemoteAddress4 (
+EslIp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -1093,7 +1093,7 @@ EslIpGetRemoteAddress4 (
 **/
 EFI_STATUS
 EFIAPI
-EslIpInitialize4 (
+EslIp4Initialize (
   IN ESL_SERVICE * pService
   );
 
@@ -1112,7 +1112,7 @@ EslIpInitialize4 (
 
  **/
 EFI_STATUS
-EslIpOptionGet4 (
+EslIp4OptionGet (
   IN ESL_SOCKET * pSocket,
   IN int level,
   IN int OptionName,
@@ -1135,7 +1135,7 @@ EslIpOptionGet4 (
 
  **/
 EFI_STATUS
-EslIpOptionSet4 (
+EslIp4OptionSet (
   IN ESL_SOCKET * pSocket,
   IN int level,
   IN int OptionName,
@@ -1157,7 +1157,7 @@ EslIpOptionSet4 (
 
  **/
 EFI_STATUS
-EslIpPortAllocate4 (
+EslIp4PortAllocate (
   IN ESL_SOCKET * pSocket,
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
@@ -1179,7 +1179,7 @@ EslIpPortAllocate4 (
 
 **/
 EFI_STATUS
-EslIpPortClose4 (
+EslIp4PortClose (
   IN ESL_PORT * pPort
   );
 
@@ -1203,7 +1203,7 @@ EslIpPortClose4 (
 
 **/
 EFI_STATUS
-EslIpPortCloseStart4 (
+EslIp4PortCloseStart (
   IN ESL_PORT * pPort,
   IN BOOLEAN bCloseNow,
   IN UINTN DebugFlags
@@ -1223,7 +1223,7 @@ EslIpPortCloseStart4 (
 
 **/
 EFI_STATUS
-EslIpPortCloseTxDone4 (
+EslIp4PortCloseTxDone (
   IN ESL_PORT * pPort
   );
 
@@ -1260,7 +1260,7 @@ EslIpPortCloseTxDone4 (
 
 **/
 EFI_STATUS
-EslIpReceive4 (
+EslIp4Receive (
   IN ESL_SOCKET * pSocket,
   IN INT32 Flags,
   IN size_t BufferLength,
@@ -1279,7 +1279,7 @@ EslIpReceive4 (
 
  **/
 EFI_STATUS
-EslIpRxCancel4 (
+EslIp4RxCancel (
   IN ESL_SOCKET * pSocket
   );
 
@@ -1297,7 +1297,7 @@ EslIpRxCancel4 (
 
 **/
 VOID
-EslIpRxComplete4 (
+EslIp4RxComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
   );
@@ -1309,7 +1309,7 @@ EslIpRxComplete4 (
 
  **/
 VOID
-EslIpRxStart4 (
+EslIp4RxStart (
   IN ESL_PORT * pPort
   );
 
@@ -1323,7 +1323,7 @@ EslIpRxStart4 (
 **/
 VOID
 EFIAPI
-EslIpShutdown4 (
+EslIp4Shutdown (
   IN ESL_SERVICE * pService
   );
 
@@ -1338,7 +1338,7 @@ EslIpShutdown4 (
 
  **/
  EFI_STATUS
- EslIpSocketIsConfigured4 (
+ EslIp4SocketIsConfigured (
   IN ESL_SOCKET * pSocket
   );
 
@@ -1375,7 +1375,7 @@ EslIpShutdown4 (
 
 **/
 EFI_STATUS
-EslIpTxBuffer4 (
+EslIp4TxBuffer (
   IN ESL_SOCKET * pSocket,
   IN int Flags,
   IN size_t BufferLength,
@@ -1394,7 +1394,7 @@ EslIpTxBuffer4 (
 
 **/
 VOID
-EslIpTxComplete4 (
+EslIp4TxComplete (
   IN EFI_EVENT Event,
   IN ESL_IO_MGMT * pIo
   );
@@ -1424,7 +1424,7 @@ EslIpTxComplete4 (
 
  **/
 EFI_STATUS
-EslTcpAccept4 (
+EslTcp4Accept (
   IN ESL_SOCKET * pSocket,
   IN struct sockaddr * pSockAddr,
   IN OUT socklen_t * pSockAddrLength
@@ -1453,7 +1453,7 @@ EslTcpAccept4 (
 
  **/
 EFI_STATUS
-EslTcpBind4 (
+EslTcp4Bind (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -1473,7 +1473,7 @@ EslTcpBind4 (
 
  **/
 EFI_STATUS
-EslTcpConnectPoll4 (
+EslTcp4ConnectPoll (
   IN ESL_SOCKET * pSocket
   );
 
@@ -1495,7 +1495,7 @@ EslTcpConnectPoll4 (
 
  **/
 EFI_STATUS
-EslTcpConnectStart4 (
+EslTcp4ConnectStart (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -1515,7 +1515,7 @@ EslTcpConnectStart4 (
 **/
 EFI_STATUS
 EFIAPI
-EslTcpInitialize4 (
+EslTcp4Initialize (
   IN ESL_SERVICE * pService
   );
 
@@ -1533,7 +1533,7 @@ EslTcpInitialize4 (
 
 **/
 EFI_STATUS
-EslTcpGetLocalAddress4 (
+EslTcp4GetLocalAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -1553,7 +1553,7 @@ EslTcpGetLocalAddress4 (
 
 **/
 EFI_STATUS
-EslTcpGetRemoteAddress4 (
+EslTcp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -1576,7 +1576,7 @@ EslTcpGetRemoteAddress4 (
 
 **/
 EFI_STATUS
-EslTcpListen4 (
+EslTcp4Listen (
   IN ESL_SOCKET * pSocket
   );
 
@@ -1592,7 +1592,7 @@ EslTcpListen4 (
 
 **/
 VOID
-EslTcpListenComplete4 (
+EslTcp4ListenComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
   );
@@ -1612,7 +1612,7 @@ EslTcpListenComplete4 (
 
  **/
 EFI_STATUS
-EslTcpPortAllocate4 (
+EslTcp4PortAllocate (
   IN ESL_SOCKET * pSocket,
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
@@ -1635,7 +1635,7 @@ EslTcpPortAllocate4 (
 
 **/
 EFI_STATUS
-EslTcpPortClose4 (
+EslTcp4PortClose (
   IN ESL_PORT * pPort
   );
 
@@ -1648,7 +1648,7 @@ EslTcpPortClose4 (
 
 **/
 VOID
-EslTcpPortCloseComplete4 (
+EslTcp4PortCloseComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
   );
@@ -1667,7 +1667,7 @@ EslTcpPortCloseComplete4 (
 
 **/
 EFI_STATUS
-EslTcpPortCloseRxDone4 (
+EslTcp4PortCloseRxDone (
   IN ESL_PORT * pPort
   );
 
@@ -1680,7 +1680,7 @@ EslTcpPortCloseRxDone4 (
 
 **/
 EFI_STATUS
-EslTcpPortCloseStart4 (
+EslTcp4PortCloseStart (
   IN ESL_PORT * pPort,
   IN BOOLEAN bAbort,
   IN UINTN DebugFlags
@@ -1699,7 +1699,7 @@ EslTcpPortCloseStart4 (
 
 **/
 EFI_STATUS
-EslTcpPortCloseTxDone4 (
+EslTcp4PortCloseTxDone (
   IN ESL_PORT * pPort
   );
 
@@ -1725,7 +1725,7 @@ EslTcpPortCloseTxDone4 (
 
  **/
 EFI_STATUS
-EslTcpReceive4 (
+EslTcp4Receive (
   IN ESL_SOCKET * pSocket,
   IN INT32 Flags,
   IN size_t BufferLength,
@@ -1744,7 +1744,7 @@ EslTcpReceive4 (
 
  **/
 EFI_STATUS
-EslTcpRxCancel4 (
+EslTcp4RxCancel (
   IN ESL_SOCKET * pSocket
   );
 
@@ -1759,7 +1759,7 @@ EslTcpRxCancel4 (
 
 **/
 VOID
-EslTcpRxComplete4 (
+EslTcp4RxComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
   );
@@ -1771,7 +1771,7 @@ EslTcpRxComplete4 (
 
  **/
 VOID
-EslTcpRxStart4 (
+EslTcp4RxStart (
   IN ESL_PORT * pPort
   );
 
@@ -1785,7 +1785,7 @@ EslTcpRxStart4 (
 **/
 VOID
 EFIAPI
-EslTcpShutdown4 (
+EslTcp4Shutdown (
   IN ESL_SERVICE * pService
   );
 
@@ -1800,7 +1800,7 @@ EslTcpShutdown4 (
 
  **/
  EFI_STATUS
- EslTcpSocketIsConfigured4 (
+ EslTcp4SocketIsConfigured (
   IN ESL_SOCKET * pSocket
   );
 
@@ -1830,7 +1830,7 @@ EslTcpShutdown4 (
 
  **/
 EFI_STATUS
-EslTcpTxBuffer4 (
+EslTcp4TxBuffer (
   IN ESL_SOCKET * pSocket,
   IN int Flags,
   IN size_t BufferLength,
@@ -1849,7 +1849,7 @@ EslTcpTxBuffer4 (
 
 **/
 VOID
-EslTcpTxComplete4 (
+EslTcp4TxComplete (
   IN EFI_EVENT Event,
   IN ESL_IO_MGMT * pIo
   );
@@ -1863,7 +1863,7 @@ EslTcpTxComplete4 (
 
 **/
 VOID
-EslTcpTxOobComplete4 (
+EslTcp4TxOobComplete (
   IN EFI_EVENT Event,
   IN ESL_IO_MGMT * pIo
   );
@@ -1895,7 +1895,7 @@ EslTcpTxOobComplete4 (
 
  **/
 EFI_STATUS
-EslUdpBind4 (
+EslUdp4Bind (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -1915,7 +1915,7 @@ EslUdpBind4 (
 **/
 EFI_STATUS
 EFIAPI
-EslUdpInitialize4 (
+EslUdp4Initialize (
   IN ESL_SERVICE * pService
   );
 
@@ -1934,7 +1934,7 @@ EslUdpInitialize4 (
 
  **/
 EFI_STATUS
-EslUdpPortAllocate4 (
+EslUdp4PortAllocate (
   IN ESL_SOCKET * pSocket,
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
@@ -1957,7 +1957,7 @@ EslUdpPortAllocate4 (
 
 **/
 EFI_STATUS
-EslUdpPortClose4 (
+EslUdp4PortClose (
   IN ESL_PORT * pPort
   );
 
@@ -1981,7 +1981,7 @@ EslUdpPortClose4 (
 
 **/
 EFI_STATUS
-EslUdpPortCloseStart4 (
+EslUdp4PortCloseStart (
   IN ESL_PORT * pPort,
   IN BOOLEAN bCloseNow,
   IN UINTN DebugFlags
@@ -2001,7 +2001,7 @@ EslUdpPortCloseStart4 (
 
 **/
 EFI_STATUS
-EslUdpPortCloseTxDone4 (
+EslUdp4PortCloseTxDone (
   IN ESL_PORT * pPort
   );
 
@@ -2022,7 +2022,7 @@ EslUdpPortCloseTxDone4 (
 
  **/
 EFI_STATUS
-EslUdpConnect4 (
+EslUdp4Connect (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -2042,7 +2042,7 @@ EslUdpConnect4 (
 
 **/
 EFI_STATUS
-EslUdpGetLocalAddress4 (
+EslUdp4GetLocalAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -2062,7 +2062,7 @@ EslUdpGetLocalAddress4 (
 
 **/
 EFI_STATUS
-EslUdpGetRemoteAddress4 (
+EslUdp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -2101,7 +2101,7 @@ EslUdpGetRemoteAddress4 (
 
 **/
 EFI_STATUS
-EslUdpReceive4 (
+EslUdp4Receive (
   IN ESL_SOCKET * pSocket,
   IN INT32 Flags,
   IN size_t BufferLength,
@@ -2120,7 +2120,7 @@ EslUdpReceive4 (
 
  **/
 EFI_STATUS
-EslUdpRxCancel4 (
+EslUdp4RxCancel (
   IN ESL_SOCKET * pSocket
   );
 
@@ -2138,7 +2138,7 @@ EslUdpRxCancel4 (
 
 **/
 VOID
-EslUdpRxComplete4 (
+EslUdp4RxComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
   );
@@ -2150,7 +2150,7 @@ EslUdpRxComplete4 (
 
  **/
 VOID
-EslUdpRxStart4 (
+EslUdp4RxStart (
   IN ESL_PORT * pPort
   );
 
@@ -2165,22 +2165,8 @@ EslUdpRxStart4 (
 
  **/
  EFI_STATUS
- EslUdpSocketIsConfigured4 (
+ EslUdp4SocketIsConfigured (
   IN ESL_SOCKET * pSocket
-  );
-
-/**
-  Process the transmit completion
-
-  @param [in] Event     The normal transmit completion event
-
-  @param [in] pIo       The ESL_IO_MGMT structure address
-
-**/
-VOID
-EslUdpTxComplete4 (
-  IN EFI_EVENT Event,
-  IN ESL_IO_MGMT * pIo
   );
 
 /**
@@ -2193,7 +2179,7 @@ EslUdpTxComplete4 (
 **/
 VOID
 EFIAPI
-EslUdpShutdown4 (
+EslUdp4Shutdown (
   IN ESL_SERVICE * pService
   );
 
@@ -2230,7 +2216,7 @@ EslUdpShutdown4 (
 
 **/
 EFI_STATUS
-EslUdpTxBuffer4 (
+EslUdp4TxBuffer (
   IN ESL_SOCKET * pSocket,
   IN int Flags,
   IN size_t BufferLength,
@@ -2241,14 +2227,17 @@ EslUdpTxBuffer4 (
   );
 
 /**
-  Transmit data using a network connection.
+  Process the transmit completion
 
-  @param [in] pPort           Address of a ESL_PORT structure
+  @param [in] Event     The normal transmit completion event
 
- **/
+  @param [in] pIo       The ESL_IO_MGMT structure address
+
+**/
 VOID
-EslUdpTxStart4 (
-  IN ESL_PORT * pPort
+EslUdp4TxComplete (
+  IN EFI_EVENT Event,
+  IN ESL_IO_MGMT * pIo
   );
 
 //------------------------------------------------------------------------------

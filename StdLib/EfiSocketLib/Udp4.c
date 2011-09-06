@@ -17,18 +17,18 @@
 CONST ESL_PROTOCOL_API cEslUdp4Api = {
   IPPROTO_UDP,
   NULL,   //  Accept
-  EslUdpBind4,
-  EslUdpConnect4,
+  EslUdp4Bind,
+  EslUdp4Connect,
   NULL,   //  ConnectPoll
-  EslUdpGetLocalAddress4,
-  EslUdpGetRemoteAddress4,
-  EslUdpSocketIsConfigured4,
+  EslUdp4GetLocalAddress,
+  EslUdp4GetRemoteAddress,
+  EslUdp4SocketIsConfigured,
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
-  EslUdpReceive4,
-  EslUdpRxCancel4,
-  EslUdpTxBuffer4
+  EslUdp4Receive,
+  EslUdp4RxCancel,
+  EslUdp4TxBuffer
 };
 
 
@@ -59,7 +59,7 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
 
  **/
 EFI_STATUS
-EslUdpBind4 (
+EslUdp4Bind (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -116,7 +116,7 @@ EslUdpBind4 (
         //
         //  Open the port
         //
-        Status = EslUdpPortAllocate4 ( pSocket,
+        Status = EslUdp4PortAllocate ( pSocket,
                                        pService,
                                        ChildHandle,
                                        (UINT8 *) &pIp4Address->sin_addr.s_addr,
@@ -202,7 +202,7 @@ EslUdpBind4 (
 **/
 EFI_STATUS
 EFIAPI
-EslUdpInitialize4 (
+EslUdp4Initialize (
   IN ESL_SERVICE * pService
   )
 {
@@ -251,7 +251,7 @@ EslUdpInitialize4 (
 
  **/
 EFI_STATUS
-EslUdpPortAllocate4 (
+EslUdp4PortAllocate (
   IN ESL_SOCKET * pSocket,
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
@@ -306,7 +306,7 @@ EslUdpPortAllocate4 (
     pPort->Signature = PORT_SIGNATURE;
     pPort->pService = pService;
     pPort->pSocket = pSocket;
-    pPort->pfnCloseStart = EslUdpPortCloseStart4;
+    pPort->pfnCloseStart = EslUdp4PortCloseStart;
     pPort->DebugFlags = DebugFlags;
     pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
     pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
@@ -321,7 +321,7 @@ EslUdpPortAllocate4 (
     pUdp4 = &pPort->Context.Udp4;
     Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
                                  TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslUdpRxComplete4,
+                                 (EFI_EVENT_NOTIFY)EslUdp4RxComplete,
                                  pPort,
                                  &pUdp4->RxToken.Event);
     if ( EFI_ERROR ( Status )) {
@@ -345,7 +345,7 @@ EslUdpPortAllocate4 (
                                DebugFlags | DEBUG_POOL,
                                "transmit",
                                OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event ),
-                               EslUdpTxComplete4 );
+                               EslUdp4TxComplete );
     if ( EFI_ERROR ( Status )) {
       break;
     }
@@ -442,7 +442,7 @@ EslUdpPortAllocate4 (
     //
     //  Close the port
     //
-    EslUdpPortClose4 ( pPort );
+    EslUdp4PortClose ( pPort );
   }
   //
   //  Return the operation status
@@ -465,7 +465,7 @@ EslUdpPortAllocate4 (
 
 **/
 EFI_STATUS
-EslUdpPortClose4 (
+EslUdp4PortClose (
   IN ESL_PORT * pPort
   )
 {
@@ -691,7 +691,7 @@ EslUdpPortClose4 (
 
 **/
 EFI_STATUS
-EslUdpPortCloseStart4 (
+EslUdp4PortCloseStart (
   IN ESL_PORT * pPort,
   IN BOOLEAN bCloseNow,
   IN UINTN DebugFlags
@@ -728,7 +728,7 @@ EslUdpPortCloseStart4 (
     //
     //  Determine if transmits are complete
     //
-    Status = EslUdpPortCloseTxDone4 ( pPort );
+    Status = EslUdp4PortCloseTxDone ( pPort );
   }
 
   //
@@ -753,7 +753,7 @@ EslUdpPortCloseStart4 (
 
 **/
 EFI_STATUS
-EslUdpPortCloseRxDone4 (
+EslUdp4PortCloseRxDone (
   IN ESL_PORT * pPort
   )
 {
@@ -798,7 +798,7 @@ EslUdpPortCloseRxDone4 (
       //  The close operation has completed
       //  Release the port resources
       //
-      Status = EslUdpPortClose4 ( pPort );
+      Status = EslUdp4PortClose ( pPort );
     }
     else {
       DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
@@ -829,7 +829,7 @@ EslUdpPortCloseRxDone4 (
 
 **/
 EFI_STATUS
-EslUdpPortCloseTxDone4 (
+EslUdp4PortCloseTxDone (
   IN ESL_PORT * pPort
   )
 {
@@ -940,7 +940,7 @@ EslUdpPortCloseTxDone4 (
       //  Determine if the receive operation is pending
       //
       if ( !EFI_ERROR ( Status )) {
-        Status = EslUdpPortCloseRxDone4 ( pPort );
+        Status = EslUdp4PortCloseRxDone ( pPort );
       }
     }
     else {
@@ -980,7 +980,7 @@ EslUdpPortCloseTxDone4 (
 
  **/
 EFI_STATUS
-EslUdpConnect4 (
+EslUdp4Connect (
   IN ESL_SOCKET * pSocket,
   IN const struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
@@ -1083,7 +1083,7 @@ EslUdpConnect4 (
 
 **/
 EFI_STATUS
-EslUdpGetLocalAddress4 (
+EslUdp4GetLocalAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -1159,7 +1159,7 @@ EslUdpGetLocalAddress4 (
 
 **/
 EFI_STATUS
-EslUdpGetRemoteAddress4 (
+EslUdp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
@@ -1254,7 +1254,7 @@ EslUdpGetRemoteAddress4 (
 
 **/
 EFI_STATUS
-EslUdpReceive4 (
+EslUdp4Receive (
   IN ESL_SOCKET * pSocket,
   IN INT32 Flags,
   IN size_t BufferLength,
@@ -1442,7 +1442,7 @@ EslUdpReceive4 (
             //
             if (( NULL == pUdp4->pReceivePending )
               && ( MAX_RX_DATA > pSocket->RxBytes )) {
-                EslUdpRxStart4 ( pPort );
+                EslUdp4RxStart ( pPort );
             }
           }
 
@@ -1520,7 +1520,7 @@ EslUdpReceive4 (
 
  **/
 EFI_STATUS
-EslUdpRxCancel4 (
+EslUdp4RxCancel (
   IN ESL_SOCKET * pSocket
   )
 {
@@ -1585,7 +1585,7 @@ EslUdpRxCancel4 (
 
 **/
 VOID
-EslUdpRxComplete4 (
+EslUdp4RxComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
   )
@@ -1665,7 +1665,7 @@ EslUdpRxComplete4 (
       //  Attempt to restart this receive operation
       //
       if ( pSocket->MaxRxBuf > pSocket->RxBytes ) {
-        EslUdpRxStart4 ( pPort );
+        EslUdp4RxStart ( pPort );
       }
       else {
         DEBUG (( DEBUG_RX,
@@ -1706,7 +1706,7 @@ EslUdpRxComplete4 (
     //  Update the port state
     //
     if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
-      EslUdpPortCloseRxDone4 ( pPort );
+      EslUdp4PortCloseRxDone ( pPort );
     }
     else {
       if ( EFI_ERROR ( Status )) {
@@ -1726,7 +1726,7 @@ EslUdpRxComplete4 (
 
  **/
 VOID
-EslUdpRxStart4 (
+EslUdp4RxStart (
   IN ESL_PORT * pPort
   )
 {
@@ -1839,7 +1839,7 @@ EslUdpRxStart4 (
 **/
 VOID
 EFIAPI
-EslUdpShutdown4 (
+EslUdp4Shutdown (
   IN ESL_SERVICE * pService
   )
 {
@@ -1911,7 +1911,7 @@ EslUdpShutdown4 (
 
  **/
  EFI_STATUS
- EslUdpSocketIsConfigured4 (
+ EslUdp4SocketIsConfigured (
   IN ESL_SOCKET * pSocket
   )
 {
@@ -1941,7 +1941,7 @@ EslUdpShutdown4 (
       LocalAddress.sin_family = AF_INET;
       LocalAddress.sin_addr.s_addr = 0;
       LocalAddress.sin_port = 0;
-      Status = EslUdpBind4 ( pSocket,
+      Status = EslUdp4Bind ( pSocket,
                              (struct sockaddr *)&LocalAddress,
                              LocalAddress.sin_len );
     }
@@ -2022,7 +2022,7 @@ EslUdpShutdown4 (
         //
         //  Start the first read on the port
         //
-        EslUdpRxStart4 ( pPort );
+        EslUdp4RxStart ( pPort );
 
         //
         //  The socket is connected
@@ -2092,7 +2092,7 @@ EslUdpShutdown4 (
 
 **/
 EFI_STATUS
-EslUdpTxBuffer4 (
+EslUdp4TxBuffer (
   IN ESL_SOCKET * pSocket,
   IN int Flags,
   IN size_t BufferLength,
@@ -2295,7 +2295,7 @@ EslUdpTxBuffer4 (
 
 **/
 VOID
-EslUdpTxComplete4 (
+EslUdp4TxComplete (
   IN EFI_EVENT Event,
   IN ESL_IO_MGMT * pIo
   )
@@ -2422,7 +2422,7 @@ EslUdpTxComplete4 (
       //
       //  Indicate that the transmit is complete
       //
-      EslUdpPortCloseTxDone4 ( pPort );
+      EslUdp4PortCloseTxDone ( pPort );
     }
   }
   DBG_EXIT ( );
