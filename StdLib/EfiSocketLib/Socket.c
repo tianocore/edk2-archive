@@ -14,6 +14,33 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
+
+  \section TransmitEngine Transmit Engine
+  The transmit engine uses the ESL_IO_MGMT structures to manage
+  multiple transmit buffers.  The network specific PortAllocate
+  routine allocate the ::ESL_IO_MGMT structures and place them
+  on the free list by calling ::EslSocketIoInit.  During their
+  lifetime, the ESL_IO_MGMT structures will move from the free
+  list to the active list and back again.  The active list contains
+  the packets that are actively being processed by the network
+  stack.  Eventually the ESL_IO_MGMT structures will be removed
+  from the free list and be deallocated by the network specific
+  PortClose routines.
+
+  The network specific code calls the ::EslSocketTxStart routine
+  to hand a packet to the network stack.  EslSocketTxStart connects
+  the transmit packet (::ESL_PACKET) to an ::ESL_IO_MGMT structure
+  and then queues the result to one of the active lists:
+  ESL_PORT::pTxActive or ESL_PORT::pTxOobActive.  The routine then
+  hands the packet to the network stack.
+
+  Upon completion, the network specific TxComplete routine calls
+  ::EslSocketTxComplete to disconnect the transmit packet from the
+  ESL_IO_MGMT structure.  The routine also releases the structure
+  to to the appropriate free queue: ESL_PORT::pTxFree or
+  ESL_PORT::pTxOobFree.  The network specific PortClose routine
+  calls ::EslSocketIoFree to deallocate the ESL_IO_MGMT structures.
+
 **/
 
 #include "Socket.h"
@@ -1389,6 +1416,8 @@ EslSocketGetPeerAddress (
   the ESL_IO_MGMT structure and remove the structure from the free
   list.
 
+  See the \ref TransmitEngine section.
+
   @param [in] pPort         The ESL_PORT structure address
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
@@ -1466,26 +1495,8 @@ EslSocketIoFree (
   This support routine initializes the ESL_IO_MGMT structure and
   places them on to a free list.
 
-  The transmit engine uses the ESL_IO_MGMT structures to manage
-  multiple transmit buffers.  During their lifetime, the ESL_IO_MGMT
-  structures will move from the free list to the active list and back
-  again.  The active list contains the packets that are actively being
-  processed by the network stack.  Eventually the ESL_IO_MGMT structures
-  will be removed from the free list and be deallocated.
-
-  The network specific code calls the ::EslSocketTxStart routine
-  to hand a packet to the network stack.  EslSocketTxStart connects
-  the transmit packet (::ESL_PACKET) to an ::ESL_IO_MGMT structure
-  and then queues the result to one of the active lists:
-  ESL_PORT::pTxActive or ESL_PORT::pTxOobActive.  The routine then
-  hands the packet to the network stack.
-
-  Upon completion, the network specific TxComplete calls
-  ::EslSocketTxComplete to disconnect the transmit packet from the
-  ESL_IO_MGMT structure.  The routine also releases the structure
-  to to the appropriate free queue: ESL_PORT::pTxFree or
-  ESL_PORT::pTxOobFree.  The network specific Close routine
-  calls ::EslSocketIoFree to deallocate the ESL_IO_MGMT structures.
+  This routine is called by the PortAllocate routines to prepare
+  the transmit engines.  See the \ref TransmitEngine section.
 
   @param [in] pPort         The ESL_PORT structure address
   @param [in, out], ppIo    Address containing the first structure address.  Upon
@@ -2742,9 +2753,10 @@ EslSocketShutdown (
 
   This routine calls the network specific layer to queue the data
   for transmission.  Eventually the buffer will reach the head of
-  the queue and will get transmitted over the network.  For datagram
-  sockets there is no guarantee that the data reaches the application
-  running on the remote system.
+  the queue and will get transmitted over the network by the
+  \ref TransmitEngine.  For datagram
+  sockets (SOCK_DGRAM and SOCK_RAW) there is no guarantee that
+  the data reaches the application running on the remote system.
 
   The ::sendto routine calls this routine to send data to the remote
   system.  Note that ::send and ::write are layered on top of ::sendto.
@@ -2916,7 +2928,7 @@ EslSocketTransmit (
   the active queue and returns it to the free queue.
 
   The network specific code calls this routine during its transmit
-  complete processing.
+  complete processing.  See the \ref TransmitEngine section.
 
   @param [in] pPort           Address of a ESL_PORT structure
   @param [in] pIo             Address of the ESL_IO_MGMT structure
@@ -2977,7 +2989,7 @@ EslSocketTxComplete (
   underlying network layer.
 
   The network specific code calls this routine to start a
-  transmit operation.
+  transmit operation.  See the \ref TransmitEngine section.
 
   @param [in] pPort           Address of a ESL_PORT structure
   @param [in] pToken          Address of either the OOB or normal transmit token
