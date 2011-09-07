@@ -16,6 +16,11 @@
 
 
 /**
+  The following GUID values are only used when an application links
+  against EfiSocketLib.  An alternative set of values exists in
+  SocketDxe\EntryUnload.c which the SocketDxe driver uses to coexist
+  with socket applications.
+  
   Tag GUID - IPv4 in use by an application using EfiSocketLib
 **/
 CONST EFI_GUID mEslIp4ServiceGuid = {
@@ -282,5 +287,10 @@ CONST EFI_SERVICE_BINDING_PROTOCOL mEfiServiceBinding = {
 };
 
 
+/**
+  The following entries redirect the constructor and destructor
+  for any socket application that links against the EfiSocketLib.
+  Note that the SocketDxe driver uses different redirection.
+**/
 PFN_ESL_xSTRUCTOR mpfnEslConstructor = EslServiceNetworkConnect;    ///<  Constructor for EfiSocketLib
 PFN_ESL_xSTRUCTOR mpfnEslDestructor = EslServiceNetworkDisconnect;  ///<  Destructor for EfiSocketLib
