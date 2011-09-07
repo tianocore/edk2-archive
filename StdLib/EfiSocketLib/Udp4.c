@@ -1290,8 +1290,7 @@ EslUdp4Receive (
   //
   //  Verify that the socket is connected
   //
-  if (( SOCKET_STATE_CONNECTED == pSocket->State )
-    || ( PORT_STATE_RX_ERROR == pSocket->State )) {
+  if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
     //
     //  Locate the port
     //
