@@ -2097,6 +2097,7 @@ EslIp4Shutdown (
         pPreviousService->pNext = pService->pNext;
         break;
       }
+      pPreviousService = pPreviousService->pNext;
     }
   }
 
