@@ -838,7 +838,7 @@ EslTcp4ConnectStart (
 
   This routine is called by ::EslSocketGetLocalAddress to determine the
   network address for the SOCK_STREAM or SOCK_SEQPACKET socket.
-  
+
   @param [in] pSocket             Address of an ::ESL_SOCKET structure.
 
   @param [out] pAddress           Network address to receive the local system address
@@ -1501,7 +1501,7 @@ EslTcp4ListenComplete (
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] PortNumber  Tcp4 port number
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
+  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
@@ -2091,7 +2091,7 @@ EslTcp4PortCloseComplete (
   Port close state 3
 
   This routine determines the state of the receive operations and
-  continue the close operation after the pending receive operations
+  continues the close operation after the pending receive operations
   are cancelled.
 
   This routine is called by ::EslTcp4PortCloseTxDone and
@@ -2186,7 +2186,7 @@ EslTcp4PortCloseRxDone (
   This routine is called by ::EslSocketCloseStart to initiate the socket
   network specific close operation on the socket.
   See the \ref Tcp4PortCloseStateMachine section.
-  
+
   @param [in] pPort       Address of an ::ESL_PORT structure.
   @param [in] bCloseNow   Set TRUE to abort active transfers
   @param [in] DebugFlags  Flags for debug messages
@@ -2758,7 +2758,7 @@ EslTcp4RxCancel (
 
   This routine is called by the TCPv4 driver when some data is
   received.
-  
+
   Buffer the data that was just received.
 
   @param [in] Event     The receive completion event
@@ -3104,7 +3104,7 @@ EslTcp4Shutdown (
   that the socket has been configured.
 
   @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-  
+
   @retval EFI_SUCCESS - The port is connected
   @retval EFI_NOT_STARTED - The port is not connected
 

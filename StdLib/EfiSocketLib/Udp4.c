@@ -10,10 +10,69 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
+
+  \section Udp4PortCloseStateMachine UDPv4 Port Close State Machine
+
+  The port close state machine walks the port through the necessary
+  states to stop activity on the port and get it into a state where
+  the resources may be released.  The state machine consists of the
+  following arcs and states:
+  <ul>
+    <li>Arc: ::EslUdp4PortCloseStart - Marks the port as closing and
+      initiates the port close operation</li>
+    <li>State: PORT_STATE_CLOSE_STARTED</li>
+    <li>Arc: ::EslUdp4PortCloseTxDone - Waits until all of the transmit
+      operations to complete.</li>
+    <li>State: PORT_STATE_CLOSE_TX_DONE - RX still active</li>
+    <li>Arc: ::EslUdp4PortCloseRxDone - Waits until all of the receive
+      operation have been cancelled.</li>
+    <li>State: PORT_STATE_CLOSE_RX_DONE - RX shutdown</li>
+    <li>State: PORT_STATE_CLOSE_DONE - Port never configured</li>
+    <li>Arc: ::EslUdp4PortClose - Releases the port resources</li>
+  </ul>
+  Note that the state machine takes into account that close and receive
+  completions may happen in either order.
+
+
+  \section Udp4ReceiveEngine UDPv4 Receive Engine
+
+  The receive engine is started by calling ::EslUdp4RxStart when the
+  ::ESL_PORT structure is configured and stopped when ::EslUdp4PortCloseTxDone
+  calls the UDPv4 configure operation to reset the port.  The receive engine
+  consists of a single receive buffer that is posted to the UDPv4 driver.
+
+  Upon receive completion, ::EslUdp4RxComplete posts the UDPv4 buffer to the
+  ESL_SOCKET::pRxPacketListTail.  To minimize the number of buffer copies,
+  the ::EslUdpRxComplete4 routine queues the UDP4 driver's buffer to a list
+  of datagrams waiting to be received.  The socket driver holds on to the
+  buffers from the UDPv4 driver until the application layer requests
+  the data or the socket is closed.
+
+  When the application wants to receive data it indirectly calls
+  ::EslUdp4Receive to remove data from the data queue.  This routine
+  removes the next available datagram from ESL_SOCKET::pRxPacketListHead
+  and copies the data from the UDPv4 driver's buffer into the
+  application's buffer.  The UDPv4 driver's buffer is then returned.
+
+  During socket layer shutdown, ::EslUdp4RxCancel is called by ::EslSocketShutdown
+  to cancel the pending receive operations.
+
+  Receive flow control is applied when the socket is created, since no receive
+  operation is pending to the UDPv4 driver.  The flow control gets released
+  when the port is configured.  Flow control remains in the released state,
+  ::EslUdp4RxComplete calls ::EslUdp4RxStart until the maximum buffer space
+  is consumed.  By not calling EslUdp4RxStart, EslUdp4RxComplete applies flow
+  control.  Flow control is eventually released when the buffer space drops
+  below the maximum amount and EslUdp4Receive calls EslUdp4RxStart.
+
 **/
 
 #include "Socket.h"
 
+/**
+  Interface between the socket layer and the network specific
+  code that supports SOCK_DGRAM sockets over UDPv4.
+**/
 CONST ESL_PROTOCOL_API cEslUdp4Api = {
   IPPROTO_UDP,
   NULL,   //  Accept
@@ -35,13 +94,17 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
 /**
   Bind a name to a socket.
 
-  The ::UdpBind4 routine connects a name to a UDP4 stack on the local machine.
+  This routine connects a name (IPv4 address and port number) to the UDPv4 stack
+  on the local machine.
 
+  This routine is called by ::EslSocketBind to handle the UDPv4 specific
+  protocol bind operations for SOCK_DGRAM sockets.
+    
   The configure call to the UDP4 driver occurs on the first poll, recv, recvfrom,
   send or sentto call.  Until then, all changes are made in the local UDP context
   structure.
   
-  @param [in] pSocket   Address of the socket structure.
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
   @param [in] pSockAddr Address of a sockaddr structure that contains the
                         connection point on the local machine.  An IPv4 address
@@ -53,7 +116,7 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
                         number from the dynamic range.  Specifying a specific
                         port number causes the network layer to use that port.
 
-  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
 
   @retval EFI_SUCCESS - Socket successfully created
 
@@ -189,12 +252,290 @@ EslUdp4Bind (
 
 
 /**
+  Connect to a remote system via the network.
+
+  This routine sets the remote address for a SOCK_DGRAM
+  socket using the UDPv4 network layer.
+
+  This routine is called by ::EslSocketConnect to initiate the UDPv4
+  network specific connect operations.  The connection processing is
+  limited to setting the remote network address.
+
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
+
+  @param [in] pSockAddr       Network address of the remote system.
+    
+  @param [in] SockAddrLength  Length in bytes of the network address.
+  
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval EFI_NOT_READY The connection is in progress, call this routine again.
+  @retval Others        The connection attempt failed.
+
+ **/
+EFI_STATUS
+EslUdp4Connect (
+  IN ESL_SOCKET * pSocket,
+  IN const struct sockaddr * pSockAddr,
+  IN socklen_t SockAddrLength
+  )
+{
+  struct sockaddr_in LocalAddress;
+  ESL_PORT * pPort;
+  struct sockaddr_in * pRemoteAddress;
+  ESL_UDP4_CONTEXT * pUdp4;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Assume failure
+  //
+  Status = EFI_NETWORK_UNREACHABLE;
+  pSocket->errno = ENETUNREACH;
+
+  //
+  //  Get the address
+  //
+  pRemoteAddress = (struct sockaddr_in *)pSockAddr;
+
+  //
+  //  Validate the address length
+  //
+  if ( SockAddrLength >= ( sizeof ( *pRemoteAddress )
+                           - sizeof ( pRemoteAddress->sin_zero ))) {
+    //
+    //  Determine if BIND was already called
+    //
+    if ( NULL == pSocket->pPortList ) {
+      //
+      //  Allow any local port
+      //
+      ZeroMem ( &LocalAddress, sizeof ( LocalAddress ));
+      LocalAddress.sin_len = sizeof ( LocalAddress );
+      LocalAddress.sin_family = AF_INET;
+      Status = EslSocketBind ( &pSocket->SocketProtocol,
+                               (struct sockaddr *)&LocalAddress,
+                               LocalAddress.sin_len,
+                               &pSocket->errno );
+    }
+
+    //
+    //  Walk the list of ports
+    //
+    pPort = pSocket->pPortList;
+    while ( NULL != pPort ) {
+      //
+      //  Set the remote address
+      //
+      pUdp4 = &pPort->Context.Udp4;
+      pUdp4->ConfigData.RemoteAddress.Addr[0] = (UINT8)( pRemoteAddress->sin_addr.s_addr );
+      pUdp4->ConfigData.RemoteAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
+      pUdp4->ConfigData.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
+      pUdp4->ConfigData.RemoteAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
+      pUdp4->ConfigData.RemotePort = SwapBytes16 ( pRemoteAddress->sin_port );
+
+      //
+      //  At least one path exists
+      //
+      Status = EFI_SUCCESS;
+      pSocket->errno = 0;
+
+      //
+      //  Set the next port
+      //
+      pPort = pPort->pLinkSocket;
+    }
+  }
+  else {
+    DEBUG (( DEBUG_CONNECT,
+              "ERROR - Invalid UDP4 address length: %d\r\n",
+              SockAddrLength ));
+    Status = EFI_INVALID_PARAMETER;
+    pSocket->errno = EINVAL;
+  }
+
+  //
+  //  Return the connect status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Get the local socket address
+
+  This routine returns the IPv4 address and UDP port number associated
+  with the local socket.
+
+  This routine is called by ::EslSocketGetLocalAddress to determine the
+  network address for the SOCK_DGRAM socket.
+
+  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
+
+  @param [out] pAddress           Network address to receive the local system address
+
+  @param [in,out] pAddressLength  Length of the local network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+EFI_STATUS
+EslUdp4GetLocalAddress (
+  IN ESL_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  )
+{
+  socklen_t LengthInBytes;
+  ESL_PORT * pPort;
+  struct sockaddr_in * pLocalAddress;
+  ESL_UDP4_CONTEXT * pUdp4;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  Verify that there is just a single connection
+  //
+  pPort = pSocket->pPortList;
+  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
+    //
+    //  Verify the address length
+    //
+    LengthInBytes = sizeof ( struct sockaddr_in );
+    if ( LengthInBytes <= *pAddressLength ) {
+      //
+      //  Return the local address
+      //
+      pUdp4 = &pPort->Context.Udp4;
+      pLocalAddress = (struct sockaddr_in *)pAddress;
+      ZeroMem ( pLocalAddress, LengthInBytes );
+      pLocalAddress->sin_family = AF_INET;
+      pLocalAddress->sin_len = (uint8_t)LengthInBytes;
+      pLocalAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.StationPort );
+      CopyMem ( &pLocalAddress->sin_addr,
+                &pUdp4->ConfigData.StationAddress.Addr[0],
+                sizeof ( pLocalAddress->sin_addr ));
+      pSocket->errno = 0;
+      Status = EFI_SUCCESS;
+    }
+    else {
+      pSocket->errno = EINVAL;
+      Status = EFI_INVALID_PARAMETER;
+    }
+  }
+  else {
+    pSocket->errno = ENOTCONN;
+    Status = EFI_NOT_STARTED;
+  }
+  
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Get the remote socket address
+
+  This routine returns the address of the remote connection point
+  associated with the SOCK_DGRAM socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the UDPv4 address and por number associated with the network adapter.
+
+  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
+
+  @param [out] pAddress           Network address to receive the remote system address
+
+  @param [in,out] pAddressLength  Length of the remote network address structure
+
+  @retval EFI_SUCCESS - Address available
+  @retval Other - Failed to get the address
+
+**/
+EFI_STATUS
+EslUdp4GetRemoteAddress (
+  IN ESL_SOCKET * pSocket,
+  OUT struct sockaddr * pAddress,
+  IN OUT socklen_t * pAddressLength
+  )
+{
+  socklen_t LengthInBytes;
+  ESL_PORT * pPort;
+  struct sockaddr_in * pRemoteAddress;
+  ESL_UDP4_CONTEXT * pUdp4;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  Verify that there is just a single connection
+  //
+  pPort = pSocket->pPortList;
+  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
+    //
+    //  Verify the address length
+    //
+    LengthInBytes = sizeof ( struct sockaddr_in );
+    if ( LengthInBytes <= *pAddressLength ) {
+      //
+      //  Return the local address
+      //
+      pUdp4 = &pPort->Context.Udp4;
+      pRemoteAddress = (struct sockaddr_in *)pAddress;
+      ZeroMem ( pRemoteAddress, LengthInBytes );
+      pRemoteAddress->sin_family = AF_INET;
+      pRemoteAddress->sin_len = (uint8_t)LengthInBytes;
+      pRemoteAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.RemotePort );
+      CopyMem ( &pRemoteAddress->sin_addr,
+                &pUdp4->ConfigData.RemoteAddress.Addr[0],
+                sizeof ( pRemoteAddress->sin_addr ));
+      pSocket->errno = 0;
+      Status = EFI_SUCCESS;
+    }
+    else {
+      pSocket->errno = EINVAL;
+      Status = EFI_INVALID_PARAMETER;
+    }
+  }
+  else {
+    pSocket->errno = ENOTCONN;
+    Status = EFI_NOT_STARTED;
+  }
+  
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
   Initialize the UDP4 service.
 
-  This routine initializes the UDP4 service after its service binding
-  protocol was located on a controller.
+  This routine initializes the UDP4 service which is used by the
+  sockets layer to support SOCK_DGRAM sockets.
 
-  @param [in] pService        ESL_SERVICE structure address
+  This routine is called by ::EslServiceConnect after initializing an
+  ::ESL_SERVICE structure for an adapter running UDPv4.
+
+  @param [in] pService        Address of an ::ESL_SERVICE structure
 
   @retval EFI_SUCCESS         The service was properly initialized
   @retval other               A failure occurred during the service initialization
@@ -239,13 +580,20 @@ EslUdp4Initialize (
 /**
   Allocate and initialize a ESL_PORT structure.
 
-  @param [in] pSocket     Address of the socket structure.
-  @param [in] pService    Address of the ESL_SERVICE structure.
+  This routine initializes an ::ESL_PORT structure for use by the
+  socket.
+
+  This support routine is called by ::EslUdp4Bind to connect the
+  socket with the underlying network adapter running the UDPv4
+  protocol.
+
+  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
+  @param [in] pService    Address of the ::ESL_SERVICE structure.
   @param [in] ChildHandle Udp4 child handle
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] PortNumber  Udp4 port number
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
+  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
@@ -456,9 +804,16 @@ EslUdp4PortAllocate (
   Close a UDP4 port.
 
   This routine releases the resources allocated by
-  ::UdpPortAllocate4().
-  
-  @param [in] pPort       Address of the port structure.
+  ::EslUdp4PortAllocate.
+
+  This routine is called by:
+  <ul>
+    <li>::EslUdp4PortAllocate - Port initialization failure</li>
+    <li>::EslUdp4PortCloseRxDone - Last step of close processing</li>
+  </ul>
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
   @retval EFI_SUCCESS     The port is closed
   @retval other           Port close error
@@ -672,79 +1027,18 @@ EslUdp4PortClose (
 
 
 /**
-  Start the close operation on a UDP4 port, state 1.
-
-  Closing a port goes through the following states:
-  1. Port close starting - Mark the port as closing and wait for transmission to complete
-  2. Port TX close done - Transmissions complete, close the port and abort the receives
-  3. Port RX close done - Receive operations complete, close the port
-  4. Port closed - Release the port resources
-  
-  @param [in] pPort       Address of the port structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
-  )
-{
-  ESL_SOCKET * pSocket;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Mark the port as closing
-  //
-  Status = EFI_ALREADY_STARTED;
-  pSocket = pPort->pSocket;
-  pSocket->errno = EALREADY;
-  if ( PORT_STATE_CLOSE_STARTED > pPort->State ) {
-
-    //
-    //  Update the port state
-    //
-    pPort->State = PORT_STATE_CLOSE_STARTED;
-    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Port Close State: PORT_STATE_CLOSE_STARTED\r\n",
-              pPort ));
-    pPort->bCloseNow = bCloseNow;
-    pPort->DebugFlags = DebugFlags;
-
-    //
-    //  Determine if transmits are complete
-    //
-    Status = EslUdp4PortCloseTxDone ( pPort );
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
   Port close state 3
 
-  Continue the close operation after the receive is complete.
+  This routine determines the state of the receive operations and
+  continues the close operation after the pending receive operations
+  are cancelled.
 
-  @param [in] pPort       Address of the port structure.
+  This routine is called by ::EslUdp4PortCloseTxDone and
+  ::EslUdp4RxComplete to determine the state of the receive
+  operations.
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
 
   @retval EFI_SUCCESS         The port is closed
   @retval EFI_NOT_READY       The port is still closing
@@ -816,11 +1110,87 @@ EslUdp4PortCloseRxDone (
 
 
 /**
+  Start the close operation on a UDP4 port, state 1.
+
+  This routine marks the port as closed and initiates the port
+  close state machine.  The first step is to allow the \ref
+  TransmitEngine to run down.
+
+  This routine is called by ::EslSocketCloseStart to initiate the socket
+  network specific close operation on the socket.
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] bCloseNow   Set TRUE to abort active transfers
+  @param [in] DebugFlags  Flags for debug messages
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port has started the closing process
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslUdp4PortCloseStart (
+  IN ESL_PORT * pPort,
+  IN BOOLEAN bCloseNow,
+  IN UINTN DebugFlags
+  )
+{
+  ESL_SOCKET * pSocket;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  Mark the port as closing
+  //
+  Status = EFI_ALREADY_STARTED;
+  pSocket = pPort->pSocket;
+  pSocket->errno = EALREADY;
+  if ( PORT_STATE_CLOSE_STARTED > pPort->State ) {
+
+    //
+    //  Update the port state
+    //
+    pPort->State = PORT_STATE_CLOSE_STARTED;
+    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+              "0x%08x: Port Close State: PORT_STATE_CLOSE_STARTED\r\n",
+              pPort ));
+    pPort->bCloseNow = bCloseNow;
+    pPort->DebugFlags = DebugFlags;
+
+    //
+    //  Determine if transmits are complete
+    //
+    Status = EslUdp4PortCloseTxDone ( pPort );
+  }
+
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
   Port close state 2
 
-  Continue the close operation after the transmission is complete.
+  This routine determines the state of the transmit engine and
+  continues the close operation after the transmission is complete.
+  The next step is to stop the \ref Udp4ReceiveEngine.
 
-  @param [in] pPort       Address of the port structure.
+  This routine is called by ::EslUdp4PortCloseStart to determine if
+  the transmission is complete.
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
 
   @retval EFI_SUCCESS         The port is closed, not normally returned
   @retval EFI_NOT_READY       The port is still closing
@@ -964,279 +1334,16 @@ EslUdp4PortCloseTxDone (
 
 
 /**
-  Connect to a remote system via the network.
-
-  The ::UdpConnectStart4= routine sets the remote address for the connection.
-
-  @param [in] pSocket         Address of the socket structure.
-
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
-  @retval EFI_SUCCESS   The connection was successfully established.
-  @retval EFI_NOT_READY The connection is in progress, call this routine again.
-  @retval Others        The connection attempt failed.
-
- **/
-EFI_STATUS
-EslUdp4Connect (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  )
-{
-  struct sockaddr_in LocalAddress;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pRemoteAddress;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume failure
-  //
-  Status = EFI_NETWORK_UNREACHABLE;
-  pSocket->errno = ENETUNREACH;
-
-  //
-  //  Get the address
-  //
-  pRemoteAddress = (struct sockaddr_in *)pSockAddr;
-
-  //
-  //  Validate the address length
-  //
-  if ( SockAddrLength >= ( sizeof ( *pRemoteAddress )
-                           - sizeof ( pRemoteAddress->sin_zero ))) {
-    //
-    //  Determine if BIND was already called
-    //
-    if ( NULL == pSocket->pPortList ) {
-      //
-      //  Allow any local port
-      //
-      ZeroMem ( &LocalAddress, sizeof ( LocalAddress ));
-      LocalAddress.sin_len = sizeof ( LocalAddress );
-      LocalAddress.sin_family = AF_INET;
-      Status = EslSocketBind ( &pSocket->SocketProtocol,
-                               (struct sockaddr *)&LocalAddress,
-                               LocalAddress.sin_len,
-                               &pSocket->errno );
-    }
-
-    //
-    //  Walk the list of ports
-    //
-    pPort = pSocket->pPortList;
-    while ( NULL != pPort ) {
-      //
-      //  Set the remote address
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pUdp4->ConfigData.RemoteAddress.Addr[0] = (UINT8)( pRemoteAddress->sin_addr.s_addr );
-      pUdp4->ConfigData.RemoteAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
-      pUdp4->ConfigData.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
-      pUdp4->ConfigData.RemoteAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
-      pUdp4->ConfigData.RemotePort = SwapBytes16 ( pRemoteAddress->sin_port );
-
-      //
-      //  At least one path exists
-      //
-      Status = EFI_SUCCESS;
-      pSocket->errno = 0;
-
-      //
-      //  Set the next port
-      //
-      pPort = pPort->pLinkSocket;
-    }
-  }
-  else {
-    DEBUG (( DEBUG_CONNECT,
-              "ERROR - Invalid UDP4 address length: %d\r\n",
-              SockAddrLength ));
-    Status = EFI_INVALID_PARAMETER;
-    pSocket->errno = EINVAL;
-  }
-
-  //
-  //  Return the connect status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Get the local socket address
-
-  @param [in] pSocket             Address of the socket structure.
-
-  @param [out] pAddress           Network address to receive the local system address
-
-  @param [in,out] pAddressLength  Length of the local network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslUdp4GetLocalAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  )
-{
-  socklen_t LengthInBytes;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pLocalAddress;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
-    //
-    //  Verify the address length
-    //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= *pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pLocalAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pLocalAddress, LengthInBytes );
-      pLocalAddress->sin_family = AF_INET;
-      pLocalAddress->sin_len = (uint8_t)LengthInBytes;
-      pLocalAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.StationPort );
-      CopyMem ( &pLocalAddress->sin_addr,
-                &pUdp4->ConfigData.StationAddress.Addr[0],
-                sizeof ( pLocalAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Get the remote socket address
-
-  @param [in] pSocket             Address of the socket structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslUdp4GetRemoteAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  )
-{
-  socklen_t LengthInBytes;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pRemoteAddress;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
-    //
-    //  Verify the address length
-    //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= *pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pRemoteAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pRemoteAddress, LengthInBytes );
-      pRemoteAddress->sin_family = AF_INET;
-      pRemoteAddress->sin_len = (uint8_t)LengthInBytes;
-      pRemoteAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.RemotePort );
-      CopyMem ( &pRemoteAddress->sin_addr,
-                &pUdp4->ConfigData.RemoteAddress.Addr[0],
-                sizeof ( pRemoteAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
   Receive data from a network connection.
 
-  To minimize the number of buffer copies, the ::UdpRxComplete4
-  routine queues the UDP4 driver's buffer to a list of datagrams
-  waiting to be received.  The socket driver holds on to the
-  buffers from the UDP4 driver until the application layer requests
-  the data or the socket is closed.
+  This routine attempts to return buffered data to the caller.  The
+  data is only removed from the normal queue, the message flag
+  MSG_OOB is ignored.  See the \ref Udp4ReceiveEngine section.
 
-  The application calls this routine in the socket layer to
-  receive datagrams from one or more remote systems. This routine
-  removes the next available datagram from the list of datagrams
-  and copies the data from the UDP4 driver's buffer into the
-  application's buffer.  The UDP4 driver's buffer is then returned.
+  This routine is called by ::EslSocketReceive to handle the network
+  specific receive operation to support SOCK_DGRAM sockets.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure
 
   @param [in] Flags           Message control flags
 
@@ -1513,7 +1620,13 @@ EslUdp4Receive (
 /**
   Cancel the receive operations
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  This routine cancels the pending receive operations.
+  See the \ref Udp4ReceiveEngine section.
+
+  This routine is called by ::EslSocketShutdown when the socket
+  layer is being shutdown.
+
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure
   
   @retval EFI_SUCCESS - The cancel was successful
 
@@ -1573,14 +1686,17 @@ EslUdp4RxCancel (
 /**
   Process the receive completion
 
-  Keep the UDP4 driver's buffer and append it to the list of
-  datagrams for the application to receive.  The UDP4 driver's
-  buffer will be returned by either ::UdpReceive4 or
-  ::UdpPortCloseTxDone4.
+  This routine keeps the UDPv4 driver's buffer and queues it in
+  in FIFO order to the data queue.  The UDP4 driver's buffer will
+  be returned by either ::EslUdp4Receive or ::EslUdp4PortCloseTxDone.
+  See the \ref Tcp4ReceiveEngine section.
+
+  This routine is called by the UDPv4 driver when data is
+  received.
 
   @param [in] Event     The receive completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pPort     Address of an ::ESL_PORT structure
 
 **/
 VOID
@@ -1721,7 +1837,17 @@ EslUdp4RxComplete (
 /**
   Start a receive operation
 
-  @param [in] pPort       Address of the ESL_PORT structure.
+  This routine posts a receive buffer to the UDPv4 driver.
+  See the \ref Udp4ReceiveEngine section.
+
+  This support routine is called by:
+  <ul>
+    <li>::EslUdp4SocketIsConfigured to start the recevie engine for the new socket.</li>
+    <li>::EslUdp4Receive to restart the receive engine to release flow control.</li>
+    <li>::EslUdp4RxComplete to continue the operation of the receive engine if flow control is not being applied.</li>
+  </ul>
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
  **/
 VOID
@@ -1831,9 +1957,16 @@ EslUdp4RxStart (
 /**
   Shutdown the UDP4 service.
 
-  This routine undoes the work performed by ::UdpInitialize4.
+  This routine undoes the work performed by ::EslUdp4Initialize to
+  shutdown the UDP4 service which is used by the sockets layer to
+  support SOCK_DGRAM sockets.
 
-  @param [in] pService        ESL_SERVICE structure address
+  This routine is called by ::EslServiceDisconnect prior to freeing
+  the ::ESL_SERVICE structure associated with the adapter running
+  UDPv4.
+  This routine undoes the work performed by ::EslUdp4Initialize.
+
+  @param [in] pService    Address of an ::ESL_SERVICE structure
 
 **/
 VOID
@@ -1902,9 +2035,17 @@ EslUdp4Shutdown (
 /**
   Determine if the sockedt is configured.
 
+  This routine uses the flag ESL_SOCKET::bConfigured to determine
+  if the network layer's configuration routine has been called.
+  If routine calls the bind and configuration routines if they
+  were not already called.  After the port is configured, the
+  \ref Udp4ReceiveEngine is started.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
-  
+  This routine is called by EslSocketIsConfigured to verify
+  that the socket is configured.
+
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure
+
   @retval EFI_SUCCESS - The port is connected
   @retval EFI_NOT_STARTED - The port is not connected
 
@@ -2061,10 +2202,15 @@ EslUdp4Shutdown (
 /**
   Buffer data for transmission over a network connection.
 
-  This routine is called by the socket layer API to buffer
+  This routine buffers data for the transmit engine in the normal
+  data queue.  When the \ref TransmitEngine has resources, this
+  routine will start the transmission of the next buffer on the
+  network connection.
+
+  This routine is called by ::EslSocketTransmit to buffer
   data for transmission.  The data is copied into a local buffer
   freeing the application buffer for reuse upon return.  When
-  necessary, this routine will start the transmit engine that
+  necessary, this routine starts the transmit engine that
   performs the data transmission on the network connection.  The
   transmit engine transmits the data a packet at a time over the
   network connection.
@@ -2073,7 +2219,7 @@ EslUdp4Shutdown (
   during the close operation.  Only buffering errors are returned
   during the current transmission attempt.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure
 
   @param [in] Flags           Message control flags
 
@@ -2288,9 +2434,17 @@ EslUdp4TxBuffer (
 /**
   Process the transmit completion
 
+  This routine handles the completion of data transmissions.  It
+  frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
+  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
+  errors are logged in ESL_SOCKET::TxError.
+
+  This routine is called by the UDPv4 network layer when a data
+  transmit request completes.
+
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pIo       The ESL_IO_MGMT structure address
+  @param [in] pIo       Address of an ::ESL_IO_MGMT structure
 
 **/
 VOID

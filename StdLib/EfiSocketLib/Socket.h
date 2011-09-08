@@ -1411,8 +1411,7 @@ EslIp4TxComplete (
 
   This routine is called by ::EslSocketAccept to handle the TCPv4 protocol
   specific accept operations for SOCK_STREAM and SOCK_SEQPACKET sockets.
-  See the <a href="#ConnectionManagement">Connection Management</a>
-  section.
+  See the \ref ConnectionManagement section.
 
   @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
@@ -1600,8 +1599,7 @@ EslTcp4Initialize (
 
   This routine is called by ::EslSocketListen to handle the network
   specifics of the listen operation for SOCK_STREAM and SOCK_SEQPACKET
-  sockets.  See the <a href="#ConnectionManagement">Connection Management</a>
-  section.
+  sockets.  See the \ref ConnectionManagement section.
 
   @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
@@ -1622,7 +1620,7 @@ EslTcp4Listen (
 
   The TCPv4 layer calls this routine when a connection is made to
   the socket in the listen state.  See the
-  <a href="#ConnectionManagement">Connection Management</a> section.
+  \ref ConnectionManagement">Connection Management</a> section.
 
   @param [in] Event     The listen completion event
 
@@ -1679,7 +1677,7 @@ EslTcp4PortAllocate (
     <li>::EslTcp4PortAllocate - Port initialization failure</li>
     <li>::EslTcp4PortCloseRxDone - Last step of close processing</li>
   </ul>
-  See the <a href="#Tcp4PortCloseStateMachine">TCPv4 Port Close State Machine</a> section.
+  See the \ref Tcp4PortCloseStateMachine section.
   
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -1699,7 +1697,7 @@ EslTcp4PortClose (
 
   This routine is called by the TCPv4 layer upon completion of
   the close operation.
-  See the <a href="#Tcp4PortCloseStateMachine">TCPv4 Port Close State Machine</a> section.
+  See the \ref Tcp4PortCloseStateMachine section.
 
   @param [in] Event     The close completion event
 
@@ -1722,7 +1720,7 @@ EslTcp4PortCloseComplete (
   This routine is called by ::EslTcp4PortCloseTxDone and
   ::EslTcp4PortCloseComplete to determine the state of the receive
   operations.
-  See the <a href="#Tcp4PortCloseStateMachine">TCPv4 Port Close State Machine</a> section.
+  See the \ref Tcp4PortCloseStateMachine section.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -1745,7 +1743,7 @@ EslTcp4PortCloseRxDone (
 
   This routine is called by ::EslSocketCloseStart to initiate the socket
   network specific close operation on the socket.
-  See the <a href="#Tcp4PortCloseStateMachine">TCPv4 Port Close State Machine</a> section.
+  See the \ref Tcp4PortCloseStateMachine section.
   
   @param [in] pPort       Address of an ::ESL_PORT structure.
   @param [in] bCloseNow   Set TRUE to abort active transfers
@@ -1772,7 +1770,7 @@ EslTcp4PortCloseStart (
 
   This routine is called by ::EslTcp4PortCloseStart to determine if
   the transmission is complete.
-  See the <a href="#Tcp4PortCloseStateMachine">TCPv4 Port Close State Machine</a> section.
+  See the \ref Tcp4PortCloseStateMachine section.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -1793,7 +1791,7 @@ EslTcp4PortCloseTxDone (
   This routine attempts to return buffered data to the caller.  The
   data is removed from the urgent queue if the message flag MSG_OOB
   is specified, otherwise data is removed from the normal queue.
-  See the <a href="#Tcp4ReceiveEngine">TCPv4 Receive Engine</a> section.
+  See the \ref Tcp4ReceiveEngine section.
 
   This routine is called by ::EslSocketReceive to handle the network
   specific receive operation to support SOCK_STREAM and SOCK_SEQPACKET
@@ -1831,7 +1829,7 @@ EslTcp4Receive (
   Cancel the receive operations
 
   This routine cancels the pending receive operations.
-  See the <a href="#Tcp4ReceiveEngine">TCPv4 Receive Engine</a> section.
+  See the \ref Tcp4ReceiveEngine section.
 
   This routine is called by ::EslSocketShutdown when the socket
   layer is being shutdown.
@@ -1851,7 +1849,7 @@ EslTcp4RxCancel (
 
   This routine queues the data in FIFO order in either the urgent
   or normal data queues depending upon the type of data received.
-  See the <a href="#Tcp4ReceiveEngine">TCPv4 Receive Engine</a> section.
+  See the \ref Tcp4ReceiveEngine section.
 
   This routine is called by the TCPv4 driver when some data is
   received.
@@ -1873,7 +1871,7 @@ EslTcp4RxComplete (
   Start a receive operation
 
   This routine posts a receive buffer to the TCPv4 driver.
-  See the <a href="#Tcp4ReceiveEngine">TCPv4 Receive Engine</a> section.
+  See the \ref Tcp4ReceiveEngine section.
 
   This support routine is called by:
   <ul>
@@ -2027,9 +2025,17 @@ EslTcp4TxOobComplete (
 /**
   Bind a name to a socket.
 
-  The ::UdpBind4 routine connects a name to a UDP4 stack on the local machine.
+  This routine connects a name (IPv4 address and port number) to the UDPv4 stack
+  on the local machine.
 
-  @param [in] pSocket   Address of the socket structure.
+  This routine is called by ::EslSocketBind to handle the UDPv4 specific
+  protocol bind operations for SOCK_DGRAM sockets.
+    
+  The configure call to the UDP4 driver occurs on the first poll, recv, recvfrom,
+  send or sentto call.  Until then, all changes are made in the local UDP context
+  structure.
+  
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
   @param [in] pSockAddr Address of a sockaddr structure that contains the
                         connection point on the local machine.  An IPv4 address
@@ -2041,7 +2047,7 @@ EslTcp4TxOobComplete (
                         number from the dynamic range.  Specifying a specific
                         port number causes the network layer to use that port.
 
-  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
 
   @retval EFI_SUCCESS - Socket successfully created
 
@@ -2054,115 +2060,16 @@ EslUdp4Bind (
   );
 
 /**
-  Initialize the UDP4 service.
-
-  This routine initializes the UDP4 service after its service binding
-  protocol was located on a controller.
-
-  @param [in] pService        ESL_SERVICE structure address
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslUdp4Initialize (
-  IN ESL_SERVICE * pService
-  );
-
-/**
-  Allocate and initialize a ESL_PORT structure.
-
-  @param [in] pSocket     Address of the socket structure.
-  @param [in] pService    Address of the ESL_SERVICE structure.
-  @param [in] ChildHandle Udp4 child handle
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Udp4 port number
-  @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslUdp4PortAllocate (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
-  );
-
-/**
-  Close a UDP4 port.
-
-  This routine releases the resources allocated by
-  ::UdpPortAllocate4().
-  
-  @param [in] pPort       Address of the port structure.
-
-  @retval EFI_SUCCESS     The port is closed
-  @retval other           Port close error
-
-**/
-EFI_STATUS
-EslUdp4PortClose (
-  IN ESL_PORT * pPort
-  );
-
-/**
-  Start the close operation on a UDP4 port, state 1.
-
-  Closing a port goes through the following states:
-  1. Port close starting - Mark the port as closing and wait for transmission to complete
-  2. Port TX close done - Transmissions complete, close the port and abort the receives
-  3. Port RX close done - Receive operations complete, close the port
-  4. Port closed - Release the port resources
-  
-  @param [in] pPort       Address of the port structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
-  );
-
-/**
-  Port close state 2
-
-  Continue the close operation after the transmission is complete.
-
-  @param [in] pPort       Address of the port structure.
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port is still closing
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseTxDone (
-  IN ESL_PORT * pPort
-  );
-
-/**
   Connect to a remote system via the network.
 
-  The ::UdpConnectStart4= routine sets the remote address for the connection.
+  This routine sets the remote address for a SOCK_DGRAM
+  socket using the UDPv4 network layer.
 
-  @param [in] pSocket         Address of the socket structure.
+  This routine is called by ::EslSocketConnect to initiate the UDPv4
+  network specific connect operations.  The connection processing is
+  limited to setting the remote network address.
+
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
 
   @param [in] pSockAddr       Network address of the remote system.
     
@@ -2183,7 +2090,13 @@ EslUdp4Connect (
 /**
   Get the local socket address
 
-  @param [in] pSocket             Address of the socket structure.
+  This routine returns the IPv4 address and UDP port number associated
+  with the local socket.
+
+  This routine is called by ::EslSocketGetLocalAddress to determine the
+  network address for the SOCK_DGRAM socket.
+
+  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
 
   @param [out] pAddress           Network address to receive the local system address
 
@@ -2203,7 +2116,13 @@ EslUdp4GetLocalAddress (
 /**
   Get the remote socket address
 
-  @param [in] pSocket             Address of the socket structure.
+  This routine returns the address of the remote connection point
+  associated with the SOCK_DGRAM socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the UDPv4 address and por number associated with the network adapter.
+
+  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
 
   @param [out] pAddress           Network address to receive the remote system address
 
@@ -2221,21 +2140,145 @@ EslUdp4GetRemoteAddress (
   );
 
 /**
+  Initialize the UDP4 service.
+
+  This routine initializes the UDP4 service which is used by the
+  sockets layer to support SOCK_DGRAM sockets.
+
+  This routine is called by ::EslServiceConnect after initializing an
+  ::ESL_SERVICE structure for an adapter running UDPv4.
+
+  @param [in] pService        Address of an ::ESL_SERVICE structure
+
+  @retval EFI_SUCCESS         The service was properly initialized
+  @retval other               A failure occurred during the service initialization
+
+**/
+EFI_STATUS
+EFIAPI
+EslUdp4Initialize (
+  IN ESL_SERVICE * pService
+  );
+
+/**
+  Allocate and initialize a ESL_PORT structure.
+
+  This routine initializes an ::ESL_PORT structure for use by the
+  socket.
+
+  This support routine is called by ::EslUdp4Bind to connect the
+  socket with the underlying network adapter running the UDPv4
+  protocol.
+
+  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
+  @param [in] pService    Address of the ::ESL_SERVICE structure.
+  @param [in] ChildHandle Udp4 child handle
+  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] PortNumber  Udp4 port number
+  @param [in] DebugFlags  Flags for debug messages
+  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+EFI_STATUS
+EslUdp4PortAllocate (
+  IN ESL_SOCKET * pSocket,
+  IN ESL_SERVICE * pService,
+  IN EFI_HANDLE ChildHandle,
+  IN CONST UINT8 * pIpAddress,
+  IN UINT16 PortNumber,
+  IN UINTN DebugFlags,
+  OUT ESL_PORT ** ppPort
+  );
+
+/**
+  Close a UDP4 port.
+
+  This routine releases the resources allocated by
+  ::EslUdp4PortAllocate.
+
+  This routine is called by:
+  <ul>
+    <li>::EslUdp4PortAllocate - Port initialization failure</li>
+    <li>::EslUdp4PortCloseRxDone - Last step of close processing</li>
+  </ul>
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS     The port is closed
+  @retval other           Port close error
+
+**/
+EFI_STATUS
+EslUdp4PortClose (
+  IN ESL_PORT * pPort
+  );
+
+/**
+  Start the close operation on a UDP4 port, state 1.
+
+  This routine marks the port as closed and initiates the port
+  close state machine.  The first step is to allow the \ref
+  TransmitEngine to run down.
+
+  This routine is called by ::EslSocketCloseStart to initiate the socket
+  network specific close operation on the socket.
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] bCloseNow   Set TRUE to abort active transfers
+  @param [in] DebugFlags  Flags for debug messages
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port has started the closing process
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslUdp4PortCloseStart (
+  IN ESL_PORT * pPort,
+  IN BOOLEAN bCloseNow,
+  IN UINTN DebugFlags
+  );
+
+/**
+  Port close state 2
+
+  This routine determines the state of the transmit engine and
+  continues the close operation after the transmission is complete.
+  The next step is to stop the \ref Udp4ReceiveEngine.
+
+  This routine is called by ::EslUdp4PortCloseStart to determine if
+  the transmission is complete.
+  See the \ref Udp4PortCloseStateMachine section.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port is still closing
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslUdp4PortCloseTxDone (
+  IN ESL_PORT * pPort
+  );
+
+/**
   Receive data from a network connection.
 
-  To minimize the number of buffer copies, the ::UdpRxComplete4
-  routine queues the UDP4 driver's buffer to a list of datagrams
-  waiting to be received.  The socket driver holds on to the
-  buffers from the UDP4 driver until the application layer requests
-  the data or the socket is closed.
+  This routine attempts to return buffered data to the caller.  The
+  data is only removed from the normal queue, the message flag
+  MSG_OOB is ignored.  See the \ref Udp4ReceiveEngine section.
 
-  The application calls this routine in the socket layer to
-  receive datagrams from one or more remote systems. This routine
-  removes the next available datagram from the list of datagrams
-  and copies the data from the UDP4 driver's buffer into the
-  application's buffer.  The UDP4 driver's buffer is then returned.
+  This routine is called by ::EslSocketReceive to handle the network
+  specific receive operation to support SOCK_DGRAM sockets.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure
 
   @param [in] Flags           Message control flags
 
@@ -2266,7 +2309,13 @@ EslUdp4Receive (
 /**
   Cancel the receive operations
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  This routine cancels the pending receive operations.
+  See the \ref Udp4ReceiveEngine section.
+
+  This routine is called by ::EslSocketShutdown when the socket
+  layer is being shutdown.
+
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure
   
   @retval EFI_SUCCESS - The cancel was successful
 
@@ -2279,14 +2328,17 @@ EslUdp4RxCancel (
 /**
   Process the receive completion
 
-  Keep the UDP4 driver's buffer and append it to the list of
-  datagrams for the application to receive.  The UDP4 driver's
-  buffer will be returned by either ::UdpReceive4 or
-  ::UdpPortCloseTxDone4.
+  This routine keeps the UDPv4 driver's buffer and queues it in
+  in FIFO order to the data queue.  The UDP4 driver's buffer will
+  be returned by either ::EslUdp4Receive or ::EslUdp4PortCloseTxDone.
+  See the \ref Tcp4ReceiveEngine section.
+
+  This routine is called by the UDPv4 driver when data is
+  received.
 
   @param [in] Event     The receive completion event
 
-  @param [in] pPort     The ESL_PORT structure address
+  @param [in] pPort     Address of an ::ESL_PORT structure
 
 **/
 VOID
@@ -2298,7 +2350,17 @@ EslUdp4RxComplete (
 /**
   Start a receive operation
 
-  @param [in] pPort       Address of the ESL_PORT structure.
+  This routine posts a receive buffer to the UDPv4 driver.
+  See the \ref Udp4ReceiveEngine section.
+
+  This support routine is called by:
+  <ul>
+    <li>::EslUdp4SocketIsConfigured to start the recevie engine for the new socket.</li>
+    <li>::EslUdp4Receive to restart the receive engine to release flow control.</li>
+    <li>::EslUdp4RxComplete to continue the operation of the receive engine if flow control is not being applied.</li>
+  </ul>
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
  **/
 VOID
@@ -2307,11 +2369,40 @@ EslUdp4RxStart (
   );
 
 /**
-  Determine if the socket is configured.
+  Shutdown the UDP4 service.
 
+  This routine undoes the work performed by ::EslUdp4Initialize to
+  shutdown the UDP4 service which is used by the sockets layer to
+  support SOCK_DGRAM sockets.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
-  
+  This routine is called by ::EslServiceDisconnect prior to freeing
+  the ::ESL_SERVICE structure associated with the adapter running
+  UDPv4.
+  This routine undoes the work performed by ::EslUdp4Initialize.
+
+  @param [in] pService    Address of an ::ESL_SERVICE structure
+
+**/
+VOID
+EFIAPI
+EslUdp4Shutdown (
+  IN ESL_SERVICE * pService
+  );
+
+/**
+  Determine if the sockedt is configured.
+
+  This routine uses the flag ESL_SOCKET::bConfigured to determine
+  if the network layer's configuration routine has been called.
+  If routine calls the bind and configuration routines if they
+  were not already called.  After the port is configured, the
+  \ref Udp4ReceiveEngine is started.
+
+  This routine is called by EslSocketIsConfigured to verify
+  that the socket is configured.
+
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure
+
   @retval EFI_SUCCESS - The port is connected
   @retval EFI_NOT_STARTED - The port is not connected
 
@@ -2322,26 +2413,17 @@ EslUdp4RxStart (
   );
 
 /**
-  Shutdown the UDP4 service.
-
-  This routine undoes the work performed by ::UdpInitialize4.
-
-  @param [in] pService        ESL_SERVICE structure address
-
-**/
-VOID
-EFIAPI
-EslUdp4Shutdown (
-  IN ESL_SERVICE * pService
-  );
-
-/**
   Buffer data for transmission over a network connection.
 
-  This routine is called by the socket layer API to buffer
+  This routine buffers data for the transmit engine in the normal
+  data queue.  When the \ref TransmitEngine has resources, this
+  routine will start the transmission of the next buffer on the
+  network connection.
+
+  This routine is called by ::EslSocketTransmit to buffer
   data for transmission.  The data is copied into a local buffer
   freeing the application buffer for reuse upon return.  When
-  necessary, this routine will start the transmit engine that
+  necessary, this routine starts the transmit engine that
   performs the data transmission on the network connection.  The
   transmit engine transmits the data a packet at a time over the
   network connection.
@@ -2350,7 +2432,7 @@ EslUdp4Shutdown (
   during the close operation.  Only buffering errors are returned
   during the current transmission attempt.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  @param [in] pSocket         Address of an ::ESL_SOCKET structure
 
   @param [in] Flags           Message control flags
 
@@ -2381,9 +2463,17 @@ EslUdp4TxBuffer (
 /**
   Process the transmit completion
 
+  This routine handles the completion of data transmissions.  It
+  frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
+  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
+  errors are logged in ESL_SOCKET::TxError.
+
+  This routine is called by the UDPv4 network layer when a data
+  transmit request completes.
+
   @param [in] Event     The normal transmit completion event
 
-  @param [in] pIo       The ESL_IO_MGMT structure address
+  @param [in] pIo       Address of an ::ESL_IO_MGMT structure
 
 **/
 VOID
