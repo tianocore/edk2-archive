@@ -30,8 +30,6 @@
     <li>State: PORT_STATE_CLOSE_DONE - Port never configured</li>
     <li>Arc: ::EslUdp4PortClose - Releases the port resources</li>
   </ul>
-  Note that the state machine takes into account that close and receive
-  completions may happen in either order.
 
 
   \section Udp4ReceiveEngine UDPv4 Receive Engine
@@ -43,7 +41,7 @@
 
   Upon receive completion, ::EslUdp4RxComplete posts the UDPv4 buffer to the
   ESL_SOCKET::pRxPacketListTail.  To minimize the number of buffer copies,
-  the ::EslUdpRxComplete4 routine queues the UDP4 driver's buffer to a list
+  the ::EslUdp4RxComplete routine queues the UDP4 driver's buffer to a list
   of datagrams waiting to be received.  The socket driver holds on to the
   buffers from the UDPv4 driver until the application layer requests
   the data or the socket is closed.
@@ -99,11 +97,11 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
 
   This routine is called by ::EslSocketBind to handle the UDPv4 specific
   protocol bind operations for SOCK_DGRAM sockets.
-    
+
   The configure call to the UDP4 driver occurs on the first poll, recv, recvfrom,
   send or sentto call.  Until then, all changes are made in the local UDP context
   structure.
-  
+
   @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
   @param [in] pSockAddr Address of a sockaddr structure that contains the
@@ -252,14 +250,14 @@ EslUdp4Bind (
 
 
 /**
-  Connect to a remote system via the network.
+  Set the default remote system address.
 
-  This routine sets the remote address for a SOCK_DGRAM
+  This routine sets the default remote address for a SOCK_DGRAM
   socket using the UDPv4 network layer.
 
   This routine is called by ::EslSocketConnect to initiate the UDPv4
   network specific connect operations.  The connection processing is
-  limited to setting the remote network address.
+  limited to setting the default remote network address.
 
   @param [in] pSocket         Address of an ::ESL_SOCKET structure.
 
@@ -451,7 +449,7 @@ EslUdp4GetLocalAddress (
   associated with the SOCK_DGRAM socket.
 
   This routine is called by ::EslSocketGetPeerAddress to detemine
-  the UDPv4 address and por number associated with the network adapter.
+  the UDPv4 address and port number associated with the network adapter.
 
   @param [in] pSocket             Address of an ::ESL_SOCKET structure.
 
@@ -578,7 +576,7 @@ EslUdp4Initialize (
 
 
 /**
-  Allocate and initialize a ESL_PORT structure.
+  Allocate and initialize an ::ESL_PORT structure.
 
   This routine initializes an ::ESL_PORT structure for use by the
   socket.
@@ -588,7 +586,7 @@ EslUdp4Initialize (
   protocol.
 
   @param [in] pSocket     Address of an ::ESL_SOCKET structure.
-  @param [in] pService    Address of the ::ESL_SERVICE structure.
+  @param [in] pService    Address of an ::ESL_SERVICE structure.
   @param [in] ChildHandle Udp4 child handle
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] PortNumber  Udp4 port number
@@ -1964,7 +1962,6 @@ EslUdp4RxStart (
   This routine is called by ::EslServiceDisconnect prior to freeing
   the ::ESL_SERVICE structure associated with the adapter running
   UDPv4.
-  This routine undoes the work performed by ::EslUdp4Initialize.
 
   @param [in] pService    Address of an ::ESL_SERVICE structure
 
@@ -2034,11 +2031,11 @@ EslUdp4Shutdown (
 
 
 /**
-  Determine if the sockedt is configured.
+  Determine if the socket is configured.
 
   This routine uses the flag ESL_SOCKET::bConfigured to determine
   if the network layer's configuration routine has been called.
-  If routine calls the bind and configuration routines if they
+  This routine calls the bind and configuration routines if they
   were not already called.  After the port is configured, the
   \ref Udp4ReceiveEngine is started.
 
