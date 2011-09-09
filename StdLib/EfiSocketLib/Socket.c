@@ -2946,22 +2946,44 @@ EslSocketTransmit (
   The network specific code calls this routine during its transmit
   complete processing.  See the \ref TransmitEngine section.
 
-  @param [in] pPort           Address of an ::ESL_PORT structure
   @param [in] pIo             Address of an ::ESL_IO_MGMT structure
+  @param [in] LengthInBytes   Length of the data in bytes
+  @param [in] Status          Transmit operation status
+  @param [in] pQueueType      Zero terminated string describing queue type
+  @param [in] ppQueueHead     Transmit queue head address
+  @param [in] ppQueueTail     Transmit queue tail address
   @param [in] ppActive        Active transmit queue address
   @param [in] ppFree          Free transmit queue address
 
  **/
 VOID
 EslSocketTxComplete (
-  IN ESL_PORT * pPort,
   IN ESL_IO_MGMT * pIo,
+  IN UINT32 LengthInBytes,
+  IN EFI_STATUS Status,
+  IN CONST CHAR8 * pQueueType,
+  IN ESL_PACKET ** ppQueueHead,
+  IN ESL_PACKET ** ppQueueTail,
   IN ESL_IO_MGMT ** ppActive,
   IN ESL_IO_MGMT ** ppFree
   )
 {
+  ESL_PACKET * pCurrentPacket;
   ESL_IO_MGMT * pIoNext;
+  ESL_PACKET * pNextPacket;
+  ESL_PACKET * pPacket;
+  ESL_PORT * pPort;
+  ESL_SOCKET * pSocket;
 
+  DBG_ENTER ( );
+
+  //
+  //  Locate the active transmit packet
+  //
+  pPacket = pIo->pPacket;
+  pPort = pIo->pPort;
+  pSocket = pPort->pSocket;
+  
   //
   //  No more packet
   //
@@ -2995,6 +3017,72 @@ EslSocketTxComplete (
   DEBUG (( DEBUG_TX | DEBUG_INFO,
             "0x%08x: pIo Released\r\n",
             pIo ));
+
+  //
+  //  Save any transmit error
+  //
+  if ( EFI_ERROR ( Status )) {
+    if ( !EFI_ERROR ( pSocket->TxError )) {
+      pSocket->TxError = Status;
+    }
+    DEBUG (( DEBUG_TX | DEBUG_INFO,
+              "ERROR - Transmit failure for %apacket 0x%08x, Status: %r\r\n",
+              pQueueType,
+              pPacket,
+              Status ));
+
+    //
+    //  Empty the normal transmit list
+    //
+    pCurrentPacket = pPacket;
+    pNextPacket = *ppQueueHead;
+    while ( NULL != pNextPacket ) {
+      pPacket = pNextPacket;
+      pNextPacket = pPacket->pNext;
+      EslSocketPacketFree ( pPacket, DEBUG_TX );
+    }
+    *ppQueueHead = NULL;
+    *ppQueueTail = NULL;
+    pPacket = pCurrentPacket;
+  }
+  else {
+    DEBUG (( DEBUG_TX | DEBUG_INFO,
+              "0x%08x: %apacket transmitted %d bytes successfully\r\n",
+              pPacket,
+              pQueueType,
+              LengthInBytes ));
+
+    //
+    //  Verify the transmit engine is still running
+    //
+    if ( !pPort->bCloseNow ) {
+      //
+      //  Start the next packet transmission
+      //
+      EslSocketTxStart ( pPort,
+                         ppQueueHead,
+                         ppQueueTail,
+                         ppActive,
+                         ppFree );
+    }
+  }
+
+  //
+  //  Release this packet
+  //
+  EslSocketPacketFree ( pPacket, DEBUG_TX );
+
+  //
+  //  Finish the close operation if necessary
+  //
+  if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
+    //
+    //  Indicate that the transmit is complete
+    //
+    pSocket->pApi->pfnPortCloseTxDone ( pPort );
+  }
+
+  DBG_EXIT ( );
 }
 
 

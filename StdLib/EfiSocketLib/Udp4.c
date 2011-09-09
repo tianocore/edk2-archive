@@ -83,6 +83,7 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
+  EslUdp4PortCloseTxDone,
   EslUdp4Receive,
   EslUdp4RxCancel,
   EslUdp4TxBuffer
@@ -2446,16 +2447,10 @@ EslUdp4TxComplete (
   IN ESL_IO_MGMT * pIo
   )
 {
-  BOOLEAN bRetransmit;
   UINT32 LengthInBytes;
-  ESL_PACKET * pCurrentPacket;
-  ESL_PACKET * pNextPacket;
   ESL_PORT * pPort;
   ESL_PACKET * pPacket;
   ESL_SOCKET * pSocket;
-  ESL_UDP4_TX_DATA * pTxData;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_PROTOCOL * pUdp4Protocol;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -2466,110 +2461,24 @@ EslUdp4TxComplete (
   pPacket = pIo->pPacket;
   pPort = pIo->pPort;
   pSocket = pPort->pSocket;
-  pUdp4 = &pPort->Context.Udp4;
-  pTxData = &pPacket->Op.Udp4Tx;
+
+  //
+  //  Get the transmit length and status
+  //
+  LengthInBytes = pPacket->Op.Udp4Tx.TxData.DataLength;
+  pSocket->TxBytes -= LengthInBytes;
   Status = pIo->Token.Udp4Tx.Status;
 
   //
-  //  Check for MAC address not available (ARP not complete)
+  //  Complete the transmit operation
   //
-  bRetransmit = FALSE;
-  if (( EFI_NO_MAPPING == Status )
-    && ( PORT_STATE_CLOSE_STARTED > pPort->State )
-    && ( MAX_UDP_RETRANSMIT > pTxData->RetransmitCount++ )) {
-    //
-    //  ARP is still trying to resolve the MAC address
-    //  Retransmit this packet
-    //
-    pUdp4Protocol = pUdp4->pProtocol;
-    Status = pUdp4Protocol->Transmit ( pUdp4Protocol, &pIo->Token.Udp4Tx );
-    if ( !EFI_ERROR ( Status )) {
-      bRetransmit = TRUE;
-    }
-  }
-
-  //
-  //  Handle packet completion
-  //
-  if ( !bRetransmit ) {
-    //
-    //  Mark this packet as complete
-    //
-    LengthInBytes = pPacket->Op.Udp4Tx.TxData.DataLength;
-    pSocket->TxBytes -= LengthInBytes;
-
-    //
-    //  Release the IO structure
-    //
-    EslSocketTxComplete ( pPort,
-                          pIo,
-                          &pPort->pTxActive,
-                          &pPort->pTxFree );
-
-    //
-    //  Save any transmit error
-    //
-    if ( EFI_ERROR ( Status )) {
-      if ( !EFI_ERROR ( pSocket->TxError )) {
-        pSocket->TxError = Status;
-      }
-      DEBUG (( DEBUG_TX | DEBUG_INFO,
-                "ERROR - Transmit failure for packet 0x%08x on pPort 0x%08x, Status: %r\r\n",
-                pPacket,
-                pPort,
-                Status ));
-  
-      //
-      //  Empty the normal transmit list
-      //
-      pCurrentPacket = pPacket;
-      pNextPacket = pSocket->pTxPacketListHead;
-      while ( NULL != pNextPacket ) {
-        pPacket = pNextPacket;
-        pNextPacket = pPacket->pNext;
-        EslSocketPacketFree ( pPacket, DEBUG_TX );
-      }
-      pSocket->pTxPacketListHead = NULL;
-      pSocket->pTxPacketListTail = NULL;
-      pPacket = pCurrentPacket;
-    }
-    else {
-      DEBUG (( DEBUG_TX | DEBUG_INFO,
-                "0x%08x: Packet transmitted %d bytes successfully\r\n",
-                pPacket,
-                LengthInBytes ));
-
-      //
-      //  Verify the transmit engine is still running
-      //
-      if ( !pPort->bCloseNow ) {
-        //
-        //  Start the next packet transmission
-        //
-        EslSocketTxStart ( pPort,
-                           &pSocket->pTxPacketListHead,
-                           &pSocket->pTxPacketListTail,
-                           &pPort->pTxActive,
-                           &pPort->pTxFree );
-      }
-    }
-
-    //
-    //  Release this packet
-    //
-    EslSocketPacketFree ( pPacket, DEBUG_TX );
-
-    //
-    //  Finish the close operation if necessary
-    //
-    if (( PORT_STATE_CLOSE_STARTED <= pPort->State )
-      && ( NULL == pSocket->pTxPacketListHead )
-      && ( NULL == pPort->pTxActive )) {
-      //
-      //  Indicate that the transmit is complete
-      //
-      EslUdp4PortCloseTxDone ( pPort );
-    }
-  }
+  EslSocketTxComplete ( pIo,
+                        LengthInBytes,
+                        Status,
+                        "UDP ",
+                        &pSocket->pTxPacketListHead,
+                        &pSocket->pTxPacketListTail,
+                        &pPort->pTxActive,
+                        &pPort->pTxFree );
   DBG_EXIT ( );
 }

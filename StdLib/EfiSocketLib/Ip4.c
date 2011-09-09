@@ -82,6 +82,7 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   NULL,   //  Listen
   EslIp4OptionGet,
   EslIp4OptionSet,
+  EslIp4PortCloseTxDone,
   EslIp4Receive,
   EslIp4RxCancel,
   EslIp4TxBuffer
@@ -2673,13 +2674,9 @@ EslIp4TxComplete (
   )
 {
   UINT32 LengthInBytes;
-  ESL_PACKET * pCurrentPacket;
-  ESL_PACKET * pNextPacket;
   ESL_PORT * pPort;
   ESL_PACKET * pPacket;
   ESL_SOCKET * pSocket;
-  ESL_IP4_TX_DATA * pTxData;
-  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -2690,87 +2687,24 @@ EslIp4TxComplete (
   pPacket = pIo->pPacket;
   pPort = pIo->pPort;
   pSocket = pPort->pSocket;
-  pIp4 = &pPort->Context.Ip4;
-  pTxData = &pPacket->Op.Ip4Tx;
 
   //
-  //  Mark this packet as complete
+  //  Get the transmit length and status
   //
   LengthInBytes = pPacket->Op.Ip4Tx.TxData.TotalDataLength;
   pSocket->TxBytes -= LengthInBytes;
   Status = pIo->Token.Ip4Tx.Status;
 
   //
-  //  Release the IO structure
+  //  Complete the transmit operation
   //
-  EslSocketTxComplete ( pPort,
-                        pIo,
+  EslSocketTxComplete ( pIo,
+                        LengthInBytes,
+                        Status,
+                        "Raw ",
+                        &pSocket->pTxPacketListHead,
+                        &pSocket->pTxPacketListTail,
                         &pPort->pTxActive,
                         &pPort->pTxFree );
-
-  //
-  //  Save any transmit error
-  //
-  if ( EFI_ERROR ( Status )) {
-    if ( !EFI_ERROR ( pSocket->TxError )) {
-      pSocket->TxError = Status;
-    }
-    DEBUG (( DEBUG_TX | DEBUG_INFO,
-              "ERROR - Transmit failure for packet 0x%08x on pPort 0x%08x, Status: %r\r\n",
-              pPacket,
-              pPort,
-              Status ));
-
-    //
-    //  Empty the normal transmit list
-    //
-    pCurrentPacket = pPacket;
-    pNextPacket = pSocket->pTxPacketListHead;
-    while ( NULL != pNextPacket ) {
-      pPacket = pNextPacket;
-      pNextPacket = pPacket->pNext;
-      EslSocketPacketFree ( pPacket, DEBUG_TX );
-    }
-    pSocket->pTxPacketListHead = NULL;
-    pSocket->pTxPacketListTail = NULL;
-    pPacket = pCurrentPacket;
-  }
-  else {
-    DEBUG (( DEBUG_TX | DEBUG_INFO,
-              "0x%08x: Packet transmitted %d bytes successfully\r\n",
-              pPacket,
-              LengthInBytes ));
-
-    //
-    //  Verify the transmit engine is still running
-    //
-    if ( !pPort->bCloseNow ) {
-      //
-      //  Start the next packet transmission
-      //
-      EslSocketTxStart ( pPort,
-                         &pSocket->pTxPacketListHead,
-                         &pSocket->pTxPacketListTail,
-                         &pPort->pTxActive,
-                         &pPort->pTxFree );
-    }
-  }
-
-  //
-  //  Release this packet
-  //
-  EslSocketPacketFree ( pPacket, DEBUG_TX );
-
-  //
-  //  Finish the close operation if necessary
-  //
-  if (( PORT_STATE_CLOSE_STARTED <= pPort->State )
-    && ( NULL == pSocket->pTxPacketListHead )
-    && ( NULL == pPort->pTxActive )) {
-    //
-    //  Indicate that the transmit is complete
-    //
-    EslIp4PortCloseTxDone ( pPort );
-  }
   DBG_EXIT ( );
 }

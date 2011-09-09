@@ -584,6 +584,30 @@ EFI_STATUS
   );
 
 /**
+  Port close state 2
+
+  This routine determines the state of the transmit engine and
+  continues the close operation after the transmission is complete.
+  The next step is to stop the receive engine.
+
+  This routine is called by ::EslSocketTxCompleteto determine if
+  the transmission is complete.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port is still closing
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+typedef
+EFI_STATUS
+(* PFN_API_PORT_CLOSE_TX) (
+  IN ESL_PORT * pPort
+  );
+
+/**
   Receive data from a network connection.
 
   @param [in] pSocket         Address of a ESL_SOCKET structure
@@ -667,20 +691,21 @@ EFI_STATUS
   This driver uses this structure to define the API for the socket type.
 **/
 typedef struct {
-  int DefaultProtocol;                    ///<  Default protocol
-  PFN_API_ACCEPT pfnAccept;               ///<  Accept a network connection
-  PFN_API_BIND pfnBind;                   ///<  Bind API for the protocol
-  PFN_API_CONNECT_START pfnConnectStart;  ///<  Start the connection to a remote system
-  PFN_API_CONNECT_POLL pfnConnectPoll;    ///<  Poll for connection complete
-  PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr; ///<  Get local address
-  PFN_API_GET_RMT_ADDR pfnGetRemoteAddr;  ///<  Get remote address
-  PFN_API_IS_CONFIGURED pfnIsConfigured;  ///<  Determine if the socket is configured
-  PFN_API_LISTEN pfnListen;               ///<  Listen for connections on known server port
-  PFN_API_OPTION_GET pfnOptionGet;        ///<  Get the option value
-  PFN_API_OPTION_SET pfnOptionSet;        ///<  Set the option value
-  PFN_API_RECEIVE pfnReceive;             ///<  Attempt to receive some data
-  PFN_API_RX_CANCEL pfnRxCancel;          ///<  Cancel a receive operation
-  PFN_API_TRANSMIT pfnTransmit;           ///<  Attempt to buffer a packet for transmit
+  int DefaultProtocol;                      ///<  Default protocol
+  PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
+  PFN_API_BIND pfnBind;                     ///<  Bind API for the protocol
+  PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
+  PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
+  PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr;   ///<  Get local address
+  PFN_API_GET_RMT_ADDR pfnGetRemoteAddr;    ///<  Get remote address
+  PFN_API_IS_CONFIGURED pfnIsConfigured;    ///<  Determine if the socket is configured
+  PFN_API_LISTEN pfnListen;                 ///<  Listen for connections on known server port
+  PFN_API_OPTION_GET pfnOptionGet;          ///<  Get the option value
+  PFN_API_OPTION_SET pfnOptionSet;          ///<  Set the option value
+  PFN_API_PORT_CLOSE_TX pfnPortCloseTxDone; ///<  Check for port closure
+  PFN_API_RECEIVE pfnReceive;               ///<  Attempt to receive some data
+  PFN_API_RX_CANCEL pfnRxCancel;            ///<  Cancel a receive operation
+  PFN_API_TRANSMIT pfnTransmit;             ///<  Attempt to buffer a packet for transmit
 } ESL_PROTOCOL_API;
 
 
@@ -988,16 +1013,24 @@ EslSocketPacketFree (
   The network specific code calls this routine during its transmit
   complete processing.  See the \ref TransmitEngine section.
 
-  @param [in] pPort           Address of an ::ESL_PORT structure
   @param [in] pIo             Address of an ::ESL_IO_MGMT structure
+  @param [in] LengthInBytes   Length of the data in bytes
+  @param [in] Status          Transmit operation status
+  @param [in] pQueueType      Zero terminated string describing queue type
+  @param [in] ppQueueHead     Transmit queue head address
+  @param [in] ppQueueTail     Transmit queue tail address
   @param [in] ppActive        Active transmit queue address
   @param [in] ppFree          Free transmit queue address
 
  **/
 VOID
 EslSocketTxComplete (
-  IN ESL_PORT * pPort,
   IN ESL_IO_MGMT * pIo,
+  IN UINT32 LengthInBytes,
+  IN EFI_STATUS Status,
+  IN CONST CHAR8 * pQueueType,
+  IN ESL_PACKET ** ppQueueHead,
+  IN ESL_PACKET ** ppQueueTail,
   IN ESL_IO_MGMT ** ppActive,
   IN ESL_IO_MGMT ** ppFree
   );
