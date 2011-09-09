@@ -115,7 +115,7 @@ DriverUnload (
       //
       Max = BufferSize / sizeof ( pHandle[ 0 ]);
       for ( Index = 0; Max > Index; Index++ ) {
-        Status = DriverStop ( &gDriverBinding,
+        Status = DriverStop ( &mDriverBinding,
                               pHandle[ Index ],
                               0,
                               NULL );
@@ -156,11 +156,11 @@ DriverUnload (
       Status = gBS->UninstallMultipleProtocolInterfaces (
                   ImageHandle,
                   &gEfiDriverBindingProtocolGuid,
-                  &gDriverBinding,
+                  &mDriverBinding,
                   &gEfiComponentNameProtocolGuid,
-                  &gComponentName,
+                  &mComponentName,
                   &gEfiComponentName2ProtocolGuid,
-                  &gComponentName2,
+                  &mComponentName2,
                   NULL
                   );
       if ( !EFI_ERROR ( Status )) {
@@ -242,10 +242,10 @@ EntryPoint (
     Status = EfiLibInstallDriverBindingComponentName2 (
                ImageHandle,
                pSystemTable,
-               &gDriverBinding,
+               &mDriverBinding,
                ImageHandle,
-               &gComponentName,
-               &gComponentName2
+               &mComponentName,
+               &mComponentName2
                );
     if ( !EFI_ERROR ( Status )) {
       DEBUG (( DEBUG_POOL | DEBUG_INIT | DEBUG_INFO,
@@ -280,11 +280,11 @@ EntryPoint (
         gBS->UninstallMultipleProtocolInterfaces (
                 ImageHandle,
                 &gEfiDriverBindingProtocolGuid,
-                &gDriverBinding,
+                &mDriverBinding,
                 &gEfiComponentNameProtocolGuid,
-                &gComponentName,
+                &mComponentName,
                 &gEfiComponentName2ProtocolGuid,
-                &gComponentName2,
+                &mComponentName2,
                 NULL
                 );
         DEBUG (( DEBUG_POOL | DEBUG_INIT | DEBUG_INFO,
