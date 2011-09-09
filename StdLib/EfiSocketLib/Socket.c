@@ -36,10 +36,12 @@
 
   Upon completion, the network specific TxComplete routine calls
   ::EslSocketTxComplete to disconnect the transmit packet from the
-  ESL_IO_MGMT structure.  The routine also releases the structure
-  to to the appropriate free queue: ESL_PORT::pTxFree or
-  ESL_PORT::pTxOobFree.  The network specific PortClose routine
-  calls ::EslSocketIoFree to deallocate the ESL_IO_MGMT structures.
+  ESL_IO_MGMT structure and freeing the ::ESL_PACKET structure by calling
+  ::EslSocketPacketFree.  The routine places the ::ESL_IO_MGMT structure
+  into either the ESL_PORT::pTxFree or ESL_PORT::pTxOobFree list.
+  EslSocketTxComplete then starts the next transmit operation while
+  the socket is active or calls the network specific PortCloseTxDone
+  routine via ESL_PROTOCOL_API::pfnPortCloseTxDone when the socket is shutting down.
 
 **/
 
@@ -2940,11 +2942,19 @@ EslSocketTransmit (
 /**
   Complete the transmit operation
 
-  This support routine removes the ESL_IO_MGMT structure from
-  the active queue and returns it to the free queue.
+  This support routine handles the transmit completion processing for
+  the various network layers.  It frees the ::ESL_IO_MGMT structure
+  and and frees packet resources by calling ::EslSocketPacketFree.
+  Transmit errors are logged in ESL_SOCKET::TxError.
+  See the \ref TransmitEngine section.
 
-  The network specific code calls this routine during its transmit
-  complete processing.  See the \ref TransmitEngine section.
+  This routine is called by:
+  <ul>
+    <li>::EslIp4TxComplete</li>
+    <li>::EslTcp4TxComplete</li>
+    <li>::EslTcp4TxOobComplete</li>
+    <li>::EslUdp4TxComplete</li>
+  </ul>
 
   @param [in] pIo             Address of an ::ESL_IO_MGMT structure
   @param [in] LengthInBytes   Length of the data in bytes

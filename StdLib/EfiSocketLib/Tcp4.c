@@ -3359,10 +3359,8 @@ EslTcp4TxBuffer (
 /**
   Process the normal data transmit completion
 
-  This routine handles the completion of normal data transmissions.
-  It frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for normal data.
 
   This routine is called by the TCPv4 network layer when a
   normal data transmit request completes.
@@ -3418,10 +3416,8 @@ EslTcp4TxComplete (
 /**
   Process the urgent data transmit completion
 
-  This routine handles the completion of urgent data transmissions.
-  It frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for urgent data.
 
   This routine is called by the TCPv4 network layer when a
   urgent data transmit request completes.

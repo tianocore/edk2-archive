@@ -590,7 +590,7 @@ EFI_STATUS
   continues the close operation after the transmission is complete.
   The next step is to stop the receive engine.
 
-  This routine is called by ::EslSocketTxCompleteto determine if
+  This routine is called by ::EslSocketTxComplete to determine if
   the transmission is complete.
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
@@ -1007,11 +1007,19 @@ EslSocketPacketFree (
 /**
   Complete the transmit operation
 
-  This support routine removes the ESL_IO_MGMT structure from
-  the active queue and returns it to the free queue.
+  This support routine handles the transmit completion processing for
+  the various network layers.  It frees the ::ESL_IO_MGMT structure
+  and and frees packet resources by calling ::EslSocketPacketFree.
+  Transmit errors are logged in ESL_SOCKET::TxError.
+  See the \ref TransmitEngine section.
 
-  The network specific code calls this routine during its transmit
-  complete processing.  See the \ref TransmitEngine section.
+  This routine is called by:
+  <ul>
+    <li>::EslIp4TxComplete</li>
+    <li>::EslTcp4TxComplete</li>
+    <li>::EslTcp4TxOobComplete</li>
+    <li>::EslUdp4TxComplete</li>
+  </ul>
 
   @param [in] pIo             Address of an ::ESL_IO_MGMT structure
   @param [in] LengthInBytes   Length of the data in bytes
@@ -1554,10 +1562,8 @@ EslIp4TxBuffer (
 /**
   Process the transmit completion
 
-  This routine handles the completion of data transmissions.  It
-  frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for data packets.
 
   This routine is called by the IPv4 network layer when a data
   transmit request completes.
@@ -2151,10 +2157,8 @@ EslTcp4TxBuffer (
 /**
   Process the normal data transmit completion
 
-  This routine handles the completion of normal data transmissions.
-  It frees the transmit engine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for normal data.
 
   This routine is called by the TCPv4 network layer when a
   normal data transmit request completes.
@@ -2173,10 +2177,8 @@ EslTcp4TxComplete (
 /**
   Process the urgent data transmit completion
 
-  This routine handles the completion of urgent data transmissions.
-  It frees the transmit engine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for urgent data.
 
   This routine is called by the TCPv4 network layer when a
   urgent data transmit request completes.
@@ -2636,10 +2638,8 @@ EslUdp4TxBuffer (
 /**
   Process the transmit completion
 
-  This routine handles the completion of data transmissions.  It
-  frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for data packets.
 
   This routine is called by the UDPv4 network layer when a data
   transmit request completes.

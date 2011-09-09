@@ -2654,10 +2654,8 @@ EslIp4TxBuffer (
 /**
   Process the transmit completion
 
-  This routine handles the completion of data transmissions.  It
-  frees the \ref TransmitEngine resources by calling ::EslSocketTxComplete
-  and frees packet resources by calling ::EslSocketPacketFree.  Transmit
-  errors are logged in ESL_SOCKET::TxError.
+  This routine use ::EslSocketTxComplete to perform the transmit
+  completion processing for data packets.
 
   This routine is called by the IPv4 network layer when a data
   transmit request completes.
