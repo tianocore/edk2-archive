@@ -1021,11 +1021,6 @@ EslTcp4Initialize (
   DBG_ENTER ( );
 
   //
-  //  Identify the service
-  //
-  pService->NetworkType = NETWORK_TYPE_TCP4;
-
-  //
   //  Connect this service to the service list
   //
   pLayer = &mEslLayer;

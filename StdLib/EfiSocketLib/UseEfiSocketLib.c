@@ -47,12 +47,17 @@ CONST EFI_GUID mEslUdp4ServiceGuid = {
 /**
   Connect to the EFI socket library
 
-  This routine is called from the socket routine in BsdSocketLib
-  to create the data structure for a socket.  This specific
-  implementation is used when an application links directly to
-  the EslSocketLib.
+  This routine creates the ::ESL_SOCKET structure and returns
+  the API (::EFI_SOCKET_PROTOCOL address) to the socket file
+  system layer in BsdSocketLib.
 
-  @param [in] ppSocketProtocol  Address to receive the socket protocol address
+  This routine is called from the ::socket routine in BsdSocketLib
+  to create the data structure and initialize the API for a socket.
+  Note that this implementation is only used by socket applications
+  that link directly to EslSocketLib.
+
+  @param [in] ppSocketProtocol  Address to receive the ::EFI_SOCKET_PROTOCOL
+                                structure address
 
   @return       Value for ::errno, zero (0) indicates success.
 
@@ -102,9 +107,15 @@ EslServiceGetProtocol (
 /**
   Connect to the network layer
 
-  Constructor for the EfiSocketLib when the library is linked
-  directly to an application.  This routine locates the network
-  devices and makes them available to EfiSocketLib.
+  This routine is the constructor for the EfiSocketLib when the
+  library is linked directly to an application.  This routine
+  walks the ::cEslSocketBinding table to create ::ESL_SERVICE
+  structures, associated with the network adapters, which this
+  routine links to the ::ESL_LAYER structure.
+
+  This routine is called from ::EslConstructor as a result of the
+  constructor redirection in ::mpfnEslConstructor at the end of this
+  file.
 
   @retval EFI_SUCCESS   Successfully connected to the network layer
 
@@ -195,8 +206,13 @@ EslServiceNetworkConnect (
   Disconnect from the network layer
 
   Destructor for the EfiSocketLib when the library is linked
-  directly to an application.  This routine breaks any connections
-  to the network devices and removes them from use by EfiSocketLib.
+  directly to an application.  This routine walks the
+  ::cEslSocketBinding table to remove the ::ESL_SERVICE
+  structures (network connections) from the ::ESL_LAYER structure.
+
+  This routine is called from ::EslDestructor as a result of the
+  destructor redirection in ::mpfnEslDestructor at the end of this
+  file.
 
   @retval EFI_SUCCESS   Successfully disconnected from the network layer
 

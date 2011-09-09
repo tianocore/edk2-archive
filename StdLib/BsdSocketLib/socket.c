@@ -15,6 +15,12 @@
 #include <SocketInternals.h>
 
 
+/**
+  File system interface for the socket layer.
+
+  This data structure defines the routines for the various
+  file system functions associated with the socket layer.
+**/
 const struct fileops SocketOperations = {
   BslSocketClose,     //  close
   BslSocketRead,      //  read

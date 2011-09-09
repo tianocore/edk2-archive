@@ -78,7 +78,7 @@ CONST ESL_SOCKET_BINDING cEslSocketBinding[] = {
 CONST UINTN cEslSocketBindingEntries = DIM ( cEslSocketBinding );
 
 /**
-  APIs to support the various socket types
+  APIs to support the various socket types for the v4 network stack.
 **/
 CONST ESL_PROTOCOL_API * cEslAfInetApi[] = {
   NULL,             //  0
@@ -89,8 +89,15 @@ CONST ESL_PROTOCOL_API * cEslAfInetApi[] = {
   &cEslTcp4Api      //  SOCK_SEQPACKET
 };
 
+/**
+  Number of entries in the v4 API array ::cEslAfInetApi.
+**/
 CONST int cEslAfInetApiSize = DIM ( cEslAfInetApi );
 
+
+/**
+  APIs to support the various socket types for the v6 network stack.
+**/
 CONST ESL_PROTOCOL_API * cEslAfInet6Api[] = {
   NULL,             //  0
   NULL,             //  SOCK_STREAM
@@ -100,8 +107,15 @@ CONST ESL_PROTOCOL_API * cEslAfInet6Api[] = {
   NULL              //  SOCK_SEQPACKET
 };
 
+/**
+  Number of entries in the v6 API array ::cEslAfInet6Api.
+**/
 CONST int cEslAfInet6ApiSize = DIM ( cEslAfInet6Api );
 
+
+/**
+  Global management structure for the socket layer.
+**/
 ESL_LAYER mEslLayer;
 
 
@@ -272,7 +286,7 @@ EslSocket (
   associated with the new socket and the remote network address
   if requested.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr       Address of a buffer to receive the remote
                               network address.
@@ -456,7 +470,7 @@ EslSocketAccept (
 /**
   Allocate and initialize a ESL_SOCKET structure.
   
-  This support function allocates a ::ESL_SOCKET structure
+  This support function allocates an ::ESL_SOCKET structure
   and installs a protocol on ChildHandle.  If pChildHandle is a
   pointer to NULL, then a new handle is created and returned in
   pChildHandle.  If pChildHandle is not a pointer to NULL, then
@@ -468,7 +482,7 @@ EslSocketAccept (
                                 then the protocol is added to the existing UEFI
                                 handle.
   @param [in] DebugFlags        Flags for debug messages
-  @param [in, out] ppSocket     The buffer to receive the ::ESL_SOCKET structure address.
+  @param [in, out] ppSocket     The buffer to receive an ::ESL_SOCKET structure address.
 
   @retval EFI_SUCCESS           The protocol was added to ChildHandle.
   @retval EFI_INVALID_PARAMETER ChildHandle is NULL.
@@ -612,7 +626,7 @@ EslSocketAllocate (
   The ::bind routine calls this routine to connect a name
   (network address and port) to a socket on the local machine.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr Address of a sockaddr structure that contains the
                         connection point on the local machine.  An IPv4 address
@@ -624,7 +638,7 @@ EslSocketAllocate (
                         number from the dynamic range.  Specifying a specific
                         port number causes the network layer to use that port.
 
-  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
 
   @param [out] pErrno   Address to receive the errno value upon completion.
 
@@ -750,7 +764,7 @@ EslSocketBind (
   close operation is complete.  The close operation needs to
   reverse the operations of the ::EslSocketAllocate routine.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [out] pErrno         Address to receive the errno value upon completion.
 
   @retval EFI_SUCCESS     Socket successfully closed
@@ -893,7 +907,7 @@ EslSocketClosePoll (
   the ::EslSocketClosePoll routine to determine when the
   socket is closed.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [in] bCloseNow       Boolean to control close behavior
   @param [out] pErrno         Address to receive the errno value upon completion.
 
@@ -1004,7 +1018,7 @@ EslSocketCloseStart (
   is designed to be polled by the connect routine for completion
   of the network connection.
   
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr       Network address of the remote system.
     
@@ -1190,7 +1204,7 @@ EslSocketConnect (
   The ::getsockname routine calls this routine to obtain the network
   address associated with the local host connection point.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [out] pAddress       Network address to receive the local system address
 
@@ -1304,7 +1318,7 @@ EslSocketGetLocalAddress (
   The ::getpeername routine calls this routine to obtain the network
   address of the remote connection point.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [out] pAddress       Network address to receive the remote system address
 
@@ -1418,11 +1432,11 @@ EslSocketGetPeerAddress (
 
   See the \ref TransmitEngine section.
 
-  @param [in] pPort         The ESL_PORT structure address
+  @param [in] pPort         Address of an ::ESL_PORT structure
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
 
   @retval EFI_SUCCESS - The structures were properly initialized
 
@@ -1433,7 +1447,8 @@ EslSocketIoFree (
   IN ESL_IO_MGMT ** ppFreeQueue,
   IN UINTN DebugFlags,
   IN CHAR8 * pEventName,
-  IN UINT32 EventOffset )
+  IN UINT32 EventOffset
+  )
 {
   UINT8 * pBuffer;
   EFI_EVENT * pEvent;
@@ -1498,14 +1513,14 @@ EslSocketIoFree (
   This routine is called by the PortAllocate routines to prepare
   the transmit engines.  See the \ref TransmitEngine section.
 
-  @param [in] pPort         The ESL_PORT structure address
-  @param [in, out], ppIo    Address containing the first structure address.  Upon
+  @param [in] pPort         Address of an ::ESL_PORT structure
+  @param [in, out] ppIo     Address containing the first structure address.  Upon
                             return this buffer contains the next structure address.
   @param [in] TokenCount    Number of structures to initialize
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
   @param [in] pfnCompletion Completion routine address
 
   @retval EFI_SUCCESS - The structures were properly initialized
@@ -1520,7 +1535,8 @@ EslSocketIoInit (
   IN UINTN DebugFlags,
   IN CHAR8 * pEventName,
   IN UINTN EventOffset,
-  IN EFI_EVENT_NOTIFY pfnCompletion )
+  IN EFI_EVENT_NOTIFY pfnCompletion
+  )
 {
   ESL_IO_MGMT * pEnd;
   EFI_EVENT * pEvent;
@@ -1611,7 +1627,7 @@ EslSocketIoInit (
     <li>::EslSocketTransmit</li>
   </ul>
 
-  @param [in] pSocket       The ::ESL_SOCKET structure address
+  @param [in] pSocket       Address of an ::ESL_SOCKET structure
 
   @retval EFI_SUCCESS - The socket is configured
 
@@ -1686,7 +1702,7 @@ EslSocketIsConfigured (
   remove the next connection from the FIFO and get the associated
   socket and address.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] Backlog         Backlog specifies the maximum FIFO depth for
                               the connections waiting for the application
@@ -1851,7 +1867,7 @@ EslSocketListen (
   The ::getsockopt routine calls this routine to retrieve the
   socket options one at a time by name.
 
-  @param [in] pSocketProtocol   Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol   Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [in] level             Option protocol level
   @param [in] OptionName        Name of the option
   @param [out] pOptionValue     Buffer to receive the option value
@@ -2037,7 +2053,7 @@ EslSocketOptionGet (
   The ::setsockopt routine calls this routine to adjust the socket
   options one at a time by name.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [in] level           Option protocol level
   @param [in] OptionName      Name of the option
   @param [in] pOptionValue    Buffer containing the option value
@@ -2276,7 +2292,7 @@ EslSocketPacketAllocate (
   and TxBuffer.  Note that the network layers typically place
   receive packets on the ESL_SOCKET::pRxFree list for reuse.
 
-  @param [in] pPacket     Address of the ESL_PACKET structure
+  @param [in] pPacket     Address of an ::ESL_PACKET structure
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - The packet was allocated successfully
@@ -2329,7 +2345,7 @@ EslSocketPacketFree (
   needs to be serviced as a result of connection, error, receive or
   transmit activity.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] Events    Events of interest for this socket
 
@@ -2489,7 +2505,7 @@ EslSocketPoll (
   is received from the remote system.  Note that the other routines
   ::recv and ::read are layered on top of ::recvfrom.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [in] Flags           Message control flags
   
@@ -2634,7 +2650,7 @@ EslSocketReceive (
   The ::shutdown routine calls this routine to stop receive and transmit
   operations on the socket.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [in] How             Which operations to stop
   
@@ -2761,7 +2777,7 @@ EslSocketShutdown (
   The ::sendto routine calls this routine to send data to the remote
   system.  Note that ::send and ::write are layered on top of ::sendto.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [in] Flags           Message control flags
   
@@ -2930,8 +2946,8 @@ EslSocketTransmit (
   The network specific code calls this routine during its transmit
   complete processing.  See the \ref TransmitEngine section.
 
-  @param [in] pPort           Address of a ESL_PORT structure
-  @param [in] pIo             Address of the ESL_IO_MGMT structure
+  @param [in] pPort           Address of an ::ESL_PORT structure
+  @param [in] pIo             Address of an ::ESL_IO_MGMT structure
   @param [in] ppActive        Active transmit queue address
   @param [in] ppFree          Free transmit queue address
 
@@ -2991,8 +3007,7 @@ EslSocketTxComplete (
   The network specific code calls this routine to start a
   transmit operation.  See the \ref TransmitEngine section.
 
-  @param [in] pPort           Address of a ESL_PORT structure
-  @param [in] pToken          Address of either the OOB or normal transmit token
+  @param [in] pPort           Address of an ::ESL_PORT structure
   @param [in] ppQueueHead     Transmit queue head address
   @param [in] ppQueueTail     Transmit queue tail address
   @param [in] ppActive        Active transmit queue address

@@ -25,12 +25,21 @@
 /**
   Connect to the EFI socket library
 
-  This routine is called from the socket routine in BsdSocketLib
-  to create the data structure for a socket.  This specific
-  implementation is used when an application links to UseSocketDxe
-  and redirects all requests to the SocketDxe driver.
+  This routine establishes a connection to the socket driver
+  and returns the API (::EFI_SOCKET_PROTOCOL address) to the
+  socket file system layer in BsdSocketLib.  This routine looks for
+  the gEfiSocketServiceBindingProtocolGuid to locate the socket
+  driver.  This routine then creates a child handle and locates
+  the gEfiSocketProtocolGuid protocol on that handle to get the
+  ::EFI_SOCKET_PROTOCOL structure address.
 
-  @param [in] ppSocketProtocol  Address to receive the socket protocol address
+  This routine is called from the ::socket routine in BsdSocketLib
+  to create the data structure and initialize the API for a socket.
+  Note that this implementation is only used by socket applications
+  that link directly to UseSocketDxe.
+
+  @param [in] ppSocketProtocol  Address to receive the ::EFI_SOCKET_PROTOCOL
+                                structure address
 
   @return       Value for ::errno, zero (0) indicates success.
 

@@ -16,15 +16,16 @@
 
 
 /**
-  Creates a child handle and installs a protocol.
+  Creates a child handle and installs gEfiSocketProtocolGuid.
 
-  When the socket application is linked against UseSocketDxe, the ::socket
-  routine indirectly calls this routine in SocketDxe to create a child
-  handle if necessary and install the socket protocol on the handle.
-  Upon return, EslServiceGetProtocol in UseSocketLib returns the
-  ::EFI_SOCKET_PROTOCOL address to the socket routine.
+  This routine creates a child handle for the socket driver and
+  installs the ::gEfiSocketProtocolGuid on that handle with a pointer
+  to the ::EFI_SOCKET_PROTOCOL structure address.
 
-  @param [in] pThis        Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
+  This routine is called by ::EslServiceGetProtocol in UseSocketDxe
+  when the socket application is linked with UseSocketDxe.
+
+  @param [in] pThis        Address of the EFI_SERVICE_BINDING_PROTOCOL structure.
   @param [in] pChildHandle Pointer to the handle of the child to create. If it is NULL,
                            then a new handle is created. If it is a pointer to an existing UEFI handle, 
                            then the protocol is added to the existing UEFI handle.
@@ -64,15 +65,14 @@ EslDxeCreateChild (
 
 
 /**
-  Destroys a child handle with a protocol installed on it.
-  
-  When the socket application is linked against UseSocketDxe, the ::close
-  routine indirectly calls this routine in SocketDxe to undo the operations
-  done by the ::EslDxeCreateChild routine.  This routine removes the socket
-  protocol from the handle and then destroys the child handle if there are
-  no other protocols attached.
+  Removes gEfiSocketProtocolGuid and destroys the child handle.
 
-  @param [in] pThis       Pointer to the EFI_SERVICE_BINDING_PROTOCOL instance.
+  This routine uninstalls ::gEfiSocketProtocolGuid from the child handle
+  and destroys the child handle if necessary.
+
+  This routine is called from ???.
+  
+  @param [in] pThis       Address of the EFI_SERVICE_BINDING_PROTOCOL structure.
   @param [in] ChildHandle Handle of the child to destroy
 
   @retval EFI_SUCCESS           The protocol was removed from ChildHandle.
@@ -226,8 +226,12 @@ EslDxeDestroyChild (
 /**
 Install the socket service
 
-SocketDxe uses this routine to announce the socket interface to
-the rest of EFI.
+This routine installs the ::gEfiSocketServiceBindingProtocolGuid
+on the SocketDxe image handle to announce the availability
+of the socket layer to the rest of EFI.
+
+SocketDxe's EntryPoint routine calls this routine to
+make the socket layer available.
 
 @param [in] pImageHandle      Address of the image handle
 
@@ -271,8 +275,12 @@ EslDxeInstall (
 /**
 Uninstall the socket service
 
-SocketDxe uses this routine to notify EFI that the socket layer
+This routine removes the gEfiSocketServiceBindingProtocolGuid from
+the SocketDxe image handle to notify EFI that the socket layer
 is no longer available.
+
+SocketDxe's DriverUnload routine calls this routine to remove the
+socket layer.
 
 @param [in] ImageHandle       Handle for the image.
 

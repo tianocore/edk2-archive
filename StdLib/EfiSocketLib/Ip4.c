@@ -543,11 +543,6 @@ EslIp4Initialize (
   DBG_ENTER ( );
 
   //
-  //  Identify the service
-  //
-  pService->NetworkType = NETWORK_TYPE_IP4;
-
-  //
   //  Connect this service to the service list
   //
   pLayer = &mEslLayer;

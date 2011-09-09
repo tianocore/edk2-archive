@@ -34,29 +34,22 @@
 
 #define MAX_PENDING_CONNECTIONS     1   ///<  Maximum connection FIFO depth
 #define MAX_RX_DATA         65536       ///<  Maximum receive data size
-#define MAX_TX_DATA         ( MAX_RX_DATA * 2 )
+#define MAX_TX_DATA         ( MAX_RX_DATA * 2 ) ///<  Maximum buffered transmit data in bytes
 #define RX_PACKET_DATA      16384       ///<  Maximum number of bytes in a RX packet
 #define MAX_UDP_RETRANSMIT  16          ///<  UDP retransmit attempts to handle address not mapped
 
-#define ESL_STRUCTURE_ALIGNMENT_BYTES   15
-#define ESL_STRUCTURE_ALIGNMENT_MASK    ( ~ESL_STRUCTURE_ALIGNMENT_BYTES )
+#define ESL_STRUCTURE_ALIGNMENT_BYTES   15  ///<  Number of bytes for structure alignment
+#define ESL_STRUCTURE_ALIGNMENT_MASK    ( ~ESL_STRUCTURE_ALIGNMENT_BYTES )  ///<  Mask to align structures
 
 #define LAYER_SIGNATURE           SIGNATURE_32 ('S','k','t','L')  ///<  ESL_LAYER memory signature
 #define SERVICE_SIGNATURE         SIGNATURE_32 ('S','k','t','S')  ///<  ESL_SERVICE memory signature
 #define SOCKET_SIGNATURE          SIGNATURE_32 ('S','c','k','t')  ///<  ESL_SOCKET memory signature
 #define PORT_SIGNATURE            SIGNATURE_32 ('P','o','r','t')  ///<  ESL_PORT memory signature
 
-typedef enum
-{
-  NETWORK_TYPE_UNKNOWN = 0,
-  NETWORK_TYPE_IP4,
-  NETWORK_TYPE_IP6,
-  NETWORK_TYPE_TCP4,
-  NETWORK_TYPE_TCP6,
-  NETWORK_TYPE_UDP4,
-  NETWORK_TYPE_UDP6
-} NETWORK_TYPE;
 
+/**
+  Socket states
+**/
 typedef enum
 {
   SOCKET_STATE_NOT_CONFIGURED = 0,  ///<  socket call was successful
@@ -73,6 +66,10 @@ typedef enum
   SOCKET_STATE_CLOSED               ///<  Close call was successful
 } SOCKET_STATE;
 
+
+/**
+  Port states
+**/
 typedef enum
 {
   PORT_STATE_ALLOCATED = 0, ///<  Port allocated
@@ -97,11 +94,18 @@ typedef struct _ESL_PACKET ESL_PACKET;  ///<  Forward declaration
 typedef struct _ESL_PORT ESL_PORT;      ///<  Forward declaration
 typedef struct _ESL_SOCKET ESL_SOCKET;  ///<  Forward declaration
 
+/**
+  Receive context for SOCK_RAW sockets using IPv4.
+**/
 typedef struct
 {
   EFI_IP4_RECEIVE_DATA * pRxData;       ///<  Receive operation description
 } ESL_IP4_RX_DATA;
 
+
+/**
+  Transmit context for SOCK_RAW sockets using IPv4.
+**/
 typedef struct
 {
   EFI_IP4_OVERRIDE_DATA Override;       ///<  Override data
@@ -109,6 +113,10 @@ typedef struct
   UINT8 Buffer[ 1 ];                    ///<  Data buffer
 } ESL_IP4_TX_DATA;
 
+
+/**
+  Receive context for SOCK_STREAM and SOCK_SEQPACKET sockets using TCPv4.
+**/
 typedef struct
 {
   EFI_TCP4_RECEIVE_DATA RxData;         ///<  Receive operation description
@@ -117,18 +125,30 @@ typedef struct
   UINT8 Buffer[ RX_PACKET_DATA ];       ///<  Data buffer
 } ESL_TCP4_RX_DATA;
 
+
+/**
+  Transmit context for SOCK_STREAM and SOCK_SEQPACKET sockets using TCPv4.
+**/
 typedef struct
 {
   EFI_TCP4_TRANSMIT_DATA TxData;        ///<  Transmit operation description
   UINT8 Buffer[ 1 ];                    ///<  Data buffer
 } ESL_TCP4_TX_DATA;
 
+
+/**
+  Receive context for SOCK_DGRAM sockets using UDPv4.
+**/
 typedef struct
 {
   EFI_UDP4_SESSION_DATA Session;        ///<  Remote network address
   EFI_UDP4_RECEIVE_DATA * pRxData;      ///<  Receive operation description
 } ESL_UDP4_RX_DATA;
 
+
+/**
+  Transmit context for SOCK_DGRAM sockets using UDPv4.
+**/
 typedef struct
 {
   EFI_UDP4_SESSION_DATA Session;        ///<  Remote network address
@@ -137,6 +157,10 @@ typedef struct
   UINT8 Buffer[ 1 ];                    ///<  Data buffer
 } ESL_UDP4_TX_DATA;
 
+
+/**
+  Network specific context for transmit and receive packets.
+**/
 typedef struct _ESL_PACKET {
   ESL_PACKET * pNext;                   ///<  Next packet in the receive list
   size_t PacketSize;                    ///<  Size of this data structure
@@ -147,7 +171,7 @@ typedef struct _ESL_PACKET {
     ESL_TCP4_TX_DATA Tcp4Tx;            ///<  Transmit operation description
     ESL_UDP4_RX_DATA Udp4Rx;            ///<  Receive operation description
     ESL_UDP4_TX_DATA Udp4Tx;            ///<  Transmit operation description
-  } Op;
+  } Op;                                 ///<  Network specific context
 } GCC_ESL_PACKET;
 
 /**
@@ -173,7 +197,6 @@ typedef struct _ESL_SERVICE {
   //
   //  Network data
   //
-  NETWORK_TYPE NetworkType; ///<  Type of network service
   ESL_PORT * pPortList;     ///<  List of ports using this service
 }GCC_ESL_SERVICE;
 
@@ -206,7 +229,7 @@ typedef struct _ESL_IO_MGMT {
     EFI_IP4_COMPLETION_TOKEN Ip4Tx;   ///<  IP4 transmit token
     EFI_TCP4_IO_TOKEN Tcp4Tx;         ///<  TCP4 transmit token
     EFI_UDP4_COMPLETION_TOKEN Udp4Tx; ///<  UDP4 transmit token
-  } Token;
+  } Token;                            ///<  Completion token for the network operation
 };
 
 /**
@@ -319,7 +342,6 @@ typedef struct _ESL_PORT {
   //
   ESL_SERVICE * pService;       ///<  Service for this port
   ESL_SOCKET * pSocket;         ///<  Socket for this port
-//  PFN_CLOSE_PORT pfnClosePort;  ///<  Routine to immediately close the port
   PFN_PORT_CLOSE_START * pfnCloseStart; ///<  Routine to start closing the port
 
   //
@@ -347,7 +369,7 @@ typedef struct _ESL_PORT {
     ESL_IP4_CONTEXT Ip4;        ///<  IPv4 management data
     ESL_TCP4_CONTEXT Tcp4;      ///<  TCPv4 management data
     ESL_UDP4_CONTEXT Udp4;      ///<  UDPv4 management data
-  } Context;
+  } Context;                    ///<  Network specific context
 }GCC_ESL_PORT;
 
 /**
@@ -802,7 +824,7 @@ extern CONST EFI_SERVICE_BINDING_PROTOCOL mEfiServiceBinding;
 /**
   Allocate and initialize a ESL_SOCKET structure.
   
-  The ::SocketAllocate() function allocates a ESL_SOCKET structure
+  This support function allocates an ::ESL_SOCKET structure
   and installs a protocol on ChildHandle.  If pChildHandle is a
   pointer to NULL, then a new handle is created and returned in
   pChildHandle.  If pChildHandle is not a pointer to NULL, then
@@ -814,11 +836,11 @@ extern CONST EFI_SERVICE_BINDING_PROTOCOL mEfiServiceBinding;
                                 then the protocol is added to the existing UEFI
                                 handle.
   @param [in] DebugFlags        Flags for debug messages
-  @param [in, out] ppSocket     The buffer to receive the ESL_SOCKET structure address.
+  @param [in, out] ppSocket     The buffer to receive an ::ESL_SOCKET structure address.
 
   @retval EFI_SUCCESS           The protocol was added to ChildHandle.
   @retval EFI_INVALID_PARAMETER ChildHandle is NULL.
-  @retval EFI_OUT_OF_RESOURCES  There are not enough resources availabe to create
+  @retval EFI_OUT_OF_RESOURCES  There are not enough resources available to create
                                 the child
   @retval other                 The child handle was not created
   
@@ -838,11 +860,13 @@ EslSocketAllocate (
   the ESL_IO_MGMT structure and remove the structure from the free
   list.
 
-  @param [in] pPort         The ESL_PORT structure address
+  See the \ref TransmitEngine section.
+
+  @param [in] pPort         Address of an ::ESL_PORT structure
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
 
   @retval EFI_SUCCESS - The structures were properly initialized
 
@@ -853,22 +877,26 @@ EslSocketIoFree (
   IN ESL_IO_MGMT ** ppFreeQueue,
   IN UINTN DebugFlags,
   IN CHAR8 * pEventName,
-  IN UINT32 EventOffset );
+  IN UINT32 EventOffset
+  );
 
 /**
   Initialize the ESL_IO_MGMT structures
 
   This support routine initializes the ESL_IO_MGMT structure and
-  places it on to a free list.
+  places them on to a free list.
 
-  @param [in] pPort         The ESL_PORT structure address
-  @param [in, out], ppIo    Address containing the first structure address.  Upon
+  This routine is called by the PortAllocate routines to prepare
+  the transmit engines.  See the \ref TransmitEngine section.
+
+  @param [in] pPort         Address of an ::ESL_PORT structure
+  @param [in, out] ppIo     Address containing the first structure address.  Upon
                             return this buffer contains the next structure address.
   @param [in] TokenCount    Number of structures to initialize
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset in the event in the ESL_IO_MGMT structure
+  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
   @param [in] pfnCompletion Completion routine address
 
   @retval EFI_SUCCESS - The structures were properly initialized
@@ -883,12 +911,25 @@ EslSocketIoInit (
   IN UINTN DebugFlags,
   IN CHAR8 * pEventName,
   IN UINTN EventOffset,
-  IN EFI_EVENT_NOTIFY pfnCompletion );
+  IN EFI_EVENT_NOTIFY pfnCompletion
+  );
 
 /**
   Determine if the socket is configured
 
-  @param [in] pSocket       The ESL_SOCKET structure address
+  This support routine is called to determine if the socket if the
+  configuration call was made to the network layer.  The following
+  routines call this routine to verify that they may be successful
+  in their operations:
+  <ul>
+    <li>::EslSocketGetLocalAddress</li>
+    <li>::EslSocketGetPeerAddress</li>
+    <li>::EslSocketPoll</li>
+    <li>::EslSocketReceive</li>
+    <li>::EslSocketTransmit</li>
+  </ul>
+
+  @param [in] pSocket       Address of an ::ESL_SOCKET structure
 
   @retval EFI_SUCCESS - The socket is configured
 
@@ -901,7 +942,10 @@ EslSocketIsConfigured (
 /**
   Allocate a packet for a receive or transmit operation
 
-  @param [in] ppPacket      Address to receive the ESL_PACKET structure
+  This support routine is called by the network specific RxStart
+  and TxBuffer routines to get buffer space for the next operation.
+
+  @param [in] ppPacket      Address to receive the ::ESL_PACKET structure
   @param [in] LengthInBytes Length of the packet structure
   @param [in] DebugFlags    Flags for debug messages
 
@@ -918,7 +962,12 @@ EslSocketPacketAllocate (
 /**
   Free a packet used for receive or transmit operation
 
-  @param [in] pPacket     Address of the ESL_PACKET structure
+  This support routine is called by the network specific Close
+  and TxComplete routines and during error cases in RxComplete
+  and TxBuffer.  Note that the network layers typically place
+  receive packets on the ESL_SOCKET::pRxFree list for reuse.
+
+  @param [in] pPacket     Address of an ::ESL_PACKET structure
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - The packet was allocated successfully
@@ -937,10 +986,10 @@ EslSocketPacketFree (
   the active queue and returns it to the free queue.
 
   The network specific code calls this routine during its transmit
-  complete processing.
+  complete processing.  See the \ref TransmitEngine section.
 
-  @param [in] pPort           Address of a ESL_PORT structure
-  @param [in] pIo             Address of the ESL_IO_MGMT structure
+  @param [in] pPort           Address of an ::ESL_PORT structure
+  @param [in] pIo             Address of an ::ESL_IO_MGMT structure
   @param [in] ppActive        Active transmit queue address
   @param [in] ppFree          Free transmit queue address
 
@@ -960,10 +1009,9 @@ EslSocketTxComplete (
   underlying network layer.
 
   The network specific code calls this routine to start a
-  transmit operation.
+  transmit operation.  See the \ref TransmitEngine section.
 
-  @param [in] pPort           Address of a ESL_PORT structure
-  @param [in] pToken          Address of either the OOB or normal transmit token
+  @param [in] pPort           Address of an ::ESL_PORT structure
   @param [in] ppQueueHead     Transmit queue head address
   @param [in] ppQueueTail     Transmit queue tail address
   @param [in] ppActive        Active transmit queue address

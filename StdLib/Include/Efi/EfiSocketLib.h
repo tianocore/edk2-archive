@@ -343,7 +343,7 @@ EslServiceUnload (
   The ::bind routine calls this routine to connect a name
   (network address and port) to a socket on the local machine.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr Address of a sockaddr structure that contains the
                         connection point on the local machine.  An IPv4 address
@@ -355,7 +355,7 @@ EslServiceUnload (
                         number from the dynamic range.  Specifying a specific
                         port number causes the network layer to use that port.
 
-  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
+  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
 
   @param [out] pErrno   Address to receive the errno value upon completion.
 
@@ -380,7 +380,7 @@ EslSocketBind (
   close operation is complete.  The close operation needs to
   reverse the operations of the ::EslSocketAllocate routine.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [out] pErrno         Address to receive the errno value upon completion.
 
   @retval EFI_SUCCESS     Socket successfully closed
@@ -410,7 +410,7 @@ EslSocketClosePoll (
   the ::EslSocketClosePoll routine to determine when the
   socket is closed.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [in] bCloseNow       Boolean to control close behavior
   @param [out] pErrno         Address to receive the errno value upon completion.
 
@@ -439,7 +439,7 @@ EslSocketCloseStart (
   is designed to be polled by the connect routine for completion
   of the network connection.
   
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] pSockAddr       Network address of the remote system.
     
@@ -469,7 +469,7 @@ EslSocketConnect (
   The ::getsockname routine calls this routine to obtain the network
   address associated with the local host connection point.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [out] pAddress       Network address to receive the local system address
 
@@ -497,7 +497,7 @@ EslSocketGetLocalAddress (
   The ::getpeername routine calls this routine to obtain the network
   address of the remote connection point.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [out] pAddress       Network address to receive the remote system address
 
@@ -530,7 +530,7 @@ EslSocketGetPeerAddress (
   remove the next connection from the FIFO and get the associated
   socket and address.
 
-  @param [in] pSocketProtocol Address of the socket protocol structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] Backlog         Backlog specifies the maximum FIFO depth for
                               the connections waiting for the application
@@ -559,7 +559,7 @@ EslSocketListen (
   The ::getsockopt routine calls this routine to retrieve the
   socket options one at a time by name.
 
-  @param [in] pSocketProtocol   Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol   Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [in] level             Option protocol level
   @param [in] OptionName        Name of the option
   @param [out] pOptionValue     Buffer to receive the option value
@@ -589,7 +589,7 @@ EslSocketOptionGet (
   The ::setsockopt routine calls this routine to adjust the socket
   options one at a time by name.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   @param [in] level           Option protocol level
   @param [in] OptionName      Name of the option
   @param [in] pOptionValue    Buffer containing the option value
@@ -619,7 +619,7 @@ EslSocketOptionSet (
   needs to be serviced as a result of connection, error, receive or
   transmit activity.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
 
   @param [in] Events    Events of interest for this socket
 
@@ -650,7 +650,7 @@ EslSocketPoll (
   is received from the remote system.  Note that the other routines
   ::recv and ::read are layered on top of ::recvfrom.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [in] Flags           Message control flags
   
@@ -690,7 +690,7 @@ EslSocketReceive (
   The ::shutdown routine calls this routine to stop receive and transmit
   operations on the socket.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [in] How             Which operations to stop
   
@@ -718,7 +718,7 @@ EslSocketShutdown (
   The ::sendto routine calls this routine to send data to the remote
   system.  Note that ::send and ::write are layered on top of ::sendto.
 
-  @param [in] pSocketProtocol Address of the ::EFI_SOCKET_PROTOCOL structure.
+  @param [in] pSocketProtocol Address of an ::EFI_SOCKET_PROTOCOL structure.
   
   @param [in] Flags           Message control flags
   

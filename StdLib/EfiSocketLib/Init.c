@@ -18,12 +18,22 @@
 /**
   EFI Socket Library Constructor
 
-  Constructor listed in the EfiSocketLib.inf file.  This routine
-  supports an implementation dependent constructor depending upon
-  whether the library is linked to an application or to the SocketDxe
-  driver.
+  This routine supports an implementation dependent constructor
+  depending upon whether the library is linked to a socket
+  application or the SocketDxe driver.  The following modules
+  declare the redirection for the constructor in ::mpfnEslConstructor:
+  <ul>
+    <li>StdLib/EfiSocketLib/UseSocketLib.c - Application links against EfiSocketLib</li>
+    <li>StdLib/SocketDxe/EntryUnload.c - SocketDxe links against EfiSocketLib</li>
+  </ul>
 
-  @retval EFI_SUCCESS       The initialization was successful
+  The EfiSocketLib.inf file lists ::EslConstructor as the CONSTRUCTOR
+  in the [Defines] section.  As a result, this routine is called by
+  the ProcessLibraryConstructorList routine of the AutoGen.c module
+  in the Build directory associated with the socket application or
+  the SocketDxe driver.
+
+  @retval EFI_SUCCESS       The socket layer initialization was successful
 
  **/
 EFI_STATUS
@@ -59,12 +69,22 @@ EslConstructor (
 /**
   EFI Socket Library Destructor
 
-  Destructor listed in the EfiSocketLib.inf file.  This routine
-  supports an implementation dependent destructor depending upon
-  whether the library is linked to an application or to the SocketDxe
-  driver.
+  This routine supports an implementation dependent destructor
+  depending upon whether the library is linked to a socket
+  application or the SocketDxe driver.  The following modules
+  declare the redirection for the destructor in ::mpfnEslDestructor:
+  <ul>
+    <li>StdLib/EfiSocketLib/UseSocketLib.c - Application links against EfiSocketLib</li>
+    <li>StdLib/SocketDxe/EntryUnload.c - SocketDxe links against EfiSocketLib</li>
+  </ul>
 
-  @retval EFI_SUCCESS       The shutdown was successful
+  The EfiSocketLib.inf file lists ::EslDestructor as the DESTRUCTOR
+  in the [Defines] section.  As a result, this routine is called by
+  the ProcessLibraryDestructorList routine of the AutoGen.c module
+  in the Build directory associated with the socket application or
+  the SocketDxe driver.
+
+  @retval EFI_SUCCESS       The socket layer shutdown was successful
 
  **/
 EFI_STATUS
