@@ -62,12 +62,12 @@
 //  Constants
 //------------------------------------------------------------------------------
 
-#define DEBUG_SOCKET_POLL       0x40000000  ///<  Display the socket poll messages
-#define DEBUG_PORT_WORK         0x20000000  ///<  Display the port work messages
-#define DEBUG_SERVER_TIMER      0x10000000  ///<  Display the socket poll messages
-#define DEBUG_TFTP_PORT         0x08000000  ///<  Display the TFTP port messages
-#define DEBUG_TFTP_REQUEST      0x04000000  ///<  Display the TFTP request messages
-#define DEBUG_TX                0x02000000  ///<  Display transmit messages
+#define DEBUG_PORT_WORK         0x40000000  ///<  Display the port work messages
+#define DEBUG_SERVER_TIMER      0x20000000  ///<  Display the socket poll messages
+#define DEBUG_TFTP_PORT         0x10000000  ///<  Display the TFTP port messages
+#define DEBUG_TFTP_REQUEST      0x08000000  ///<  Display the TFTP request messages
+#define DEBUG_TX                0x04000000  ///<  Display transmit messages
+#define DEBUG_SOCKET_POLL       0x02000000  ///<  Display the socket poll messages
 #define DEBUG_RX                0x01000000  ///<  Display receive messages
 #define DEBUG_TFTP_ACK          0x00800000  ///<  Display the TFTP ACK messages
 
