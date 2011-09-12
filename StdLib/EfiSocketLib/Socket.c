@@ -2497,6 +2497,254 @@ EslSocketPoll (
 
 
 /**
+  Port close state 3
+
+  This routine determines the state of the receive operations and
+  continues the close operation after the pending receive operations
+  are cancelled.
+
+  This routine is called by
+  <ul>
+    <li>::EslIp4RxComplete</li>
+    <li>::EslIp4PortCloseTxDone</li>
+    <li>::EslTcp4PortCloseComplete</li>
+    <li>::EslTcp4PortCloseTxDone</li>
+    <li>::EslUdp4RxComplete</li>
+    <li>::EslUdp4PortCloseTxDone</li>
+  </ul>
+  to determine the state of the receive operations.
+  See the \ref Tcp4PortCloseStateMachine section.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS         The port is closed
+  @retval EFI_NOT_READY       The port is still closing
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslSocketPortCloseRxDone (
+  IN ESL_PORT * pPort
+  )
+{
+  PORT_STATE PortState;
+  ESL_SOCKET * pSocket;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  Verify that the port is closing
+  //
+  Status = EFI_ALREADY_STARTED;
+  PortState = pPort->State;
+  if (( PORT_STATE_CLOSE_TX_DONE == PortState )
+    || ( PORT_STATE_CLOSE_DONE == PortState )) {
+    //
+    //  Determine if the receive operation is pending
+    //
+    Status = EFI_NOT_READY;
+    if ( NULL == pPort->pReceivePending ) {
+      //
+      //  The receive operation is complete
+      //  Update the port state
+      //
+      pPort->State = PORT_STATE_CLOSE_RX_DONE;
+      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                "0x%08x: Port Close State: PORT_STATE_CLOSE_RX_DONE\r\n",
+                pPort ));
+
+      //
+      //  Determine if the close operation has completed
+      //
+      pSocket = pPort->pSocket;
+      if (( PORT_STATE_CLOSE_DONE == PortState )
+        || ( pSocket->pApi->bPortCloseComplete )) {
+        //
+        //  The close operation has completed
+        //  Release the port resources
+        //
+        Status = pSocket->pApi->pfnPortClose ( pPort );
+      }
+      else {
+        //
+        //  Must wait for TCP to close the port
+        //
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Port Close: Close operation still pending!\r\n",
+                  pPort ));
+      }
+    }
+    else {
+      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                "0x%08x: Port Close: Receive still pending!\r\n",
+                pPort ));
+    }
+  }
+
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Port close state 2
+
+  This routine determines the state of the transmit engine and
+  continues the close operation after the transmission is complete.
+  The next step is to stop the \ref Tcp4ReceiveEngine.
+
+  This routine is called by
+  <ul>
+    <li>::EslIp4PortCloseStart</li>
+    <li>::EslTcp4PortCloseStart</li>
+    <li>::EslUdp4PortCloseStart</li>
+  </ul>
+  to determine if the transmission is complete.
+  See the \ref Tcp4PortCloseStateMachine section.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port is still closing
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslSocketPortCloseTxDone (
+  IN ESL_PORT * pPort
+  )
+{
+  ESL_PACKET * pPacket;
+  ESL_SOCKET * pSocket;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  All transmissions are complete or must be stopped
+  //  Mark the port as TX complete
+  //
+  Status = EFI_ALREADY_STARTED;
+  if ( PORT_STATE_CLOSE_STARTED == pPort->State ) {
+    //
+    //  Verify that the transmissions are complete
+    //
+    pSocket = pPort->pSocket;
+    if ( pPort->bCloseNow
+         || ( EFI_SUCCESS != pSocket->TxError )
+         || (( NULL == pPort->pTxActive )
+                && ( NULL == pPort->pTxOobActive ))) {
+      //
+      //  Start the close operation on the port
+      //
+      if ( !pPort->bConfigured ) {
+        //
+        //  Skip the close operation since the port is not
+        //  configured
+        //
+        //  Update the port state
+        //
+        pPort->State = PORT_STATE_CLOSE_DONE;
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Port Close State: PORT_STATE_CLOSE_DONE\r\n",
+                  pPort ));
+        Status = EFI_SUCCESS;
+      }
+      else {
+        //
+        //  Update the port state
+        //
+        pPort->State = PORT_STATE_CLOSE_TX_DONE;
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Port Close State: PORT_STATE_CLOSE_TX_DONE\r\n",
+                  pPort ));
+
+        //
+        //  Empty the normal receive queue
+        //
+        while ( NULL != pSocket->pRxPacketListHead ) {
+          pPacket = pSocket->pRxPacketListHead;
+          pSocket->pRxPacketListHead = pPacket->pNext;
+          pSocket->pApi->pfnPortClosePktFree ( pPacket, &pSocket->RxBytes );
+
+          //
+          //  Done with this packet
+          //
+          EslSocketPacketFree ( pPacket, DEBUG_RX );
+        }
+        pSocket->pRxPacketListTail = NULL;
+        ASSERT ( 0 == pSocket->RxBytes );
+
+        //
+        //  Empty the urgent receive queue
+        //
+        while ( NULL != pSocket->pRxOobPacketListHead ) {
+          pPacket = pSocket->pRxOobPacketListHead;
+          pSocket->pRxOobPacketListHead = pPacket->pNext;
+          pSocket->pApi->pfnPortClosePktFree ( pPacket, &pSocket->RxOobBytes );
+
+          //
+          //  Done with this packet
+          //
+          EslSocketPacketFree ( pPacket, DEBUG_RX );
+        }
+        pSocket->pRxOobPacketListTail = NULL;
+        ASSERT ( 0 == pSocket->RxOobBytes );
+
+        //
+        //  Shutdown the receive operation on the port
+        //
+        Status = EFI_SUCCESS;
+        if ( NULL != pPort->pReceivePending ) {
+          Status = pSocket->pApi->pfnPortCloseRxStop ( pPort );
+          ASSERT ( EFI_SUCCESS == Status );
+        }
+      }
+
+      //
+      //  Determine if the receive operation is pending
+      //
+      if ( !EFI_ERROR ( Status )) {
+        Status = EslSocketPortCloseRxDone ( pPort );
+      }
+    }
+    else {
+      //
+      //  Transmissions are still active, exit
+      //
+      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                "0x%08x: Port Close: Transmits are still pending!\r\n",
+                pPort ));
+      Status = EFI_NOT_READY;
+      pSocket->errno = EAGAIN;
+    }
+  }
+
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
   Receive data from a network connection.
 
   This routine calls the network specific routine to remove the
@@ -3089,7 +3337,7 @@ EslSocketTxComplete (
     //
     //  Indicate that the transmit is complete
     //
-    pSocket->pApi->pfnPortCloseTxDone ( pPort );
+    EslSocketPortCloseTxDone ( pPort );
   }
 
   DBG_EXIT ( );

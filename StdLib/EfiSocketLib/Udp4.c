@@ -21,10 +21,10 @@
     <li>Arc: ::EslUdp4PortCloseStart - Marks the port as closing and
       initiates the port close operation</li>
     <li>State: PORT_STATE_CLOSE_STARTED</li>
-    <li>Arc: ::EslUdp4PortCloseTxDone - Waits until all of the transmit
+    <li>Arc: ::EslSocketPortCloseTxDone - Waits until all of the transmit
       operations to complete.</li>
     <li>State: PORT_STATE_CLOSE_TX_DONE - RX still active</li>
-    <li>Arc: ::EslUdp4PortCloseRxDone - Waits until all of the receive
+    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
       operation have been cancelled.</li>
     <li>State: PORT_STATE_CLOSE_RX_DONE - RX shutdown</li>
     <li>State: PORT_STATE_CLOSE_DONE - Port never configured</li>
@@ -35,7 +35,7 @@
   \section Udp4ReceiveEngine UDPv4 Receive Engine
 
   The receive engine is started by calling ::EslUdp4RxStart when the
-  ::ESL_PORT structure is configured and stopped when ::EslUdp4PortCloseTxDone
+  ::ESL_PORT structure is configured and stopped when ::EslSocketPortCloseTxDone
   calls the UDPv4 configure operation to reset the port.  The receive engine
   consists of a single receive buffer that is posted to the UDPv4 driver.
 
@@ -83,7 +83,10 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
-  EslUdp4PortCloseTxDone,
+  EslUdp4PortClose,
+  EslUdp4PortClosePacketFree,
+  EslUdp4PortCloseRxStop,
+  TRUE,
   EslUdp4Receive,
   EslUdp4RxCancel,
   EslUdp4TxBuffer
@@ -803,7 +806,7 @@ EslUdp4PortAllocate (
   This routine is called by:
   <ul>
     <li>::EslUdp4PortAllocate - Port initialization failure</li>
-    <li>::EslUdp4PortCloseRxDone - Last step of close processing</li>
+    <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
   </ul>
   See the \ref Udp4PortCloseStateMachine section.
 
@@ -1021,78 +1024,81 @@ EslUdp4PortClose (
 
 
 /**
-  Port close state 3
+  Free a receive packet
 
-  This routine determines the state of the receive operations and
-  continues the close operation after the pending receive operations
-  are cancelled.
+  This routine performs the network specific operations necessary
+  to free a receive packet.
 
-  This routine is called by ::EslUdp4PortCloseTxDone and
-  ::EslUdp4RxComplete to determine the state of the receive
-  operations.
-  See the \ref Udp4PortCloseStateMachine section.
+  This routine is called by ::EslSocketPortCloseTx to free a
+  receive packet.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  @param [in, out] pRxBytes   Address of the count of RX bytes
+
+**/
+VOID
+EslUdp4PortClosePacketFree (
+  IN ESL_PACKET * pPacket,
+  IN OUT size_t * pRxBytes
+  )
+{
+  //
+  //  Account for the receive bytes
+  //
+  *pRxBytes -= pPacket->Op.Udp4Rx.pRxData->DataLength;
+
+  //
+  //  Return the buffer to the UDP4 driver
+  //
+  gBS->SignalEvent ( pPacket->Op.Udp4Rx.pRxData->RecycleSignal );
+}
+
+
+/**
+  Perform the network specific close operation on the port.
+
+  This routine performs a cancel operations on the UDPv4 port to
+  shutdown the receive operations on the port.
+
+  This routine is called by the ::EslSocketPortCloseTxDone
+  routine after the port completes all of the transmission.
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @retval EFI_SUCCESS         The port is closed
+  @retval EFI_SUCCESS         The port is closed, not normally returned
   @retval EFI_NOT_READY       The port is still closing
   @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
                               most likely the routine was called already.
 
 **/
 EFI_STATUS
-EslUdp4PortCloseRxDone (
+EslUdp4PortCloseRxStop (
   IN ESL_PORT * pPort
   )
 {
-  PORT_STATE PortState;
-  ESL_SOCKET * pSocket;
   ESL_UDP4_CONTEXT * pUdp4;
+  EFI_UDP4_PROTOCOL * pUdp4Protocol;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Verify the socket layer synchronization
+  //  Reset the port, cancel the outstanding receive
   //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that the port is closing
-  //
-  Status = EFI_ALREADY_STARTED;
-  pSocket = pPort->pSocket;
-  pSocket->errno = EALREADY;
-  PortState = pPort->State;
-  if (( PORT_STATE_CLOSE_TX_DONE == PortState )
-    || ( PORT_STATE_CLOSE_DONE == PortState )) {
-    //
-    //  Determine if the receive operation is pending
-    //
-    Status = EFI_NOT_READY;
-    pSocket->errno = EAGAIN;
-    pUdp4 = &pPort->Context.Udp4;
-    if ( NULL == pUdp4->pReceivePending ) {
-      //
-      //  The receive operation is complete
-      //  Update the port state
-      //
-      pPort->State = PORT_STATE_CLOSE_RX_DONE;
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close State: PORT_STATE_CLOSE_RX_DONE\r\n",
-                pPort ));
-
-      //
-      //  The close operation has completed
-      //  Release the port resources
-      //
-      Status = EslUdp4PortClose ( pPort );
-    }
-    else {
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close: Receive still pending!\r\n",
-                pPort ));
-    }
+  pUdp4 = &pPort->Context.Udp4;
+  pUdp4Protocol = pUdp4->pProtocol;
+  Status = pUdp4Protocol->Configure ( pUdp4Protocol,
+                                      NULL );
+  if ( !EFI_ERROR ( Status )) {
+    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
+              "0x%08x: Port reset\r\n",
+              pPort ));
+  }
+  else {
+    DEBUG (( DEBUG_ERROR | pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
+             "ERROR - Port 0x%08x reset failed, Status: %r\r\n",
+             pPort,
+             Status ));
   }
 
   //
@@ -1162,161 +1168,7 @@ EslUdp4PortCloseStart (
     //
     //  Determine if transmits are complete
     //
-    Status = EslUdp4PortCloseTxDone ( pPort );
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Port close state 2
-
-  This routine determines the state of the transmit engine and
-  continues the close operation after the transmission is complete.
-  The next step is to stop the \ref Udp4ReceiveEngine.
-
-  This routine is called by ::EslUdp4PortCloseStart to determine if
-  the transmission is complete.
-  See the \ref Udp4PortCloseStateMachine section.
-
-  @param [in] pPort           Address of an ::ESL_PORT structure.
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port is still closing
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseTxDone (
-  IN ESL_PORT * pPort
-  )
-{
-  ESL_PACKET * pPacket;
-  ESL_SOCKET * pSocket;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_PROTOCOL * pUdp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  All transmissions are complete or must be stopped
-  //  Mark the port as TX complete
-  //
-  Status = EFI_ALREADY_STARTED;
-  if ( PORT_STATE_CLOSE_STARTED == pPort->State ) {
-    //
-    //  Verify that the transmissions are complete
-    //
-    pSocket = pPort->pSocket;
-    if ( pPort->bCloseNow
-         || ( EFI_SUCCESS != pSocket->TxError )
-         || ( NULL == pPort->pTxActive )) {
-      //
-      //  Start the close operation on the port
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pUdp4Protocol = pUdp4->pProtocol;
-      if ( !pUdp4->bConfigured ) {
-        //
-        //  Skip the close operation since the port is not
-        //  configured
-        //
-        //  Update the port state
-        //
-        pPort->State = PORT_STATE_CLOSE_DONE;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close State: PORT_STATE_CLOSE_DONE\r\n",
-                  pPort ));
-        Status = EFI_SUCCESS;
-      }
-      else {
-        //
-        //  Update the port state
-        //
-        pPort->State = PORT_STATE_CLOSE_TX_DONE;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close State: PORT_STATE_CLOSE_TX_DONE\r\n",
-                  pPort ));
-
-        //
-        //  Empty the receive queue
-        //
-        while ( NULL != pSocket->pRxPacketListHead ) {
-          pPacket = pSocket->pRxPacketListHead;
-          pSocket->pRxPacketListHead = pPacket->pNext;
-          pSocket->RxBytes -= pPacket->Op.Udp4Rx.pRxData->DataLength;
-
-          //
-          //  Return the buffer to the UDP4 driver
-          //
-          gBS->SignalEvent ( pPacket->Op.Udp4Rx.pRxData->RecycleSignal );
-
-          //
-          //  Done with this packet
-          //
-          EslSocketPacketFree ( pPacket, DEBUG_RX );
-        }
-        pSocket->pRxPacketListTail = NULL;
-        ASSERT ( 0 == pSocket->RxBytes );
-
-        //
-        //  Reset the port, cancel the outstanding receive
-        //
-        Status = pUdp4Protocol->Configure ( pUdp4Protocol,
-                                            NULL );
-        if ( !EFI_ERROR ( Status )) {
-          DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-                    "0x%08x: Port reset\r\n",
-                    pPort ));
-
-          //
-          //  Free the receive packet
-          //
-          Status = gBS->CheckEvent ( pUdp4->RxToken.Event );
-          if ( EFI_SUCCESS != Status ) {
-            EslSocketPacketFree ( pUdp4->pReceivePending, DEBUG_CLOSE );
-            pUdp4->pReceivePending = NULL;
-            Status = EFI_SUCCESS;
-          }
-        }
-        else {
-          DEBUG (( DEBUG_ERROR | pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-                   "ERROR - Port 0x%08x reset failed, Status: %r\r\n",
-                   pPort,
-                   Status ));
-          ASSERT ( EFI_SUCCESS == Status );
-        }
-      }
-
-      //
-      //  Determine if the receive operation is pending
-      //
-      if ( !EFI_ERROR ( Status )) {
-        Status = EslUdp4PortCloseRxDone ( pPort );
-      }
-    }
-    else {
-      //
-      //  Transmissions are still active, exit
-      //
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close: Transmits are still pending!\r\n",
-                pPort ));
-      Status = EFI_NOT_READY;
-      pSocket->errno = EAGAIN;
-    }
+    Status = EslSocketPortCloseTxDone ( pPort );
   }
 
   //
@@ -1540,7 +1392,7 @@ EslUdp4Receive (
             //
             //  Restart this receive operation if necessary
             //
-            if (( NULL == pUdp4->pReceivePending )
+            if (( NULL == pPort->pReceivePending )
               && ( MAX_RX_DATA > pSocket->RxBytes )) {
                 EslUdp4RxStart ( pPort );
             }
@@ -1652,7 +1504,7 @@ EslUdp4RxCancel (
     //  Determine if a receive is pending
     //
     pUdp4 = &pPort->Context.Udp4;
-    pPacket = pUdp4->pReceivePending;
+    pPacket = pPort->pReceivePending;
     if ( NULL != pPacket ) {
       //
       //  Attempt to cancel the receive operation
@@ -1682,7 +1534,7 @@ EslUdp4RxCancel (
 
   This routine keeps the UDPv4 driver's buffer and queues it in
   in FIFO order to the data queue.  The UDP4 driver's buffer will
-  be returned by either ::EslUdp4Receive or ::EslUdp4PortCloseTxDone.
+  be returned by either ::EslUdp4Receive or ::EslSocketPortCloseTxDone.
   See the \ref Tcp4ReceiveEngine section.
 
   This routine is called by the UDPv4 driver when data is
@@ -1713,8 +1565,8 @@ EslUdp4RxComplete (
   //  Mark this receive complete
   //
   pUdp4 = &pPort->Context.Udp4;
-  pPacket = pUdp4->pReceivePending;
-  pUdp4->pReceivePending = NULL;
+  pPacket = pPort->pReceivePending;
+  pPort->pReceivePending = NULL;
   
   //
   //  Determine if this receive was successful
@@ -1815,7 +1667,7 @@ EslUdp4RxComplete (
     //  Update the port state
     //
     if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
-      EslUdp4PortCloseRxDone ( pPort );
+      EslSocketPortCloseRxDone ( pPort );
     }
     else {
       if ( EFI_ERROR ( Status )) {
@@ -1865,7 +1717,7 @@ EslUdp4RxStart (
   pSocket = pPort->pSocket;
   pUdp4 = &pPort->Context.Udp4;
   if ( !EFI_ERROR ( pPort->pSocket->RxError )) {
-    if (( NULL == pUdp4->pReceivePending )
+    if (( NULL == pPort->pReceivePending )
       && ( PORT_STATE_CLOSE_STARTED > pPort->State )) {
       //
       //  Determine if there are any free packets
@@ -1907,7 +1759,7 @@ EslUdp4RxStart (
         pPacket->pNext = NULL;
         pPacket->Op.Udp4Rx.pRxData = NULL;
         pUdp4->RxToken.Packet.RxData = NULL;
-        pUdp4->pReceivePending = pPacket;
+        pPort->pReceivePending = pPacket;
 
         //
         //  Start the receive on the packet
@@ -1936,7 +1788,7 @@ EslUdp4RxStart (
           //
           //  Free the packet
           //
-          pUdp4->pReceivePending = NULL;
+          pPort->pReceivePending = NULL;
           pPacket->pNext = pSocket->pRxFree;
           pSocket->pRxFree = pPacket;
         }
@@ -2151,7 +2003,7 @@ EslUdp4Shutdown (
         DEBUG (( DEBUG_LISTEN,
                   "0x%08x: Port configured\r\n",
                   pPort ));
-        pUdp4->bConfigured = TRUE;
+        pPort->bConfigured = TRUE;
 
         //
         //  Start the first read on the port

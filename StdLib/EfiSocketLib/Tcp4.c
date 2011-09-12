@@ -35,10 +35,10 @@
     <li>Arc: ::EslTcp4PortCloseStart - Marks the port as closing and
       initiates the port close operation</li>
     <li>State: PORT_STATE_CLOSE_STARTED</li>
-    <li>Arc: ::EslTcp4PortCloseTxDone - Waits until all of the transmit
+    <li>Arc: ::EslSocketPortCloseTxDone - Waits until all of the transmit
       operations to complete.</li>
     <li>State: PORT_STATE_CLOSE_TX_DONE</li>
-    <li>Arc: ::EslTcp4PortCloseRxDone - Waits until all of the receive
+    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
       operation have been cancelled.</li>
     <li>State: PORT_STATE_CLOSE_RX_DONE</li>
     <li>Arc: ::EslTcp4PortCloseComplete - Called by the TCPv4 layer
@@ -53,7 +53,7 @@
   \section Tcp4ReceiveEngine TCPv4 Receive Engine
 
   The receive engine is started by calling ::EslTcp4RxStart when the
-  ::ESL_PORT structure is allocated and stopped when ::EslTcp4PortCloseTxDone
+  ::ESL_PORT structure is allocated and stopped when ::EslSocketPortCloseTxDone
   calls the TCPv4 close operation.  The receive engine consists of a
   single receive buffer that is posted to the TCPv4 driver.  Upon
   completion, ::EslTcp4RxComplete posts the buffer to either the
@@ -99,7 +99,10 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   EslTcp4Listen,
   NULL,   //  OptionGet
   NULL,   //  OptionSet
-  EslTcp4PortCloseTxDone,
+  EslTcp4PortClose,
+  EslTcp4PortClosePacketFree,
+  EslTcp4PortCloseRxStop,
+  FALSE,
   EslTcp4Receive,
   EslTcp4RxCancel,
   EslTcp4TxBuffer
@@ -431,7 +434,7 @@ EslTcp4ConnectAttempt (
       DEBUG (( DEBUG_CONNECT,
                 "0x%08x: Port configured\r\n",
                 pPort ));
-      pTcp4->bConfigured = TRUE;
+      pPort->bConfigured = TRUE;
 
       //
       //  Attempt the connection to the remote system
@@ -1160,7 +1163,7 @@ EslTcp4Listen (
         DEBUG (( DEBUG_LISTEN,
                   "0x%08x: Port configured\r\n",
                   pPort ));
-        pTcp4->bConfigured = TRUE;
+        pPort->bConfigured = TRUE;
 
         //
         //  Start the listen operation on the port
@@ -1348,7 +1351,6 @@ EslTcp4ListenComplete (
         //
         TcpPortHandle = NULL;
         pTcp4 = &pNewPort->Context.Tcp4;
-        pTcp4->bConfigured = TRUE;
 
         //
         //  Check for an accept call error
@@ -1357,6 +1359,7 @@ EslTcp4ListenComplete (
           //
           //  Get the port configuration
           //
+          pNewPort->bConfigured = TRUE;
           pConfigData = &pTcp4->ConfigData;
           pConfigData->ControlOption = &pTcp4->Option;
           pTcp4Protocol = pTcp4->pProtocol;
@@ -1764,7 +1767,7 @@ EslTcp4PortAllocate (
   <ul>
     <li>::EslTcp4ConnectComplete - Connection failure and reducint the port list to a single port</li>
     <li>::EslTcp4PortAllocate - Port initialization failure</li>
-    <li>::EslTcp4PortCloseRxDone - Last step of close processing</li>
+    <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
   </ul>
   See the \ref Tcp4PortCloseStateMachine section.
   
@@ -2078,90 +2081,83 @@ EslTcp4PortCloseComplete (
   //
   //  Release the resources once the receive operation completes
   //
-  Status = EslTcp4PortCloseRxDone ( pPort );
+  Status = EslSocketPortCloseRxDone ( pPort );
   DBG_EXIT_STATUS ( Status );
 }
 
 
 /**
-  Port close state 3
+  Free a receive packet
 
-  This routine determines the state of the receive operations and
-  continues the close operation after the pending receive operations
-  are cancelled.
+  This routine performs the network specific operations necessary
+  to free a receive packet.
 
-  This routine is called by ::EslTcp4PortCloseTxDone and
-  ::EslTcp4PortCloseComplete to determine the state of the receive
-  operations.
-  See the \ref Tcp4PortCloseStateMachine section.
+  This routine is called by ::EslSocketPortCloseTx to free a
+  receive packet.
 
-  @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  @param [in, out] pRxBytes   Address of the count of RX bytes
 
-  @retval EFI_SUCCESS         The port is closed
+**/
+VOID
+EslTcp4PortClosePacketFree (
+  IN ESL_PACKET * pPacket,
+  IN OUT size_t * pRxBytes
+  )
+{
+  //
+  //  Account for the receive bytes
+  //
+  *pRxBytes -= pPacket->Op.Tcp4Rx.RxData.DataLength;
+}
+
+
+/**
+  Perform the network specific close operation on the port.
+
+  This routine performs a cancel operations on the UDPv4 port to
+  shutdown the receive operations on the port.
+
+  This routine is called by the ::EslSocketPortCloseTxDone
+  routine after the port completes all of the transmission.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
   @retval EFI_NOT_READY       The port is still closing
   @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
                               most likely the routine was called already.
 
 **/
 EFI_STATUS
-EslTcp4PortCloseRxDone (
+EslTcp4PortCloseRxStop (
   IN ESL_PORT * pPort
   )
 {
-  PORT_STATE PortState;
   ESL_TCP4_CONTEXT * pTcp4;
+  EFI_TCP4_PROTOCOL * pTcp4Protocol;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Verify the socket layer synchronization
+  //  Close the configured port
   //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that the port is closing
-  //
-  Status = EFI_ALREADY_STARTED;
-  PortState = pPort->State;
-  if (( PORT_STATE_CLOSE_TX_DONE == PortState )
-    || ( PORT_STATE_CLOSE_DONE == PortState )) {
-    //
-    //  Determine if the receive operation is pending
-    //
-    Status = EFI_NOT_READY;
-    pTcp4 = &pPort->Context.Tcp4;
-    if ( NULL == pTcp4->pReceivePending ) {
-      //
-      //  The receive operation is complete
-      //  Update the port state
-      //
-      pPort->State = PORT_STATE_CLOSE_RX_DONE;
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close State: PORT_STATE_CLOSE_RX_DONE\r\n",
-                pPort ));
-
-      //
-      //  Determine if the close operation has completed
-      //
-      if ( PORT_STATE_CLOSE_DONE == PortState ) {
-        //
-        //  The close operation has completed
-        //  Release the port resources
-        //
-        Status = EslTcp4PortClose ( pPort );
-      }
-      else {
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close: Close operation still pending!\r\n",
-                  pPort ));
-      }
-    }
-    else {
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close: Receive still pending!\r\n",
-                pPort ));
-    }
+  pTcp4 = &pPort->Context.Tcp4;
+  pTcp4Protocol = pTcp4->pProtocol;
+  pTcp4->CloseToken.AbortOnClose = FALSE;
+  Status = pTcp4Protocol->Close ( pTcp4Protocol,
+                                  &pTcp4->CloseToken );
+  if ( !EFI_ERROR ( Status )) {
+    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
+              "0x%08x: Port close started\r\n",
+              pPort ));
+  }
+  else {
+    DEBUG (( DEBUG_ERROR | pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
+             "ERROR - Close failed on port 0x%08x, Status: %r\r\n",
+             pPort,
+             Status ));
   }
 
   //
@@ -2231,131 +2227,7 @@ EslTcp4PortCloseStart (
     //
     //  Determine if transmits are complete
     //
-    Status = EslTcp4PortCloseTxDone ( pPort );
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Port close state 2
-
-  This routine determines the state of the transmit engine and
-  continues the close operation after the transmission is complete.
-  The next step is to stop the \ref Tcp4ReceiveEngine.
-
-  This routine is called by ::EslTcp4PortCloseStart to determine if
-  the transmission is complete.
-  See the \ref Tcp4PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port is still closing
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslTcp4PortCloseTxDone (
-  IN ESL_PORT * pPort
-  )
-{
-  ESL_SOCKET * pSocket;
-  ESL_TCP4_CONTEXT * pTcp4;
-  EFI_TCP4_PROTOCOL * pTcp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  All transmissions are complete or must be stopped
-  //  Mark the port as TX complete
-  //
-  Status = EFI_ALREADY_STARTED;
-  if ( PORT_STATE_CLOSE_STARTED == pPort->State ) {
-    //
-    //  Verify that the transmissions are complete
-    //
-    pSocket = pPort->pSocket;
-    if ( pPort->bCloseNow
-         || ( EFI_SUCCESS != pSocket->TxError )
-         || (( NULL == pPort->pTxActive )
-                && ( NULL == pPort->pTxOobActive ))) {
-      //
-      //  Start the close operation on the port
-      //
-      pTcp4 = &pPort->Context.Tcp4;
-      pTcp4->CloseToken.AbortOnClose = FALSE;
-      pTcp4Protocol = pTcp4->pProtocol;
-      if ( !pTcp4->bConfigured ) {
-        //
-        //  Skip the close operation since the port is not
-        //  configured
-        //
-        //  Update the port state
-        //
-        pPort->State = PORT_STATE_CLOSE_DONE;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close State: PORT_STATE_CLOSE_DONE\r\n",
-                  pPort ));
-        Status = EFI_SUCCESS;
-      }
-      else {
-        //
-        //  Close the configured port
-        //
-        Status = pTcp4Protocol->Close ( pTcp4Protocol,
-                                        &pTcp4->CloseToken );
-        if ( !EFI_ERROR ( Status )) {
-          DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-                    "0x%08x: Port close started\r\n",
-                    pPort ));
-
-          //
-          //  Update the port state
-          //
-          pPort->State = PORT_STATE_CLOSE_TX_DONE;
-          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                    "0x%08x: Port Close State: PORT_STATE_CLOSE_TX_DONE\r\n",
-                    pPort ));
-        }
-        else {
-          DEBUG (( DEBUG_ERROR | pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-                   "ERROR - Close failed on port 0x%08x, Status: %r\r\n",
-                   pPort,
-                   Status ));
-          ASSERT ( EFI_SUCCESS == Status );
-        }
-      }
-
-      //
-      //  Determine if the receive operation is pending
-      //
-      if ( !EFI_ERROR ( Status )) {
-        Status = EslTcp4PortCloseRxDone ( pPort );
-      }
-    }
-    else {
-      //
-      //  Transmissions are still active, exit
-      //
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close: Transmits are still pending!\r\n",
-                pPort ));
-      Status = EFI_NOT_READY;
-      pSocket->errno = EAGAIN;
-    }
+    Status = EslSocketPortCloseTxDone ( pPort );
   }
 
   //
@@ -2577,7 +2449,7 @@ EslTcp4Receive (
                 //
                 //  Restart this receive operation if necessary
                 //
-                if (( NULL == pTcp4->pReceivePending )
+                if (( NULL == pPort->pReceivePending )
                   && ( MAX_RX_DATA > pSocket->RxBytes )) {
                     EslTcp4RxStart ( pPort );
                 }
@@ -2720,7 +2592,7 @@ EslTcp4RxCancel (
     //  Determine if a receive is pending
     //
     pTcp4 = &pPort->Context.Tcp4;
-    pPacket = pTcp4->pReceivePending;
+    pPacket = pPort->pReceivePending;
     if ( NULL != pPacket ) {
       //
       //  Attempt to cancel the receive operation
@@ -2782,8 +2654,8 @@ EslTcp4RxComplete (
   //  Mark this receive complete
   //
   pTcp4 = &pPort->Context.Tcp4;
-  pPacket = pTcp4->pReceivePending;
-  pTcp4->pReceivePending = NULL;
+  pPacket = pPort->pReceivePending;
+  pPort->pReceivePending = NULL;
 
   //
   //  Determine if this receive was successful
@@ -2882,7 +2754,7 @@ EslTcp4RxComplete (
     //  Update the port state
     //
     if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
-      EslTcp4PortCloseRxDone ( pPort );
+      EslSocketPortCloseRxDone ( pPort );
     }
     else {
       if ( EFI_ERROR ( Status )) {
@@ -2933,7 +2805,7 @@ EslTcp4RxStart (
   pSocket = pPort->pSocket;
   pTcp4 = &pPort->Context.Tcp4;
   if ( !EFI_ERROR ( pPort->pSocket->RxError )) {
-    if (( NULL == pTcp4->pReceivePending )
+    if (( NULL == pPort->pReceivePending )
       && ( PORT_STATE_CLOSE_STARTED > pPort->State )) {
       //
       //  Determine if there are any free packets
@@ -2978,7 +2850,7 @@ EslTcp4RxStart (
         pPacket->Op.Tcp4Rx.RxData.FragmentCount = 1;
         pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentLength = (UINT32) LengthInBytes;
         pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentBuffer = &pPacket->Op.Tcp4Rx.Buffer[0];
-        pTcp4->pReceivePending = pPacket;
+        pPort->pReceivePending = pPacket;
 
         //
         //  Start the receive on the packet
@@ -2997,7 +2869,8 @@ EslTcp4RxStart (
                     "ERROR - Failed to post a receive on port 0x%08x, Status: %r\r\n",
                     pPort,
                     Status ));
-          pTcp4->pReceivePending = NULL;
+          pPort->pReceivePending = NULL;
+          EslSocketPacketFree ( pPacket, DEBUG_RX | DEBUG_INFO );
           if ( !EFI_ERROR ( pSocket->RxError )) {
             //
             //  Save the error status
