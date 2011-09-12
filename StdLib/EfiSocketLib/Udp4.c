@@ -11,27 +11,6 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 
-  \section Udp4PortCloseStateMachine UDPv4 Port Close State Machine
-
-  The port close state machine walks the port through the necessary
-  states to stop activity on the port and get it into a state where
-  the resources may be released.  The state machine consists of the
-  following arcs and states:
-  <ul>
-    <li>Arc: ::EslUdp4PortCloseStart - Marks the port as closing and
-      initiates the port close operation</li>
-    <li>State: PORT_STATE_CLOSE_STARTED</li>
-    <li>Arc: ::EslSocketPortCloseTxDone - Waits until all of the transmit
-      operations to complete.</li>
-    <li>State: PORT_STATE_CLOSE_TX_DONE - RX still active</li>
-    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
-      operation have been cancelled.</li>
-    <li>State: PORT_STATE_CLOSE_RX_DONE - RX shutdown</li>
-    <li>State: PORT_STATE_CLOSE_DONE - Port never configured</li>
-    <li>Arc: ::EslUdp4PortClose - Releases the port resources</li>
-  </ul>
-
-
   \section Udp4ReceiveEngine UDPv4 Receive Engine
 
   The receive engine is started by calling ::EslUdp4RxStart when the
@@ -135,7 +114,7 @@ EslUdp4Bind (
   ESL_PORT * pPort;
   ESL_SERVICE * pService;
   CONST struct sockaddr_in * pIp4Address;
-  EFI_SERVICE_BINDING_PROTOCOL * pUdp4Service;
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
   EFI_STATUS Status;
   EFI_STATUS TempStatus;
   
@@ -169,10 +148,10 @@ EslUdp4Bind (
       //
       //  Create the UDP port
       //
-      pUdp4Service = pService->pInterface;
+      pServiceBinding = pService->pServiceBinding;
       ChildHandle = NULL;
-      Status = pUdp4Service->CreateChild ( pUdp4Service,
-                                           &ChildHandle );
+      Status = pServiceBinding->CreateChild ( pServiceBinding,
+                                              &ChildHandle );
       if ( !EFI_ERROR ( Status )) {
         DEBUG (( DEBUG_BIND | DEBUG_POOL,
                   "0x%08x: Udp4 port handle created\r\n",
@@ -200,8 +179,8 @@ EslUdp4Bind (
       //  Close the port if necessary
       //
       if (( EFI_ERROR ( Status )) && ( NULL != ChildHandle )) {
-        TempStatus = pUdp4Service->DestroyChild ( pUdp4Service,
-                                                  ChildHandle );
+        TempStatus = pServiceBinding->DestroyChild ( pServiceBinding,
+                                                     ChildHandle );
         if ( !EFI_ERROR ( TempStatus )) {
           DEBUG (( DEBUG_BIND | DEBUG_POOL,
                     "0x%08x: Udp4 port handle destroyed\r\n",
@@ -612,6 +591,7 @@ EslUdp4PortAllocate (
   ESL_IO_MGMT * pIo;
   ESL_LAYER * pLayer;
   ESL_PORT * pPort;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   ESL_UDP4_CONTEXT * pUdp4;
   EFI_STATUS Status;
 
@@ -651,10 +631,10 @@ EslUdp4PortAllocate (
     pPort->Signature = PORT_SIGNATURE;
     pPort->pService = pService;
     pPort->pSocket = pSocket;
-    pPort->pfnCloseStart = EslUdp4PortCloseStart;
     pPort->DebugFlags = DebugFlags;
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
     pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
+    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event );
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
     pBuffer = (UINT8 *)&pPort[ 1 ];
     pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
     pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
@@ -698,35 +678,35 @@ EslUdp4PortAllocate (
     //
     //  Open the port protocol
     //
+    pSocketBinding = pService->pSocketBinding;
     Status = gBS->OpenProtocol (
                     ChildHandle,
-                    &gEfiUdp4ProtocolGuid,
-                    (VOID **) &pUdp4->pProtocol,
+                    pSocketBinding->pNetworkProtocolGuid,
+                    &pPort->pProtocol.v,
                     pLayer->ImageHandle,
                     NULL,
                     EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
     if ( EFI_ERROR ( Status )) {
       DEBUG (( DEBUG_ERROR | DebugFlags,
                 "ERROR - Failed to open gEfiUdp4ProtocolGuid on controller 0x%08x\r\n",
-                pUdp4->Handle ));
+                pPort->Handle ));
       pSocket->errno = EEXIST;
       break;
     }
     DEBUG (( DebugFlags,
               "0x%08x: gEfiUdp4ProtocolGuid opened on controller 0x%08x\r\n",
-              pUdp4->pProtocol,
+              pPort->pProtocol.v,
               ChildHandle ));
 
     //
     //  Save the transmit address
     //
-    pPort->pProtocol = (VOID *)pUdp4->pProtocol;
-    pPort->pfnTxStart = (PFN_NET_TX_START)pUdp4->pProtocol->Transmit;
+    pPort->pfnTxStart = (PFN_NET_TX_START)pPort->pProtocol.UDPv4->Transmit;
 
     //
     //  Set the port address
     //
-    pUdp4->Handle = ChildHandle;
+    pPort->Handle = ChildHandle;
     pConfig = &pPort->Context.Udp4.ConfigData;
     pConfig->StationPort = PortNumber;
     if (( 0 == pIpAddress[0])
@@ -787,7 +767,7 @@ EslUdp4PortAllocate (
     //
     //  Close the port
     //
-    EslUdp4PortClose ( pPort );
+    EslSocketPortClose ( pPort );
   }
   //
   //  Return the operation status
@@ -803,12 +783,8 @@ EslUdp4PortAllocate (
   This routine releases the resources allocated by
   ::EslUdp4PortAllocate.
 
-  This routine is called by:
-  <ul>
-    <li>::EslUdp4PortAllocate - Port initialization failure</li>
-    <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
-  </ul>
-  See the \ref Udp4PortCloseStateMachine section.
+  This routine is called by ::EslSocketPortClose.
+  See the \ref PortCloseStateMachine section.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -822,104 +798,21 @@ EslUdp4PortClose (
   )
 {
   UINTN DebugFlags;
-  ESL_LAYER * pLayer;
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPreviousPort;
-  ESL_SERVICE * pService;
-  ESL_SOCKET * pSocket;
-  EFI_SERVICE_BINDING_PROTOCOL * pUdp4Service;
   ESL_UDP4_CONTEXT * pUdp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
 
   //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
   //  Assume success
   //
   Status = EFI_SUCCESS;
-  pSocket = pPort->pSocket;
-  pSocket->errno = 0;
-
-  //
-  //  Locate the port in the socket list
-  //
-  pLayer = &mEslLayer;
   DebugFlags = pPort->DebugFlags;
-  pPreviousPort = pSocket->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the socket list
-    //
-    pSocket->pPortList = pPort->pLinkSocket;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the socket list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkSocket != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkSocket;
-    }
-    if ( NULL != pPreviousPort ) {
-      //
-      //  Remove the port from the middle of the socket list
-      //
-      pPreviousPort->pLinkSocket = pPort->pLinkSocket;
-    }
-  }
-
-  //
-  //  Locate the port in the service list
-  //
-  pService = pPort->pService;
-  pPreviousPort = pService->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the service list
-    //
-    pService->pPortList = pPort->pLinkService;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the service list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkService != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkService;
-    }
-    if ( NULL != pPreviousPort ) {
-      //
-      //  Remove the port from the middle of the service list
-      //
-      pPreviousPort->pLinkService = pPort->pLinkService;
-    }
-  }
-
-  //
-  //  Empty the receive queue
-  //
-  ASSERT ( NULL == pSocket->pRxPacketListHead );
-  ASSERT ( NULL == pSocket->pRxPacketListTail );
-  ASSERT ( 0 == pSocket->RxBytes );
-
-  //
-  //  Empty the receive free queue
-  //
-  while ( NULL != pSocket->pRxFree ) {
-    pPacket = pSocket->pRxFree;
-    pSocket->pRxFree = pPacket->pNext;
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-  }
+  pUdp4 = &pPort->Context.Udp4;
 
   //
   //  Done with the receive event
   //
-  pUdp4 = &pPort->Context.Udp4;
   if ( NULL != pUdp4->RxToken.Event ) {
     Status = gBS->CloseEvent ( pUdp4->RxToken.Event );
     if ( !EFI_ERROR ( Status )) {
@@ -936,86 +829,6 @@ EslUdp4PortClose (
   }
 
   //
-  //  Done with the transmit events
-  //
-  Status = EslSocketIoFree ( pPort,
-                             &pPort->pTxFree,
-                             DebugFlags | DEBUG_POOL,
-                             "transmit",
-                             OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event ));
-
-  //
-  //  Done with the UDP protocol
-  //
-  pUdp4Service = pService->pInterface;
-  if ( NULL != pUdp4->pProtocol ) {
-    Status = gBS->CloseProtocol ( pUdp4->Handle,
-                                  &gEfiUdp4ProtocolGuid,
-                                  pLayer->ImageHandle,
-                                  NULL );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags,
-                "0x%08x: gEfiUdp4ProtocolGuid closed on controller 0x%08x\r\n",
-                pUdp4->pProtocol,
-                pUdp4->Handle ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close gEfiUdp4ProtocolGuid opened on controller 0x%08x, Status: %r\r\n",
-                pUdp4->Handle,
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
-
-  //
-  //  Done with the UDP port
-  //
-  if ( NULL != pUdp4->Handle ) {
-    Status = pUdp4Service->DestroyChild ( pUdp4Service,
-                                          pUdp4->Handle );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Udp4 port handle destroyed\r\n",
-                pUdp4->Handle ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL,
-                "ERROR - Failed to destroy the Udp4 port handle, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
-
-  //
-  //  Release the port structure
-  //
-  Status = gBS->FreePool ( pPort );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( DebugFlags | DEBUG_POOL,
-              "0x%08x: Free pPort, %d bytes\r\n",
-              pPort,
-              sizeof ( *pPort )));
-  }
-  else {
-    DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL,
-              "ERROR - Failed to free pPort: 0x%08x, Status: %r\r\n",
-              pPort,
-              Status ));
-    ASSERT ( EFI_SUCCESS == Status );
-  }
-
-  //
-  //  Mark the socket as closed if necessary
-  //
-  if ( NULL == pSocket->pPortList ) {
-    pSocket->State = SOCKET_STATE_CLOSED;
-    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Socket State: SOCKET_STATE_CLOSED\r\n",
-              pSocket ));
-  }
-
-  //
   //  Return the operation status
   //
   DBG_EXIT_STATUS ( Status );
@@ -1029,7 +842,7 @@ EslUdp4PortClose (
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -1086,7 +899,7 @@ EslUdp4PortCloseRxStop (
   //  Reset the port, cancel the outstanding receive
   //
   pUdp4 = &pPort->Context.Udp4;
-  pUdp4Protocol = pUdp4->pProtocol;
+  pUdp4Protocol = pPort->pProtocol.UDPv4;
   Status = pUdp4Protocol->Configure ( pUdp4Protocol,
                                       NULL );
   if ( !EFI_ERROR ( Status )) {
@@ -1099,76 +912,6 @@ EslUdp4PortCloseRxStop (
              "ERROR - Port 0x%08x reset failed, Status: %r\r\n",
              pPort,
              Status ));
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Start the close operation on a UDP4 port, state 1.
-
-  This routine marks the port as closed and initiates the port
-  close state machine.  The first step is to allow the \ref
-  TransmitEngine to run down.
-
-  This routine is called by ::EslSocketCloseStart to initiate the socket
-  network specific close operation on the socket.
-  See the \ref Udp4PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
-  )
-{
-  ESL_SOCKET * pSocket;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Mark the port as closing
-  //
-  Status = EFI_ALREADY_STARTED;
-  pSocket = pPort->pSocket;
-  pSocket->errno = EALREADY;
-  if ( PORT_STATE_CLOSE_STARTED > pPort->State ) {
-
-    //
-    //  Update the port state
-    //
-    pPort->State = PORT_STATE_CLOSE_STARTED;
-    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Port Close State: PORT_STATE_CLOSE_STARTED\r\n",
-              pPort ));
-    pPort->bCloseNow = bCloseNow;
-    pPort->DebugFlags = DebugFlags;
-
-    //
-    //  Determine if transmits are complete
-    //
-    Status = EslSocketPortCloseTxDone ( pPort );
   }
 
   //
@@ -1509,7 +1252,7 @@ EslUdp4RxCancel (
       //
       //  Attempt to cancel the receive operation
       //
-      pUdp4Protocol = pUdp4->pProtocol;
+      pUdp4Protocol = pPort->pProtocol.UDPv4;
       Status = pUdp4Protocol->Cancel ( pUdp4Protocol,
                                        &pUdp4->RxToken );
       if ( EFI_NOT_FOUND == Status ) {
@@ -1764,7 +1507,7 @@ EslUdp4RxStart (
         //
         //  Start the receive on the packet
         //
-        pUdp4Protocol = pUdp4->pProtocol;
+        pUdp4Protocol = pPort->pProtocol.UDPv4;
         Status = pUdp4Protocol->Receive ( pUdp4Protocol,
                                           &pUdp4->RxToken );
         if ( !EFI_ERROR ( Status )) {
@@ -1942,7 +1685,7 @@ EslUdp4Shutdown (
       //
       pNextPort = pPort->pLinkSocket;
       pUdp4 = &pPort->Context.Udp4;
-      pUdp4Protocol = pUdp4->pProtocol;
+      pUdp4Protocol = pPort->pProtocol.UDPv4;
       DEBUG (( DEBUG_TX,
                 "0x%08x: pPort Configuring for %d.%d.%d.%d:%d --> %d.%d.%d.%d:%d\r\n",
                           pPort,

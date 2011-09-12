@@ -43,9 +43,9 @@ EslServiceConnect (
   UINTN LengthInBytes;
   CONST ESL_SOCKET_BINDING * pEnd;
   VOID * pJunk;
-  VOID * pInterface;
   ESL_SERVICE * pService;
   CONST ESL_SOCKET_BINDING * pSocketBinding;
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -69,7 +69,7 @@ EslServiceConnect (
     Status = gBS->OpenProtocol (
                     Controller,
                     pSocketBinding->pNetworkBinding,
-                    &pInterface,
+                    (VOID**)&pServiceBinding,
                     BindingHandle,
                     Controller,
                     EFI_OPEN_PROTOCOL_GET_PROTOCOL
@@ -109,7 +109,7 @@ EslServiceConnect (
           pService->Signature = SERVICE_SIGNATURE;
           pService->pSocketBinding = pSocketBinding;
           pService->Controller = Controller;
-          pService->pInterface = pInterface;
+          pService->pServiceBinding = pServiceBinding;
 
           //
           //  Mark the controller in use

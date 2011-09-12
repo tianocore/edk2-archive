@@ -25,31 +25,6 @@
   and get the associated socket.
 
 
-  \section Tcp4PortCloseStateMachine TCPv4 Port Close State Machine
-
-  The port close state machine walks the port through the necessary
-  states to stop activity on the port and get it into a state where
-  the resources may be released.  The state machine consists of the
-  following arcs and states:
-  <ul>
-    <li>Arc: ::EslTcp4PortCloseStart - Marks the port as closing and
-      initiates the port close operation</li>
-    <li>State: PORT_STATE_CLOSE_STARTED</li>
-    <li>Arc: ::EslSocketPortCloseTxDone - Waits until all of the transmit
-      operations to complete.</li>
-    <li>State: PORT_STATE_CLOSE_TX_DONE</li>
-    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
-      operation have been cancelled.</li>
-    <li>State: PORT_STATE_CLOSE_RX_DONE</li>
-    <li>Arc: ::EslTcp4PortCloseComplete - Called by the TCPv4 layer
-      when the port is closed.
-    <li>State: PORT_STATE_CLOSE_DONE</li>
-    <li>Arc: ::EslTcp4PortClose - Releases the port resources</li>
-  </ul>
-  Note that the state machine takes into account that close and receive
-  completions may happen in either order.
-
-
   \section Tcp4ReceiveEngine TCPv4 Receive Engine
 
   The receive engine is started by calling ::EslTcp4RxStart when the
@@ -236,7 +211,7 @@ EslTcp4Bind (
   ESL_PORT * pPort;
   ESL_SERVICE * pService;
   CONST struct sockaddr_in * pIp4Address;
-  EFI_SERVICE_BINDING_PROTOCOL * pTcp4Service;
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
   EFI_STATUS Status;
   EFI_STATUS TempStatus;
 
@@ -269,10 +244,10 @@ EslTcp4Bind (
       //
       //  Create the TCP port
       //
-      pTcp4Service = pService->pInterface;
+      pServiceBinding = pService->pServiceBinding;
       ChildHandle = NULL;
-      Status = pTcp4Service->CreateChild ( pTcp4Service,
-                                           &ChildHandle );
+      Status = pServiceBinding->CreateChild ( pServiceBinding,
+                                              &ChildHandle );
       if ( !EFI_ERROR ( Status )) {
         DEBUG (( DEBUG_BIND | DEBUG_POOL,
                   "0x%08x: Tcp4 port handle created\r\n",
@@ -300,8 +275,8 @@ EslTcp4Bind (
       //  Close the port if necessary
       //
       if (( EFI_ERROR ( Status )) && ( NULL != ChildHandle )) {
-        TempStatus = pTcp4Service->DestroyChild ( pTcp4Service,
-                                                  ChildHandle );
+        TempStatus = pServiceBinding->DestroyChild ( pServiceBinding,
+                                                     ChildHandle );
         if ( !EFI_ERROR ( TempStatus )) {
           DEBUG (( DEBUG_BIND | DEBUG_POOL,
                     "0x%08x: Tcp4 port handle destroyed\r\n",
@@ -396,7 +371,7 @@ EslTcp4ConnectAttempt (
     pTcp4 = &pPort->Context.Tcp4;
     pTcp4->ConfigData.AccessPoint.ActiveFlag = TRUE;
     pTcp4->ConfigData.TimeToLive = 255;
-    pTcp4Protocol = pTcp4->pProtocol;
+    pTcp4Protocol = pPort->pProtocol.TCPv4;
     Status = pTcp4Protocol->Configure ( pTcp4Protocol,
                                         &pTcp4->ConfigData );
     if ( EFI_ERROR ( Status )) {
@@ -1125,7 +1100,7 @@ EslTcp4Listen (
         //
         //  Configure the port
         //
-        pTcp4Protocol = pTcp4->pProtocol;
+        pTcp4Protocol = pPort->pProtocol.TCPv4;
         Status = pTcp4Protocol->Configure ( pTcp4Protocol,
                                             &pTcp4->ConfigData );
         if ( EFI_ERROR ( Status )) {
@@ -1217,7 +1192,7 @@ EslTcp4Listen (
       //  Close the port upon error
       //
       if ( EFI_ERROR ( Status )) {
-        EslTcp4PortCloseStart ( pPort, TRUE, DEBUG_LISTEN );
+        EslSocketPortCloseStart ( pPort, TRUE, DEBUG_LISTEN );
       }
 
       //
@@ -1342,7 +1317,7 @@ EslTcp4ListenComplete (
         //
         //  Restart the listen operation on the port
         //
-        pTcp4Protocol = pTcp4->pProtocol;
+        pTcp4Protocol = pPort->pProtocol.TCPv4;
         Status = pTcp4Protocol->Accept ( pTcp4Protocol,
                                          &pTcp4->ListenToken );
 
@@ -1362,7 +1337,7 @@ EslTcp4ListenComplete (
           pNewPort->bConfigured = TRUE;
           pConfigData = &pTcp4->ConfigData;
           pConfigData->ControlOption = &pTcp4->Option;
-          pTcp4Protocol = pTcp4->pProtocol;
+          pTcp4Protocol = pNewPort->pProtocol.TCPv4;
           Status = pTcp4Protocol->GetModeData ( pTcp4Protocol,
                                                 NULL,
                                                 pConfigData,
@@ -1439,7 +1414,7 @@ EslTcp4ListenComplete (
           //
           //  Close the listening port
           //
-          EslTcp4PortCloseStart ( pPort, TRUE, DEBUG_LISTEN );
+          EslSocketPortCloseStart ( pPort, TRUE, DEBUG_LISTEN );
         }
       }
 
@@ -1562,10 +1537,10 @@ EslTcp4PortAllocate (
     pPort->Signature = PORT_SIGNATURE;
     pPort->pService = pService;
     pPort->pSocket = pSocket;
-    pPort->pfnCloseStart = EslTcp4PortCloseStart;
     pPort->DebugFlags = DebugFlags;
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_TCP4_IO_TOKEN, Packet.TxData );
     pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Tcp4Tx.TxData );
+    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event );
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_TCP4_IO_TOKEN, Packet.TxData );
     pBuffer = (UINT8 *)&pPort[ 1 ];
     pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
     pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
@@ -1626,7 +1601,7 @@ EslTcp4PortAllocate (
     //
     Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
                                  TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslTcp4PortCloseComplete,
+                                 (EFI_EVENT_NOTIFY)EslSocketPortCloseComplete,
                                  pPort,
                                  &pTcp4->CloseToken.CompletionToken.Event);
     if ( EFI_ERROR ( Status )) {
@@ -1665,32 +1640,31 @@ EslTcp4PortAllocate (
     Status = gBS->OpenProtocol (
                     ChildHandle,
                     &gEfiTcp4ProtocolGuid,
-                    (VOID **) &pTcp4->pProtocol,
+                    &pPort->pProtocol.v,
                     pLayer->ImageHandle,
                     NULL,
                     EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
     if ( EFI_ERROR ( Status )) {
       DEBUG (( DEBUG_ERROR | DebugFlags,
                 "ERROR - Failed to open gEfiTcp4ProtocolGuid on controller 0x%08x\r\n",
-                pTcp4->Handle ));
+                pPort->Handle ));
       pSocket->errno = EEXIST;
       break;
     }
     DEBUG (( DebugFlags,
               "0x%08x: gEfiTcp4ProtocolGuid opened on controller 0x%08x\r\n",
-              pTcp4->pProtocol,
+              pPort->pProtocol.v,
               ChildHandle ));
 
     //
     //  Save the transmit address
     //
-    pPort->pProtocol = (VOID *)pTcp4->pProtocol;
-    pPort->pfnTxStart = (PFN_NET_TX_START)pTcp4->pProtocol->Transmit;
+    pPort->pfnTxStart = (PFN_NET_TX_START)pPort->pProtocol.TCPv4->Transmit;
 
     //
     //  Set the port address
     //
-    pTcp4->Handle = ChildHandle;
+    pPort->Handle = ChildHandle;
     pAccessPoint = &pPort->Context.Tcp4.ConfigData.AccessPoint;
     pAccessPoint->StationPort = PortNumber;
     if (( 0 == pIpAddress[0])
@@ -1760,16 +1734,11 @@ EslTcp4PortAllocate (
 /**
   Close a TCP4 port.
 
-  This routine releases the resources allocated by
+  This routine releases the network specific resources allocated by
   ::EslTcp4PortAllocate.
 
-  This routine is called by:
-  <ul>
-    <li>::EslTcp4ConnectComplete - Connection failure and reducint the port list to a single port</li>
-    <li>::EslTcp4PortAllocate - Port initialization failure</li>
-    <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
-  </ul>
-  See the \ref Tcp4PortCloseStateMachine section.
+  This routine is called by ::EslSocketPortClose.
+  See the \ref PortCloseStateMachine section.
   
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -1783,112 +1752,17 @@ EslTcp4PortClose (
   )
 {
   UINTN DebugFlags;
-  ESL_LAYER * pLayer;
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPreviousPort;
-  ESL_SERVICE * pService;
-  ESL_SOCKET * pSocket;
-  EFI_SERVICE_BINDING_PROTOCOL * pTcp4Service;
   ESL_TCP4_CONTEXT * pTcp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
 
   //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
   //  Locate the port in the socket list
   //
   Status = EFI_SUCCESS;
-  pLayer = &mEslLayer;
   DebugFlags = pPort->DebugFlags;
-  pSocket = pPort->pSocket;
-  pPreviousPort = pSocket->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the socket list
-    //
-    pSocket->pPortList = pPort->pLinkSocket;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the socket list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkSocket != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkSocket;
-    }
-    if ( NULL != pPreviousPort ) {
-      //
-      //  Remove the port from the middle of the socket list
-      //
-      pPreviousPort->pLinkSocket = pPort->pLinkSocket;
-    }
-  }
-
-  //
-  //  Locate the port in the service list
-  //
-  pService = pPort->pService;
-  pPreviousPort = pService->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the service list
-    //
-    pService->pPortList = pPort->pLinkService;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the service list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkService != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkService;
-    }
-    if ( NULL != pPreviousPort ) {
-      //
-      //  Remove the port from the middle of the service list
-      //
-      pPreviousPort->pLinkService = pPort->pLinkService;
-    }
-  }
-
-  //
-  //  Empty the urgent receive queue
-  //
   pTcp4 = &pPort->Context.Tcp4;
-  while ( NULL != pSocket->pRxOobPacketListHead ) {
-    pPacket = pSocket->pRxOobPacketListHead;
-    pSocket->pRxOobPacketListHead = pPacket->pNext;
-    pSocket->RxOobBytes -= pPacket->Op.Tcp4Rx.ValidBytes;
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-  }
-  pSocket->pRxOobPacketListTail = NULL;
-  ASSERT ( 0 == pSocket->RxOobBytes );
-
-  //
-  //  Empty the receive queue
-  //
-  while ( NULL != pSocket->pRxPacketListHead ) {
-    pPacket = pSocket->pRxPacketListHead;
-    pSocket->pRxPacketListHead = pPacket->pNext;
-    pSocket->RxBytes -= pPacket->Op.Tcp4Rx.ValidBytes;
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-  }
-  pSocket->pRxPacketListTail = NULL;
-  ASSERT ( 0 == pSocket->RxBytes );
-
-  //
-  //  Empty the receive free queue
-  //
-  while ( NULL != pSocket->pRxFree ) {
-    pPacket = pSocket->pRxFree;
-    pSocket->pRxFree = pPacket->pNext;
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-  }
 
   //
   //  Done with the connect event
@@ -1963,126 +1837,10 @@ EslTcp4PortClose (
   }
 
   //
-  //  Done with the normal transmit events
-  //
-  Status = EslSocketIoFree ( pPort,
-                             &pPort->pTxFree,
-                             DebugFlags | DEBUG_POOL,
-                             "normal transmit",
-                             OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event ));
-
-  //
-  //  Done with the urgent transmit events
-  //
-  Status = EslSocketIoFree ( pPort,
-                             &pPort->pTxOobFree,
-                             DebugFlags | DEBUG_POOL,
-                             "urgent transmit",
-                             OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Tx.CompletionToken.Event ));
-
-  //
-  //  Done with the TCP protocol
-  //
-  pTcp4Service = pService->pInterface;
-  if ( NULL != pTcp4->pProtocol ) {
-    Status = gBS->CloseProtocol ( pTcp4->Handle,
-                                  &gEfiTcp4ProtocolGuid,
-                                  pLayer->ImageHandle,
-                                  NULL );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags,
-                "0x%08x: gEfiTcp4ProtocolGuid closed on controller 0x%08x\r\n",
-                pTcp4->pProtocol,
-                pTcp4->Handle ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close gEfiTcp4ProtocolGuid opened on controller 0x%08x, Status: %r\r\n",
-                pTcp4->Handle,
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
-
-  //
-  //  Done with the TCP port
-  //
-  if ( NULL != pTcp4->Handle ) {
-    Status = pTcp4Service->DestroyChild ( pTcp4Service,
-                                          pTcp4->Handle );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Tcp4 port handle destroyed\r\n",
-                pTcp4->Handle ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL,
-                "ERROR - Failed to destroy the Tcp4 port handle, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
-
-  //
-  //  Release the port structure
-  //
-  Status = gBS->FreePool ( pPort );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( DebugFlags | DEBUG_POOL,
-              "0x%08x: Free pPort, %d bytes\r\n",
-              pPort,
-              sizeof ( *pPort )));
-  }
-  else {
-    DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL,
-              "ERROR - Failed to free pPort: 0x%08x, Status: %r\r\n",
-              pPort,
-              Status ));
-    ASSERT ( EFI_SUCCESS == Status );
-  }
-
-  //
   //  Return the operation status
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
-}
-
-
-/**
-  Process the port close completion event
-
-  This routine attempts to complete the port close operation.
-
-  This routine is called by the TCPv4 layer upon completion of
-  the close operation.
-  See the \ref Tcp4PortCloseStateMachine section.
-
-  @param [in] Event     The close completion event
-
-  @param [in] pPort     Address of an ::ESL_PORT structure.
-
-**/
-VOID
-EslTcp4PortCloseComplete (
-  IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
-  )
-{
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Update the port state
-  //
-  pPort->State = PORT_STATE_CLOSE_DONE;
-
-  //
-  //  Release the resources once the receive operation completes
-  //
-  Status = EslSocketPortCloseRxDone ( pPort );
-  DBG_EXIT_STATUS ( Status );
 }
 
 
@@ -2092,7 +1850,7 @@ EslTcp4PortCloseComplete (
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -2144,7 +1902,7 @@ EslTcp4PortCloseRxStop (
   //  Close the configured port
   //
   pTcp4 = &pPort->Context.Tcp4;
-  pTcp4Protocol = pTcp4->pProtocol;
+  pTcp4Protocol = pPort->pProtocol.TCPv4;
   pTcp4->CloseToken.AbortOnClose = FALSE;
   Status = pTcp4Protocol->Close ( pTcp4Protocol,
                                   &pTcp4->CloseToken );
@@ -2158,76 +1916,6 @@ EslTcp4PortCloseRxStop (
              "ERROR - Close failed on port 0x%08x, Status: %r\r\n",
              pPort,
              Status ));
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Start the close operation on a TCP4 port, state 1.
-
-  This routine marks the port as closed and initiates the port
-  close state machine.  The first step is to allow the \ref
-  TransmitEngine to run down.
-
-  This routine is called by ::EslSocketCloseStart to initiate the socket
-  network specific close operation on the socket.
-  See the \ref Tcp4PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslTcp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
-  )
-{
-  ESL_SOCKET * pSocket;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Mark the port as closing
-  //
-  Status = EFI_ALREADY_STARTED;
-  pSocket = pPort->pSocket;
-  pSocket->errno = EALREADY;
-  if ( PORT_STATE_CLOSE_STARTED > pPort->State ) {
-
-    //
-    //  Update the port state
-    //
-    pPort->State = PORT_STATE_CLOSE_STARTED;
-    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Port Close State: PORT_STATE_CLOSE_STARTED\r\n",
-              pPort ));
-    pPort->bCloseNow = bCloseNow;
-    pPort->DebugFlags = DebugFlags;
-
-    //
-    //  Determine if transmits are complete
-    //
-    Status = EslSocketPortCloseTxDone ( pPort );
   }
 
   //
@@ -2597,7 +2285,7 @@ EslTcp4RxCancel (
       //
       //  Attempt to cancel the receive operation
       //
-      pTcp4Protocol = pTcp4->pProtocol;
+      pTcp4Protocol = pPort->pProtocol.TCPv4;
       Status = pTcp4Protocol->Cancel ( pTcp4Protocol,
                                        &pTcp4->RxToken.CompletionToken );
       if ( EFI_NOT_FOUND == Status ) {
@@ -2855,7 +2543,7 @@ EslTcp4RxStart (
         //
         //  Start the receive on the packet
         //
-        pTcp4Protocol = pTcp4->pProtocol;
+        pTcp4Protocol = pPort->pProtocol.TCPv4;
         Status = pTcp4Protocol->Receive ( pTcp4Protocol,
                                           &pTcp4->RxToken );
         if ( !EFI_ERROR ( Status )) {

@@ -145,6 +145,7 @@ VOID
 typedef struct {
   CHAR16 * pName;                 ///<  Protocol name
   EFI_GUID * pNetworkBinding;     ///<  Network service binding protocol for socket support
+  EFI_GUID * pNetworkProtocolGuid;///<  Network protocol GUID
   CONST EFI_GUID * pTagGuid;      ///<  Tag to mark protocol in use
   PFN_SB_INITIALIZE pfnInitialize;///<  Routine to initialize the service
   PFN_SB_SHUTDOWN pfnShutdown;    ///<  Routine to shutdown the service

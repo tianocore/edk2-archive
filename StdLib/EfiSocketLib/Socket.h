@@ -190,31 +190,15 @@ typedef struct _ESL_SERVICE {
   //
   //  Service data
   //
-  CONST ESL_SOCKET_BINDING * pSocketBinding;  ///<  Name and shutdown routine
-  EFI_HANDLE Controller;    ///<  Controller for the service
-  VOID * pInterface;        ///<  Network layer service binding interface
+  CONST ESL_SOCKET_BINDING * pSocketBinding;      ///<  Name and shutdown routine
+  EFI_HANDLE Controller;                          ///<  Controller for the service
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding; ///<  Network layer service binding interface
 
   //
   //  Network data
   //
   ESL_PORT * pPortList;     ///<  List of ports using this service
 }GCC_ESL_SERVICE;
-
-/**
-  Start the close operation on a TCP4 port.
-
-  @param [in] pPort       Address of the port structure.
-  @param [in] bAbort      Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-**/
-typedef
-EFI_STATUS
-PFN_PORT_CLOSE_START (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bAbort,
-  IN UINTN DebugFlags
-  );
 
 /**
   IO management structure
@@ -241,8 +225,6 @@ typedef struct {
   //
   //  IP4 context
   //
-  EFI_HANDLE Handle;                    ///<  IP4 port handle
-  EFI_IP4_PROTOCOL * pProtocol;         ///<  IP4 protocol pointer
   EFI_IP4_MODE_DATA ModeData;           ///<  IP4 mode data, includes configuration data
   EFI_IPv4_ADDRESS DestinationAddress;  ///<  Default destination address
 
@@ -262,8 +244,6 @@ typedef struct {
   //
   //  TCP4 context
   //
-  EFI_HANDLE Handle;                ///<  TCP4 port handle
-  EFI_TCP4_PROTOCOL * pProtocol;    ///<  TCP4 protocol pointer
   EFI_TCP4_CONFIG_DATA ConfigData;  ///<  TCP4 configuration data
   EFI_TCP4_OPTION Option;           ///<  TCP4 port options
 
@@ -289,8 +269,6 @@ typedef struct {
   //
   //  UDP4 context
   //
-  EFI_HANDLE Handle;                ///<  UDP4 port handle
-  EFI_UDP4_PROTOCOL * pProtocol;    ///<  UDP4 protocol pointer
   EFI_UDP4_CONFIG_DATA ConfigData;  ///<  UDP4 configuration data
 
   //
@@ -336,11 +314,11 @@ typedef struct _ESL_PORT {
   //
   ESL_SERVICE * pService;       ///<  Service for this port
   ESL_SOCKET * pSocket;         ///<  Socket for this port
-  PFN_PORT_CLOSE_START * pfnCloseStart; ///<  Routine to start closing the port
 
   //
   //  Port management
   //
+  EFI_HANDLE Handle;            ///<  Network port handle
   PORT_STATE State;             ///<  State of the port
   UINTN DebugFlags;             ///<  Debug flags used to close the port
   BOOLEAN bCloseNow;            ///<  TRUE = Close the port immediately
@@ -364,7 +342,12 @@ typedef struct _ESL_PORT {
   //
   //  Protocol specific management data
   //
-  VOID * pProtocol;             ///<  Copy of the network layer protocol
+  union {
+    VOID * v;                   ///<  VOID pointer
+    EFI_IP4_PROTOCOL * IPv4;    ///<  IP4 protocol pointer
+    EFI_TCP4_PROTOCOL * TCPv4;  ///<  TCP4 protocol pointer
+    EFI_UDP4_PROTOCOL * UDPv4;  ///<  UDP4 protocol pointer
+  } pProtocol;                  ///<  Protocol structure address
   union {
     ESL_IP4_CONTEXT Ip4;        ///<  IPv4 management data
     ESL_TCP4_CONTEXT Tcp4;      ///<  TCPv4 management data
@@ -830,8 +813,9 @@ typedef struct _ESL_SOCKET {
   //
   //  Transmit data management
   //
-  UINTN TxTokenOffset;              ///<  Offset for data pointer in TX token
   UINTN TxPacketOffset;             ///<  Offset for data pointer in ::ESL_PACKET
+  UINTN TxTokenEventOffset;         ///<  Offset to the Event in the TX token
+  UINTN TxTokenOffset;              ///<  Offset for data pointer in TX token
   UINT32 MaxTxBuf;                  ///<  Maximum size of the transmit buffer
   ESL_PACKET * pTxOobPacketListHead;///<  Urgent data list head
   ESL_PACKET * pTxOobPacketListTail;///<  Urgent data list tail
@@ -935,7 +919,6 @@ EslSocketAllocate (
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
 
   @retval EFI_SUCCESS - The structures were properly initialized
 
@@ -945,8 +928,7 @@ EslSocketIoFree (
   IN ESL_PORT * pPort,
   IN ESL_IO_MGMT ** ppFreeQueue,
   IN UINTN DebugFlags,
-  IN CHAR8 * pEventName,
-  IN UINT32 EventOffset
+  IN CHAR8 * pEventName
   );
 
 /**
@@ -1049,6 +1031,53 @@ EslSocketPacketFree (
   );
 
 /**
+  Close a port.
+
+  This routine releases the resources allocated by the network specific
+  PortAllocate routine.
+
+  This routine is called by:
+  <ul>
+    <li>::EslIp4PortAllocate - Port initialization failure</li>
+    <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
+    <li>::EslTcp4ConnectComplete - Connection failure and reducint the port list to a single port</li>
+    <li>::EslTcp4PortAllocate - Port initialization failure</li>
+    <li>::EslUdp4PortAllocate - Port initialization failure</li>
+  </ul>
+  See the \ref PortCloseStateMachine section.
+  
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS     The port is closed
+  @retval other           Port close error
+
+**/
+EFI_STATUS
+EslSocketPortClose (
+  IN ESL_PORT * pPort
+  );
+
+/**
+  Process the port close completion event
+
+  This routine attempts to complete the port close operation.
+
+  This routine is called by the TCP layer upon completion of
+  the close operation.
+  See the \ref PortCloseStateMachine section.
+
+  @param [in] Event     The close completion event
+
+  @param [in] pPort     Address of an ::ESL_PORT structure.
+
+**/
+VOID
+EslSocketPortCloseComplete (
+  IN EFI_EVENT Event,
+  IN ESL_PORT * pPort
+  );
+
+/**
   Port close state 3
 
   This routine determines the state of the receive operations and
@@ -1079,22 +1108,44 @@ EslSocketPortCloseRxDone (
   );
 
 /**
+  Start the close operation on a port, state 1.
+
+  This routine marks the port as closed and initiates the \ref
+  PortCloseStateMachine. The first step is to allow the \ref
+  TransmitEngine to run down.
+
+  This routine is called by ::EslSocketCloseStart to initiate the socket
+  network specific close operation on the socket.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] bCloseNow   Set TRUE to abort active transfers
+  @param [in] DebugFlags  Flags for debug messages
+
+  @retval EFI_SUCCESS         The port is closed, not normally returned
+  @retval EFI_NOT_READY       The port has started the closing process
+  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
+                              most likely the routine was called already.
+
+**/
+EFI_STATUS
+EslSocketPortCloseStart (
+  IN ESL_PORT * pPort,
+  IN BOOLEAN bCloseNow,
+  IN UINTN DebugFlags
+  );
+
+/**
   Port close state 2
 
   This routine determines the state of the transmit engine and
-  continues the close operation after the transmission is complete.
+  continue the close operation after the transmission is complete.
   The next step is to stop the \ref Tcp4ReceiveEngine.
+  See the \ref PortCloseStateMachine section.
 
-  This routine is called by
-  <ul>
-    <li>::EslIp4PortCloseStart</li>
-    <li>::EslTcp4PortCloseStart</li>
-    <li>::EslUdp4PortCloseStart</li>
-  </ul>
-  to determine if the transmission is complete.
-  See the \ref Tcp4PortCloseStateMachine section.
+  This routine is called by ::EslSocketPortCloseStart to determine
+  if the transmission is complete.
 
-  @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] pPort           Address of an ::ESL_PORT structure.
 
   @retval EFI_SUCCESS         The port is closed, not normally returned
   @retval EFI_NOT_READY       The port is still closing
@@ -1422,7 +1473,7 @@ EslIp4PortClose (
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -1455,34 +1506,6 @@ EslIp4PortClosePacketFree (
 EFI_STATUS
 EslIp4PortCloseRxStop (
   IN ESL_PORT * pPort
-  );
-
-/**
-  Start the close operation on a IP4 port, state 1.
-
-  This routine marks the port as closed and initiates the port
-  close state machine.  The first step is to allow the \ref
-  TransmitEngine to run down.
-
-  This routine is called by ::EslSocketCloseStart to initiate the socket
-  network specific close operation on the socket.
-  See the \ref Ip4PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslIp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
   );
 
 /**
@@ -1988,32 +2011,12 @@ EslTcp4PortClose (
   );
 
 /**
-  Process the port close completion event
-
-  This routine attempts to complete the port close operation.
-
-  This routine is called by the TCPv4 layer upon completion of
-  the close operation.
-  See the \ref Tcp4PortCloseStateMachine section.
-
-  @param [in] Event     The close completion event
-
-  @param [in] pPort     Address of an ::ESL_PORT structure.
-
-**/
-VOID
-EslTcp4PortCloseComplete (
-  IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
-  );
-
-/**
   Free a receive packet
 
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -2046,33 +2049,6 @@ EslTcp4PortClosePacketFree (
 EFI_STATUS
 EslTcp4PortCloseRxStop (
   IN ESL_PORT * pPort
-  );
-
-/**
-  Start the close operation on a TCP4 port, state 1.
-
-  This routine marks the port as closed and initiates the port
-  close state machine.
-
-  This routine is called by ::EslSocketCloseStart to initiate the socket
-  network specific close operation on the socket.
-  See the \ref Tcp4PortCloseStateMachine section.
-  
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslTcp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
   );
 
 /**
@@ -2508,7 +2484,7 @@ EslUdp4PortClose (
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -2541,34 +2517,6 @@ EslUdp4PortClosePacketFree (
 EFI_STATUS
 EslUdp4PortCloseRxStop (
   IN ESL_PORT * pPort
-  );
-
-/**
-  Start the close operation on a UDP4 port, state 1.
-
-  This routine marks the port as closed and initiates the port
-  close state machine.  The first step is to allow the \ref
-  TransmitEngine to run down.
-
-  This routine is called by ::EslSocketCloseStart to initiate the socket
-  network specific close operation on the socket.
-  See the \ref Udp4PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
   );
 
 /**

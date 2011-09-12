@@ -10,26 +10,6 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-  \section Ip4PortCloseStateMachine IPv4 Port Close State Machine
-
-  The port close state machine walks the port through the necessary
-  states to stop activity on the port and get it into a state where
-  the resources may be released.  The state machine consists of the
-  following arcs and states:
-  <ul>
-    <li>Arc: ::EslIp4PortCloseStart - Marks the port as closing and
-      initiates the port close operation</li>
-    <li>State: PORT_STATE_CLOSE_STARTED</li>
-    <li>Arc: ::EslSocketPortCloseTxDone - Waits until all of the transmit
-      operations to complete.</li>
-    <li>State: PORT_STATE_CLOSE_TX_DONE - RX still active</li>
-    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
-      operation have been cancelled.</li>
-    <li>State: PORT_STATE_CLOSE_RX_DONE - RX shutdown</li>
-    <li>State: PORT_STATE_CLOSE_DONE - Port never configured</li>
-    <li>Arc: ::EslIp4PortClose - Releases the port resources</li>
-  </ul>
-
 
   \section Ip4ReceiveEngine IPv4 Receive Engine
 
@@ -128,7 +108,7 @@ EslIp4Bind (
 {
   EFI_HANDLE ChildHandle;
   CONST struct sockaddr_in * pIp4Address;
-  EFI_SERVICE_BINDING_PROTOCOL * pIp4Service;
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
   ESL_LAYER * pLayer;
   ESL_PORT * pPort;
   ESL_SERVICE * pService;
@@ -165,10 +145,10 @@ EslIp4Bind (
       //
       //  Create the IP port
       //
-      pIp4Service = pService->pInterface;
+      pServiceBinding = pService->pServiceBinding;
       ChildHandle = NULL;
-      Status = pIp4Service->CreateChild ( pIp4Service,
-                                          &ChildHandle );
+      Status = pServiceBinding->CreateChild ( pServiceBinding,
+                                              &ChildHandle );
       if ( !EFI_ERROR ( Status )) {
         DEBUG (( DEBUG_BIND | DEBUG_POOL,
                   "0x%08x: Ip4 port handle created\r\n",
@@ -195,8 +175,8 @@ EslIp4Bind (
       //  Close the port if necessary
       //
       if (( EFI_ERROR ( Status )) && ( NULL != ChildHandle )) {
-        TempStatus = pIp4Service->DestroyChild ( pIp4Service,
-                                                 ChildHandle );
+        TempStatus = pServiceBinding->DestroyChild ( pServiceBinding,
+                                                     ChildHandle );
         if ( !EFI_ERROR ( TempStatus )) {
           DEBUG (( DEBUG_BIND | DEBUG_POOL,
                     "0x%08x: Ip4 port handle destroyed\r\n",
@@ -788,9 +768,10 @@ EslIp4PortAllocate (
   UINT8 * pBuffer;
   EFI_IP4_CONFIG_DATA * pConfig;
   ESL_IO_MGMT * pIo;
+  ESL_IP4_CONTEXT * pIp4;
   ESL_LAYER * pLayer;
   ESL_PORT * pPort;
-  ESL_IP4_CONTEXT * pIp4;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -829,10 +810,10 @@ EslIp4PortAllocate (
     pPort->Signature = PORT_SIGNATURE;
     pPort->pService = pService;
     pPort->pSocket = pSocket;
-    pPort->pfnCloseStart = EslIp4PortCloseStart;
     pPort->DebugFlags = DebugFlags;
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
     pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Ip4Tx.TxData );
+    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event );
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
     pBuffer = (UINT8 *)&pPort[ 1 ];
     pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
     pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
@@ -876,35 +857,35 @@ EslIp4PortAllocate (
     //
     //  Open the port protocol
     //
+    pSocketBinding = pService->pSocketBinding;
     Status = gBS->OpenProtocol (
                     ChildHandle,
-                    &gEfiIp4ProtocolGuid,
-                    (VOID **) &pIp4->pProtocol,
+                    pSocketBinding->pNetworkProtocolGuid,
+                    &pPort->pProtocol.v,
                     pLayer->ImageHandle,
                     NULL,
                     EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
     if ( EFI_ERROR ( Status )) {
       DEBUG (( DEBUG_ERROR | DebugFlags,
                 "ERROR - Failed to open gEfiIp4ProtocolGuid on controller 0x%08x\r\n",
-                pIp4->Handle ));
+                pPort->Handle ));
       pSocket->errno = EEXIST;
       break;
     }
     DEBUG (( DebugFlags,
               "0x%08x: gEfiIp4ProtocolGuid opened on controller 0x%08x\r\n",
-              pIp4->pProtocol,
+              pPort->pProtocol.v,
               ChildHandle ));
 
     //
     //  Save the transmit address
     //
-    pPort->pProtocol = (VOID *)pIp4->pProtocol;
-    pPort->pfnTxStart = (PFN_NET_TX_START)pIp4->pProtocol->Transmit;
+    pPort->pfnTxStart = (PFN_NET_TX_START)pPort->pProtocol.IPv4->Transmit;
 
     //
     //  Set the port address
     //
-    pIp4->Handle = ChildHandle;
+    pPort->Handle = ChildHandle;
     pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
     pConfig->DefaultProtocol = (UINT8)pSocket->Protocol;
     if (( 0 == pIpAddress[0])
@@ -979,7 +960,7 @@ EslIp4PortAllocate (
     //
     //  Close the port
     //
-    EslIp4PortClose ( pPort );
+    EslSocketPortClose ( pPort );
   }
   //
   //  Return the operation status
@@ -995,12 +976,8 @@ EslIp4PortAllocate (
   This routine releases the resources allocated by
   ::EslIp4PortAllocate.
 
-  This routine is called by:
-  <ul>
-    <li>::EslIp4PortAllocate - Port initialization failure</li>
-    <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
-  </ul>
-  See the \ref Ip4PortCloseStateMachine section.
+  This routine is called by ::EslSocketPortClose.
+  See the \ref PortCloseStateMachine section.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -1014,104 +991,21 @@ EslIp4PortClose (
   )
 {
   UINTN DebugFlags;
-  ESL_LAYER * pLayer;
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPreviousPort;
-  ESL_SERVICE * pService;
-  ESL_SOCKET * pSocket;
-  EFI_SERVICE_BINDING_PROTOCOL * pIp4Service;
   ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
 
   //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
   //  Assume success
   //
   Status = EFI_SUCCESS;
-  pSocket = pPort->pSocket;
-  pSocket->errno = 0;
-
-  //
-  //  Locate the port in the socket list
-  //
-  pLayer = &mEslLayer;
   DebugFlags = pPort->DebugFlags;
-  pPreviousPort = pSocket->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the socket list
-    //
-    pSocket->pPortList = pPort->pLinkSocket;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the socket list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkSocket != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkSocket;
-    }
-    if ( NULL != pPreviousPort ) {
-      //
-      //  Remove the port from the middle of the socket list
-      //
-      pPreviousPort->pLinkSocket = pPort->pLinkSocket;
-    }
-  }
-
-  //
-  //  Locate the port in the service list
-  //
-  pService = pPort->pService;
-  pPreviousPort = pService->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the service list
-    //
-    pService->pPortList = pPort->pLinkService;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the service list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkService != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkService;
-    }
-    if ( NULL != pPreviousPort ) {
-      //
-      //  Remove the port from the middle of the service list
-      //
-      pPreviousPort->pLinkService = pPort->pLinkService;
-    }
-  }
-
-  //
-  //  Empty the receive queue
-  //
-  ASSERT ( NULL == pSocket->pRxPacketListHead );
-  ASSERT ( NULL == pSocket->pRxPacketListTail );
-  ASSERT ( 0 == pSocket->RxBytes );
-
-  //
-  //  Empty the receive free queue
-  //
-  while ( NULL != pSocket->pRxFree ) {
-    pPacket = pSocket->pRxFree;
-    pSocket->pRxFree = pPacket->pNext;
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-  }
+  pIp4 = &pPort->Context.Ip4;
 
   //
   //  Done with the receive event
   //
-  pIp4 = &pPort->Context.Ip4;
   if ( NULL != pIp4->RxToken.Event ) {
     Status = gBS->CloseEvent ( pIp4->RxToken.Event );
     if ( !EFI_ERROR ( Status )) {
@@ -1128,86 +1022,6 @@ EslIp4PortClose (
   }
 
   //
-  //  Done with the transmit events
-  //
-  Status = EslSocketIoFree ( pPort,
-                             &pPort->pTxFree,
-                             DebugFlags | DEBUG_POOL,
-                             "transmit",
-                             OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event ));
-
-  //
-  //  Done with the IP protocol
-  //
-  pIp4Service = pService->pInterface;
-  if ( NULL != pIp4->pProtocol ) {
-    Status = gBS->CloseProtocol ( pIp4->Handle,
-                                  &gEfiIp4ProtocolGuid,
-                                  pLayer->ImageHandle,
-                                  NULL );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags,
-                "0x%08x: gEfiIp4ProtocolGuid closed on controller 0x%08x\r\n",
-                pIp4->pProtocol,
-                pIp4->Handle ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close gEfiIp4ProtocolGuid opened on controller 0x%08x, Status: %r\r\n",
-                pIp4->Handle,
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
-
-  //
-  //  Done with the IP port
-  //
-  if ( NULL != pIp4->Handle ) {
-    Status = pIp4Service->DestroyChild ( pIp4Service,
-                                          pIp4->Handle );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Ip4 port handle destroyed\r\n",
-                pIp4->Handle ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL,
-                "ERROR - Failed to destroy the Ip4 port handle, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
-
-  //
-  //  Release the port structure
-  //
-  Status = gBS->FreePool ( pPort );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( DebugFlags | DEBUG_POOL,
-              "0x%08x: Free pPort, %d bytes\r\n",
-              pPort,
-              sizeof ( *pPort )));
-  }
-  else {
-    DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL,
-              "ERROR - Failed to free pPort: 0x%08x, Status: %r\r\n",
-              pPort,
-              Status ));
-    ASSERT ( EFI_SUCCESS == Status );
-  }
-
-  //
-  //  Mark the socket as closed if necessary
-  //
-  if ( NULL == pSocket->pPortList ) {
-    pSocket->State = SOCKET_STATE_CLOSED;
-    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Socket State: SOCKET_STATE_CLOSED\r\n",
-              pSocket ));
-  }
-
-  //
   //  Return the operation status
   //
   DBG_EXIT_STATUS ( Status );
@@ -1221,7 +1035,7 @@ EslIp4PortClose (
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -1243,76 +1057,6 @@ EslIp4PortClosePacketFree (
   //  Return the buffer to the IP4 driver
   //
   gBS->SignalEvent ( pPacket->Op.Ip4Rx.pRxData->RecycleSignal );
-}
-
-
-/**
-  Start the close operation on a IP4 port, state 1.
-
-  This routine marks the port as closed and initiates the port
-  close state machine.  The first step is to allow the \ref
-  TransmitEngine to run down.
-
-  This routine is called by ::EslSocketCloseStart to initiate the socket
-  network specific close operation on the socket.
-  See the \ref Ip4PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] bCloseNow   Set TRUE to abort active transfers
-  @param [in] DebugFlags  Flags for debug messages
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port has started the closing process
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslIp4PortCloseStart (
-  IN ESL_PORT * pPort,
-  IN BOOLEAN bCloseNow,
-  IN UINTN DebugFlags
-  )
-{
-  ESL_SOCKET * pSocket;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Mark the port as closing
-  //
-  Status = EFI_ALREADY_STARTED;
-  pSocket = pPort->pSocket;
-  pSocket->errno = EALREADY;
-  if ( PORT_STATE_CLOSE_STARTED > pPort->State ) {
-
-    //
-    //  Update the port state
-    //
-    pPort->State = PORT_STATE_CLOSE_STARTED;
-    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Port Close State: PORT_STATE_CLOSE_STARTED\r\n",
-              pPort ));
-    pPort->bCloseNow = bCloseNow;
-    pPort->DebugFlags = DebugFlags;
-
-    //
-    //  Determine if transmits are complete
-    //
-    Status = EslSocketPortCloseTxDone ( pPort );
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
 }
 
 
@@ -1348,7 +1092,7 @@ EslIp4PortCloseRxStop (
   //  Reset the port, cancel the outstanding receive
   //
   pIp4 = &pPort->Context.Ip4;
-  pIp4Protocol = pIp4->pProtocol;
+  pIp4Protocol = pPort->pProtocol.IPv4;
   Status = pIp4Protocol->Configure ( pIp4Protocol,
                                       NULL );
   if ( !EFI_ERROR ( Status )) {
@@ -1718,7 +1462,7 @@ EslIp4RxCancel (
       //
       //  Attempt to cancel the receive operation
       //
-      pIp4Protocol = pIp4->pProtocol;
+      pIp4Protocol = pPort->pProtocol.IPv4;
       Status = pIp4Protocol->Cancel ( pIp4Protocol,
                                        &pIp4->RxToken );
       if ( EFI_NOT_FOUND == Status ) {
@@ -1971,7 +1715,7 @@ EslIp4RxStart (
         //
         //  Start the receive on the packet
         //
-        pIp4Protocol = pIp4->pProtocol;
+        pIp4Protocol = pPort->pProtocol.IPv4;
         Status = pIp4Protocol->Receive ( pIp4Protocol,
                                           &pIp4->RxToken );
         if ( !EFI_ERROR ( Status )) {
@@ -2159,7 +1903,7 @@ EslIp4Shutdown (
       //  Attempt to configure the port
       //
       pNextPort = pPort->pLinkSocket;
-      pIp4Protocol = pIp4->pProtocol;
+      pIp4Protocol = pPort->pProtocol.IPv4;
       DEBUG (( DEBUG_TX,
                 "0x%08x: pPort Configuring for %d.%d.%d.%d --> %d.%d.%d.%d\r\n",
                           pPort,
