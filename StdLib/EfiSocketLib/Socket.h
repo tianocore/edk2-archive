@@ -231,7 +231,7 @@ typedef struct {
   //
   //  Receive data management
   //
-  EFI_IP4_COMPLETION_TOKEN RxToken; ///<  Receive token
+  EFI_IP4_COMPLETION_TOKEN RxToken;     ///<  Receive token
 } ESL_IP4_CONTEXT;
 
 
@@ -244,20 +244,20 @@ typedef struct {
   //
   //  TCP4 context
   //
-  EFI_TCP4_CONFIG_DATA ConfigData;  ///<  TCP4 configuration data
-  EFI_TCP4_OPTION Option;           ///<  TCP4 port options
+  EFI_TCP4_CONFIG_DATA ConfigData;        ///<  TCP4 configuration data
+  EFI_TCP4_OPTION Option;                 ///<  TCP4 port options
 
   //
   //  Tokens
   //
-  EFI_TCP4_LISTEN_TOKEN ListenToken;  ///<  Listen control
+  EFI_TCP4_LISTEN_TOKEN ListenToken;      ///<  Listen control
   EFI_TCP4_CONNECTION_TOKEN ConnectToken; ///<  Connection control
-  EFI_TCP4_CLOSE_TOKEN CloseToken;    ///<  Close control
+  EFI_TCP4_CLOSE_TOKEN CloseToken;        ///<  Close control
 
   //
   //  Receive data management
   //
-  EFI_TCP4_IO_TOKEN RxToken;        ///<  Receive token
+  EFI_TCP4_IO_TOKEN RxToken;              ///<  Receive token
 } ESL_TCP4_CONTEXT;
 
 /**
@@ -567,6 +567,33 @@ EFI_STATUS
   );
 
 /**
+  Initialize the network specific portions of an ::ESL_PORT structure.
+
+  This routine initializes the network specific portions of an
+  ::ESL_PORT structure for use by the socket.
+
+  This support routine is called by ::EslSocketPortAllocate
+  to connect the socket with the underlying network adapter
+  running the IPv4 protocol.
+
+  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] PortNumber  Tcp4 port number
+  @param [in] DebugFlags  Flags for debug messages
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+typedef
+EFI_STATUS
+(* PFN_API_PORT_ALLOC) (
+  IN ESL_PORT * pPort,
+  IN CONST UINT8 * pIpAddress,
+  IN UINT16 PortNumber,
+  IN UINTN DebugFlags
+  );
+
+/**
   Close a network specific port.
 
   This routine releases the resources allocated by the
@@ -710,6 +737,27 @@ EFI_STATUS
   );
 
 /**
+  Process the transmit completion
+
+  This routine calls ::EslSocketTxComplete to handle the
+  transmit completion.
+
+  This routine is called by the network layers upon the completion
+  of a transmit operation.
+
+  @param [in] Event     The urgent transmit completion event
+
+  @param [in] pIo       The ESL_IO_MGMT structure address
+
+**/
+typedef
+VOID
+(* PFN_API_TX_COMPLETE) (
+  IN EFI_EVENT Event,
+  IN ESL_IO_MGMT * pIo
+  );
+
+/**
   Socket type control structure
 
   This driver uses this structure to define the API for the socket type.
@@ -726,13 +774,16 @@ typedef struct {
   PFN_API_LISTEN pfnListen;                 ///<  Listen for connections on known server port
   PFN_API_OPTION_GET pfnOptionGet;          ///<  Get the option value
   PFN_API_OPTION_SET pfnOptionSet;          ///<  Set the option value
-  PFN_API_PORT_CLOSE pfnPortClose;          ///<  Close the port
+  PFN_API_PORT_ALLOC pfnPortAllocate;       ///<  Allocate the network specific resources for the port
+  PFN_API_PORT_CLOSE pfnPortClose;          ///<  Close the network specific resources for the port
   PFN_API_PORT_CLOSE_PF pfnPortClosePktFree;///<  Free the receive packet
   PFN_API_PORT_CLOSE_OP pfnPortCloseRxStop; ///<  Perform the close operation on the port
   BOOLEAN bPortCloseComplete;               ///<  TRUE = Close is complete after close operation
   PFN_API_RECEIVE pfnReceive;               ///<  Attempt to receive some data
   PFN_API_RX_CANCEL pfnRxCancel;            ///<  Cancel a receive operation
   PFN_API_TRANSMIT pfnTransmit;             ///<  Attempt to buffer a packet for transmit
+  PFN_API_TX_COMPLETE pfnTxComplete;        ///<  TX completion for normal data
+  PFN_API_TX_COMPLETE pfnTxOobComplete;     ///<  TX completion for urgent data
 } ESL_PROTOCOL_API;
 
 
@@ -947,7 +998,6 @@ EslSocketIoFree (
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
   @param [in] pfnCompletion Completion routine address
 
   @retval EFI_SUCCESS - The structures were properly initialized
@@ -961,7 +1011,6 @@ EslSocketIoInit (
   IN ESL_IO_MGMT ** ppFreeQueue,
   IN UINTN DebugFlags,
   IN CHAR8 * pEventName,
-  IN UINTN EventOffset,
   IN EFI_EVENT_NOTIFY pfnCompletion
   );
 
@@ -1031,10 +1080,51 @@ EslSocketPacketFree (
   );
 
 /**
+  Allocate and initialize a ESL_PORT structure.
+
+  This routine initializes an ::ESL_PORT structure for use by
+  the socket.  This routine calls a routine via
+  ESL_PROTOCOL_API::pfnPortAllocate to initialize the network
+  specific resources.  The resources are released later by the
+  \ref PortCloseStateMachine.
+
+  This support routine is called by:
+  <ul>
+    <li>::EslIp4Bind</li>
+    <li>::EslTcp4Bind</li>
+    <li>::EslTcp4ListenComplete</li>
+    <li>::EslUdp4Bind::</li>
+  to connect the socket with the underlying network adapter
+  to the socket.
+
+  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
+  @param [in] pService    Address of an ::ESL_SERVICE structure.
+  @param [in] ChildHandle TCP4 child handle
+  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] PortNumber  Tcp4 port number
+  @param [in] DebugFlags  Flags for debug messages
+  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+EFI_STATUS
+EslSocketPortAllocate (
+  IN ESL_SOCKET * pSocket,
+  IN ESL_SERVICE * pService,
+  IN EFI_HANDLE ChildHandle,
+  IN CONST UINT8 * pIpAddress,
+  IN UINT16 PortNumber,
+  IN UINTN DebugFlags,
+  OUT ESL_PORT ** ppPort
+  );
+
+/**
   Close a port.
 
-  This routine releases the resources allocated by the network specific
-  PortAllocate routine.
+  This routine releases the resources allocated by ::EslSocketPortAllocate.
+  This routine calls ESL_PROTOCOL_API::pfnPortClose to release the network
+  specific resources.
 
   This routine is called by:
   <ul>
@@ -1414,33 +1504,29 @@ EslIp4OptionSet (
   );
 
 /**
-  Allocate and initialize an ::ESL_PORT structure.
+  Initialize the network specific portions of an ::ESL_PORT structure.
 
-  This routine initializes an ::ESL_PORT structure for use by the
-  socket.
+  This routine initializes the network specific portions of an
+  ::ESL_PORT structure for use by the socket.
 
-  This support routine is called by ::EslIp4Bind to connect the
-  socket with the underlying network adapter running the IPv4
-  protocol.
+  This support routine is called by ::EslSocketPortAllocate
+  to connect the socket with the underlying network adapter
+  running the IPv4 protocol.
 
-  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
-  @param [in] pService    Address of an ::ESL_SERVICE structure.
-  @param [in] ChildHandle Ip4 child handle
+  @param [in] ppPort      Address of an ESL_PORT structure
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] PortNumber  Port number - not used
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
  **/
 EFI_STATUS
 EslIp4PortAllocate (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
+  IN ESL_PORT * pPort,
   IN CONST UINT8 * pIpAddress,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
+  IN UINT16 PortNumber,
+  IN UINTN DebugFlags
   );
 
 /**
@@ -1954,35 +2040,29 @@ EslTcp4ListenComplete (
   );
 
 /**
-  Allocate and initialize a ESL_PORT structure.
+  Initialize the network specific portions of an ::ESL_PORT structure.
 
-  This routine initializes an ::ESL_PORT structure for use by the
-  socket.
+  This routine initializes the network specific portions of an
+  ::ESL_PORT structure for use by the socket.
 
-  This support routine is called by ::EslTcp4Bind and
-  ::EslTcp4ListenComplete to connect the socket with the underlying
-  network adapter running the TCPv4 protocol.
+  This support routine is called by ::EslSocketPortAllocate
+  to connect the socket with the underlying network adapter
+  running the TCPv4 protocol.
 
-  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
-  @param [in] pService    Address of an ::ESL_SERVICE structure.
-  @param [in] ChildHandle TCP4 child handle
+  @param [in] ppPort      Address of an ESL_PORT structure
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] PortNumber  Tcp4 port number
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
  **/
 EFI_STATUS
 EslTcp4PortAllocate (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
+  IN ESL_PORT * pPort,
   IN CONST UINT8 * pIpAddress,
   IN UINT16 PortNumber,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
+  IN UINTN DebugFlags
   );
 
 /**
@@ -2423,35 +2503,29 @@ EslUdp4Initialize (
   );
 
 /**
-  Allocate and initialize an ::ESL_PORT structure.
+  Initialize the network specific portions of an ::ESL_PORT structure.
 
-  This routine initializes an ::ESL_PORT structure for use by the
-  socket.
+  This routine initializes the network specific portions of an
+  ::ESL_PORT structure for use by the socket.
 
-  This support routine is called by ::EslUdp4Bind to connect the
-  socket with the underlying network adapter running the UDPv4
-  protocol.
+  This support routine is called by ::EslSocketPortAllocate
+  to connect the socket with the underlying network adapter
+  running the UDPv4 protocol.
 
-  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
-  @param [in] pService    Address of an ::ESL_SERVICE structure.
-  @param [in] ChildHandle Udp4 child handle
+  @param [in] ppPort      Address of an ESL_PORT structure
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] PortNumber  Udp4 port number
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
  **/
 EFI_STATUS
 EslUdp4PortAllocate (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
+  IN ESL_PORT * pPort,
   IN CONST UINT8 * pIpAddress,
   IN UINT16 PortNumber,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
+  IN UINTN DebugFlags
   );
 
 /**

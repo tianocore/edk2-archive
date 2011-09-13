@@ -40,9 +40,9 @@
     <li>Arc: ::EslSocketPortCloseComplete - Called by the TCP layer
       when the port is closed.
     <li>State: PORT_STATE_CLOSE_DONE</li>
-    <li>Arc: ::EslSocketPortClose - Releases the port resources.  Calls
-      a routine via ESL_PROTOCOL_API::pfnPortClose to close the network
-      specific resources:
+    <li>Arc: ::EslSocketPortClose - Releases the port resources allocated
+      by ::EslSocketPortAllocate.  Calls ESL_PROTOCOL_API::pfnPortClose to
+      close the network specific resources:
       <ul>
         <li>::EslIp4PortClose</li>
         <li>::EslTcp4PortClose</li>
@@ -56,14 +56,13 @@
 
   \section TransmitEngine Transmit Engine
   The transmit engine uses the ESL_IO_MGMT structures to manage
-  multiple transmit buffers.  The network specific PortAllocate
-  routine allocate the ::ESL_IO_MGMT structures and place them
-  on the free list by calling ::EslSocketIoInit.  During their
-  lifetime, the ESL_IO_MGMT structures will move from the free
-  list to the active list and back again.  The active list contains
-  the packets that are actively being processed by the network
-  stack.  Eventually the ESL_IO_MGMT structures will be removed
-  from the free list and be deallocated by the network specific
+  multiple transmit buffers.  ::EslSocketPortAllocate allocates the
+  ::ESL_IO_MGMT structures and place them on the free list by calling
+  ::EslSocketIoInit.  During their lifetime, the ESL_IO_MGMT structures
+  will move from the free list to the active list and back again.  The
+  active list contains the packets that are actively being processed by
+  the network stack.  Eventually the ESL_IO_MGMT structures will be
+  removed from the free list and be deallocated by the network specific
   PortClose routines.
 
   The network specific code calls the ::EslSocketTxStart routine
@@ -1552,7 +1551,7 @@ EslSocketIoFree (
   This support routine initializes the ESL_IO_MGMT structure and
   places them on to a free list.
 
-  This routine is called by the PortAllocate routines to prepare
+  This routine is called by ::EslSocketPortAllocate routines to prepare
   the transmit engines.  See the \ref TransmitEngine section.
 
   @param [in] pPort         Address of an ::ESL_PORT structure
@@ -1562,7 +1561,6 @@ EslSocketIoFree (
   @param [in] ppFreeQueue   Address of the free queue head
   @param [in] DebugFlags    Flags for debug messages
   @param [in] pEventName    Zero terminated string containing the event name
-  @param [in] EventOffset   Offset of the event in the ::ESL_IO_MGMT structure
   @param [in] pfnCompletion Completion routine address
 
   @retval EFI_SUCCESS - The structures were properly initialized
@@ -1576,7 +1574,6 @@ EslSocketIoInit (
   IN ESL_IO_MGMT ** ppFreeQueue,
   IN UINTN DebugFlags,
   IN CHAR8 * pEventName,
-  IN UINTN EventOffset,
   IN EFI_EVENT_NOTIFY pfnCompletion
   )
 {
@@ -1609,7 +1606,7 @@ EslSocketIoInit (
     //
     //  Allocate the event for this structure
     //
-    pEvent = (EFI_EVENT *)&(((UINT8 *)pIo)[ EventOffset ]);
+    pEvent = (EFI_EVENT *)&(((UINT8 *)pIo)[ pSocket->TxTokenEventOffset ]);
     Status = gBS->CreateEvent ( EVT_NOTIFY_SIGNAL,
                                 TPL_SOCKETS,
                                 (EFI_EVENT_NOTIFY)pfnCompletion,
@@ -2537,18 +2534,247 @@ EslSocketPoll (
 
 
 /**
+  Allocate and initialize a ESL_PORT structure.
+
+  This routine initializes an ::ESL_PORT structure for use by
+  the socket.  This routine calls a routine via
+  ESL_PROTOCOL_API::pfnPortAllocate to initialize the network
+  specific resources.  The resources are released later by the
+  \ref PortCloseStateMachine.
+
+  This support routine is called by:
+  <ul>
+    <li>::EslIp4Bind</li>
+    <li>::EslTcp4Bind</li>
+    <li>::EslTcp4ListenComplete</li>
+    <li>::EslUdp4Bind::</li>
+  to connect the socket with the underlying network adapter
+  to the socket.
+
+  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
+  @param [in] pService    Address of an ::ESL_SERVICE structure.
+  @param [in] ChildHandle TCP4 child handle
+  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] PortNumber  Tcp4 port number
+  @param [in] DebugFlags  Flags for debug messages
+  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
+
+  @retval EFI_SUCCESS - Socket successfully created
+
+ **/
+EFI_STATUS
+EslSocketPortAllocate (
+  IN ESL_SOCKET * pSocket,
+  IN ESL_SERVICE * pService,
+  IN EFI_HANDLE ChildHandle,
+  IN CONST UINT8 * pIpAddress,
+  IN UINT16 PortNumber,
+  IN UINTN DebugFlags,
+  OUT ESL_PORT ** ppPort
+  )
+{
+  UINTN LengthInBytes;
+  UINT8 * pBuffer;
+  ESL_IO_MGMT * pIo;
+  ESL_LAYER * pLayer;
+  ESL_PORT * pPort;
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
+  CONST ESL_SOCKET_BINDING * pSocketBinding;
+  EFI_STATUS Status;
+  EFI_STATUS TempStatus;
+
+  DBG_ENTER ( );
+
+  //
+  //  Verify the socket layer synchronization
+  //
+  VERIFY_TPL ( TPL_SOCKETS );
+
+  //
+  //  Use for/break instead of goto
+  pSocketBinding = pService->pSocketBinding;
+  for ( ; ; ) {
+    //
+    //  Allocate a port structure
+    //
+    pLayer = &mEslLayer;
+    LengthInBytes = sizeof ( *pPort )
+                  + ESL_STRUCTURE_ALIGNMENT_BYTES
+                  + (( pSocketBinding->TxIoNormal
+                       + pSocketBinding->TxIoUrgent )
+                     * sizeof ( ESL_IO_MGMT ));
+    Status = gBS->AllocatePool ( EfiRuntimeServicesData,
+                                 LengthInBytes,
+                                 (VOID **)&pPort );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
+                "ERROR - Failed to allocate the port structure, Status: %r\r\n",
+                Status ));
+      pSocket->errno = ENOMEM;
+      pPort = NULL;
+      break;
+    }
+    DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
+              "0x%08x: Allocate pPort, %d bytes\r\n",
+              pPort,
+              LengthInBytes ));
+
+    //
+    //  Initialize the port
+    //
+    ZeroMem ( pPort, LengthInBytes );
+    pPort->DebugFlags = DebugFlags;
+    pPort->Handle = ChildHandle;
+    pPort->pService = pService;
+    pPort->pSocket = pSocket;
+    pPort->Signature = PORT_SIGNATURE;
+
+    //
+    //  Open the port protocol
+    //
+    Status = gBS->OpenProtocol ( pPort->Handle,
+                                 pSocketBinding->pNetworkProtocolGuid,
+                                 &pPort->pProtocol.v,
+                                 pLayer->ImageHandle,
+                                 NULL,
+                                 EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DebugFlags,
+                "ERROR - Failed to open network protocol GUID on controller 0x%08x\r\n",
+                pPort->Handle ));
+      pSocket->errno = EEXIST;
+      break;
+    }
+    DEBUG (( DebugFlags,
+              "0x%08x: Network protocol GUID opened on controller 0x%08x\r\n",
+              pPort->pProtocol.v,
+              pPort->Handle ));
+
+    //
+    //  Initialize the port specific resources
+    //
+    Status = pSocket->pApi->pfnPortAllocate ( pPort,
+                                              pIpAddress,
+                                              PortNumber,
+                                              DebugFlags );
+    if ( EFI_ERROR ( Status )) {
+      break;
+    }
+
+    //
+    //  Initialize the urgent transmit structures
+    //
+    pBuffer = (UINT8 *)&pPort[ 1 ];
+    pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
+    pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
+    pIo = (ESL_IO_MGMT *)pBuffer;
+    if (( 0 != pSocketBinding->TxIoUrgent )
+      && ( NULL != pSocket->pApi->pfnTxOobComplete )) {
+      Status = EslSocketIoInit ( pPort,
+                                 &pIo,
+                                 pSocketBinding->TxIoUrgent,
+                                 &pPort->pTxOobFree,
+                                 DebugFlags | DEBUG_POOL,
+                                 "urgent transmit",
+                                 pSocket->pApi->pfnTxOobComplete );
+      if ( EFI_ERROR ( Status )) {
+        break;
+      }
+    }
+
+    //
+    //  Initialize the normal transmit structures
+    //
+    if (( 0 != pSocketBinding->TxIoNormal )
+      && ( NULL != pSocket->pApi->pfnTxComplete )) {
+      Status = EslSocketIoInit ( pPort,
+                                 &pIo,
+                                 pSocketBinding->TxIoNormal,
+                                 &pPort->pTxFree,
+                                 DebugFlags | DEBUG_POOL,
+                                 "normal transmit",
+                                 pSocket->pApi->pfnTxComplete );
+      if ( EFI_ERROR ( Status )) {
+        break;
+      }
+    }
+
+    //
+    //  Add this port to the socket
+    //
+    pPort->pLinkSocket = pSocket->pPortList;
+    pSocket->pPortList = pPort;
+    DEBUG (( DebugFlags,
+              "0x%08x: Socket adding port: 0x%08x\r\n",
+              pSocket,
+              pPort ));
+
+    //
+    //  Add this port to the service
+    //
+    pPort->pLinkService = pService->pPortList;
+    pService->pPortList = pPort;
+
+    //
+    //  Return the port
+    //
+    *ppPort = pPort;
+    break;
+  }
+
+  //
+  //  Clean up after the error if necessary
+  //
+  if ( EFI_ERROR ( Status )) {
+    if ( NULL != pPort ) {
+      //
+      //  Close the port
+      //
+      EslSocketPortClose ( pPort );
+    }
+    else {
+      //
+      //  Close the port if necessary
+      //
+      pServiceBinding = pService->pServiceBinding;
+      TempStatus = pServiceBinding->DestroyChild ( pServiceBinding,
+                                                   ChildHandle );
+      if ( !EFI_ERROR ( TempStatus )) {
+        DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                  "0x%08x: %s port handle destroyed\r\n",
+                  ChildHandle,
+                  pSocketBinding->pName ));
+      }
+      else {
+        DEBUG (( DEBUG_ERROR | DEBUG_BIND | DEBUG_POOL,
+                  "ERROR - Failed to destroy the %s port handle 0x%08x, Status: %r\r\n",
+                  pSocketBinding->pName,
+                  ChildHandle,
+                  TempStatus ));
+        ASSERT ( EFI_SUCCESS == TempStatus );
+      }
+    }
+  }
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
   Close a port.
 
-  This routine releases the resources allocated by the network specific
-  PortAllocate routine.
+  This routine releases the resources allocated by ::EslSocketPortAllocate.
+  This routine calls ESL_PROTOCOL_API::pfnPortClose to release the network
+  specific resources.
 
   This routine is called by:
   <ul>
-    <li>::EslIp4PortAllocate - Port initialization failure</li>
+    <li>::EslSocketPortAllocate - Port initialization failure</li>
     <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
     <li>::EslTcp4ConnectComplete - Connection failure and reducint the port list to a single port</li>
-    <li>::EslTcp4PortAllocate - Port initialization failure</li>
-    <li>::EslUdp4PortAllocate - Port initialization failure</li>
   </ul>
   See the \ref PortCloseStateMachine section.
   

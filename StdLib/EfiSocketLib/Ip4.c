@@ -62,13 +62,16 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   NULL,   //  Listen
   EslIp4OptionGet,
   EslIp4OptionSet,
+  EslIp4PortAllocate,
   EslIp4PortClose,
   EslIp4PortClosePacketFree,
   EslIp4PortCloseRxStop,
   TRUE,
   EslIp4Receive,
   EslIp4RxCancel,
-  EslIp4TxBuffer
+  EslIp4TxBuffer,
+  EslIp4TxComplete,
+  NULL    //  TxOobComplete
 };
 
 
@@ -113,7 +116,6 @@ EslIp4Bind (
   ESL_PORT * pPort;
   ESL_SERVICE * pService;
   EFI_STATUS Status;
-  EFI_STATUS TempStatus;
   
   DBG_ENTER ( );
   
@@ -157,38 +159,18 @@ EslIp4Bind (
         //
         //  Open the port
         //
-        Status = EslIp4PortAllocate ( pSocket,
-                                      pService,
-                                      ChildHandle,
-                                      (UINT8 *) &pIp4Address->sin_addr.s_addr,
-                                      DEBUG_BIND,
-                                      &pPort );
+        Status = EslSocketPortAllocate ( pSocket,
+                                         pService,
+                                         ChildHandle,
+                                         (UINT8 *) &pIp4Address->sin_addr.s_addr,
+                                         0,
+                                         DEBUG_BIND,
+                                         &pPort );
       }
       else {
         DEBUG (( DEBUG_BIND | DEBUG_POOL,
                   "ERROR - Failed to open Ip4 port handle, Status: %r\r\n",
                   Status ));
-        ChildHandle = NULL;
-      }
-  
-      //
-      //  Close the port if necessary
-      //
-      if (( EFI_ERROR ( Status )) && ( NULL != ChildHandle )) {
-        TempStatus = pServiceBinding->DestroyChild ( pServiceBinding,
-                                                     ChildHandle );
-        if ( !EFI_ERROR ( TempStatus )) {
-          DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                    "0x%08x: Ip4 port handle destroyed\r\n",
-                    ChildHandle ));
-        }
-        else {
-          DEBUG (( DEBUG_ERROR | DEBUG_BIND | DEBUG_POOL,
-                    "ERROR - Failed to destroy the Ip4 port handle 0x%08x, Status: %r\r\n",
-                    ChildHandle,
-                    TempStatus ));
-          ASSERT ( EFI_SUCCESS == TempStatus );
-        }
       }
   
       //
@@ -733,45 +715,35 @@ EslIp4OptionSet (
 }
 
 
-
 /**
-  Allocate and initialize an ::ESL_PORT structure.
+  Initialize the network specific portions of an ::ESL_PORT structure.
 
-  This routine initializes an ::ESL_PORT structure for use by the
-  socket.
+  This routine initializes the network specific portions of an
+  ::ESL_PORT structure for use by the socket.
 
-  This support routine is called by ::EslIp4Bind to connect the
-  socket with the underlying network adapter running the IPv4
-  protocol.
+  This support routine is called by ::EslSocketPortAllocate
+  to connect the socket with the underlying network adapter
+  running the IPv4 protocol.
 
-  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
-  @param [in] pService    Address of an ::ESL_SERVICE structure.
-  @param [in] ChildHandle Ip4 child handle
+  @param [in] ppPort      Address of an ESL_PORT structure
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
+  @param [in] PortNumber  Port number - not used
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
  **/
 EFI_STATUS
 EslIp4PortAllocate (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
+  IN ESL_PORT * pPort,
   IN CONST UINT8 * pIpAddress,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
+  IN UINT16 PortNumber,
+  IN UINTN DebugFlags
   )
 {
-  UINTN LengthInBytes;
-  UINT8 * pBuffer;
   EFI_IP4_CONFIG_DATA * pConfig;
-  ESL_IO_MGMT * pIo;
   ESL_IP4_CONTEXT * pIp4;
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  CONST ESL_SOCKET_BINDING * pSocketBinding;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -780,48 +752,9 @@ EslIp4PortAllocate (
   //  Use for/break instead of goto
   for ( ; ; ) {
     //
-    //  Allocate a port structure
-    //
-    pLayer = &mEslLayer;
-    LengthInBytes = sizeof ( *pPort )
-                  + ESL_STRUCTURE_ALIGNMENT_BYTES
-                  + ( pService->pSocketBinding->TxIoNormal
-                      * sizeof ( ESL_IO_MGMT ));
-    Status = gBS->AllocatePool ( EfiRuntimeServicesData,
-                                 LengthInBytes,
-                                 (VOID **)&pPort );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
-                "ERROR - Failed to allocate the port structure, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      pPort = NULL;
-      break;
-    }
-    DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
-              "0x%08x: Allocate pPort, %d bytes\r\n",
-              pPort,
-              LengthInBytes ));
-
-    //
-    //  Initialize the port
-    //
-    ZeroMem ( pPort, LengthInBytes );
-    pPort->Signature = PORT_SIGNATURE;
-    pPort->pService = pService;
-    pPort->pSocket = pSocket;
-    pPort->DebugFlags = DebugFlags;
-    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Ip4Tx.TxData );
-    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event );
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
-    pBuffer = (UINT8 *)&pPort[ 1 ];
-    pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
-    pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
-    pIo = (ESL_IO_MGMT *)pBuffer;
-
-    //
     //  Allocate the receive event
     //
+    pSocket = pPort->pSocket;
     pIp4 = &pPort->Context.Ip4;
     Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
                                  TPL_SOCKETS,
@@ -840,42 +773,11 @@ EslIp4PortAllocate (
               pIp4->RxToken.Event ));
 
     //
-    //  Allocate the transmit events
+    //  Initialize the port
     //
-    Status = EslSocketIoInit ( pPort,
-                               &pIo,
-                               pService->pSocketBinding->TxIoNormal,
-                               &pPort->pTxFree,
-                               DebugFlags | DEBUG_POOL,
-                               "transmit",
-                               OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event ),
-                               EslIp4TxComplete );
-    if ( EFI_ERROR ( Status )) {
-      break;
-    }
-
-    //
-    //  Open the port protocol
-    //
-    pSocketBinding = pService->pSocketBinding;
-    Status = gBS->OpenProtocol (
-                    ChildHandle,
-                    pSocketBinding->pNetworkProtocolGuid,
-                    &pPort->pProtocol.v,
-                    pLayer->ImageHandle,
-                    NULL,
-                    EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to open gEfiIp4ProtocolGuid on controller 0x%08x\r\n",
-                pPort->Handle ));
-      pSocket->errno = EEXIST;
-      break;
-    }
-    DEBUG (( DebugFlags,
-              "0x%08x: gEfiIp4ProtocolGuid opened on controller 0x%08x\r\n",
-              pPort->pProtocol.v,
-              ChildHandle ));
+    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Ip4Tx.TxData );
+    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event );
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
 
     //
     //  Save the transmit address
@@ -885,7 +787,6 @@ EslIp4PortAllocate (
     //
     //  Set the port address
     //
-    pPort->Handle = ChildHandle;
     pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
     pConfig->DefaultProtocol = (UINT8)pSocket->Protocol;
     if (( 0 == pIpAddress[0])
@@ -898,6 +799,7 @@ EslIp4PortAllocate (
                 pPort ));
     }
     else {
+      pConfig->UseDefaultAddress = FALSE;
       pConfig->StationAddress.Addr[0] = pIpAddress[0];
       pConfig->StationAddress.Addr[1] = pIpAddress[1];
       pConfig->StationAddress.Addr[2] = pIpAddress[2];
@@ -924,44 +826,9 @@ EslIp4PortAllocate (
     pConfig->RawData = FALSE;
     pConfig->ReceiveTimeout = 0;
     pConfig->TransmitTimeout = 0;
-
-    //
-    //  Verify the socket layer synchronization
-    //
-    VERIFY_TPL ( TPL_SOCKETS );
-
-    //
-    //  Add this port to the socket
-    //
-    pPort->pLinkSocket = pSocket->pPortList;
-    pSocket->pPortList = pPort;
-    DEBUG (( DebugFlags,
-              "0x%08x: Socket adding port: 0x%08x\r\n",
-              pSocket,
-              pPort ));
-
-    //
-    //  Add this port to the service
-    //
-    pPort->pLinkService = pService->pPortList;
-    pService->pPortList = pPort;
-
-    //
-    //  Return the port
-    //
-    *ppPort = pPort;
     break;
   }
 
-  //
-  //  Clean up after the error if necessary
-  //
-  if (( EFI_ERROR ( Status )) && ( NULL != pPort )) {
-    //
-    //  Close the port
-    //
-    EslSocketPortClose ( pPort );
-  }
   //
   //  Return the operation status
   //
@@ -1852,6 +1719,7 @@ EslIp4Shutdown (
   IN ESL_SOCKET * pSocket
   )
 {
+  UINTN Index;
   ESL_PORT * pPort;
   ESL_PORT * pNextPort;
   ESL_IP4_CONTEXT * pIp4;
@@ -1958,9 +1826,46 @@ EslIp4Shutdown (
         }
       }
       else {
-        DEBUG (( DEBUG_LISTEN,
-                  "0x%08x: Port configured\r\n",
-                  pPort ));
+        DEBUG (( DEBUG_TX,
+                  "0x%08x: pPort Configured for %d.%d.%d.%d --> %d.%d.%d.%d\r\n",
+                  pPort,
+                  pIp4->ModeData.ConfigData.StationAddress.Addr[0],
+                  pIp4->ModeData.ConfigData.StationAddress.Addr[1],
+                  pIp4->ModeData.ConfigData.StationAddress.Addr[2],
+                  pIp4->ModeData.ConfigData.StationAddress.Addr[3],
+                  pIp4->DestinationAddress.Addr[0],
+                  pIp4->DestinationAddress.Addr[1],
+                  pIp4->DestinationAddress.Addr[2],
+                  pIp4->DestinationAddress.Addr[3]));
+        DEBUG (( DEBUG_TX,
+                  "Subnet Mask: %d.%d.%d.%d\r\n",
+                  pIp4->ModeData.ConfigData.SubnetMask.Addr[0],
+                  pIp4->ModeData.ConfigData.SubnetMask.Addr[1],
+                  pIp4->ModeData.ConfigData.SubnetMask.Addr[2],
+                  pIp4->ModeData.ConfigData.SubnetMask.Addr[3]));
+        DEBUG (( DEBUG_TX,
+                  "Route Count: %d\r\n",
+                  pIp4->ModeData.RouteCount ));
+        for ( Index = 0; pIp4->ModeData.RouteCount > Index; Index++ ) {
+          if ( 0 == Index ) {
+            DEBUG (( DEBUG_TX, "Route Table:\r\n" ));
+          }
+          DEBUG (( DEBUG_TX,
+                    "%5d: %d.%d.%d.%d, %d.%d.%d.%d ==> %d.%d.%d.%d\r\n",
+                    Index,
+                    pIp4->ModeData.RouteTable[Index].SubnetAddress.Addr[0],
+                    pIp4->ModeData.RouteTable[Index].SubnetAddress.Addr[1],
+                    pIp4->ModeData.RouteTable[Index].SubnetAddress.Addr[2],
+                    pIp4->ModeData.RouteTable[Index].SubnetAddress.Addr[3],
+                    pIp4->ModeData.RouteTable[Index].SubnetMask.Addr[0],
+                    pIp4->ModeData.RouteTable[Index].SubnetMask.Addr[1],
+                    pIp4->ModeData.RouteTable[Index].SubnetMask.Addr[2],
+                    pIp4->ModeData.RouteTable[Index].SubnetMask.Addr[3],
+                    pIp4->ModeData.RouteTable[Index].GatewayAddress.Addr[0],
+                    pIp4->ModeData.RouteTable[Index].GatewayAddress.Addr[1],
+                    pIp4->ModeData.RouteTable[Index].GatewayAddress.Addr[2],
+                    pIp4->ModeData.RouteTable[Index].GatewayAddress.Addr[3]));
+        }
         pPort->bConfigured = TRUE;
 
         //
@@ -2163,9 +2068,17 @@ EslIp4TxBuffer (
             //  Display the request
             //
             DEBUG (( DEBUG_TX,
-                      "Send %d %s bytes from 0x%08x\r\n",
+                      "Send %d bytes from 0x%08x, %d.%d.%d.%d --> %d.%d.%d.%d\r\n",
                       BufferLength,
-                      pBuffer ));
+                      pBuffer,
+                      pIp4->ModeData.ConfigData.StationAddress.Addr[0],
+                      pIp4->ModeData.ConfigData.StationAddress.Addr[1],
+                      pIp4->ModeData.ConfigData.StationAddress.Addr[2],
+                      pIp4->ModeData.ConfigData.StationAddress.Addr[3],
+                      pTxData->TxData.DestinationAddress.Addr[0],
+                      pTxData->TxData.DestinationAddress.Addr[1],
+                      pTxData->TxData.DestinationAddress.Addr[2],
+                      pTxData->TxData.DestinationAddress.Addr[3]));
 
             //
             //  Queue the data for transmission

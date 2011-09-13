@@ -62,13 +62,16 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
+  EslUdp4PortAllocate,
   EslUdp4PortClose,
   EslUdp4PortClosePacketFree,
   EslUdp4PortCloseRxStop,
   TRUE,
   EslUdp4Receive,
   EslUdp4RxCancel,
-  EslUdp4TxBuffer
+  EslUdp4TxBuffer,
+  EslUdp4TxComplete,
+  NULL    //  TxOobComplete
 };
 
 
@@ -116,7 +119,6 @@ EslUdp4Bind (
   CONST struct sockaddr_in * pIp4Address;
   EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
   EFI_STATUS Status;
-  EFI_STATUS TempStatus;
   
   DBG_ENTER ( );
   
@@ -160,39 +162,18 @@ EslUdp4Bind (
         //
         //  Open the port
         //
-        Status = EslUdp4PortAllocate ( pSocket,
-                                       pService,
-                                       ChildHandle,
-                                       (UINT8 *) &pIp4Address->sin_addr.s_addr,
-                                       SwapBytes16 ( pIp4Address->sin_port ),
-                                       DEBUG_BIND,
-                                       &pPort );
+        Status = EslSocketPortAllocate ( pSocket,
+                                         pService,
+                                         ChildHandle,
+                                         (UINT8 *) &pIp4Address->sin_addr.s_addr,
+                                         SwapBytes16 ( pIp4Address->sin_port ),
+                                         DEBUG_BIND,
+                                         &pPort );
       }
       else {
         DEBUG (( DEBUG_BIND | DEBUG_POOL,
                   "ERROR - Failed to open Udp4 port handle, Status: %r\r\n",
                   Status ));
-        ChildHandle = NULL;
-      }
-  
-      //
-      //  Close the port if necessary
-      //
-      if (( EFI_ERROR ( Status )) && ( NULL != ChildHandle )) {
-        TempStatus = pServiceBinding->DestroyChild ( pServiceBinding,
-                                                     ChildHandle );
-        if ( !EFI_ERROR ( TempStatus )) {
-          DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                    "0x%08x: Udp4 port handle destroyed\r\n",
-                    ChildHandle ));
-        }
-        else {
-          DEBUG (( DEBUG_ERROR | DEBUG_BIND | DEBUG_POOL,
-                    "ERROR - Failed to destroy the Udp4 port handle 0x%08x, Status: %r\r\n",
-                    ChildHandle,
-                    TempStatus ));
-          ASSERT ( EFI_SUCCESS == TempStatus );
-        }
       }
   
       //
@@ -554,45 +535,34 @@ EslUdp4Initialize (
 
 
 /**
-  Allocate and initialize an ::ESL_PORT structure.
+  Initialize the network specific portions of an ::ESL_PORT structure.
 
-  This routine initializes an ::ESL_PORT structure for use by the
-  socket.
+  This routine initializes the network specific portions of an
+  ::ESL_PORT structure for use by the socket.
 
-  This support routine is called by ::EslUdp4Bind to connect the
-  socket with the underlying network adapter running the UDPv4
-  protocol.
+  This support routine is called by ::EslSocketPortAllocate
+  to connect the socket with the underlying network adapter
+  running the UDPv4 protocol.
 
-  @param [in] pSocket     Address of an ::ESL_SOCKET structure.
-  @param [in] pService    Address of an ::ESL_SERVICE structure.
-  @param [in] ChildHandle Udp4 child handle
+  @param [in] ppPort      Address of an ESL_PORT structure
   @param [in] pIpAddress  Buffer containing IP4 network address of the local host
   @param [in] PortNumber  Udp4 port number
   @param [in] DebugFlags  Flags for debug messages
-  @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
   @retval EFI_SUCCESS - Socket successfully created
 
  **/
 EFI_STATUS
 EslUdp4PortAllocate (
-  IN ESL_SOCKET * pSocket,
-  IN ESL_SERVICE * pService,
-  IN EFI_HANDLE ChildHandle,
+  IN ESL_PORT * pPort,
   IN CONST UINT8 * pIpAddress,
   IN UINT16 PortNumber,
-  IN UINTN DebugFlags,
-  OUT ESL_PORT ** ppPort
+  IN UINTN DebugFlags
   )
 {
-  UINTN LengthInBytes;
-  UINT8 * pBuffer;
   EFI_UDP4_CONFIG_DATA * pConfig;
-  ESL_IO_MGMT * pIo;
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  CONST ESL_SOCKET_BINDING * pSocketBinding;
   ESL_UDP4_CONTEXT * pUdp4;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -601,48 +571,9 @@ EslUdp4PortAllocate (
   //  Use for/break instead of goto
   for ( ; ; ) {
     //
-    //  Allocate a port structure
-    //
-    pLayer = &mEslLayer;
-    LengthInBytes = sizeof ( *pPort )
-                  + ESL_STRUCTURE_ALIGNMENT_BYTES
-                  + ( pService->pSocketBinding->TxIoNormal
-                      * sizeof ( ESL_IO_MGMT ));
-    Status = gBS->AllocatePool ( EfiRuntimeServicesData,
-                                 LengthInBytes,
-                                 (VOID **)&pPort );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
-                "ERROR - Failed to allocate the port structure, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      pPort = NULL;
-      break;
-    }
-    DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
-              "0x%08x: Allocate pPort, %d bytes\r\n",
-              pPort,
-              LengthInBytes ));
-
-    //
-    //  Initialize the port
-    //
-    ZeroMem ( pPort, LengthInBytes );
-    pPort->Signature = PORT_SIGNATURE;
-    pPort->pService = pService;
-    pPort->pSocket = pSocket;
-    pPort->DebugFlags = DebugFlags;
-    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
-    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event );
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
-    pBuffer = (UINT8 *)&pPort[ 1 ];
-    pBuffer = &pBuffer[ ESL_STRUCTURE_ALIGNMENT_BYTES ];
-    pBuffer = (UINT8 *)( ESL_STRUCTURE_ALIGNMENT_MASK & (UINTN)pBuffer );
-    pIo = (ESL_IO_MGMT *)pBuffer;
-
-    //
     //  Allocate the receive event
     //
+    pSocket = pPort->pSocket;
     pUdp4 = &pPort->Context.Udp4;
     Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
                                  TPL_SOCKETS,
@@ -661,42 +592,11 @@ EslUdp4PortAllocate (
               pUdp4->RxToken.Event ));
 
     //
-    //  Allocate the transmit events
+    //  Initialize the port
     //
-    Status = EslSocketIoInit ( pPort,
-                               &pIo,
-                               pService->pSocketBinding->TxIoNormal,
-                               &pPort->pTxFree,
-                               DebugFlags | DEBUG_POOL,
-                               "transmit",
-                               OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event ),
-                               EslUdp4TxComplete );
-    if ( EFI_ERROR ( Status )) {
-      break;
-    }
-
-    //
-    //  Open the port protocol
-    //
-    pSocketBinding = pService->pSocketBinding;
-    Status = gBS->OpenProtocol (
-                    ChildHandle,
-                    pSocketBinding->pNetworkProtocolGuid,
-                    &pPort->pProtocol.v,
-                    pLayer->ImageHandle,
-                    NULL,
-                    EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to open gEfiUdp4ProtocolGuid on controller 0x%08x\r\n",
-                pPort->Handle ));
-      pSocket->errno = EEXIST;
-      break;
-    }
-    DEBUG (( DebugFlags,
-              "0x%08x: gEfiUdp4ProtocolGuid opened on controller 0x%08x\r\n",
-              pPort->pProtocol.v,
-              ChildHandle ));
+    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
+    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event );
+    pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
 
     //
     //  Save the transmit address
@@ -706,7 +606,6 @@ EslUdp4PortAllocate (
     //
     //  Set the port address
     //
-    pPort->Handle = ChildHandle;
     pConfig = &pPort->Context.Udp4.ConfigData;
     pConfig->StationPort = PortNumber;
     if (( 0 == pIpAddress[0])
@@ -731,44 +630,9 @@ EslUdp4PortAllocate (
     pConfig->AcceptPromiscuous = FALSE;
     pConfig->AllowDuplicatePort = TRUE;
     pConfig->DoNotFragment = TRUE;
-
-    //
-    //  Verify the socket layer synchronization
-    //
-    VERIFY_TPL ( TPL_SOCKETS );
-
-    //
-    //  Add this port to the socket
-    //
-    pPort->pLinkSocket = pSocket->pPortList;
-    pSocket->pPortList = pPort;
-    DEBUG (( DebugFlags,
-              "0x%08x: Socket adding port: 0x%08x\r\n",
-              pSocket,
-              pPort ));
-
-    //
-    //  Add this port to the service
-    //
-    pPort->pLinkService = pService->pPortList;
-    pService->pPortList = pPort;
-
-    //
-    //  Return the port
-    //
-    *ppPort = pPort;
     break;
   }
 
-  //
-  //  Clean up after the error if necessary
-  //
-  if (( EFI_ERROR ( Status )) && ( NULL != pPort )) {
-    //
-    //  Close the port
-    //
-    EslSocketPortClose ( pPort );
-  }
   //
   //  Return the operation status
   //
@@ -1743,9 +1607,19 @@ EslUdp4Shutdown (
         }
       }
       else {
-        DEBUG (( DEBUG_LISTEN,
-                  "0x%08x: Port configured\r\n",
-                  pPort ));
+        DEBUG (( DEBUG_TX,
+                  "0x%08x: pPort Configured for %d.%d.%d.%d:%d --> %d.%d.%d.%d:%d\r\n",
+                            pPort,
+                            pUdp4->ConfigData.StationAddress.Addr[0],
+                            pUdp4->ConfigData.StationAddress.Addr[1],
+                            pUdp4->ConfigData.StationAddress.Addr[2],
+                            pUdp4->ConfigData.StationAddress.Addr[3],
+                            pUdp4->ConfigData.StationPort,
+                            pUdp4->ConfigData.RemoteAddress.Addr[0],
+                            pUdp4->ConfigData.RemoteAddress.Addr[1],
+                            pUdp4->ConfigData.RemoteAddress.Addr[2],
+                            pUdp4->ConfigData.RemoteAddress.Addr[3],
+                            pUdp4->ConfigData.RemotePort ));
         pPort->bConfigured = TRUE;
 
         //
