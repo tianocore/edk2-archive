@@ -41,8 +41,10 @@ EslServiceConnect (
 {
   BOOLEAN bInUse;
   UINTN LengthInBytes;
+  UINT8 * pBuffer;
   CONST ESL_SOCKET_BINDING * pEnd;
   VOID * pJunk;
+  ESL_SERVICE ** ppServiceListHead;
   ESL_SERVICE * pService;
   CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
@@ -155,9 +157,13 @@ EslServiceConnect (
               RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
               //
-              //  Initialize the service
+              //  Connect the service to the list
               //
-              Status = pSocketBinding->pfnInitialize ( pService );
+              pBuffer = (UINT8 *)&mEslLayer;
+              pBuffer = &pBuffer[ pSocketBinding->ServiceListOffset ];
+              ppServiceListHead = (ESL_SERVICE **)pBuffer;
+              pService->pNext = *ppServiceListHead;
+              *ppServiceListHead = pService;
 
               //
               //  Release the socket layer synchronization
@@ -256,9 +262,8 @@ EslServiceConnect (
 /**
   Shutdown the connections to the network layer by locating the
   tags on the network interfaces established by ::EslServiceConnect.
-  This routine calls ESL_SOCKET_BINDING::pfnShutdown to shutdown the any
-  activity on the network interface and then free the ::ESL_SERVICE
-  structures.
+  This routine shutdowns any activity on the network interface and
+  then frees the ::ESL_SERVICE structures.
 
   @param [in] BindingHandle    Handle for protocol binding.
   @param [in] Controller       Handle of device to stop driver on.
@@ -275,8 +280,12 @@ EslServiceDisconnect (
   IN  EFI_HANDLE Controller
   )
 {
+  UINT8 * pBuffer;
   CONST ESL_SOCKET_BINDING * pEnd;
+  ESL_PORT * pPort;
+  ESL_SERVICE * pPreviousService;
   ESL_SERVICE * pService;
+  ESL_SERVICE ** ppServiceListHead;
   CONST ESL_SOCKET_BINDING * pSocketBinding;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
@@ -313,9 +322,54 @@ EslServiceDisconnect (
       RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
       //
-      //  Shutdown the service
+      //  Walk the list of ports
       //
-      pSocketBinding->pfnShutdown ( pService );
+      pPort = pService->pPortList;
+      while ( NULL != pPort ) {
+        //
+        //  Remove the port from the port list
+        //
+        pPort->pService = NULL;
+        pService->pPortList = pPort->pLinkService;
+  
+        //
+        //  Close the port
+        //
+        EslSocketPortCloseStart ( pPort,
+                                  TRUE,
+                                  DEBUG_POOL | DEBUG_INIT );
+
+        //
+        //  Set the next port
+        //
+        pPort = pService->pPortList;
+      }
+    
+      //
+      //  Remove the service from the service list
+      //
+      pBuffer = (UINT8 *)&mEslLayer;
+      pBuffer = &pBuffer[ pService->pSocketBinding->ServiceListOffset ];
+      ppServiceListHead = (ESL_SERVICE **)pBuffer;
+      pPreviousService = *ppServiceListHead;
+      if ( pService == pPreviousService ) {
+        //
+        //  Remove the service from the beginning of the list
+        //
+        *ppServiceListHead = pService->pNext;
+      }
+      else {
+        //
+        //  Remove the service from the middle of the list
+        //
+        while ( NULL != pPreviousService ) {
+          if ( pService == pPreviousService->pNext ) {
+            pPreviousService->pNext = pService->pNext;
+            break;
+          }
+          pPreviousService = pPreviousService->pNext;
+        }
+      }
 
       //
       //  Release the socket layer synchronization

@@ -52,8 +52,9 @@
 **/
 CONST ESL_PROTOCOL_API cEslIp4Api = {
   IPPROTO_IP,
+  OFFSET_OF ( ESL_LAYER, pIp4List ),
+  OFFSET_OF ( struct sockaddr_in, sin_zero ),
   NULL,   //  Accept
-  EslIp4Bind,
   EslIp4Connect,
   NULL,   //  ConnectPoll
   EslIp4GetLocalAddress,
@@ -73,141 +74,6 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   EslIp4TxComplete,
   NULL    //  TxOobComplete
 };
-
-
-/**
-  Bind a name to a socket.
-
-  This routine connects a name (IPv4 address) to the IPv4 stack
-  on the local machine.
-
-  This routine is called by ::EslSocketBind to handle the IPv4 specific
-  protocol bind operations for SOCK_RAW sockets.
-
-  The configure call to the IP4 driver occurs on the first poll, recv, recvfrom,
-  send or sentto call.  Until then, all changes are made in the local IP context
-  structure.
-
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.
-
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslIp4Bind (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  )
-{
-  EFI_HANDLE ChildHandle;
-  CONST struct sockaddr_in * pIp4Address;
-  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_SERVICE * pService;
-  EFI_STATUS Status;
-  
-  DBG_ENTER ( );
-  
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-  
-  //
-  //  Assume success
-  //
-  pSocket->errno = 0;
-  Status = EFI_SUCCESS;
-  
-  //
-  //  Validate the address length
-  //
-  pIp4Address = (CONST struct sockaddr_in *) pSockAddr;
-  if ( SockAddrLength >= ( sizeof ( *pIp4Address )
-                           - sizeof ( pIp4Address->sin_zero ))) {
-
-    //
-    //  Walk the list of services
-    //
-    pLayer = &mEslLayer;
-    pService = pLayer->pIp4List;
-    while ( NULL != pService ) {
-
-      //
-      //  Create the IP port
-      //
-      pServiceBinding = pService->pServiceBinding;
-      ChildHandle = NULL;
-      Status = pServiceBinding->CreateChild ( pServiceBinding,
-                                              &ChildHandle );
-      if ( !EFI_ERROR ( Status )) {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                  "0x%08x: Ip4 port handle created\r\n",
-                  ChildHandle ));
-  
-        //
-        //  Open the port
-        //
-        Status = EslSocketPortAllocate ( pSocket,
-                                         pService,
-                                         ChildHandle,
-                                         (UINT8 *) &pIp4Address->sin_addr.s_addr,
-                                         0,
-                                         DEBUG_BIND,
-                                         &pPort );
-      }
-      else {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                  "ERROR - Failed to open Ip4 port handle, Status: %r\r\n",
-                  Status ));
-      }
-  
-      //
-      //  Set the next service
-      //
-      pService = pService->pNext;
-    }
-  
-    //
-    //  Verify that at least one network connection was found
-    //
-    if ( NULL == pSocket->pPortList ) {
-      DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
-                "Socket address %d.%d.%d.%d (0x%08x) is not available!\r\n",
-                ( pIp4Address->sin_addr.s_addr >> 24 ) & 0xff,
-                ( pIp4Address->sin_addr.s_addr >> 16 ) & 0xff,
-                ( pIp4Address->sin_addr.s_addr >> 8 ) & 0xff,
-                pIp4Address->sin_addr.s_addr & 0xff,
-                pIp4Address->sin_addr.s_addr ));
-      pSocket->errno = EADDRNOTAVAIL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    DEBUG (( DEBUG_BIND,
-              "ERROR - Invalid Ip4 address length: %d\r\n",
-              SockAddrLength ));
-    Status = EFI_INVALID_PARAMETER;
-    pSocket->errno = EINVAL;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
 
 
 /**
@@ -476,52 +342,6 @@ EslIp4GetRemoteAddress (
   
   //
   //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Initialize the IP4 service.
-
-  This routine initializes the IP4 service which is used by the
-  sockets layer to support SOCK_RAW sockets.
-
-  This routine is called by ::EslServiceConnect after initializing an
-  ::ESL_SERVICE structure for an adapter running IPv4.
-
-  @param [in] pService        Address of an ::ESL_SERVICE structure
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslIp4Initialize (
-  IN ESL_SERVICE * pService
-  )
-{
-  ESL_LAYER * pLayer;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Connect this service to the service list
-  //
-  pLayer = &mEslLayer;
-  pService->pNext = pLayer->pIp4List;
-  pLayer->pIp4List = pService;
-
-  //
-  //  Assume the list is empty
-  //
-  Status = EFI_SUCCESS;
-
-  //
-  //  Return the initialization status
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
@@ -1619,91 +1439,13 @@ EslIp4RxStart (
 
 
 /**
-  Shutdown the IP4 service.
-
-  This routine undoes the work performed by ::EslIp4Initialize to
-  shutdown the IP4 service which is used by the sockets layer to
-  support SOCK_RAW sockets.
-
-  This routine is called by ::EslServiceDisconnect prior to freeing
-  the ::ESL_SERVICE structure associated with the adapter running
-  IPv4.
-
-  @param [in] pService    The address of an ::ESL_SERVICE structure
-
-**/
-VOID
-EFIAPI
-EslIp4Shutdown (
-  IN ESL_SERVICE * pService
-  )
-{
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_SERVICE * pPreviousService;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Walk the list of ports
-  //
-  do {
-    pPort = pService->pPortList;
-    if ( NULL != pPort ) {
-      //
-      //  Remove the port from the port list
-      //
-      pService->pPortList = pPort->pLinkService;
-
-      //
-      //  Close the port
-      // TODO: Fix this
-      //
-//      pPort->pfnClosePort ( pPort, 0 );
-    }
-  } while ( NULL != pPort );
-
-  //
-  //  Remove the service from the service list
-  //
-  pLayer = &mEslLayer;
-  pPreviousService = pLayer->pIp4List;
-  if ( pService == pPreviousService ) {
-    //
-    //  Remove the service from the beginning of the list
-    //
-    pLayer->pIp4List = pService->pNext;
-  }
-  else {
-    //
-    //  Remove the service from the middle of the list
-    //
-    while ( NULL != pPreviousService ) {
-      if ( pService == pPreviousService->pNext ) {
-        pPreviousService->pNext = pService->pNext;
-        break;
-      }
-      pPreviousService = pPreviousService->pNext;
-    }
-  }
-
-  DBG_EXIT ( );
-}
-
-
-/**
   Determine if the socket is configured.
 
   This routine uses the flag ESL_SOCKET::bConfigured to determine
   if the network layer's configuration routine has been called.
-  This routine calls the bind and configuration routines if they
-  were not already called.  After the port is configured, the
-  \ref Ip4ReceiveEngine is started.
+  This routine calls the ::EslSocketBind and configuration routines
+  if they were not already called.  After the port is configured,
+  the \ref Ip4ReceiveEngine is started.
 
   This routine is called by EslSocketIsConfigured to verify
   that the socket is configured.
@@ -1746,9 +1488,10 @@ EslIp4Shutdown (
       LocalAddress.sin_family = AF_INET;
       LocalAddress.sin_addr.s_addr = 0;
       LocalAddress.sin_port = 0;
-      Status = EslIp4Bind ( pSocket,
-                             (struct sockaddr *)&LocalAddress,
-                             LocalAddress.sin_len );
+      Status = EslSocketBind ( &pSocket->SocketProtocol,
+                               (struct sockaddr *)&LocalAddress,
+                               LocalAddress.sin_len,
+                               &pSocket->errno );
     }
 
     //

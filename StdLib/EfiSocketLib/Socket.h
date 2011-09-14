@@ -316,6 +316,12 @@ typedef struct _ESL_PORT {
   ESL_SOCKET * pSocket;         ///<  Socket for this port
 
   //
+  //  Eliminate the pService references during port close
+  //
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding; ///<  Service binding for network layer
+  CONST ESL_SOCKET_BINDING * pSocketBinding;      ///<  Socket binding for network layer
+
+  //
   //  Port management
   //
   EFI_HANDLE Handle;            ///<  Network port handle
@@ -377,34 +383,6 @@ EFI_STATUS
   IN ESL_SOCKET * pSocket,
   IN struct sockaddr * pSockAddr,
   IN OUT socklen_t * pSockAddrLength
-  );
-
-/**
-  Bind a name to a socket.
-
-  @param [in] pSocket   Address of the socket structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.  Specifying zero
-                        for the port causes the network layer to assign a port
-                        number from the dynamic range.  Specifying a specific
-                        port number causes the network layer to use that port.
-
-  @param [in] SockAddrLen   Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-typedef
-EFI_STATUS
-(* PFN_API_BIND) (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
   );
 
 /**
@@ -764,8 +742,9 @@ VOID
 **/
 typedef struct {
   int DefaultProtocol;                      ///<  Default protocol
+  UINTN ServiceListOffset;                  ///<  Offset in ::ESL_LAYER for the list of services
+  UINTN MinimumAddressLength;               ///<  Minimum address length in bytes
   PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
-  PFN_API_BIND pfnBind;                     ///<  Bind API for the protocol
   PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
   PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
   PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr;   ///<  Get local address
@@ -1317,40 +1296,6 @@ EslSocketTxStart (
 //------------------------------------------------------------------------------
 
 /**
-  Bind a name to a socket.
-
-  This routine connects a name (IPv4 address) to the IPv4 stack
-  on the local machine.
-
-  This routine is called by ::EslSocketBind to handle the IPv4 specific
-  protocol bind operations for SOCK_RAW sockets.
-
-  The configure call to the IP4 driver occurs on the first poll, recv, recvfrom,
-  send or sentto call.  Until then, all changes are made in the local IP context
-  structure.
-
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.
-
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslIp4Bind (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
   Set the default remote system address.
 
   This routine sets the default remote address for a SOCK_RAW
@@ -1428,27 +1373,6 @@ EslIp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
-  );
-
-/**
-  Initialize the IP4 service.
-
-  This routine initializes the IP4 service which is used by the
-  sockets layer to support SOCK_RAW sockets.
-
-  This routine is called by ::EslServiceConnect after initializing an
-  ::ESL_SERVICE structure for an adapter running IPv4.
-
-  @param [in] pService        Address of an ::ESL_SERVICE structure
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslIp4Initialize (
-  IN ESL_SERVICE * pService
   );
 
 /**
@@ -1695,26 +1619,6 @@ EslIp4RxStart (
   );
 
 /**
-  Shutdown the IP4 service.
-
-  This routine undoes the work performed by ::EslIp4Initialize to
-  shutdown the IP4 service which is used by the sockets layer to
-  support SOCK_RAW sockets.
-
-  This routine is called by ::EslServiceDisconnect prior to freeing
-  the ::ESL_SERVICE structure associated with the adapter running
-  IPv4.
-
-  @param [in] pService    The address of an ::ESL_SERVICE structure
-
-**/
-VOID
-EFIAPI
-EslIp4Shutdown (
-  IN ESL_SERVICE * pService
-  );
-
-/**
   Determine if the socket is configured.
 
   This routine uses the flag ESL_SOCKET::bConfigured to determine
@@ -1840,39 +1744,6 @@ EslTcp4Accept (
   );
 
 /**
-  Bind a name to a socket.
-
-  This routine connects a name (IPv4 address and port number) to the TCPv4 stack
-  on the local machine.
-
-  This routine is called by ::EslSocketBind to handle the TCPv4 specific
-  protocol bind operations for SOCK_STREAM and SOCK_SEQPACKET sockets.
-    
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.  Specifying zero
-                        for the port causes the network layer to assign a port
-                        number from the dynamic range.  Specifying a specific
-                        port number causes the network layer to use that port.
-
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslTcp4Bind (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
   Poll for completion of the connection attempt.
 
   This routine polls the ESL_SOCKET::bConnected flag to determine
@@ -1974,27 +1845,6 @@ EslTcp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
-  );
-
-/**
-  Initialize the TCP4 service.
-
-  This routine initializes the TCP4 service which is used by the
-  sockets layer to support SOCK_STREAM and SOCK_SEQPACKET sockets.
-
-  This routine is called by ::EslServiceConnect after initializing an
-  ::ESL_SERVICE structure for an adapter running TCPv4.
-
-  @param [in] pService        Address of an ::ESL_SERVICE structure.
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslTcp4Initialize (
-  IN ESL_SERVICE * pService
   );
 
 /**
@@ -2235,26 +2085,6 @@ EslTcp4RxStart (
   );
 
 /**
-  Shutdown the TCP4 service.
-
-  This routine undoes the work performed by ::EslTcp4Initialize to
-  shutdown the TCP4 service which is used by the sockets layer to
-  support SOCK_STREAM and SOCK_SEQPACKET sockets.
-
-  This routine is called by ::EslServiceDisconnect prior to freeing
-  the ::ESL_SERVICE structure associated with the adapter running
-  TCPv4.
-
-  @param [in] pService    Adress of a ::ESL_SERVICE structure
-
-**/
-VOID
-EFIAPI
-EslTcp4Shutdown (
-  IN ESL_SERVICE * pService
-  );
-
-/**
   Determine if the socket is configured.
 
   This routine uses the flag ESL_SOCKET::bConfigured to determine
@@ -2365,43 +2195,6 @@ EslTcp4TxOobComplete (
 //------------------------------------------------------------------------------
 
 /**
-  Bind a name to a socket.
-
-  This routine connects a name (IPv4 address and port number) to the UDPv4 stack
-  on the local machine.
-
-  This routine is called by ::EslSocketBind to handle the UDPv4 specific
-  protocol bind operations for SOCK_DGRAM sockets.
-    
-  The configure call to the UDP4 driver occurs on the first poll, recv, recvfrom,
-  send or sentto call.  Until then, all changes are made in the local UDP context
-  structure.
-  
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.  Specifying zero
-                        for the port causes the network layer to assign a port
-                        number from the dynamic range.  Specifying a specific
-                        port number causes the network layer to use that port.
-
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslUdp4Bind (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
   Set the default remote system address.
 
   This routine sets the default remote address for a SOCK_DGRAM
@@ -2479,27 +2272,6 @@ EslUdp4GetRemoteAddress (
   IN ESL_SOCKET * pSocket,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
-  );
-
-/**
-  Initialize the UDP4 service.
-
-  This routine initializes the UDP4 service which is used by the
-  sockets layer to support SOCK_DGRAM sockets.
-
-  This routine is called by ::EslServiceConnect after initializing an
-  ::ESL_SERVICE structure for an adapter running UDPv4.
-
-  @param [in] pService        Address of an ::ESL_SERVICE structure
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslUdp4Initialize (
-  IN ESL_SERVICE * pService
   );
 
 /**
@@ -2691,26 +2463,6 @@ EslUdp4RxComplete (
 VOID
 EslUdp4RxStart (
   IN ESL_PORT * pPort
-  );
-
-/**
-  Shutdown the UDP4 service.
-
-  This routine undoes the work performed by ::EslUdp4Initialize to
-  shutdown the UDP4 service which is used by the sockets layer to
-  support SOCK_DGRAM sockets.
-
-  This routine is called by ::EslServiceDisconnect prior to freeing
-  the ::ESL_SERVICE structure associated with the adapter running
-  UDPv4.
-
-  @param [in] pService    Address of an ::ESL_SERVICE structure
-
-**/
-VOID
-EFIAPI
-EslUdp4Shutdown (
-  IN ESL_SERVICE * pService
   );
 
 /**

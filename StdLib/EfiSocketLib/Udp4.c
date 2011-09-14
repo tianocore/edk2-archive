@@ -52,8 +52,9 @@
 **/
 CONST ESL_PROTOCOL_API cEslUdp4Api = {
   IPPROTO_UDP,
+  OFFSET_OF ( ESL_LAYER, pUdp4List ),
+  OFFSET_OF ( struct sockaddr_in, sin_zero ),
   NULL,   //  Accept
-  EslUdp4Bind,
   EslUdp4Connect,
   NULL,   //  ConnectPoll
   EslUdp4GetLocalAddress,
@@ -73,144 +74,6 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   EslUdp4TxComplete,
   NULL    //  TxOobComplete
 };
-
-
-/**
-  Bind a name to a socket.
-
-  This routine connects a name (IPv4 address and port number) to the UDPv4 stack
-  on the local machine.
-
-  This routine is called by ::EslSocketBind to handle the UDPv4 specific
-  protocol bind operations for SOCK_DGRAM sockets.
-
-  The configure call to the UDP4 driver occurs on the first poll, recv, recvfrom,
-  send or sentto call.  Until then, all changes are made in the local UDP context
-  structure.
-
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.  Specifying zero
-                        for the port causes the network layer to assign a port
-                        number from the dynamic range.  Specifying a specific
-                        port number causes the network layer to use that port.
-
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslUdp4Bind (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  )
-{
-  EFI_HANDLE ChildHandle;
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_SERVICE * pService;
-  CONST struct sockaddr_in * pIp4Address;
-  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
-  EFI_STATUS Status;
-  
-  DBG_ENTER ( );
-  
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-  
-  //
-  //  Assume success
-  //
-  pSocket->errno = 0;
-  Status = EFI_SUCCESS;
-  
-  //
-  //  Validate the address length
-  //
-  pIp4Address = (CONST struct sockaddr_in *) pSockAddr;
-  if ( SockAddrLength >= ( sizeof ( *pIp4Address )
-                           - sizeof ( pIp4Address->sin_zero ))) {
-
-    //
-    //  Walk the list of services
-    //
-    pLayer = &mEslLayer;
-    pService = pLayer->pUdp4List;
-    while ( NULL != pService ) {
-
-      //
-      //  Create the UDP port
-      //
-      pServiceBinding = pService->pServiceBinding;
-      ChildHandle = NULL;
-      Status = pServiceBinding->CreateChild ( pServiceBinding,
-                                              &ChildHandle );
-      if ( !EFI_ERROR ( Status )) {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                  "0x%08x: Udp4 port handle created\r\n",
-                  ChildHandle ));
-  
-        //
-        //  Open the port
-        //
-        Status = EslSocketPortAllocate ( pSocket,
-                                         pService,
-                                         ChildHandle,
-                                         (UINT8 *) &pIp4Address->sin_addr.s_addr,
-                                         SwapBytes16 ( pIp4Address->sin_port ),
-                                         DEBUG_BIND,
-                                         &pPort );
-      }
-      else {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                  "ERROR - Failed to open Udp4 port handle, Status: %r\r\n",
-                  Status ));
-      }
-  
-      //
-      //  Set the next service
-      //
-      pService = pService->pNext;
-    }
-  
-    //
-    //  Verify that at least one network connection was found
-    //
-    if ( NULL == pSocket->pPortList ) {
-      DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
-                "Socket address %d.%d.%d.%d (0x%08x) is not available!\r\n",
-                ( pIp4Address->sin_addr.s_addr >> 24 ) & 0xff,
-                ( pIp4Address->sin_addr.s_addr >> 16 ) & 0xff,
-                ( pIp4Address->sin_addr.s_addr >> 8 ) & 0xff,
-                pIp4Address->sin_addr.s_addr & 0xff,
-                pIp4Address->sin_addr.s_addr ));
-      pSocket->errno = EADDRNOTAVAIL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    DEBUG (( DEBUG_BIND,
-              "ERROR - Invalid Udp4 address length: %d\r\n",
-              SockAddrLength ));
-    Status = EFI_INVALID_PARAMETER;
-    pSocket->errno = EINVAL;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
 
 
 /**
@@ -482,52 +345,6 @@ EslUdp4GetRemoteAddress (
   
   //
   //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Initialize the UDP4 service.
-
-  This routine initializes the UDP4 service which is used by the
-  sockets layer to support SOCK_DGRAM sockets.
-
-  This routine is called by ::EslServiceConnect after initializing an
-  ::ESL_SERVICE structure for an adapter running UDPv4.
-
-  @param [in] pService        Address of an ::ESL_SERVICE structure
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslUdp4Initialize (
-  IN ESL_SERVICE * pService
-  )
-{
-  ESL_LAYER * pLayer;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Connect this service to the service list
-  //
-  pLayer = &mEslLayer;
-  pService->pNext = pLayer->pUdp4List;
-  pLayer->pUdp4List = pService;
-
-  //
-  //  Assume the list is empty
-  //
-  Status = EFI_SUCCESS;
-
-  //
-  //  Return the initialization status
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
@@ -1408,84 +1225,6 @@ EslUdp4RxStart (
 
 
 /**
-  Shutdown the UDP4 service.
-
-  This routine undoes the work performed by ::EslUdp4Initialize to
-  shutdown the UDP4 service which is used by the sockets layer to
-  support SOCK_DGRAM sockets.
-
-  This routine is called by ::EslServiceDisconnect prior to freeing
-  the ::ESL_SERVICE structure associated with the adapter running
-  UDPv4.
-
-  @param [in] pService    Address of an ::ESL_SERVICE structure
-
-**/
-VOID
-EFIAPI
-EslUdp4Shutdown (
-  IN ESL_SERVICE * pService
-  )
-{
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_SERVICE * pPreviousService;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Walk the list of ports
-  //
-  do {
-    pPort = pService->pPortList;
-    if ( NULL != pPort ) {
-      //
-      //  Remove the port from the port list
-      //
-      pService->pPortList = pPort->pLinkService;
-
-      //
-      //  Close the port
-      // TODO: Fix this
-      //
-//      pPort->pfnClosePort ( pPort, 0 );
-    }
-  } while ( NULL != pPort );
-
-  //
-  //  Remove the service from the service list
-  //
-  pLayer = &mEslLayer;
-  pPreviousService = pLayer->pUdp4List;
-  if ( pService == pPreviousService ) {
-    //
-    //  Remove the service from the beginning of the list
-    //
-    pLayer->pUdp4List = pService->pNext;
-  }
-  else {
-    //
-    //  Remove the service from the middle of the list
-    //
-    while ( NULL != pPreviousService ) {
-      if ( pService == pPreviousService->pNext ) {
-        pPreviousService->pNext = pService->pNext;
-        break;
-      }
-      pPreviousService = pPreviousService->pNext;
-    }
-  }
-
-  DBG_EXIT ( );
-}
-
-
-/**
   Determine if the socket is configured.
 
   This routine uses the flag ESL_SOCKET::bConfigured to determine
@@ -1508,6 +1247,7 @@ EslUdp4Shutdown (
   IN ESL_SOCKET * pSocket
   )
 {
+  EFI_UDP4_CONFIG_DATA * pConfigData;
   ESL_PORT * pPort;
   ESL_PORT * pNextPort;
   ESL_UDP4_CONTEXT * pUdp4;
@@ -1534,9 +1274,10 @@ EslUdp4Shutdown (
       LocalAddress.sin_family = AF_INET;
       LocalAddress.sin_addr.s_addr = 0;
       LocalAddress.sin_port = 0;
-      Status = EslUdp4Bind ( pSocket,
-                             (struct sockaddr *)&LocalAddress,
-                             LocalAddress.sin_len );
+      Status = EslSocketBind ( &pSocket->SocketProtocol,
+                               (struct sockaddr *)&LocalAddress,
+                               LocalAddress.sin_len,
+                               &pSocket->errno );
     }
 
     //
@@ -1550,27 +1291,28 @@ EslUdp4Shutdown (
       pNextPort = pPort->pLinkSocket;
       pUdp4 = &pPort->Context.Udp4;
       pUdp4Protocol = pPort->pProtocol.UDPv4;
+      pConfigData = &pUdp4->ConfigData;
       DEBUG (( DEBUG_TX,
                 "0x%08x: pPort Configuring for %d.%d.%d.%d:%d --> %d.%d.%d.%d:%d\r\n",
-                          pPort,
-                          pUdp4->ConfigData.StationAddress.Addr[0],
-                          pUdp4->ConfigData.StationAddress.Addr[1],
-                          pUdp4->ConfigData.StationAddress.Addr[2],
-                          pUdp4->ConfigData.StationAddress.Addr[3],
-                          pUdp4->ConfigData.StationPort,
-                          pUdp4->ConfigData.RemoteAddress.Addr[0],
-                          pUdp4->ConfigData.RemoteAddress.Addr[1],
-                          pUdp4->ConfigData.RemoteAddress.Addr[2],
-                          pUdp4->ConfigData.RemoteAddress.Addr[3],
-                          pUdp4->ConfigData.RemotePort ));
+                pPort,
+                pConfigData->StationAddress.Addr[0],
+                pConfigData->StationAddress.Addr[1],
+                pConfigData->StationAddress.Addr[2],
+                pConfigData->StationAddress.Addr[3],
+                pConfigData->StationPort,
+                pConfigData->RemoteAddress.Addr[0],
+                pConfigData->RemoteAddress.Addr[1],
+                pConfigData->RemoteAddress.Addr[2],
+                pConfigData->RemoteAddress.Addr[3],
+                pConfigData->RemotePort ));
       Status = pUdp4Protocol->Configure ( pUdp4Protocol,
-                                          &pUdp4->ConfigData );
+                                          pConfigData );
       if ( !EFI_ERROR ( Status )) {
         //
         //  Update the configuration data
         //
         Status = pUdp4Protocol->GetModeData ( pUdp4Protocol,
-                                              &pUdp4->ConfigData,
+                                              pConfigData,
                                               NULL,
                                               NULL,
                                               NULL );
@@ -1609,17 +1351,17 @@ EslUdp4Shutdown (
       else {
         DEBUG (( DEBUG_TX,
                   "0x%08x: pPort Configured for %d.%d.%d.%d:%d --> %d.%d.%d.%d:%d\r\n",
-                            pPort,
-                            pUdp4->ConfigData.StationAddress.Addr[0],
-                            pUdp4->ConfigData.StationAddress.Addr[1],
-                            pUdp4->ConfigData.StationAddress.Addr[2],
-                            pUdp4->ConfigData.StationAddress.Addr[3],
-                            pUdp4->ConfigData.StationPort,
-                            pUdp4->ConfigData.RemoteAddress.Addr[0],
-                            pUdp4->ConfigData.RemoteAddress.Addr[1],
-                            pUdp4->ConfigData.RemoteAddress.Addr[2],
-                            pUdp4->ConfigData.RemoteAddress.Addr[3],
-                            pUdp4->ConfigData.RemotePort ));
+                  pPort,
+                  pConfigData->StationAddress.Addr[0],
+                  pConfigData->StationAddress.Addr[1],
+                  pConfigData->StationAddress.Addr[2],
+                  pConfigData->StationAddress.Addr[3],
+                  pConfigData->StationPort,
+                  pConfigData->RemoteAddress.Addr[0],
+                  pConfigData->RemoteAddress.Addr[1],
+                  pConfigData->RemoteAddress.Addr[2],
+                  pConfigData->RemoteAddress.Addr[3],
+                  pConfigData->RemotePort ));
         pPort->bConfigured = TRUE;
 
         //

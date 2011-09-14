@@ -64,8 +64,9 @@
 **/
 CONST ESL_PROTOCOL_API cEslTcp4Api = {
   IPPROTO_TCP,
+  OFFSET_OF ( ESL_LAYER, pTcp4List ),
+  OFFSET_OF ( struct sockaddr_in, sin_zero ),
   EslTcp4Accept,
-  EslTcp4Bind,
   EslTcp4ConnectStart,
   EslTcp4ConnectPoll,
   EslTcp4GetLocalAddress,
@@ -166,139 +167,6 @@ EslTcp4Accept (
     RemoteAddress <<= 8;
     RemoteAddress |= pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0];
     pRemoteAddress->sin_addr.s_addr = RemoteAddress;
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Bind a name to a socket.
-
-  This routine connects a name (IPv4 address and port number) to the TCPv4 stack
-  on the local machine.
-
-  This routine is called by ::EslSocketBind to handle the TCPv4 specific
-  protocol bind operations for SOCK_STREAM and SOCK_SEQPACKET sockets.
-    
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr Address of a sockaddr structure that contains the
-                        connection point on the local machine.  An IPv4 address
-                        of INADDR_ANY specifies that the connection is made to
-                        all of the network stacks on the platform.  Specifying a
-                        specific IPv4 address restricts the connection to the
-                        network stack supporting that address.  Specifying zero
-                        for the port causes the network layer to assign a port
-                        number from the dynamic range.  Specifying a specific
-                        port number causes the network layer to use that port.
-
-  @param [in] SockAddrLength  Specifies the length in bytes of the sockaddr structure.
-
-  @retval EFI_SUCCESS - Socket successfully created
-
- **/
-EFI_STATUS
-EslTcp4Bind (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  )
-{
-  EFI_HANDLE ChildHandle;
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_SERVICE * pService;
-  CONST struct sockaddr_in * pIp4Address;
-  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Assume success
-  //
-  pSocket->errno = 0;
-  Status = EFI_SUCCESS;
-
-  //
-  //  Validate the address length
-  //
-  pIp4Address = (CONST struct sockaddr_in *) pSockAddr;
-  if ( SockAddrLength >= ( sizeof ( *pIp4Address )
-                           - sizeof ( pIp4Address->sin_zero ))) {
-
-    //
-    //  Walk the list of services
-    //
-    pLayer = &mEslLayer;
-    pService = pLayer->pTcp4List;
-    while ( NULL != pService ) {
-      //
-      //  Create the TCP port
-      //
-      pServiceBinding = pService->pServiceBinding;
-      ChildHandle = NULL;
-      Status = pServiceBinding->CreateChild ( pServiceBinding,
-                                              &ChildHandle );
-      if ( !EFI_ERROR ( Status )) {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                  "0x%08x: Tcp4 port handle created\r\n",
-                  ChildHandle ));
-
-        //
-        //  Open the port
-        //
-        Status = EslSocketPortAllocate ( pSocket,
-                                         pService,
-                                         ChildHandle,
-                                         (UINT8 *) &pIp4Address->sin_addr.s_addr,
-                                         SwapBytes16 ( pIp4Address->sin_port ),
-                                         DEBUG_BIND,
-                                         &pPort );
-      }
-      else {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                  "ERROR - Failed to open Tcp4 port handle, Status: %r\r\n",
-                  Status ));
-      }
-
-      //
-      //  Set the next service
-      //
-      pService = pService->pNext;
-    }
-
-    //
-    //  Verify that at least one network connection was found
-    //
-    if ( NULL == pSocket->pPortList ) {
-      DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
-                "Socket address %d.%d.%d.%d (0x%08x) is not available!\r\n",
-                ( pIp4Address->sin_addr.s_addr >> 24 ) & 0xff,
-                ( pIp4Address->sin_addr.s_addr >> 16 ) & 0xff,
-                ( pIp4Address->sin_addr.s_addr >> 8 ) & 0xff,
-                pIp4Address->sin_addr.s_addr & 0xff,
-                pIp4Address->sin_addr.s_addr ));
-      pSocket->errno = EADDRNOTAVAIL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    DEBUG (( DEBUG_BIND,
-              "ERROR - Invalid TCP4 address length: %d\r\n",
-              SockAddrLength ));
-    Status = EFI_INVALID_PARAMETER;
-    pSocket->errno = EINVAL;
   }
 
   //
@@ -948,52 +816,6 @@ EslTcp4GetRemoteAddress (
   
   //
   //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Initialize the TCP4 service.
-
-  This routine initializes the TCP4 service which is used by the
-  sockets layer to support SOCK_STREAM and SOCK_SEQPACKET sockets.
-
-  This routine is called by ::EslServiceConnect after initializing an
-  ::ESL_SERVICE structure for an adapter running TCPv4.
-
-  @param [in] pService        Address of an ::ESL_SERVICE structure.
-
-  @retval EFI_SUCCESS         The service was properly initialized
-  @retval other               A failure occurred during the service initialization
-
-**/
-EFI_STATUS
-EFIAPI
-EslTcp4Initialize (
-  IN ESL_SERVICE * pService
-  )
-{
-  ESL_LAYER * pLayer;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Connect this service to the service list
-  //
-  pLayer = &mEslLayer;
-  pService->pNext = pLayer->pTcp4List;
-  pLayer->pTcp4List = pService;
-
-  //
-  //  Assume the list is empty
-  //
-  Status = EFI_SUCCESS;
-
-  //
-  //  Return the initialization status
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
@@ -2417,84 +2239,6 @@ EslTcp4RxStart (
           }
         }
       }
-    }
-  }
-
-  DBG_EXIT ( );
-}
-
-
-/**
-  Shutdown the TCP4 service.
-
-  This routine undoes the work performed by ::EslTcp4Initialize to
-  shutdown the TCP4 service which is used by the sockets layer to
-  support SOCK_STREAM and SOCK_SEQPACKET sockets.
-
-  This routine is called by ::EslServiceDisconnect prior to freeing
-  the ::ESL_SERVICE structure associated with the adapter running
-  TCPv4.
-
-  @param [in] pService    Adress of a ::ESL_SERVICE structure
-
-**/
-VOID
-EFIAPI
-EslTcp4Shutdown (
-  IN ESL_SERVICE * pService
-  )
-{
-  ESL_LAYER * pLayer;
-  ESL_PORT * pPort;
-  ESL_SERVICE * pPreviousService;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Walk the list of ports
-  //
-  do {
-    pPort = pService->pPortList;
-    if ( NULL != pPort ) {
-      //
-      //  Remove the port from the port list
-      //
-      pService->pPortList = pPort->pLinkService;
-
-      //
-      //  Close the port
-      // TODO: Fix this
-      //
-//      pPort->pfnClosePort ( pPort, DEBUG_LISTEN | DEBUG_CONNECTION );
-    }
-  } while ( NULL != pPort );
-
-  //
-  //  Remove the service from the service list
-  //
-  pLayer = &mEslLayer;
-  pPreviousService = pLayer->pTcp4List;
-  if ( pService == pPreviousService ) {
-    //
-    //  Remove the service from the beginning of the list
-    //
-    pLayer->pTcp4List = pService->pNext;
-  }
-  else {
-    //
-    //  Remove the service from the middle of the list
-    //
-    while ( NULL != pPreviousService ) {
-      if ( pService == pPreviousService->pNext ) {
-        pPreviousService->pNext = pService->pNext;
-        break;
-      }
-      pPreviousService = pPreviousService->pNext;
     }
   }
 

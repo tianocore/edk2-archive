@@ -120,24 +120,6 @@
 typedef struct _ESL_SERVICE ESL_SERVICE;  ///<  Forward delcaration
 
 /**
-  Initialize the network layer
-**/
-typedef
-EFI_STATUS
-(EFIAPI * PFN_SB_INITIALIZE) (
-    IN ESL_SERVICE * pService
-    );
-
-/**
-  Shutdown the network layer
-**/
-typedef
-VOID
-(EFIAPI * PFN_SB_SHUTDOWN) (
-    IN ESL_SERVICE * pService
-    );
-
-/**
   Protocol binding and installation control structure
 
   The driver uses this structure to simplify the driver binding processing.
@@ -147,8 +129,7 @@ typedef struct {
   EFI_GUID * pNetworkBinding;     ///<  Network service binding protocol for socket support
   EFI_GUID * pNetworkProtocolGuid;///<  Network protocol GUID
   CONST EFI_GUID * pTagGuid;      ///<  Tag to mark protocol in use
-  PFN_SB_INITIALIZE pfnInitialize;///<  Routine to initialize the service
-  PFN_SB_SHUTDOWN pfnShutdown;    ///<  Routine to shutdown the service
+  UINTN ServiceListOffset;        ///<  Offset in ::ESL_LAYER for the list of services
   UINTN TxIoNormal;               ///<  Number of transmit ESL_IO_MGMT structures for normal data
   UINTN TxIoUrgent;               ///<  Number of transmit ESL_IO_MGMT structures for urgent data
 } ESL_SOCKET_BINDING;

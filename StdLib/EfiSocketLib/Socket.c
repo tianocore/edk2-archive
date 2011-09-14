@@ -96,24 +96,21 @@ CONST ESL_SOCKET_BINDING cEslSocketBinding[] = {
     &gEfiIp4ServiceBindingProtocolGuid,
     &gEfiIp4ProtocolGuid,
     &mEslIp4ServiceGuid,
-    EslIp4Initialize,
-    EslIp4Shutdown,
+    OFFSET_OF ( ESL_LAYER, pIp4List ),
     4,
     0 },
   { L"Tcp4",
     &gEfiTcp4ServiceBindingProtocolGuid,
     &gEfiTcp4ProtocolGuid,
     &mEslTcp4ServiceGuid,
-    EslTcp4Initialize,
-    EslTcp4Shutdown,
+    OFFSET_OF ( ESL_LAYER, pTcp4List ),
     4,
     4 },
   { L"Udp4",
     &gEfiUdp4ServiceBindingProtocolGuid,
     &gEfiUdp4ProtocolGuid,
     &mEslUdp4ServiceGuid,
-    EslUdp4Initialize,
-    EslUdp4Shutdown,
+    OFFSET_OF ( ESL_LAYER, pUdp4List ),
     4,
     0 }
 };
@@ -696,7 +693,14 @@ EslSocketBind (
   OUT int * pErrno
   )
 {
+  EFI_HANDLE ChildHandle;
+  UINT8 * pBuffer;
+  CONST struct sockaddr_in * pIp4Address;
+  ESL_PORT * pPort;
+  ESL_SERVICE ** ppServiceListHead;
   ESL_SOCKET * pSocket;
+  ESL_SERVICE * pService;
+  EFI_SERVICE_BINDING_PROTOCOL * pServiceBinding;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -717,6 +721,7 @@ EslSocketBind (
     //
     //  Validate the structure pointer
     //
+    pSocket->errno = 0;
     if ( NULL == pSockAddr ) {
       DEBUG (( DEBUG_BIND,
                 "ERROR - pSockAddr is NULL!\r\n" ));
@@ -745,37 +750,94 @@ EslSocketBind (
         }
 
         //
-        //  Verify the API
+        //  Synchronize with the socket layer
         //
-        if ( NULL == pSocket->pApi->pfnBind ) {
-          Status = EFI_UNSUPPORTED;
-          pSocket->errno = ENOTSUP;
+        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+        //
+        //  Validate the address length
+        //
+        pIp4Address = (CONST struct sockaddr_in *) pSockAddr;
+        if ( SockAddrLength >= pSocket->pApi->MinimumAddressLength ) {
+          //
+          //  Walk the list of services
+          //
+          pBuffer = (UINT8 *)&mEslLayer;
+          pBuffer = &pBuffer[ pSocket->pApi->ServiceListOffset ];
+          ppServiceListHead = (ESL_SERVICE **)pBuffer;
+          pService = *ppServiceListHead;
+          while ( NULL != pService ) {
+            //
+            //  Create the port
+            //
+            pServiceBinding = pService->pServiceBinding;
+            ChildHandle = NULL;
+            Status = pServiceBinding->CreateChild ( pServiceBinding,
+                                                    &ChildHandle );
+            if ( !EFI_ERROR ( Status )) {
+              DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                        "0x%08x: %s port handle created\r\n",
+                        ChildHandle,
+                        pService->pSocketBinding->pName ));
+        
+              //
+              //  Open the port
+              //
+              Status = EslSocketPortAllocate ( pSocket,
+                                               pService,
+                                               ChildHandle,
+                                               (UINT8 *) &pIp4Address->sin_addr.s_addr,
+                                               SwapBytes16 ( pIp4Address->sin_port ),
+                                               DEBUG_BIND,
+                                               &pPort );
+            }
+            else {
+              DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                        "ERROR - Failed to open %s port handle, Status: %r\r\n",
+                        pService->pSocketBinding->pName,
+                        Status ));
+            }
+        
+            //
+            //  Set the next service
+            //
+            pService = pService->pNext;
+          }
+        
+          //
+          //  Verify that at least one network connection was found
+          //
+          if ( NULL == pSocket->pPortList ) {
+            DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
+                      "Socket address %d.%d.%d.%d (0x%08x) is not available!\r\n",
+                      ( pIp4Address->sin_addr.s_addr >> 24 ) & 0xff,
+                      ( pIp4Address->sin_addr.s_addr >> 16 ) & 0xff,
+                      ( pIp4Address->sin_addr.s_addr >> 8 ) & 0xff,
+                      pIp4Address->sin_addr.s_addr & 0xff,
+                      pIp4Address->sin_addr.s_addr ));
+            pSocket->errno = EADDRNOTAVAIL;
+            Status = EFI_INVALID_PARAMETER;
+          }
         }
         else {
-          //
-          //  Synchronize with the socket layer
-          //
-          RAISE_TPL ( TplPrevious, TPL_SOCKETS );
-
-          //
-          //  Bind the socket
-          //
-          Status = pSocket->pApi->pfnBind ( pSocket,
-                                            pSockAddr,
-                                            SockAddrLength );
-
-          //
-          //  Mark this socket as bound if successful
-          //
-          if ( !EFI_ERROR ( Status )) {
-            pSocket->State = SOCKET_STATE_BOUND;
-          }
-
-          //
-          //  Release the socket layer synchronization
-          //
-          RESTORE_TPL ( TplPrevious );
+          DEBUG (( DEBUG_BIND,
+                    "ERROR - Invalid address length: %d\r\n",
+                    SockAddrLength ));
+          Status = EFI_INVALID_PARAMETER;
+          pSocket->errno = EINVAL;
         }
+
+        //
+        //  Mark this socket as bound if successful
+        //
+        if ( !EFI_ERROR ( Status )) {
+          pSocket->State = SOCKET_STATE_BOUND;
+        }
+
+        //
+        //  Release the socket layer synchronization
+        //
+        RESTORE_TPL ( TplPrevious );
       }
     }
   }
@@ -2544,10 +2606,9 @@ EslSocketPoll (
 
   This support routine is called by:
   <ul>
-    <li>::EslIp4Bind</li>
-    <li>::EslTcp4Bind</li>
+    <li>::EslSocketBind</li>
     <li>::EslTcp4ListenComplete</li>
-    <li>::EslUdp4Bind::</li>
+  </ul>
   to connect the socket with the underlying network adapter
   to the socket.
 
@@ -2626,7 +2687,9 @@ EslSocketPortAllocate (
     pPort->DebugFlags = DebugFlags;
     pPort->Handle = ChildHandle;
     pPort->pService = pService;
+    pPort->pServiceBinding = pService->pServiceBinding;
     pPort->pSocket = pSocket;
+    pPort->pSocketBinding = pService->pSocketBinding;
     pPort->Signature = PORT_SIGNATURE;
 
     //
@@ -2839,28 +2902,32 @@ EslSocketPortClose (
 
   //
   //  Locate the port in the service list
+  //  Note that the port may not be in the service list
+  //  if the service has been shutdown.
   //
   pService = pPort->pService;
-  pPreviousPort = pService->pPortList;
-  if ( pPreviousPort == pPort ) {
-    //
-    //  Remove this port from the head of the service list
-    //
-    pService->pPortList = pPort->pLinkService;
-  }
-  else {
-    //
-    //  Locate the port in the middle of the service list
-    //
-    while (( NULL != pPreviousPort )
-      && ( pPreviousPort->pLinkService != pPort )) {
-      pPreviousPort = pPreviousPort->pLinkService;
+  if ( NULL != pService ) {
+    pPreviousPort = pService->pPortList;
+    if ( pPreviousPort == pPort ) {
+      //
+      //  Remove this port from the head of the service list
+      //
+      pService->pPortList = pPort->pLinkService;
     }
-    if ( NULL != pPreviousPort ) {
+    else {
       //
-      //  Remove the port from the middle of the service list
+      //  Locate the port in the middle of the service list
       //
-      pPreviousPort->pLinkService = pPort->pLinkService;
+      while (( NULL != pPreviousPort )
+        && ( pPreviousPort->pLinkService != pPort )) {
+        pPreviousPort = pPreviousPort->pLinkService;
+      }
+      if ( NULL != pPreviousPort ) {
+        //
+        //  Remove the port from the middle of the service list
+        //
+        pPreviousPort->pLinkService = pPort->pLinkService;
+      }
     }
   }
 
@@ -2922,7 +2989,7 @@ EslSocketPortClose (
   //
   //  Done with the lower layer network protocol
   //
-  pSocketBinding = pService->pSocketBinding;
+  pSocketBinding = pPort->pSocketBinding;
   if ( NULL != pPort->pProtocol.v ) {
     Status = gBS->CloseProtocol ( pPort->Handle,
                                   pSocketBinding->pNetworkProtocolGuid,
@@ -2946,7 +3013,7 @@ EslSocketPortClose (
   //
   //  Done with the network port
   //
-  pServiceBinding = pService->pServiceBinding;
+  pServiceBinding = pPort->pServiceBinding;
   if ( NULL != pPort->Handle ) {
     Status = pServiceBinding->DestroyChild ( pServiceBinding,
                                              pPort->Handle );
