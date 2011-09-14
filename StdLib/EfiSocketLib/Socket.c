@@ -1144,6 +1144,9 @@ EslSocketConnect (
   IN int * pErrno
   )
 {
+  struct sockaddr_in LocalAddress;
+  ESL_PORT * pPort;
+  CONST struct sockaddr_in * pRemoteAddress;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
@@ -1207,26 +1210,80 @@ EslSocketConnect (
       case SOCKET_STATE_NOT_CONFIGURED:
       case SOCKET_STATE_BOUND:
         //
-        //  Verify the API
+        //  Validate the address length
         //
-        if ( NULL == pSocket->pApi->pfnConnectStart ) {
-          Status = EFI_UNSUPPORTED;
-          pSocket->errno = ENOTSUP;
+        pRemoteAddress = (CONST struct sockaddr_in *)pSockAddr;
+        if ( SockAddrLength >= pSocket->pApi->MinimumAddressLength ) {
+          //
+          //  Verify the API
+          //
+          if ( NULL == pSocket->pApi->pfnRemoteAddrSet ) {
+            //
+            //  Already connected
+            //
+            pSocket->errno = ENOTSUP;
+            Status = EFI_UNSUPPORTED;
+          }
+          else {
+            //
+            //  Determine if BIND was already called
+            //
+            if ( NULL == pSocket->pPortList ) {
+              //
+              //  Allow any local port
+              //
+              ZeroMem ( &LocalAddress, sizeof ( LocalAddress ));
+              LocalAddress.sin_len = sizeof ( LocalAddress );
+              LocalAddress.sin_family = AF_INET;
+              Status = EslSocketBind ( &pSocket->SocketProtocol,
+                                       (struct sockaddr *)&LocalAddress,
+                                       LocalAddress.sin_len,
+                                       &pSocket->errno );
+            }
+            if ( NULL != pSocket->pPortList ) {
+              //
+              //  Walk the list of ports
+              //
+              pPort = pSocket->pPortList;
+              while ( NULL != pPort ) {
+                //
+                //  Set the remote address
+                //
+                pSocket->pApi->pfnRemoteAddrSet ( pPort,
+                                                  pRemoteAddress,
+                                                  SockAddrLength );
+
+                //
+                //  Set the next port
+                //
+                pPort = pPort->pLinkSocket;
+              }
+
+              //
+              //  Verify the API
+              //
+              if ( NULL != pSocket->pApi->pfnConnectStart ) {
+                //
+                //  Initiate the connection with the remote system
+                //
+                Status = pSocket->pApi->pfnConnectStart ( pSocket );
+
+                //
+                //  Set the next state if connecting
+                //
+                if ( EFI_NOT_READY == Status ) {
+                  pSocket->State = SOCKET_STATE_CONNECTING;
+                }
+              }
+            }
+          }
         }
         else {
-          //
-          //  Initiate the connection with the remote system
-          //
-          Status = pSocket->pApi->pfnConnectStart ( pSocket,
-                                                    pSockAddr,
-                                                    SockAddrLength );
-
-          //
-          //  Set the next state if connecting
-          //
-          if ( EFI_NOT_READY == Status ) {
-            pSocket->State = SOCKET_STATE_CONNECTING;
-          }
+          DEBUG (( DEBUG_CONNECT,
+                    "ERROR - Invalid TCP4 address length: %d\r\n",
+                    SockAddrLength ));
+          Status = EFI_INVALID_PARAMETER;
+          pSocket->errno = EINVAL;
         }
         break;
 
@@ -1328,6 +1385,8 @@ EslSocketGetLocalAddress (
   IN int * pErrno
   )
 {
+  socklen_t LengthInBytes;
+  ESL_PORT * pPort;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
@@ -1362,7 +1421,7 @@ EslSocketGetLocalAddress (
           //
           //  Verify the API
           //
-          if ( NULL == pSocket->pApi->pfnGetLocalAddr ) {
+          if ( NULL == pSocket->pApi->pfnLocalAddrGet ) {
             Status = EFI_UNSUPPORTED;
             pSocket->errno = ENOTSUP;
           }
@@ -1373,12 +1432,36 @@ EslSocketGetLocalAddress (
             RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
             //
-            //  Get the local address
+            //  Verify that there is just a single connection
             //
-            Status = pSocket->pApi->pfnGetLocalAddr ( pSocket,
-                                                      pAddress,
-                                                      pAddressLength );
-
+            pPort = pSocket->pPortList;
+            if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
+              //
+              //  Verify the address length
+              //
+              LengthInBytes = pSocket->pApi->AddressLength;
+              if (( LengthInBytes <= *pAddressLength ) 
+                && ( 255 >= LengthInBytes )) {
+                //
+                //  Return the local address and address length
+                //
+                ZeroMem ( pAddress, LengthInBytes );
+                pAddress->sa_len = (uint8_t)LengthInBytes;
+                *pAddressLength = pAddress->sa_len;
+                pSocket->pApi->pfnLocalAddrGet ( pPort, pAddress );
+                pSocket->errno = 0;
+                Status = EFI_SUCCESS;
+              }
+              else {
+                pSocket->errno = EINVAL;
+                Status = EFI_INVALID_PARAMETER;
+              }
+            }
+            else {
+              pSocket->errno = ENOTCONN;
+              Status = EFI_NOT_STARTED;
+            }
+            
             //
             //  Release the socket layer synchronization
             //
@@ -1442,6 +1525,8 @@ EslSocketGetPeerAddress (
   IN int * pErrno
   )
 {
+  socklen_t LengthInBytes;
+  ESL_PORT * pPort;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
@@ -1468,7 +1553,7 @@ EslSocketGetPeerAddress (
       //
       //  Verify the API
       //
-      if ( NULL == pSocket->pApi->pfnGetRemoteAddr ) {
+      if ( NULL == pSocket->pApi->pfnRemoteAddrGet ) {
         Status = EFI_UNSUPPORTED;
         pSocket->errno = ENOTSUP;
       }
@@ -1487,11 +1572,34 @@ EslSocketGetPeerAddress (
             RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
             //
-            //  Get the remote address
+            //  Verify that there is just a single connection
             //
-            Status = pSocket->pApi->pfnGetRemoteAddr ( pSocket,
-                                                       pAddress,
-                                                       pAddressLength );
+            pPort = pSocket->pPortList;
+            if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
+              //
+              //  Verify the address length
+              //
+              LengthInBytes = sizeof ( struct sockaddr_in );
+              if ( LengthInBytes <= *pAddressLength ) {
+                //
+                //  Return the local address
+                //
+                ZeroMem ( pAddress, LengthInBytes );
+                pAddress->sa_len = (uint8_t)LengthInBytes;
+                *pAddressLength = pAddress->sa_len;
+                pSocket->pApi->pfnRemoteAddrGet ( pPort, pAddress );
+                pSocket->errno = 0;
+                Status = EFI_SUCCESS;
+              }
+              else {
+                pSocket->errno = EINVAL;
+                Status = EFI_INVALID_PARAMETER;
+              }
+            }
+            else {
+              pSocket->errno = ENOTCONN;
+              Status = EFI_NOT_STARTED;
+            }
 
             //
             //  Release the socket layer synchronization

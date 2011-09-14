@@ -54,12 +54,12 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   IPPROTO_UDP,
   OFFSET_OF ( ESL_LAYER, pUdp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),
+  sizeof ( struct sockaddr_in ),
   NULL,   //  Accept
-  EslUdp4Connect,
   NULL,   //  ConnectPoll
-  EslUdp4GetLocalAddress,
-  EslUdp4GetRemoteAddress,
+  NULL,   //  ConnectStart
   EslUdp4SocketIsConfigured,
+  EslUdp4LocalAddressGet,
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
@@ -69,122 +69,13 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   EslUdp4PortCloseRxStop,
   TRUE,
   EslUdp4Receive,
+  EslUdp4RemoteAddressGet,
+  EslUdp4RemoteAddressSet,
   EslUdp4RxCancel,
   EslUdp4TxBuffer,
   EslUdp4TxComplete,
   NULL    //  TxOobComplete
 };
-
-
-/**
-  Set the default remote system address.
-
-  This routine sets the default remote address for a SOCK_DGRAM
-  socket using the UDPv4 network layer.
-
-  This routine is called by ::EslSocketConnect to initiate the UDPv4
-  network specific connect operations.  The connection processing is
-  limited to setting the default remote network address.
-
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
-  @retval EFI_SUCCESS   The connection was successfully established.
-  @retval EFI_NOT_READY The connection is in progress, call this routine again.
-  @retval Others        The connection attempt failed.
-
- **/
-EFI_STATUS
-EslUdp4Connect (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  )
-{
-  struct sockaddr_in LocalAddress;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pRemoteAddress;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume failure
-  //
-  Status = EFI_NETWORK_UNREACHABLE;
-  pSocket->errno = ENETUNREACH;
-
-  //
-  //  Get the address
-  //
-  pRemoteAddress = (struct sockaddr_in *)pSockAddr;
-
-  //
-  //  Validate the address length
-  //
-  if ( SockAddrLength >= ( sizeof ( *pRemoteAddress )
-                           - sizeof ( pRemoteAddress->sin_zero ))) {
-    //
-    //  Determine if BIND was already called
-    //
-    if ( NULL == pSocket->pPortList ) {
-      //
-      //  Allow any local port
-      //
-      ZeroMem ( &LocalAddress, sizeof ( LocalAddress ));
-      LocalAddress.sin_len = sizeof ( LocalAddress );
-      LocalAddress.sin_family = AF_INET;
-      Status = EslSocketBind ( &pSocket->SocketProtocol,
-                               (struct sockaddr *)&LocalAddress,
-                               LocalAddress.sin_len,
-                               &pSocket->errno );
-    }
-
-    //
-    //  Walk the list of ports
-    //
-    pPort = pSocket->pPortList;
-    while ( NULL != pPort ) {
-      //
-      //  Set the remote address
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pUdp4->ConfigData.RemoteAddress.Addr[0] = (UINT8)( pRemoteAddress->sin_addr.s_addr );
-      pUdp4->ConfigData.RemoteAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
-      pUdp4->ConfigData.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
-      pUdp4->ConfigData.RemoteAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
-      pUdp4->ConfigData.RemotePort = SwapBytes16 ( pRemoteAddress->sin_port );
-
-      //
-      //  At least one path exists
-      //
-      Status = EFI_SUCCESS;
-      pSocket->errno = 0;
-
-      //
-      //  Set the next port
-      //
-      pPort = pPort->pLinkSocket;
-    }
-  }
-  else {
-    DEBUG (( DEBUG_CONNECT,
-              "ERROR - Invalid UDP4 address length: %d\r\n",
-              SockAddrLength ));
-    Status = EFI_INVALID_PARAMETER;
-    pSocket->errno = EINVAL;
-  }
-
-  //
-  //  Return the connect status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
 
 
 /**
@@ -196,158 +87,34 @@ EslUdp4Connect (
   This routine is called by ::EslSocketGetLocalAddress to determine the
   network address for the SOCK_DGRAM socket.
 
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
-  @param [out] pAddress           Network address to receive the local system address
-
-  @param [in,out] pAddressLength  Length of the local network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
+  @param [out] pAddress   Network address to receive the local system address
 
 **/
-EFI_STATUS
-EslUdp4GetLocalAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+VOID
+EslUdp4LocalAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
   )
 {
-  socklen_t LengthInBytes;
-  ESL_PORT * pPort;
   struct sockaddr_in * pLocalAddress;
   ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Verify the socket layer synchronization
+  //  Return the local address
   //
-  VERIFY_TPL ( TPL_SOCKETS );
+  pUdp4 = &pPort->Context.Udp4;
+  pLocalAddress = (struct sockaddr_in *)pAddress;
+  pLocalAddress->sin_family = AF_INET;
+  pLocalAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.StationPort );
+  CopyMem ( &pLocalAddress->sin_addr,
+            &pUdp4->ConfigData.StationAddress.Addr[0],
+            sizeof ( pLocalAddress->sin_addr ));
 
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
-    //
-    //  Verify the address length
-    //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= *pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pLocalAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pLocalAddress, LengthInBytes );
-      pLocalAddress->sin_family = AF_INET;
-      pLocalAddress->sin_len = (uint8_t)LengthInBytes;
-      pLocalAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.StationPort );
-      CopyMem ( &pLocalAddress->sin_addr,
-                &pUdp4->ConfigData.StationAddress.Addr[0],
-                sizeof ( pLocalAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Get the remote socket address
-
-  This routine returns the address of the remote connection point
-  associated with the SOCK_DGRAM socket.
-
-  This routine is called by ::EslSocketGetPeerAddress to detemine
-  the UDPv4 address and port number associated with the network adapter.
-
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslUdp4GetRemoteAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  )
-{
-  socklen_t LengthInBytes;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pRemoteAddress;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
-    //
-    //  Verify the address length
-    //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= *pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pUdp4 = &pPort->Context.Udp4;
-      pRemoteAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pRemoteAddress, LengthInBytes );
-      pRemoteAddress->sin_family = AF_INET;
-      pRemoteAddress->sin_len = (uint8_t)LengthInBytes;
-      pRemoteAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.RemotePort );
-      CopyMem ( &pRemoteAddress->sin_addr,
-                &pUdp4->ConfigData.RemoteAddress.Addr[0],
-                sizeof ( pRemoteAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-  else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
+  DBG_EXIT ( );
 }
 
 
@@ -884,6 +651,86 @@ EslUdp4Receive (
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
+}
+
+
+/**
+  Get the remote socket address
+
+  This routine returns the address of the remote connection point
+  associated with the SOCK_DGRAM socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the UDPv4 address and port number associated with the network adapter.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the remote system address
+
+**/
+VOID
+EslUdp4RemoteAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  )
+{
+  struct sockaddr_in * pRemoteAddress;
+  ESL_UDP4_CONTEXT * pUdp4;
+
+  DBG_ENTER ( );
+
+  //
+  //  Return the remote address
+  //
+  pUdp4 = &pPort->Context.Udp4;
+  pRemoteAddress = (struct sockaddr_in *)pAddress;
+  pRemoteAddress->sin_family = AF_INET;
+  pRemoteAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.RemotePort );
+  CopyMem ( &pRemoteAddress->sin_addr,
+            &pUdp4->ConfigData.RemoteAddress.Addr[0],
+            sizeof ( pRemoteAddress->sin_addr ));
+
+  DBG_EXIT ( );
+}
+
+
+/**
+  Set the remote address
+
+  This routine sets the remote address in the port.
+
+  This routine is called by ::EslSocketConnect to specify the
+  remote network address.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pRemoteAddress  Network address of the remote system.
+
+  @param [in] SockAddrLength  Length in bytes of the network address.
+
+ **/
+VOID
+EslUdp4RemoteAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN socklen_t SockAddrLength
+  )
+{
+  ESL_UDP4_CONTEXT * pUdp4;
+
+  DBG_ENTER ( );
+
+  //
+  //  Set the remote address
+  //
+  pUdp4 = &pPort->Context.Udp4;
+  pUdp4->ConfigData.RemoteAddress.Addr[0] = (UINT8)( pRemoteAddress->sin_addr.s_addr );
+  pUdp4->ConfigData.RemoteAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
+  pUdp4->ConfigData.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
+  pUdp4->ConfigData.RemoteAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
+  pUdp4->ConfigData.RemotePort = SwapBytes16 ( pRemoteAddress->sin_port );
+
+  DBG_EXIT ( );
 }
 
 

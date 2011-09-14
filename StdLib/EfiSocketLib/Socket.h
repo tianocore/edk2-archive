@@ -386,28 +386,6 @@ EFI_STATUS
   );
 
 /**
-  Connect to a remote system via the network.
-
-  @param [in] pSocket         Address of the socket structure.
-
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
-  @retval EFI_SUCCESS   The connection was successfully established.
-  @retval EFI_NOT_READY The connection is in progress, call this routine again.
-  @retval Others        The connection attempt failed.
-
- **/
-typedef
-EFI_STATUS
-(* PFN_API_CONNECT_START) (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
   Poll for completion of the connection attempt.
 
   @param [in] pSocket         Address of the socket structure.
@@ -424,45 +402,40 @@ EFI_STATUS
   );
 
 /**
-  Get the local socket address
+  Attempt to connect to a remote TCP port
 
-  @param [in] pSocket             Address of the socket structure.
+  This routine starts the connection processing for a SOCK_STREAM
+  or SOCK_SEQPAKCET socket using the TCP network layer.
 
-  @param [out] pAddress           Network address to receive the local system address
+  This routine is called by ::EslSocketConnect to initiate the TCP
+  network specific connect operations.
 
-  @param [in,out] pAddressLength  Length of the local network address structure
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval EFI_NOT_READY The connection is in progress, call this routine again.
+  @retval Others        The connection attempt failed.
 
-**/
+ **/
 typedef
 EFI_STATUS
-(* PFN_API_GET_LOCAL_ADDR) (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+(* PFN_API_CONNECT_START) (
+  IN ESL_SOCKET * pSocket
   );
 
 /**
-  Get the remote socket address
+  Get the local socket address
 
-  @param [in] pSocket             Address of the socket structure.
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
+  @param [out] pAddress   Network address to receive the local system address
 
 **/
 typedef
-EFI_STATUS
-(* PFN_API_GET_RMT_ADDR) (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+VOID
+(* PFN_API_LOCAL_ADDR_GET) (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
   );
 
 /**
@@ -669,6 +642,44 @@ EFI_STATUS
   );
 
 /**
+  Get the remote socket address
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the remote system address
+
+**/
+typedef
+VOID
+(* PFN_API_REMOTE_ADDR_GET) (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  );
+
+/**
+  Set the remote address
+
+  This routine sets the remote address in the port.
+
+  This routine is called by ::EslSocketConnect to specify the
+  remote network address.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pRemoteAddress  Network address of the remote system.
+
+  @param [in] SockAddrLength  Length in bytes of the network address.
+
+ **/
+typedef
+VOID
+(* PFN_API_REMOTE_ADDR_SET) (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN socklen_t SockAddrLength
+  );
+
+/**
   Cancel the receive operations
 
   @param [in] pSocket         Address of a ESL_SOCKET structure
@@ -743,13 +754,13 @@ VOID
 typedef struct {
   int DefaultProtocol;                      ///<  Default protocol
   UINTN ServiceListOffset;                  ///<  Offset in ::ESL_LAYER for the list of services
-  UINTN MinimumAddressLength;               ///<  Minimum address length in bytes
+  socklen_t MinimumAddressLength;           ///<  Minimum address length in bytes
+  socklen_t AddressLength;                  ///<  Address length in bytes
   PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
-  PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
   PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
-  PFN_API_GET_LOCAL_ADDR pfnGetLocalAddr;   ///<  Get local address
-  PFN_API_GET_RMT_ADDR pfnGetRemoteAddr;    ///<  Get remote address
+  PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
   PFN_API_IS_CONFIGURED pfnIsConfigured;    ///<  Determine if the socket is configured
+  PFN_API_LOCAL_ADDR_GET pfnLocalAddrGet;   ///<  Get local address
   PFN_API_LISTEN pfnListen;                 ///<  Listen for connections on known server port
   PFN_API_OPTION_GET pfnOptionGet;          ///<  Get the option value
   PFN_API_OPTION_SET pfnOptionSet;          ///<  Set the option value
@@ -759,6 +770,8 @@ typedef struct {
   PFN_API_PORT_CLOSE_OP pfnPortCloseRxStop; ///<  Perform the close operation on the port
   BOOLEAN bPortCloseComplete;               ///<  TRUE = Close is complete after close operation
   PFN_API_RECEIVE pfnReceive;               ///<  Attempt to receive some data
+  PFN_API_REMOTE_ADDR_GET pfnRemoteAddrGet; ///<  Get remote address
+  PFN_API_REMOTE_ADDR_SET pfnRemoteAddrSet; ///<  Set the remote system address
   PFN_API_RX_CANCEL pfnRxCancel;            ///<  Cancel a receive operation
   PFN_API_TRANSMIT pfnTransmit;             ///<  Attempt to buffer a packet for transmit
   PFN_API_TX_COMPLETE pfnTxComplete;        ///<  TX completion for normal data
@@ -1296,34 +1309,6 @@ EslSocketTxStart (
 //------------------------------------------------------------------------------
 
 /**
-  Set the default remote system address.
-
-  This routine sets the default remote address for a SOCK_RAW
-  socket using the IPv4 network layer.
-
-  This routine is called by ::EslSocketConnect to initiate the IPv4
-  network specific connect operations.  The connection processing is
-  limited to setting the default remote network address.
-
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
-  @retval EFI_SUCCESS   The connection was successfully established.
-  @retval EFI_NOT_READY The connection is in progress, call this routine again.
-  @retval Others        The connection attempt failed.
-
- **/
-EFI_STATUS
-EslIp4Connect (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
   Get the local socket address
 
   This routine returns the IPv4 address associated with the local
@@ -1332,47 +1317,15 @@ EslIp4Connect (
   This routine is called by ::EslSocketGetLocalAddress to determine the
   network address for the SOCK_RAW socket.
 
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
-  @param [out] pAddress           Network address to receive the local system address
-
-  @param [in,out] pAddressLength  Length of the local network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
+  @param [out] pAddress   Network address to receive the local system address
 
 **/
-EFI_STATUS
-EslIp4GetLocalAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  );
-
-/**
-  Get the remote socket address
-
-  This routine returns the address of the remote connection point
-  associated with the SOCK_RAW socket.
-
-  This routine is called by ::EslSocketGetPeerAddress to detemine
-  the IPv4 address associated with the network adapter.
-
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslIp4GetRemoteAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+VOID
+EslIp4LocalAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
   );
 
 /**
@@ -1554,6 +1507,48 @@ EslIp4Receive (
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Get the remote socket address
+
+  This routine returns the address of the remote connection point
+  associated with the SOCK_RAW socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the IPv4 address associated with the network adapter.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the remote system address
+
+**/
+VOID
+EslIp4RemoteAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  );
+
+/**
+  Set the remote address
+
+  This routine sets the remote address in the port.
+
+  This routine is called by ::EslSocketConnect to specify the
+  remote network address.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pRemoteAddress  Network address of the remote system.
+
+  @param [in] SockAddrLength  Length in bytes of the network address.
+
+ **/
+VOID
+EslIp4RemoteAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN socklen_t SockAddrLength
   );
 
 /**
@@ -1768,21 +1763,24 @@ EslTcp4ConnectPoll (
   );
 
 /**
-  Connect to a remote system via the network.
+  Attempt to connect to a remote TCP port
 
   This routine starts the connection processing for a SOCK_STREAM
-  or SOCK_SEQPAKCET socket using the TCPv4 network layer.
+  or SOCK_SEQPAKCET socket using the TCPv4 network layer.  It
+  configures the local TCPv4 connection point and then attempts to
+  connect to a remote system.  Upon completion, the
+  ::EslTcp4ConnectComplete routine gets called with the connection
+  status.
 
   This routine is called by ::EslSocketConnect to initiate the TCPv4
   network specific connect operations.  The connection processing is
   initiated by this routine and finished by ::EslTcp4ConnectComplete.
+  This pair of routines walks through the list of local TCPv4
+  connection points until a connection to the remote system is
+  made.
 
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
   @retval EFI_SUCCESS   The connection was successfully established.
   @retval EFI_NOT_READY The connection is in progress, call this routine again.
   @retval Others        The connection attempt failed.
@@ -1790,61 +1788,7 @@ EslTcp4ConnectPoll (
  **/
 EFI_STATUS
 EslTcp4ConnectStart (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
-  Get the local socket address.
-
-  This routine returns the IPv4 address and TCP port number associated
-  with the local socket.
-
-  This routine is called by ::EslSocketGetLocalAddress to determine the
-  network address for the SOCK_STREAM or SOCK_SEQPACKET socket.
-  
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the local system address
-
-  @param [in,out] pAddressLength  Length of the local network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslTcp4GetLocalAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  );
-
-/**
-  Get the remote socket address.
-
-  This routine returns the address of the remote connection point
-  associated with the SOCK_STREAM or SOCK_SEQPACKET socket.
-
-  This routine is called by ::EslSocketGetPeerAddress to detemine
-  the TCPv4 address and por number associated with the network adapter.
-
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslTcp4GetRemoteAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+  IN ESL_SOCKET * pSocket
   );
 
 /**
@@ -1887,6 +1831,26 @@ VOID
 EslTcp4ListenComplete (
   IN EFI_EVENT Event,
   IN ESL_PORT * pPort
+  );
+
+/**
+  Get the local socket address.
+
+  This routine returns the IPv4 address and TCP port number associated
+  with the local socket.
+
+  This routine is called by ::EslSocketGetLocalAddress to determine the
+  network address for the SOCK_STREAM or SOCK_SEQPACKET socket.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the local system address
+
+**/
+VOID
+EslTcp4LocalAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
   );
 
 /**
@@ -2019,6 +1983,48 @@ EslTcp4Receive (
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Get the remote socket address.
+
+  This routine returns the address of the remote connection point
+  associated with the SOCK_STREAM or SOCK_SEQPACKET socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the TCPv4 address and por number associated with the network adapter.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the remote system address
+
+**/
+VOID
+EslTcp4RemoteAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  );
+
+/**
+  Set the remote address
+
+  This routine sets the remote address in the port.
+
+  This routine is called by ::EslSocketConnect to specify the
+  remote network address.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pRemoteAddress  Network address of the remote system.
+
+  @param [in] SockAddrLength  Length in bytes of the network address.
+
+ **/
+VOID
+EslTcp4RemoteAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN socklen_t SockAddrLength
   );
 
 /**
@@ -2195,34 +2201,6 @@ EslTcp4TxOobComplete (
 //------------------------------------------------------------------------------
 
 /**
-  Set the default remote system address.
-
-  This routine sets the default remote address for a SOCK_DGRAM
-  socket using the UDPv4 network layer.
-
-  This routine is called by ::EslSocketConnect to initiate the UDPv4
-  network specific connect operations.  The connection processing is
-  limited to setting the default remote network address.
-
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
-
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
-  @retval EFI_SUCCESS   The connection was successfully established.
-  @retval EFI_NOT_READY The connection is in progress, call this routine again.
-  @retval Others        The connection attempt failed.
-
- **/
-EFI_STATUS
-EslUdp4Connect (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
-  );
-
-/**
   Get the local socket address
 
   This routine returns the IPv4 address and UDP port number associated
@@ -2231,47 +2209,15 @@ EslUdp4Connect (
   This routine is called by ::EslSocketGetLocalAddress to determine the
   network address for the SOCK_DGRAM socket.
 
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
+  @param [in] pPort       Address of an ::ESL_PORT structure.
 
-  @param [out] pAddress           Network address to receive the local system address
-
-  @param [in,out] pAddressLength  Length of the local network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
+  @param [out] pAddress   Network address to receive the local system address
 
 **/
-EFI_STATUS
-EslUdp4GetLocalAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  );
-
-/**
-  Get the remote socket address
-
-  This routine returns the address of the remote connection point
-  associated with the SOCK_DGRAM socket.
-
-  This routine is called by ::EslSocketGetPeerAddress to detemine
-  the UDPv4 address and port number associated with the network adapter.
-
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslUdp4GetRemoteAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+VOID
+EslUdp4LocalAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
   );
 
 /**
@@ -2401,6 +2347,48 @@ EslUdp4Receive (
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
   IN OUT socklen_t * pAddressLength
+  );
+
+/**
+  Get the remote socket address
+
+  This routine returns the address of the remote connection point
+  associated with the SOCK_DGRAM socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the UDPv4 address and port number associated with the network adapter.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the remote system address
+
+**/
+VOID
+EslUdp4RemoteAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  );
+
+/**
+  Set the remote address
+
+  This routine sets the remote address in the port.
+
+  This routine is called by ::EslSocketConnect to specify the
+  remote network address.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pRemoteAddress  Network address of the remote system.
+
+  @param [in] SockAddrLength  Length in bytes of the network address.
+
+ **/
+VOID
+EslUdp4RemoteAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN socklen_t SockAddrLength
   );
 
 /**

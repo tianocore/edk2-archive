@@ -66,12 +66,12 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   IPPROTO_TCP,
   OFFSET_OF ( ESL_LAYER, pTcp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),
+  sizeof ( struct sockaddr_in ),
   EslTcp4Accept,
-  EslTcp4ConnectStart,
   EslTcp4ConnectPoll,
-  EslTcp4GetLocalAddress,
-  EslTcp4GetRemoteAddress,
+  EslTcp4ConnectStart,
   EslTcp4SocketIsConfigured,
+  EslTcp4LocalAddressGet,
   EslTcp4Listen,
   NULL,   //  OptionGet
   NULL,   //  OptionSet
@@ -81,6 +81,8 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   EslTcp4PortCloseRxStop,
   FALSE,
   EslTcp4Receive,
+  EslTcp4RemoteAddressGet,
+  EslTcp4RemoteAddressSet,
   EslTcp4RxCancel,
   EslTcp4TxBuffer,
   EslTcp4TxComplete,
@@ -167,137 +169,6 @@ EslTcp4Accept (
     RemoteAddress <<= 8;
     RemoteAddress |= pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0];
     pRemoteAddress->sin_addr.s_addr = RemoteAddress;
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Attempt to connect to a remote TCP port
-
-  This routine configures the local TCPv4 connection point and
-  then attempts to connect to a remote system.  Upon completion,
-  the ::EslTcp4ConnectComplete routine gets called with the
-  connection status.
-
-  This support routine is called by ::EslTcp4ConnectStart and
-  ::EslTcp4ConnectComplete to walk through the list of local TCPv4
-  connection points until a connection to the remote system is
-  made.
-
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
-
-  @retval EFI_SUCCESS   The connection was successfully established.
-  @retval EFI_NOT_READY The connection is in progress, call this routine again.
-  @retval Others        The connection attempt failed.
-
- **/
-EFI_STATUS
-EslTcp4ConnectAttempt (
-  IN ESL_SOCKET * pSocket
-  )
-{
-  ESL_PORT * pPort;
-  ESL_TCP4_CONTEXT * pTcp4;
-  EFI_TCP4_PROTOCOL * pTcp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-  
-  //
-  //  Determine if any more local adapters are available
-  //
-  pPort = pSocket->pPortList;
-  if ( NULL != pPort ) {
-    //
-    //  Configure the port
-    //
-    pTcp4 = &pPort->Context.Tcp4;
-    pTcp4->ConfigData.AccessPoint.ActiveFlag = TRUE;
-    pTcp4->ConfigData.TimeToLive = 255;
-    pTcp4Protocol = pPort->pProtocol.TCPv4;
-    Status = pTcp4Protocol->Configure ( pTcp4Protocol,
-                                        &pTcp4->ConfigData );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_CONNECT,
-                "ERROR - Failed to configure the Tcp4 port, Status: %r\r\n",
-                Status ));
-      switch ( Status ) {
-      case EFI_ACCESS_DENIED:
-        pSocket->errno = EACCES;
-        break;
-    
-      default:
-      case EFI_DEVICE_ERROR:
-        pSocket->errno = EIO;
-        break;
-    
-      case EFI_INVALID_PARAMETER:
-        pSocket->errno = EADDRNOTAVAIL;
-        break;
-    
-      case EFI_NO_MAPPING:
-        pSocket->errno = EAFNOSUPPORT;
-        break;
-    
-      case EFI_OUT_OF_RESOURCES:
-        pSocket->errno = ENOBUFS;
-        break;
-    
-      case EFI_UNSUPPORTED:
-        pSocket->errno = EOPNOTSUPP;
-        break;
-      }
-    }
-    else {
-      DEBUG (( DEBUG_CONNECT,
-                "0x%08x: Port configured\r\n",
-                pPort ));
-      pPort->bConfigured = TRUE;
-
-      //
-      //  Attempt the connection to the remote system
-      //
-      Status = pTcp4Protocol->Connect ( pTcp4Protocol,
-                                        &pTcp4->ConnectToken );
-      if ( !EFI_ERROR ( Status )) {
-        //
-        //  Connection in progress
-        //
-        pSocket->errno = EINPROGRESS;
-        Status = EFI_NOT_READY;
-        DEBUG (( DEBUG_CONNECT,
-                  "0x%08x: Port attempting connection to %d.%d.%d.%d:%d\r\n",
-                  pPort,
-                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
-                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1],
-                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2],
-                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3],
-                  pTcp4->ConfigData.AccessPoint.RemotePort ));
-      }
-      else {
-        //
-        //  Connection error
-        //
-        pSocket->errno = EINVAL;
-        DEBUG (( DEBUG_CONNECT,
-                  "ERROR - Port 0x%08x not connected, Status: %r\r\n",
-                  pPort,
-                  Status ));
-      }
-    }
-  }
-  else {
-    //
-    //  No more local adapters available
-    //
-    pSocket->errno = ENETUNREACH;
-    Status = EFI_NO_RESPONSE;
   }
 
   //
@@ -408,7 +279,7 @@ EslTcp4ConnectComplete (
     //
     //  Try to connect using the next port
     //
-    Status = EslTcp4ConnectAttempt ( pSocket );
+    Status = EslTcp4ConnectStart ( pSocket );
     if ( EFI_NOT_READY != Status ) {
       pSocket->ConnectStatus = Status;
       bRemoveFirstPort = TRUE;
@@ -560,21 +431,24 @@ EslTcp4ConnectPoll (
 
 
 /**
-  Connect to a remote system via the network.
+  Attempt to connect to a remote TCP port
 
   This routine starts the connection processing for a SOCK_STREAM
-  or SOCK_SEQPAKCET socket using the TCPv4 network layer.
+  or SOCK_SEQPAKCET socket using the TCPv4 network layer.  It
+  configures the local TCPv4 connection point and then attempts to
+  connect to a remote system.  Upon completion, the
+  ::EslTcp4ConnectComplete routine gets called with the connection
+  status.
 
   This routine is called by ::EslSocketConnect to initiate the TCPv4
   network specific connect operations.  The connection processing is
   initiated by this routine and finished by ::EslTcp4ConnectComplete.
+  This pair of routines walks through the list of local TCPv4
+  connection points until a connection to the remote system is
+  made.
 
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
-  @param [in] pSockAddr       Network address of the remote system.
-    
-  @param [in] SockAddrLength  Length in bytes of the network address.
-  
   @retval EFI_SUCCESS   The connection was successfully established.
   @retval EFI_NOT_READY The connection is in progress, call this routine again.
   @retval Others        The connection attempt failed.
@@ -582,238 +456,107 @@ EslTcp4ConnectPoll (
  **/
 EFI_STATUS
 EslTcp4ConnectStart (
-  IN ESL_SOCKET * pSocket,
-  IN const struct sockaddr * pSockAddr,
-  IN socklen_t SockAddrLength
+  IN ESL_SOCKET * pSocket
   )
 {
-  struct sockaddr_in LocalAddress;
   ESL_PORT * pPort;
   ESL_TCP4_CONTEXT * pTcp4;
-  CONST struct sockaddr_in * pIp4Address;
+  EFI_TCP4_PROTOCOL * pTcp4Protocol;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
-
+  
   //
-  //  Validate the address length
+  //  Determine if any more local adapters are available
   //
-  Status = EFI_SUCCESS;
-  pIp4Address = (CONST struct sockaddr_in *) pSockAddr;
-  if ( SockAddrLength >= ( sizeof ( *pIp4Address )
-                           - sizeof ( pIp4Address->sin_zero ))) {
+  pPort = pSocket->pPortList;
+  if ( NULL != pPort ) {
     //
-    //  Determine if BIND was already called
+    //  Configure the port
     //
-    if ( NULL == pSocket->pPortList ) {
-      //
-      //  Allow any local port
-      //
-      ZeroMem ( &LocalAddress, sizeof ( LocalAddress ));
-      LocalAddress.sin_len = sizeof ( LocalAddress );
-      LocalAddress.sin_family = AF_INET;
-      Status = EslSocketBind ( &pSocket->SocketProtocol,
-                               (struct sockaddr *)&LocalAddress,
-                               LocalAddress.sin_len,
-                               &pSocket->errno );
-    }
-    if ( NULL != pSocket->pPortList ) {
-      //
-      //  Walk the list of ports
-      //
-      pPort = pSocket->pPortList;
-      while ( NULL != pPort ) {
-        //
-        //  Set the remote address
-        //
-        pTcp4 = &pPort->Context.Tcp4;
-        *(UINT32 *)&pTcp4->ConfigData.AccessPoint.RemoteAddress = pIp4Address->sin_addr.s_addr;
-        pTcp4->ConfigData.AccessPoint.RemotePort = SwapBytes16 ( pIp4Address->sin_port );
-
-        //
-        //  Set the next port
-        //
-        pPort = pPort->pLinkSocket;
+    pTcp4 = &pPort->Context.Tcp4;
+    pTcp4->ConfigData.AccessPoint.ActiveFlag = TRUE;
+    pTcp4->ConfigData.TimeToLive = 255;
+    pTcp4Protocol = pPort->pProtocol.TCPv4;
+    Status = pTcp4Protocol->Configure ( pTcp4Protocol,
+                                        &pTcp4->ConfigData );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_CONNECT,
+                "ERROR - Failed to configure the Tcp4 port, Status: %r\r\n",
+                Status ));
+      switch ( Status ) {
+      case EFI_ACCESS_DENIED:
+        pSocket->errno = EACCES;
+        break;
+    
+      default:
+      case EFI_DEVICE_ERROR:
+        pSocket->errno = EIO;
+        break;
+    
+      case EFI_INVALID_PARAMETER:
+        pSocket->errno = EADDRNOTAVAIL;
+        break;
+    
+      case EFI_NO_MAPPING:
+        pSocket->errno = EAFNOSUPPORT;
+        break;
+    
+      case EFI_OUT_OF_RESOURCES:
+        pSocket->errno = ENOBUFS;
+        break;
+    
+      case EFI_UNSUPPORTED:
+        pSocket->errno = EOPNOTSUPP;
+        break;
       }
-      
-      //
-      //  Attempt a connection using the first adapter
-      //
-      Status = EslTcp4ConnectAttempt ( pSocket );
-    }
-  }
-  else {
-    DEBUG (( DEBUG_CONNECT,
-              "ERROR - Invalid TCP4 address length: %d\r\n",
-              SockAddrLength ));
-    Status = EFI_INVALID_PARAMETER;
-    pSocket->errno = EINVAL;
-  }
-
-  //
-  //  Return the initialization status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Get the local socket address.
-
-  This routine returns the IPv4 address and TCP port number associated
-  with the local socket.
-
-  This routine is called by ::EslSocketGetLocalAddress to determine the
-  network address for the SOCK_STREAM or SOCK_SEQPACKET socket.
-
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the local system address
-
-  @param [in,out] pAddressLength  Length of the local network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslTcp4GetLocalAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  )
-{
-  socklen_t LengthInBytes;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pLocalAddress;
-  ESL_TCP4_CONTEXT * pTcp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
-    //
-    //  Verify the address length
-    //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= *pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pTcp4 = &pPort->Context.Tcp4;
-      pLocalAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pLocalAddress, LengthInBytes );
-      pLocalAddress->sin_family = AF_INET;
-      pLocalAddress->sin_len = (uint8_t)LengthInBytes;
-      pLocalAddress->sin_port = SwapBytes16 ( pTcp4->ConfigData.AccessPoint.StationPort );
-      CopyMem ( &pLocalAddress->sin_addr,
-                &pTcp4->ConfigData.AccessPoint.StationAddress.Addr[0],
-                sizeof ( pLocalAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
     }
     else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
+      DEBUG (( DEBUG_CONNECT,
+                "0x%08x: Port configured\r\n",
+                pPort ));
+      pPort->bConfigured = TRUE;
+
+      //
+      //  Attempt the connection to the remote system
+      //
+      Status = pTcp4Protocol->Connect ( pTcp4Protocol,
+                                        &pTcp4->ConnectToken );
+      if ( !EFI_ERROR ( Status )) {
+        //
+        //  Connection in progress
+        //
+        pSocket->errno = EINPROGRESS;
+        Status = EFI_NOT_READY;
+        DEBUG (( DEBUG_CONNECT,
+                  "0x%08x: Port attempting connection to %d.%d.%d.%d:%d\r\n",
+                  pPort,
+                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
+                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1],
+                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2],
+                  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3],
+                  pTcp4->ConfigData.AccessPoint.RemotePort ));
+      }
+      else {
+        //
+        //  Connection error
+        //
+        pSocket->errno = EINVAL;
+        DEBUG (( DEBUG_CONNECT,
+                  "ERROR - Port 0x%08x not connected, Status: %r\r\n",
+                  pPort,
+                  Status ));
+      }
     }
   }
   else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Get the remote socket address.
-
-  This routine returns the address of the remote connection point
-  associated with the SOCK_STREAM or SOCK_SEQPACKET socket.
-
-  This routine is called by ::EslSocketGetPeerAddress to detemine
-  the TCPv4 address and por number associated with the network adapter.
-
-  @param [in] pSocket             Address of an ::ESL_SOCKET structure.
-
-  @param [out] pAddress           Network address to receive the remote system address
-
-  @param [in,out] pAddressLength  Length of the remote network address structure
-
-  @retval EFI_SUCCESS - Address available
-  @retval Other - Failed to get the address
-
-**/
-EFI_STATUS
-EslTcp4GetRemoteAddress (
-  IN ESL_SOCKET * pSocket,
-  OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
-  )
-{
-  socklen_t LengthInBytes;
-  ESL_PORT * pPort;
-  struct sockaddr_in * pRemoteAddress;
-  ESL_TCP4_CONTEXT * pTcp4;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Verify the socket layer synchronization
-  //
-  VERIFY_TPL ( TPL_SOCKETS );
-
-  //
-  //  Verify that there is just a single connection
-  //
-  pPort = pSocket->pPortList;
-  if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
     //
-    //  Verify the address length
+    //  No more local adapters available
     //
-    LengthInBytes = sizeof ( struct sockaddr_in );
-    if ( LengthInBytes <= *pAddressLength ) {
-      //
-      //  Return the local address
-      //
-      pTcp4 = &pPort->Context.Tcp4;
-      pRemoteAddress = (struct sockaddr_in *)pAddress;
-      ZeroMem ( pRemoteAddress, LengthInBytes );
-      pRemoteAddress->sin_family = AF_INET;
-      pRemoteAddress->sin_len = (uint8_t)LengthInBytes;
-      pRemoteAddress->sin_port = SwapBytes16 ( pTcp4->ConfigData.AccessPoint.RemotePort );
-      CopyMem ( &pRemoteAddress->sin_addr,
-                &pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
-                sizeof ( pRemoteAddress->sin_addr ));
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-    else {
-      pSocket->errno = EINVAL;
-      Status = EFI_INVALID_PARAMETER;
-    }
+    pSocket->errno = ENETUNREACH;
+    Status = EFI_NO_RESPONSE;
   }
-  else {
-    pSocket->errno = ENOTCONN;
-    Status = EFI_NOT_STARTED;
-  }
-  
+
   //
   //  Return the operation status
   //
@@ -1257,6 +1000,46 @@ EslTcp4ListenComplete (
     //    Release the resources
     
   }
+
+  DBG_EXIT ( );
+}
+
+
+/**
+  Get the local socket address.
+
+  This routine returns the IPv4 address and TCP port number associated
+  with the local socket.
+
+  This routine is called by ::EslSocketGetLocalAddress to determine the
+  network address for the SOCK_STREAM or SOCK_SEQPACKET socket.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the local system address
+
+**/
+VOID
+EslTcp4LocalAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  )
+{
+  struct sockaddr_in * pLocalAddress;
+  ESL_TCP4_CONTEXT * pTcp4;
+
+  DBG_ENTER ( );
+
+  //
+  //  Return the local address
+  //
+  pTcp4 = &pPort->Context.Tcp4;
+  pLocalAddress = (struct sockaddr_in *)pAddress;
+  pLocalAddress->sin_family = AF_INET;
+  pLocalAddress->sin_port = SwapBytes16 ( pTcp4->ConfigData.AccessPoint.StationPort );
+  CopyMem ( &pLocalAddress->sin_addr,
+            &pTcp4->ConfigData.AccessPoint.StationAddress.Addr[0],
+            sizeof ( pLocalAddress->sin_addr ));
 
   DBG_EXIT ( );
 }
@@ -1908,6 +1691,86 @@ EslTcp4Receive (
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
+}
+
+
+/**
+  Get the remote socket address.
+
+  This routine returns the address of the remote connection point
+  associated with the SOCK_STREAM or SOCK_SEQPACKET socket.
+
+  This routine is called by ::EslSocketGetPeerAddress to detemine
+  the TCPv4 address and por number associated with the network adapter.
+
+  @param [in] pPort       Address of an ::ESL_PORT structure.
+
+  @param [out] pAddress   Network address to receive the remote system address
+
+**/
+VOID
+EslTcp4RemoteAddressGet (
+  IN ESL_PORT * pPort,
+  OUT struct sockaddr * pAddress
+  )
+{
+  struct sockaddr_in * pRemoteAddress;
+  ESL_TCP4_CONTEXT * pTcp4;
+
+  DBG_ENTER ( );
+
+  //
+  //  Return the remote address
+  //
+  pTcp4 = &pPort->Context.Tcp4;
+  pRemoteAddress = (struct sockaddr_in *)pAddress;
+  pRemoteAddress->sin_family = AF_INET;
+  pRemoteAddress->sin_port = SwapBytes16 ( pTcp4->ConfigData.AccessPoint.RemotePort );
+  CopyMem ( &pRemoteAddress->sin_addr,
+            &pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
+            sizeof ( pRemoteAddress->sin_addr ));
+
+  DBG_EXIT ( );
+}
+
+
+/**
+  Set the remote address
+
+  This routine sets the remote address in the port.
+
+  This routine is called by ::EslSocketConnect to specify the
+  remote network address.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pRemoteAddress  Network address of the remote system.
+
+  @param [in] SockAddrLength  Length in bytes of the network address.
+
+ **/
+VOID
+EslTcp4RemoteAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN socklen_t SockAddrLength
+  )
+{
+  ESL_TCP4_CONTEXT * pTcp4;
+
+  DBG_ENTER ( );
+
+  //
+  //  Set the remote address
+  //
+  pTcp4 = &pPort->Context.Tcp4;
+  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0] = (UINT8)( pRemoteAddress->sin_addr.s_addr );
+  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
+  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
+  pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
+  pTcp4->ConfigData.AccessPoint.RemotePort = SwapBytes16 ( pRemoteAddress->sin_port );
+
+  DBG_EXIT ( );
 }
 
 
