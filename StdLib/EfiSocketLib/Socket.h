@@ -439,6 +439,32 @@ VOID
   );
 
 /**
+  Set the local port address.
+
+  This routine sets the local port address.
+
+  This support routine is called by ::EslSocketPortAllocate.
+
+  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
+
+ **/
+typedef
+VOID
+(* PFN_API_LOCAL_ADDR_SET) (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr * pSockAddr
+  );
+
+/**
   Determine if the socket is configured.
 
 
@@ -528,8 +554,6 @@ EFI_STATUS
   running the IPv4 protocol.
 
   @param [in] ppPort      Address of an ESL_PORT structure
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Tcp4 port number
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -539,8 +563,6 @@ typedef
 EFI_STATUS
 (* PFN_API_PORT_ALLOC) (
   IN ESL_PORT * pPort,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
   IN UINTN DebugFlags
   );
 
@@ -666,7 +688,7 @@ VOID
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @param [in] pRemoteAddress  Network address of the remote system.
+  @param [in] pSockAddr       Network address of the remote system.
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
@@ -675,7 +697,7 @@ typedef
 VOID
 (* PFN_API_REMOTE_ADDR_SET) (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   );
 
@@ -756,11 +778,13 @@ typedef struct {
   UINTN ServiceListOffset;                  ///<  Offset in ::ESL_LAYER for the list of services
   socklen_t MinimumAddressLength;           ///<  Minimum address length in bytes
   socklen_t AddressLength;                  ///<  Address length in bytes
+  sa_family_t AddressFamily;                ///<  Address family
   PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
   PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
   PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
   PFN_API_IS_CONFIGURED pfnIsConfigured;    ///<  Determine if the socket is configured
-  PFN_API_LOCAL_ADDR_GET pfnLocalAddrGet;   ///<  Get local address
+  PFN_API_LOCAL_ADDR_GET pfnLocalAddrGet;   ///<  Get the local address
+  PFN_API_LOCAL_ADDR_SET pfnLocalAddrSet;   ///<  Set the local address
   PFN_API_LISTEN pfnListen;                 ///<  Listen for connections on known server port
   PFN_API_OPTION_GET pfnOptionGet;          ///<  Get the option value
   PFN_API_OPTION_SET pfnOptionSet;          ///<  Set the option value
@@ -1092,8 +1116,15 @@ EslSocketPacketFree (
   @param [in] pSocket     Address of an ::ESL_SOCKET structure.
   @param [in] pService    Address of an ::ESL_SERVICE structure.
   @param [in] ChildHandle TCP4 child handle
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Tcp4 port number
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
   @param [in] DebugFlags  Flags for debug messages
   @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
@@ -1105,8 +1136,7 @@ EslSocketPortAllocate (
   IN ESL_SOCKET * pSocket,
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
+  IN CONST struct sockaddr * pSockAddr,
   IN UINTN DebugFlags,
   OUT ESL_PORT ** ppPort
   );
@@ -1329,6 +1359,31 @@ EslIp4LocalAddressGet (
   );
 
 /**
+  Set the local port address.
+
+  This routine sets the local port address.
+
+  This support routine is called by ::EslSocketPortAllocate.
+
+  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
+
+ **/
+VOID
+EslIp4LocalAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr * pSockAddr
+  );
+
+/**
   Get the option value
 
   This routine handles the IPv4 level options.
@@ -1391,8 +1446,6 @@ EslIp4OptionSet (
   running the IPv4 protocol.
 
   @param [in] ppPort      Address of an ESL_PORT structure
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Port number - not used
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -1401,8 +1454,6 @@ EslIp4OptionSet (
 EFI_STATUS
 EslIp4PortAllocate (
   IN ESL_PORT * pPort,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
   IN UINTN DebugFlags
   );
 
@@ -1539,7 +1590,7 @@ EslIp4RemoteAddressGet (
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @param [in] pRemoteAddress  Network address of the remote system.
+  @param [in] pSockAddr       Network address of the remote system.
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
@@ -1547,7 +1598,7 @@ EslIp4RemoteAddressGet (
 VOID
 EslIp4RemoteAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   );
 
@@ -1854,6 +1905,31 @@ EslTcp4LocalAddressGet (
   );
 
 /**
+  Set the local port address.
+
+  This routine sets the local port address.
+
+  This support routine is called by ::EslSocketPortAllocate.
+
+  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
+
+ **/
+VOID
+EslTcp4LocalAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr * pSockAddr
+  );
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -1864,8 +1940,6 @@ EslTcp4LocalAddressGet (
   running the TCPv4 protocol.
 
   @param [in] ppPort      Address of an ESL_PORT structure
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Tcp4 port number
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -1874,8 +1948,6 @@ EslTcp4LocalAddressGet (
 EFI_STATUS
 EslTcp4PortAllocate (
   IN ESL_PORT * pPort,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
   IN UINTN DebugFlags
   );
 
@@ -2015,7 +2087,7 @@ EslTcp4RemoteAddressGet (
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @param [in] pRemoteAddress  Network address of the remote system.
+  @param [in] pSockAddr       Network address of the remote system.
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
@@ -2023,7 +2095,7 @@ EslTcp4RemoteAddressGet (
 VOID
 EslTcp4RemoteAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   );
 
@@ -2221,6 +2293,31 @@ EslUdp4LocalAddressGet (
   );
 
 /**
+  Set the local port address.
+
+  This routine sets the local port address.
+
+  This support routine is called by ::EslSocketPortAllocate.
+
+  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
+
+ **/
+VOID
+EslUdp4LocalAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr * pSockAddr
+  );
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -2231,8 +2328,6 @@ EslUdp4LocalAddressGet (
   running the UDPv4 protocol.
 
   @param [in] ppPort      Address of an ESL_PORT structure
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Udp4 port number
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -2241,8 +2336,6 @@ EslUdp4LocalAddressGet (
 EFI_STATUS
 EslUdp4PortAllocate (
   IN ESL_PORT * pPort,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
   IN UINTN DebugFlags
   );
 
@@ -2379,7 +2472,7 @@ EslUdp4RemoteAddressGet (
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @param [in] pRemoteAddress  Network address of the remote system.
+  @param [in] pSockAddr       Network address of the remote system.
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
@@ -2387,7 +2480,7 @@ EslUdp4RemoteAddressGet (
 VOID
 EslUdp4RemoteAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   );
 

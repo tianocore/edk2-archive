@@ -55,11 +55,13 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   OFFSET_OF ( ESL_LAYER, pUdp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),
   sizeof ( struct sockaddr_in ),
+  AF_INET,
   NULL,   //  Accept
   NULL,   //  ConnectPoll
   NULL,   //  ConnectStart
   EslUdp4SocketIsConfigured,
   EslUdp4LocalAddressGet,
+  EslUdp4LocalAddressSet,
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
@@ -119,6 +121,78 @@ EslUdp4LocalAddressGet (
 
 
 /**
+  Set the local port address.
+
+  This routine sets the local port address.
+
+  This support routine is called by ::EslSocketPortAllocate.
+
+  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
+
+ **/
+VOID
+EslUdp4LocalAddressSet (
+  IN ESL_PORT * pPort,
+  IN CONST struct sockaddr * pSockAddr
+  )
+{
+  EFI_UDP4_CONFIG_DATA * pConfig;
+  CONST struct sockaddr_in * pIpAddress;
+  CONST UINT8 * pIpv4Address;
+
+  DBG_ENTER ( );
+
+  //
+  //  Set the local address
+  //
+  pIpAddress = (struct sockaddr_in *)pSockAddr;
+  pIpv4Address = (UINT8 *)&pIpAddress->sin_addr.s_addr;
+  pConfig = &pPort->Context.Udp4.ConfigData;
+  pConfig->StationAddress.Addr[0] = pIpv4Address[0];
+  pConfig->StationAddress.Addr[1] = pIpv4Address[1];
+  pConfig->StationAddress.Addr[2] = pIpv4Address[2];
+  pConfig->StationAddress.Addr[3] = pIpv4Address[3];
+
+  //
+  //  Determine if the default address is used
+  //
+  pConfig->UseDefaultAddress = (BOOLEAN)( 0 == pIpAddress->sin_addr.s_addr );
+
+  //
+  //  Set the port number
+  //
+  pConfig->StationPort = SwapBytes16 ( pIpAddress->sin_port );
+
+  //
+  //  Set the subnet mask
+  //
+  if ( pConfig->UseDefaultAddress ) {
+    pConfig->SubnetMask.Addr[0] = 0;
+    pConfig->SubnetMask.Addr[1] = 0;
+    pConfig->SubnetMask.Addr[2] = 0;
+    pConfig->SubnetMask.Addr[3] = 0;
+  }
+  else {
+    pConfig->SubnetMask.Addr[0] = 0xff;
+    pConfig->SubnetMask.Addr[1] = 0xff;
+    pConfig->SubnetMask.Addr[2] = 0xff;
+    pConfig->SubnetMask.Addr[3] = 0xff;
+  }
+
+  DBG_EXIT ( );
+}
+
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -129,8 +203,6 @@ EslUdp4LocalAddressGet (
   running the UDPv4 protocol.
 
   @param [in] ppPort      Address of an ESL_PORT structure
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Udp4 port number
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -139,8 +211,6 @@ EslUdp4LocalAddressGet (
 EFI_STATUS
 EslUdp4PortAllocate (
   IN ESL_PORT * pPort,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
   IN UINTN DebugFlags
   )
 {
@@ -188,26 +258,9 @@ EslUdp4PortAllocate (
     pPort->pfnTxStart = (PFN_NET_TX_START)pPort->pProtocol.UDPv4->Transmit;
 
     //
-    //  Set the port address
+    //  Set the configuration flags
     //
     pConfig = &pPort->Context.Udp4.ConfigData;
-    pConfig->StationPort = PortNumber;
-    if (( 0 == pIpAddress[0])
-      && ( 0 == pIpAddress[1])
-      && ( 0 == pIpAddress[2])
-      && ( 0 == pIpAddress[3])) {
-      pConfig->UseDefaultAddress = TRUE;
-    }
-    else {
-      pConfig->StationAddress.Addr[0] = pIpAddress[0];
-      pConfig->StationAddress.Addr[1] = pIpAddress[1];
-      pConfig->StationAddress.Addr[2] = pIpAddress[2];
-      pConfig->StationAddress.Addr[3] = pIpAddress[3];
-      pConfig->SubnetMask.Addr[0] = 0xff;
-      pConfig->SubnetMask.Addr[1] = 0xff;
-      pConfig->SubnetMask.Addr[2] = 0xff;
-      pConfig->SubnetMask.Addr[3] = 0xff;
-    }
     pConfig->TimeToLive = 255;
     pConfig->AcceptAnyPort = FALSE;
     pConfig->AcceptBroadcast = FALSE;
@@ -704,7 +757,7 @@ EslUdp4RemoteAddressGet (
 
   @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @param [in] pRemoteAddress  Network address of the remote system.
+  @param [in] pSockAddr       Network address of the remote system.
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
@@ -712,10 +765,11 @@ EslUdp4RemoteAddressGet (
 VOID
 EslUdp4RemoteAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr_in * pRemoteAddress,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength
   )
 {
+  CONST struct sockaddr_in * pRemoteAddress;
   ESL_UDP4_CONTEXT * pUdp4;
 
   DBG_ENTER ( );
@@ -724,6 +778,7 @@ EslUdp4RemoteAddressSet (
   //  Set the remote address
   //
   pUdp4 = &pPort->Context.Udp4;
+  pRemoteAddress = (struct sockaddr_in *)pSockAddr;
   pUdp4->ConfigData.RemoteAddress.Addr[0] = (UINT8)( pRemoteAddress->sin_addr.s_addr );
   pUdp4->ConfigData.RemoteAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
   pUdp4->ConfigData.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );

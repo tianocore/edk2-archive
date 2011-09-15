@@ -688,14 +688,13 @@ EslSocketAllocate (
 EFI_STATUS
 EslSocketBind (
   IN EFI_SOCKET_PROTOCOL * pSocketProtocol,
-  IN const struct sockaddr * pSockAddr,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength,
   OUT int * pErrno
   )
 {
   EFI_HANDLE ChildHandle;
   UINT8 * pBuffer;
-  CONST struct sockaddr_in * pIp4Address;
   ESL_PORT * pPort;
   ESL_SERVICE ** ppServiceListHead;
   ESL_SOCKET * pSocket;
@@ -730,10 +729,10 @@ EslSocketBind (
     }
     else{
       //
-      //  Validate the name length
+      //  Validate the local address length
       //
-      if (( SockAddrLength < ( sizeof ( struct sockaddr ) - sizeof ( pSockAddr->sa_data )))
-        || ( pSockAddr->sa_len < ( sizeof ( struct sockaddr ) - sizeof ( pSockAddr->sa_data )))) {
+      if (( SockAddrLength < pSocket->pApi->MinimumAddressLength )
+        || ( pSockAddr->sa_len < pSocket->pApi->MinimumAddressLength )) {
         DEBUG (( DEBUG_BIND,
                   "ERROR - Invalid bind name length: %d, sa_len: %d\r\n",
                   SockAddrLength,
@@ -743,88 +742,62 @@ EslSocketBind (
       }
       else {
         //
-        //  Set the socket address length
-        //
-        if ( SockAddrLength > pSockAddr->sa_len ) {
-          SockAddrLength = pSockAddr->sa_len;
-        }
-
-        //
         //  Synchronize with the socket layer
         //
         RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
         //
-        //  Validate the address length
+        //  Walk the list of services
         //
-        pIp4Address = (CONST struct sockaddr_in *) pSockAddr;
-        if ( SockAddrLength >= pSocket->pApi->MinimumAddressLength ) {
+        pBuffer = (UINT8 *)&mEslLayer;
+        pBuffer = &pBuffer[ pSocket->pApi->ServiceListOffset ];
+        ppServiceListHead = (ESL_SERVICE **)pBuffer;
+        pService = *ppServiceListHead;
+        while ( NULL != pService ) {
           //
-          //  Walk the list of services
+          //  Create the port
           //
-          pBuffer = (UINT8 *)&mEslLayer;
-          pBuffer = &pBuffer[ pSocket->pApi->ServiceListOffset ];
-          ppServiceListHead = (ESL_SERVICE **)pBuffer;
-          pService = *ppServiceListHead;
-          while ( NULL != pService ) {
+          pServiceBinding = pService->pServiceBinding;
+          ChildHandle = NULL;
+          Status = pServiceBinding->CreateChild ( pServiceBinding,
+                                                  &ChildHandle );
+          if ( !EFI_ERROR ( Status )) {
+            DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                      "0x%08x: %s port handle created\r\n",
+                      ChildHandle,
+                      pService->pSocketBinding->pName ));
+      
             //
-            //  Create the port
+            //  Open the port
             //
-            pServiceBinding = pService->pServiceBinding;
-            ChildHandle = NULL;
-            Status = pServiceBinding->CreateChild ( pServiceBinding,
-                                                    &ChildHandle );
-            if ( !EFI_ERROR ( Status )) {
-              DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                        "0x%08x: %s port handle created\r\n",
-                        ChildHandle,
-                        pService->pSocketBinding->pName ));
-        
-              //
-              //  Open the port
-              //
-              Status = EslSocketPortAllocate ( pSocket,
-                                               pService,
-                                               ChildHandle,
-                                               (UINT8 *) &pIp4Address->sin_addr.s_addr,
-                                               SwapBytes16 ( pIp4Address->sin_port ),
-                                               DEBUG_BIND,
-                                               &pPort );
-            }
-            else {
-              DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                        "ERROR - Failed to open %s port handle, Status: %r\r\n",
-                        pService->pSocketBinding->pName,
-                        Status ));
-            }
-        
-            //
-            //  Set the next service
-            //
-            pService = pService->pNext;
+            Status = EslSocketPortAllocate ( pSocket,
+                                             pService,
+                                             ChildHandle,
+                                             pSockAddr,
+                                             DEBUG_BIND,
+                                             &pPort );
           }
-        
-          //
-          //  Verify that at least one network connection was found
-          //
-          if ( NULL == pSocket->pPortList ) {
-            DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
-                      "Socket address %d.%d.%d.%d (0x%08x) is not available!\r\n",
-                      ( pIp4Address->sin_addr.s_addr >> 24 ) & 0xff,
-                      ( pIp4Address->sin_addr.s_addr >> 16 ) & 0xff,
-                      ( pIp4Address->sin_addr.s_addr >> 8 ) & 0xff,
-                      pIp4Address->sin_addr.s_addr & 0xff,
-                      pIp4Address->sin_addr.s_addr ));
-            pSocket->errno = EADDRNOTAVAIL;
-            Status = EFI_INVALID_PARAMETER;
+          else {
+            DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                      "ERROR - Failed to open %s port handle, Status: %r\r\n",
+                      pService->pSocketBinding->pName,
+                      Status ));
           }
+      
+          //
+          //  Set the next service
+          //
+          pService = pService->pNext;
         }
-        else {
-          DEBUG (( DEBUG_BIND,
-                    "ERROR - Invalid address length: %d\r\n",
-                    SockAddrLength ));
+      
+        //
+        //  Verify that at least one network connection was found
+        //
+        if ( NULL == pSocket->pPortList ) {
+          DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
+                    "Socket address is not available!\r\n" ));
+          pSocket->errno = EADDRNOTAVAIL;
           Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EINVAL;
         }
 
         //
@@ -1144,9 +1117,8 @@ EslSocketConnect (
   IN int * pErrno
   )
 {
-  struct sockaddr_in LocalAddress;
+  struct sockaddr_in6 LocalAddress;
   ESL_PORT * pPort;
-  CONST struct sockaddr_in * pRemoteAddress;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
@@ -1212,7 +1184,6 @@ EslSocketConnect (
         //
         //  Validate the address length
         //
-        pRemoteAddress = (CONST struct sockaddr_in *)pSockAddr;
         if ( SockAddrLength >= pSocket->pApi->MinimumAddressLength ) {
           //
           //  Verify the API
@@ -1233,11 +1204,11 @@ EslSocketConnect (
               //  Allow any local port
               //
               ZeroMem ( &LocalAddress, sizeof ( LocalAddress ));
-              LocalAddress.sin_len = sizeof ( LocalAddress );
-              LocalAddress.sin_family = AF_INET;
+              LocalAddress.sin6_len = (uint8_t)pSocket->pApi->MinimumAddressLength;
+              LocalAddress.sin6_family = pSocket->pApi->AddressFamily;
               Status = EslSocketBind ( &pSocket->SocketProtocol,
                                        (struct sockaddr *)&LocalAddress,
-                                       LocalAddress.sin_len,
+                                       LocalAddress.sin6_len,
                                        &pSocket->errno );
             }
             if ( NULL != pSocket->pPortList ) {
@@ -1250,7 +1221,7 @@ EslSocketConnect (
                 //  Set the remote address
                 //
                 pSocket->pApi->pfnRemoteAddrSet ( pPort,
-                                                  pRemoteAddress,
+                                                  pSockAddr,
                                                   SockAddrLength );
 
                 //
@@ -1579,7 +1550,7 @@ EslSocketGetPeerAddress (
               //
               //  Verify the address length
               //
-              LengthInBytes = sizeof ( struct sockaddr_in );
+              LengthInBytes = pSocket->pApi->AddressLength;
               if ( LengthInBytes <= *pAddressLength ) {
                 //
                 //  Return the local address
@@ -1849,6 +1820,8 @@ EslSocketIsConfigured (
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
+  DBG_ENTER ( );
+
   //
   //  Assume success
   //
@@ -1893,6 +1866,7 @@ EslSocketIsConfigured (
   //
   //  Return the configuration status
   //
+  DBG_EXIT ( Status );
   return Status;
 }
 
@@ -2723,8 +2697,15 @@ EslSocketPoll (
   @param [in] pSocket     Address of an ::ESL_SOCKET structure.
   @param [in] pService    Address of an ::ESL_SERVICE structure.
   @param [in] ChildHandle TCP4 child handle
-  @param [in] pIpAddress  Buffer containing IP4 network address of the local host
-  @param [in] PortNumber  Tcp4 port number
+  @param [in] pSockAddr   Address of a sockaddr structure that contains the
+                          connection point on the local machine.  An IPv4 address
+                          of INADDR_ANY specifies that the connection is made to
+                          all of the network stacks on the platform.  Specifying a
+                          specific IPv4 address restricts the connection to the
+                          network stack supporting that address.  Specifying zero
+                          for the port causes the network layer to assign a port
+                          number from the dynamic range.  Specifying a specific
+                          port number causes the network layer to use that port.
   @param [in] DebugFlags  Flags for debug messages
   @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
@@ -2736,8 +2717,7 @@ EslSocketPortAllocate (
   IN ESL_SOCKET * pSocket,
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
-  IN CONST UINT8 * pIpAddress,
-  IN UINT16 PortNumber,
+  IN CONST struct sockaddr * pSockAddr,
   IN UINTN DebugFlags,
   OUT ESL_PORT ** ppPort
   )
@@ -2825,12 +2805,15 @@ EslSocketPortAllocate (
     //  Initialize the port specific resources
     //
     Status = pSocket->pApi->pfnPortAllocate ( pPort,
-                                              pIpAddress,
-                                              PortNumber,
                                               DebugFlags );
     if ( EFI_ERROR ( Status )) {
       break;
     }
+
+    //
+    //  Set the local address
+    //
+    pSocket->pApi->pfnLocalAddrSet ( pPort, pSockAddr );
 
     //
     //  Initialize the urgent transmit structures

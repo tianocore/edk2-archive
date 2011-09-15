@@ -347,7 +347,7 @@ EslServiceUnload (
 EFI_STATUS
 EslSocketBind (
   IN EFI_SOCKET_PROTOCOL * pSocketProtocol,
-  IN const struct sockaddr * pSockAddr,
+  IN CONST struct sockaddr * pSockAddr,
   IN socklen_t SockAddrLength,
   OUT int * pErrno
   );
