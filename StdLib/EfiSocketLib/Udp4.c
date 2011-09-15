@@ -356,6 +356,8 @@ EslUdp4PortClosePacketFree (
   IN OUT size_t * pRxBytes
   )
 {
+  DBG_ENTER ( );
+
   //
   //  Account for the receive bytes
   //
@@ -365,6 +367,7 @@ EslUdp4PortClosePacketFree (
   //  Return the buffer to the UDP4 driver
   //
   gBS->SignalEvent ( pPacket->Op.Udp4Rx.pRxData->RecycleSignal );
+  DBG_EXIT ( );
 }
 
 
@@ -401,18 +404,20 @@ EslUdp4PortCloseRxStop (
   //
   pUdp4 = &pPort->Context.Udp4;
   pUdp4Protocol = pPort->pProtocol.UDPv4;
-  Status = pUdp4Protocol->Configure ( pUdp4Protocol,
-                                      NULL );
+  Status = pUdp4Protocol->Cancel ( pUdp4Protocol,
+                                   &pPort->Context.Udp4.RxToken );
   if ( !EFI_ERROR ( Status )) {
     DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Port reset\r\n",
+              "0x%08x: Packet receive aborted on port: 0x%08x\r\n",
+              pPort->pReceivePending,
               pPort ));
   }
   else {
-    DEBUG (( DEBUG_ERROR | pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-             "ERROR - Port 0x%08x reset failed, Status: %r\r\n",
-             pPort,
-             Status ));
+    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
+             "0x%08x: Packet receive pending on Port 0x%08x\r\n",
+             pPort->pReceivePending,
+             pPort ));
+    Status = EFI_SUCCESS;
   }
 
   //

@@ -1382,10 +1382,13 @@ EslTcp4PortClosePacketFree (
   IN OUT size_t * pRxBytes
   )
 {
+  DBG_ENTER ( );
+
   //
   //  Account for the receive bytes
   //
   *pRxBytes -= pPacket->Op.Tcp4Rx.RxData.DataLength;
+  DBG_EXIT ( );
 }
 
 

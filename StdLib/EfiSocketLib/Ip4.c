@@ -546,6 +546,8 @@ EslIp4PortClosePacketFree (
   IN OUT size_t * pRxBytes
   )
 {
+  DBG_ENTER ( );
+
   //
   //  Account for the receive bytes
   //
@@ -555,6 +557,7 @@ EslIp4PortClosePacketFree (
   //  Return the buffer to the IP4 driver
   //
   gBS->SignalEvent ( pPacket->Op.Ip4Rx.pRxData->RecycleSignal );
+  DBG_EXIT ( );
 }
 
 
@@ -591,18 +594,20 @@ EslIp4PortCloseRxStop (
   //
   pIp4 = &pPort->Context.Ip4;
   pIp4Protocol = pPort->pProtocol.IPv4;
-  Status = pIp4Protocol->Configure ( pIp4Protocol,
-                                      NULL );
+  Status = pIp4Protocol->Cancel ( pIp4Protocol,
+                                  &pPort->Context.Ip4.RxToken );
   if ( !EFI_ERROR ( Status )) {
     DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Port reset\r\n",
+              "0x%08x: Packet receive aborted on port: 0x%08x\r\n",
+              pPort->pReceivePending,
               pPort ));
   }
   else {
-    DEBUG (( DEBUG_ERROR | pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-             "ERROR - Port 0x%08x reset failed, Status: %r\r\n",
-             pPort,
-             Status ));
+    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
+              "0x%08x: Packet receive pending on Port 0x%08x\r\n",
+              pPort->pReceivePending,
+              pPort ));
+    Status = EFI_SUCCESS;
   }
 
   //

@@ -1820,8 +1820,6 @@ EslSocketIsConfigured (
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
-  DBG_ENTER ( );
-
   //
   //  Assume success
   //
@@ -1831,6 +1829,8 @@ EslSocketIsConfigured (
   //  Verify the socket state
   //
   if ( !pSocket->bConfigured ) {
+    DBG_ENTER ( );
+
     //
     //  Verify the API
     //
@@ -1861,12 +1861,13 @@ EslSocketIsConfigured (
         pSocket->errno = EADDRNOTAVAIL;
       }
     }
+
+    DBG_EXIT_STATUS ( Status );
   }
 
   //
   //  Return the configuration status
   //
-  DBG_EXIT ( Status );
   return Status;
 }
 
@@ -3284,6 +3285,9 @@ EslSocketPortCloseRxDone (
       DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
                 "0x%08x: Port Close: Receive still pending!\r\n",
                 pPort ));
+      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                "0x%08x: Packet pending on network adapter\r\n",
+                pPort->pReceivePending ));
     }
   }
 
@@ -3388,6 +3392,7 @@ EslSocketPortCloseTxDone (
   IN ESL_PORT * pPort
   )
 {
+  ESL_IO_MGMT * pIo;
   ESL_PACKET * pPacket;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
@@ -3496,6 +3501,52 @@ EslSocketPortCloseTxDone (
                 pPort ));
       Status = EFI_NOT_READY;
       pSocket->errno = EAGAIN;
+
+      //
+      //  Display the urgent transmit packets
+      //
+      pPacket = pSocket->pTxOobPacketListHead;
+      while ( NULL != pPacket ) {
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Packet pending on urgent TX list, %d bytes\r\n",
+                  pPacket,
+                  pPacket->PacketSize ));
+        pPacket = pPacket->pNext;
+      }
+
+      pIo = pPort->pTxOobActive;
+      while ( NULL != pIo ) {
+        pPacket = pIo->pPacket;
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Packet active %d bytes, pIo: 0x%08x\r\n",
+                  pPacket,
+                  pPacket->PacketSize,
+                  pIo ));
+        pIo = pIo->pNext;
+      }
+
+      //
+      //  Display the normal transmit packets
+      //
+      pPacket = pSocket->pTxPacketListHead;
+      while ( NULL != pPacket ) {
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Packet pending on normal TX list, %d bytes\r\n",
+                  pPacket,
+                  pPacket->PacketSize ));
+        pPacket = pPacket->pNext;
+      }
+
+      pIo = pPort->pTxActive;
+      while ( NULL != pIo ) {
+        pPacket = pIo->pPacket;
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Packet active %d bytes, pIo: 0x%08x\r\n",
+                  pPacket,
+                  pPacket->PacketSize,
+                  pIo ));
+        pIo = pIo->pNext;
+      }
     }
   }
 
