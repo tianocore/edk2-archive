@@ -10,74 +10,32 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-
-  \section Udp4ReceiveEngine UDPv4 Receive Engine
-
-  The receive engine is started by calling ::EslUdp4RxStart when the
-  ::ESL_PORT structure is configured and stopped when ::EslSocketPortCloseTxDone
-  calls the UDPv4 configure operation to reset the port.  The receive engine
-  consists of a single receive buffer that is posted to the UDPv4 driver.
-
-  Upon receive completion, ::EslUdp4RxComplete posts the UDPv4 buffer to the
-  ESL_SOCKET::pRxPacketListTail.  To minimize the number of buffer copies,
-  the ::EslUdp4RxComplete routine queues the UDP4 driver's buffer to a list
-  of datagrams waiting to be received.  The socket driver holds on to the
-  buffers from the UDPv4 driver until the application layer requests
-  the data or the socket is closed.
-
-  When the application wants to receive data it indirectly calls
-  ::EslUdp4Receive to remove data from the data queue.  This routine
-  removes the next available datagram from ESL_SOCKET::pRxPacketListHead
-  and copies the data from the UDPv4 driver's buffer into the
-  application's buffer.  The UDPv4 driver's buffer is then returned.
-
-  During socket layer shutdown, ::EslUdp4RxCancel is called by ::EslSocketShutdown
-  to cancel the pending receive operations.
-
-  Receive flow control is applied when the socket is created, since no receive
-  operation is pending to the UDPv4 driver.  The flow control gets released
-  when the port is configured.  Flow control remains in the released state,
-  ::EslUdp4RxComplete calls ::EslUdp4RxStart until the maximum buffer space
-  is consumed.  By not calling EslUdp4RxStart, EslUdp4RxComplete applies flow
-  control.  Flow control is eventually released when the buffer space drops
-  below the maximum amount and EslUdp4Receive calls EslUdp4RxStart.
-
 **/
 
 #include "Socket.h"
 
+
 /**
-  Interface between the socket layer and the network specific
-  code that supports SOCK_DGRAM sockets over UDPv4.
+  Process the receive completion
+
+  This routine keeps the UDPv4 driver's buffer and queues it in
+  in FIFO order to the data queue.  The UDP4 driver's buffer will
+  be returned by either ::EslUdp4Receive or ::EslSocketPortCloseTxDone.
+  See the \ref Tcp4ReceiveEngine section.
+
+  This routine is called by the UDPv4 driver when data is
+  received.
+
+  @param [in] Event     The receive completion event
+
+  @param [in] pPort     Address of an ::ESL_PORT structure
+
 **/
-CONST ESL_PROTOCOL_API cEslUdp4Api = {
-  IPPROTO_UDP,
-  OFFSET_OF ( ESL_LAYER, pUdp4List ),
-  OFFSET_OF ( struct sockaddr_in, sin_zero ),
-  sizeof ( struct sockaddr_in ),
-  AF_INET,
-  NULL,   //  Accept
-  NULL,   //  ConnectPoll
-  NULL,   //  ConnectStart
-  EslUdp4SocketIsConfigured,
-  EslUdp4LocalAddressGet,
-  EslUdp4LocalAddressSet,
-  NULL,   //  Listen
-  NULL,   //  OptionGet
-  NULL,   //  OptionSet
-  EslUdp4PortAllocate,
-  EslUdp4PortClose,
-  EslUdp4PortClosePacketFree,
-  EslUdp4PortCloseRxStop,
-  TRUE,
-  EslUdp4Receive,
-  EslUdp4RemoteAddressGet,
-  EslUdp4RemoteAddressSet,
-  EslUdp4RxCancel,
-  EslUdp4TxBuffer,
-  EslUdp4TxComplete,
-  NULL    //  TxOobComplete
-};
+VOID
+EslUdp4RxComplete (
+  IN EFI_EVENT Event,
+  IN ESL_PORT * pPort
+  );
 
 
 /**
@@ -643,7 +601,7 @@ EslUdp4Receive (
             //
             if (( NULL == pPort->pReceivePending )
               && ( MAX_RX_DATA > pSocket->RxBytes )) {
-                EslUdp4RxStart ( pPort );
+                EslSocketRxStart ( pPort );
             }
           }
 
@@ -957,7 +915,7 @@ EslUdp4RxComplete (
       //  Attempt to restart this receive operation
       //
       if ( pSocket->MaxRxBuf > pSocket->RxBytes ) {
-        EslUdp4RxStart ( pPort );
+        EslSocketRxStart ( pPort );
       }
       else {
         DEBUG (( DEBUG_RX,
@@ -1015,25 +973,22 @@ EslUdp4RxComplete (
   Start a receive operation
 
   This routine posts a receive buffer to the UDPv4 driver.
-  See the \ref Udp4ReceiveEngine section.
+  See the \ref ReceiveEngine section.
 
-  This support routine is called by:
-  <ul>
-    <li>::EslUdp4SocketIsConfigured to start the recevie engine for the new socket.</li>
-    <li>::EslUdp4Receive to restart the receive engine to release flow control.</li>
-    <li>::EslUdp4RxComplete to continue the operation of the receive engine if flow control is not being applied.</li>
-  </ul>
+  This support routine is called by EslSocketRxStart.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] pPacket     Address of an ::ESL_PACKET structure.
+
+  @retval EFI_SUCCESS Receive operation started successfully
 
  **/
-VOID
+EFI_STATUS
 EslUdp4RxStart (
-  IN ESL_PORT * pPort
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET * pPacket
   )
 {
-  ESL_PACKET * pPacket;
-  ESL_SOCKET * pSocket;
   ESL_UDP4_CONTEXT * pUdp4;
   EFI_UDP4_PROTOCOL * pUdp4Protocol;
   EFI_STATUS Status;
@@ -1041,93 +996,24 @@ EslUdp4RxStart (
   DBG_ENTER ( );
 
   //
-  //  Determine if a receive is already pending
+  //  Initialize the buffer for receive
   //
-  Status = EFI_SUCCESS;
-  pPacket = NULL;
-  pSocket = pPort->pSocket;
+  pPacket->Op.Udp4Rx.pRxData = NULL;
   pUdp4 = &pPort->Context.Udp4;
-  if ( !EFI_ERROR ( pPort->pSocket->RxError )) {
-    if (( NULL == pPort->pReceivePending )
-      && ( PORT_STATE_CLOSE_STARTED > pPort->State )) {
-      //
-      //  Determine if there are any free packets
-      //
-      pPacket = pSocket->pRxFree;
-      if ( NULL != pPacket ) {
-        //
-        //  Remove this packet from the free list
-        //
-        pSocket->pRxFree = pPacket->pNext;
-        DEBUG (( DEBUG_RX,
-                  "0x%08x: Port removed packet 0x%08x from free list\r\n",
-                  pPort,
-                  pPacket ));
-      }
-      else {
-        //
-        //  Allocate a packet structure
-        //
-        Status = EslSocketPacketAllocate ( &pPacket,
-                                           sizeof ( pPacket->Op.Udp4Rx ),
-                                           DEBUG_RX );
-        if ( EFI_ERROR ( Status )) {
-          pPacket = NULL;
-          DEBUG (( DEBUG_ERROR | DEBUG_RX,
-                    "0x%08x: Port failed to allocate RX packet, Status: %r\r\n",
-                    pPort,
-                    Status ));
-        }
-      }
+  pUdp4->RxToken.Packet.RxData = NULL;
 
-      //
-      //  Determine if a packet is available
-      //
-      if ( NULL != pPacket ) {
-        //
-        //  Initialize the buffer for receive
-        //
-        pPacket->pNext = NULL;
-        pPacket->Op.Udp4Rx.pRxData = NULL;
-        pUdp4->RxToken.Packet.RxData = NULL;
-        pPort->pReceivePending = pPacket;
+  //
+  //  Start the receive on the packet
+  //
+  pUdp4Protocol = pPort->pProtocol.UDPv4;
+  Status = pUdp4Protocol->Receive ( pUdp4Protocol,
+                                    &pUdp4->RxToken );
 
-        //
-        //  Start the receive on the packet
-        //
-        pUdp4Protocol = pPort->pProtocol.UDPv4;
-        Status = pUdp4Protocol->Receive ( pUdp4Protocol,
-                                          &pUdp4->RxToken );
-        if ( !EFI_ERROR ( Status )) {
-          DEBUG (( DEBUG_RX | DEBUG_INFO,
-                    "0x%08x: Packet receive pending on port 0x%08x\r\n",
-                    pPacket,
-                    pPort ));
-        }
-        else {
-          DEBUG (( DEBUG_RX | DEBUG_INFO,
-                    "ERROR - Failed to post a receive on port 0x%08x, Status: %r\r\n",
-                    pPort,
-                    Status ));
-          if ( !EFI_ERROR ( pSocket->RxError )) {
-            //
-            //  Save the error status
-            //
-            pSocket->RxError = Status;
-          }
-
-          //
-          //  Free the packet
-          //
-          pPort->pReceivePending = NULL;
-          pPacket->pNext = pSocket->pRxFree;
-          pSocket->pRxFree = pPacket;
-        }
-      }
-    }
-  }
-
-  DBG_EXIT ( );
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
 }
 
 
@@ -1274,7 +1160,7 @@ EslUdp4RxStart (
         //
         //  Start the first read on the port
         //
-        EslUdp4RxStart ( pPort );
+        EslSocketRxStart ( pPort );
 
         //
         //  The socket is connected
@@ -1598,3 +1484,39 @@ EslUdp4TxComplete (
                         &pPort->pTxFree );
   DBG_EXIT ( );
 }
+
+
+/**
+  Interface between the socket layer and the network specific
+  code that supports SOCK_DGRAM sockets over UDPv4.
+**/
+CONST ESL_PROTOCOL_API cEslUdp4Api = {
+  IPPROTO_UDP,
+  OFFSET_OF ( ESL_LAYER, pUdp4List ),
+  OFFSET_OF ( struct sockaddr_in, sin_zero ),
+  sizeof ( struct sockaddr_in ),
+  AF_INET,
+  sizeof (((ESL_PACKET *)0 )->Op.Udp4Rx ),
+  NULL,   //  Accept
+  NULL,   //  ConnectPoll
+  NULL,   //  ConnectStart
+  EslUdp4SocketIsConfigured,
+  EslUdp4LocalAddressGet,
+  EslUdp4LocalAddressSet,
+  NULL,   //  Listen
+  NULL,   //  OptionGet
+  NULL,   //  OptionSet
+  EslUdp4PortAllocate,
+  EslUdp4PortClose,
+  EslUdp4PortClosePacketFree,
+  EslUdp4PortCloseRxStop,
+  TRUE,
+  EslUdp4Receive,
+  EslUdp4RemoteAddressGet,
+  EslUdp4RemoteAddressSet,
+  EslUdp4RxCancel,
+  EslUdp4RxStart,
+  EslUdp4TxBuffer,
+  EslUdp4TxComplete,
+  NULL    //  TxOobComplete
+};

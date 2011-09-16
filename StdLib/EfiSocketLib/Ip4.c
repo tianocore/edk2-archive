@@ -10,74 +10,32 @@
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-
-  \section Ip4ReceiveEngine IPv4 Receive Engine
-
-  The receive engine is started by calling ::EslIp4RxStart when the
-  ::ESL_PORT structure is configured and stopped when ::EslSocketPortCloseTxDone
-  calls the IPv4 configure operation to reset the port.  The receive engine
-  consists of a single receive buffer that is posted to the IPv4 driver.
-
-  Upon receive completion, ::EslIp4RxComplete posts the IPv4 buffer to the
-  ESL_SOCKET::pRxPacketListTail.  To minimize the number of buffer copies,
-  the ::EslIp4RxComplete routine queues the IP4 driver's buffer to a list
-  of datagrams waiting to be received.  The socket driver holds on to the
-  buffers from the IPv4 driver until the application layer requests
-  the data or the socket is closed.
-
-  When the application wants to receive data it indirectly calls
-  ::EslIp4Receive to remove data from the data queue.  This routine
-  removes the next available datagram from ESL_SOCKET::pRxPacketListHead
-  and copies the data from the IPv4 driver's buffer into the
-  application's buffer.  The IPv4 driver's buffer is then returned.
-
-  During socket layer shutdown, ::EslIp4RxCancel is called by ::EslSocketShutdown
-  to cancel the pending receive operations.
-
-  Receive flow control is applied when the socket is created, since no receive
-  operation is pending to the IPv4 driver.  The flow control gets released
-  when the port is configured.  Flow control remains in the released state,
-  ::EslIp4RxComplete calls ::EslIp4RxStart until the maximum buffer space
-  is consumed.  By not calling EslIp4RxStart, EslIp4RxComplete applies flow
-  control.  Flow control is eventually released when the buffer space drops
-  below the maximum amount and EslIp4Receive calls EslIp4RxStart.
-
 **/
 
 #include "Socket.h"
 
+
 /**
-  Interface between the socket layer and the network specific
-  code that supports SOCK_RAW sockets over IPv4.
+  Process the receive completion
+
+  This routine keeps the IPv4 driver's buffer and queues it in
+  in FIFO order to the data queue.  The IP4 driver's buffer will
+  be returned by either ::EslIp4Receive or ::EslSocketPortCloseTxDone.
+  See the \ref Tcp4ReceiveEngine section.
+
+  This routine is called by the IPv4 driver when data is
+  received.
+
+  @param [in] Event     The receive completion event
+
+  @param [in] pPort     The address of an ::ESL_PORT structure
+
 **/
-CONST ESL_PROTOCOL_API cEslIp4Api = {
-  IPPROTO_IP,
-  OFFSET_OF ( ESL_LAYER, pIp4List ),
-  OFFSET_OF ( struct sockaddr_in, sin_zero ),
-  sizeof ( struct sockaddr_in ),
-  AF_INET,
-  NULL,   //  Accept
-  NULL,   //  ConnectPoll
-  NULL,   //  ConnectStart
-  EslIp4SocketIsConfigured,
-  EslIp4LocalAddressGet,
-  EslIp4LocalAddressSet,
-  NULL,   //  Listen
-  EslIp4OptionGet,
-  EslIp4OptionSet,
-  EslIp4PortAllocate,
-  EslIp4PortClose,
-  EslIp4PortClosePacketFree,
-  EslIp4PortCloseRxStop,
-  TRUE,
-  EslIp4Receive,
-  EslIp4RemoteAddressGet,
-  EslIp4RemoteAddressSet,
-  EslIp4RxCancel,
-  EslIp4TxBuffer,
-  EslIp4TxComplete,
-  NULL    //  TxOobComplete
-};
+VOID
+EslIp4RxComplete (
+  IN EFI_EVENT Event,
+  IN ESL_PORT * pPort
+  );
 
 
 /**
@@ -850,7 +808,7 @@ EslIp4Receive (
             //
             if (( NULL == pPort->pReceivePending )
               && ( MAX_RX_DATA > pSocket->RxBytes )) {
-                EslIp4RxStart ( pPort );
+                EslSocketRxStart ( pPort );
             }
           }
 
@@ -1160,7 +1118,7 @@ EslIp4RxComplete (
       //  Attempt to restart this receive operation
       //
       if ( pSocket->MaxRxBuf > pSocket->RxBytes ) {
-        EslIp4RxStart ( pPort );
+        EslSocketRxStart ( pPort );
       }
       else {
         DEBUG (( DEBUG_RX,
@@ -1218,25 +1176,22 @@ EslIp4RxComplete (
   Start a receive operation
 
   This routine posts a receive buffer to the IPv4 driver.
-  See the \ref Ip4ReceiveEngine section.
+  See the \ref ReceiveEngine section.
 
-  This support routine is called by:
-  <ul>
-    <li>::EslIp4SocketIsConfigured to start the recevie engine for the new socket.</li>
-    <li>::EslIp4Receive to restart the receive engine to release flow control.</li>
-    <li>::EslIp4RxComplete to continue the operation of the receive engine if flow control is not being applied.</li>
-  </ul>
+  This support routine is called by EslSocketRxStart.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
+  @param [in] pPacket     Address of an ::ESL_PACKET structure.
+
+  @retval EFI_SUCCESS Receive operation started successfully
 
  **/
-VOID
+EFI_STATUS
 EslIp4RxStart (
-  IN ESL_PORT * pPort
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET * pPacket
   )
 {
-  ESL_PACKET * pPacket;
-  ESL_SOCKET * pSocket;
   ESL_IP4_CONTEXT * pIp4;
   EFI_IP4_PROTOCOL * pIp4Protocol;
   EFI_STATUS Status;
@@ -1244,93 +1199,24 @@ EslIp4RxStart (
   DBG_ENTER ( );
 
   //
-  //  Determine if a receive is already pending
+  //  Initialize the buffer for receive
   //
-  Status = EFI_SUCCESS;
-  pPacket = NULL;
-  pSocket = pPort->pSocket;
+  pPacket->Op.Ip4Rx.pRxData = NULL;
   pIp4 = &pPort->Context.Ip4;
-  if ( !EFI_ERROR ( pPort->pSocket->RxError )) {
-    if (( NULL == pPort->pReceivePending )
-      && ( PORT_STATE_CLOSE_STARTED > pPort->State )) {
-      //
-      //  Determine if there are any free packets
-      //
-      pPacket = pSocket->pRxFree;
-      if ( NULL != pPacket ) {
-        //
-        //  Remove this packet from the free list
-        //
-        pSocket->pRxFree = pPacket->pNext;
-        DEBUG (( DEBUG_RX,
-                  "0x%08x: Port removed packet 0x%08x from free list\r\n",
-                  pPort,
-                  pPacket ));
-      }
-      else {
-        //
-        //  Allocate a packet structure
-        //
-        Status = EslSocketPacketAllocate ( &pPacket,
-                                           sizeof ( pPacket->Op.Ip4Rx ),
-                                           DEBUG_RX );
-        if ( EFI_ERROR ( Status )) {
-          pPacket = NULL;
-          DEBUG (( DEBUG_ERROR | DEBUG_RX,
-                    "0x%08x: Port failed to allocate RX packet, Status: %r\r\n",
-                    pPort,
-                    Status ));
-        }
-      }
+  pIp4->RxToken.Packet.RxData = NULL;
 
-      //
-      //  Determine if a packet is available
-      //
-      if ( NULL != pPacket ) {
-        //
-        //  Initialize the buffer for receive
-        //
-        pPacket->pNext = NULL;
-        pPacket->Op.Ip4Rx.pRxData = NULL;
-        pIp4->RxToken.Packet.RxData = NULL;
-        pPort->pReceivePending = pPacket;
+  //
+  //  Start the receive on the packet
+  //
+  pIp4Protocol = pPort->pProtocol.IPv4;
+  Status = pIp4Protocol->Receive ( pIp4Protocol,
+                                    &pIp4->RxToken );
 
-        //
-        //  Start the receive on the packet
-        //
-        pIp4Protocol = pPort->pProtocol.IPv4;
-        Status = pIp4Protocol->Receive ( pIp4Protocol,
-                                          &pIp4->RxToken );
-        if ( !EFI_ERROR ( Status )) {
-          DEBUG (( DEBUG_RX | DEBUG_INFO,
-                    "0x%08x: Packet receive pending on port 0x%08x\r\n",
-                    pPacket,
-                    pPort ));
-        }
-        else {
-          DEBUG (( DEBUG_RX | DEBUG_INFO,
-                    "ERROR - Failed to post a receive on port 0x%08x, Status: %r\r\n",
-                    pPort,
-                    Status ));
-          if ( !EFI_ERROR ( pSocket->RxError )) {
-            //
-            //  Save the error status
-            //
-            pSocket->RxError = Status;
-          }
-
-          //
-          //  Free the packet
-          //
-          pPort->pReceivePending = NULL;
-          pPacket->pNext = pSocket->pRxFree;
-          pSocket->pRxFree = pPacket;
-        }
-      }
-    }
-  }
-
-  DBG_EXIT ( );
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
 }
 
 
@@ -1510,7 +1396,7 @@ EslIp4RxStart (
         //
         //  Start the first read on the port
         //
-        EslIp4RxStart ( pPort );
+        EslSocketRxStart ( pPort );
 
         //
         //  The socket is connected
@@ -1851,3 +1737,39 @@ EslIp4TxComplete (
                         &pPort->pTxFree );
   DBG_EXIT ( );
 }
+
+
+/**
+  Interface between the socket layer and the network specific
+  code that supports SOCK_RAW sockets over IPv4.
+**/
+CONST ESL_PROTOCOL_API cEslIp4Api = {
+  IPPROTO_IP,
+  OFFSET_OF ( ESL_LAYER, pIp4List ),
+  OFFSET_OF ( struct sockaddr_in, sin_zero ),
+  sizeof ( struct sockaddr_in ),
+  AF_INET,
+  sizeof (((ESL_PACKET *)0 )->Op.Ip4Rx ),
+  NULL,   //  Accept
+  NULL,   //  ConnectPoll
+  NULL,   //  ConnectStart
+  EslIp4SocketIsConfigured,
+  EslIp4LocalAddressGet,
+  EslIp4LocalAddressSet,
+  NULL,   //  Listen
+  EslIp4OptionGet,
+  EslIp4OptionSet,
+  EslIp4PortAllocate,
+  EslIp4PortClose,
+  EslIp4PortClosePacketFree,
+  EslIp4PortCloseRxStop,
+  TRUE,
+  EslIp4Receive,
+  EslIp4RemoteAddressGet,
+  EslIp4RemoteAddressSet,
+  EslIp4RxCancel,
+  EslIp4RxStart,
+  EslIp4TxBuffer,
+  EslIp4TxComplete,
+  NULL    //  TxOobComplete
+};
