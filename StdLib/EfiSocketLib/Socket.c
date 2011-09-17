@@ -59,90 +59,47 @@
   The receive engine is started by calling ::EslSocketRxStart when the
   ::ESL_PORT structure is allocated and stopped when ::EslSocketPortCloseTxDone
   calls the network specific close operation.  The receive engine consists
-  of a single receive buffer that is posted to the network driver.  Upon
-  completion, ::EslSocketRxComplete posts the buffer to either the
-  ESL_SOCKET::pRxOobPacketListTail or ESL_SOCKET::pRxPacketListTail
-  depending on whether urgent or normal data was received.
+  of a single receive buffer that is posted to the network driver.
+
+  Upon receive completion, ::EslSocketRxComplete queues the packet of data
+  to either the ESL_SOCKET::pRxOobPacketListTail or ESL_SOCKET::pRxPacketListTail
+  depending on whether urgent or normal data was received.  To minimize the
+  number of buffer copies, the data is not moved until the application makes
+  a receive call.
 
   When the application wants to receive data it indirectly calls
-  ::EslTcp4Receive to remove data from one of the data queues.  If
-  message flag MSG_OOB is specified, data is removed from
-  ESL_SOCKET::pRxOobPacketListHead, otherwise data is removed from
-  ESL_SOCKET::pRxPacketListHead.
+  ::EslSocketReceive to remove data from the data queue.  This routine
+  removes the next available packet from ESL_SOCKET::pRxOobPacketListHead or
+  ESL_SOCKET::pRxPacketListHead and copies the data from the packet
+  into the application's buffer.  For SOCK_STREAM sockets, if the packet
+  contains more data then it remains around for the next application receive
+  operation, otherwise the packet is placed on the free queue.
 
-  During socket layer shutdown, ::EslTcp4RxCancel is called by ::EslSocketShutdown to cancel the
-  pending receive operations.
+  The IP4 and UDP4 drivers go one step further to reduce buffer copies.  They
+  allow the socket layer to hold on to the actual receive buffer until the
+  application has performed a receive operation or closes the socket.  Both
+  of theses operations return the buffer to the lower layer network driver
+  by calling ESL_PROTOCOL_API::pfnPortClosePktFree.
 
-  Receive flow control is applied when the socket is created, since no receive
-  operation is pending to the TCPv4 driver.  The flow control gets released
-  when the first receive request is made to ::EslTcp4Receive.  Flow control
-  remains in the released state, ::EslTcp4RxComplete calls ::EslTcp4RxStart
-  until the maximum buffer space is consumed.  By not calling EslTcp4RxStart,
-  EslTcp4RxComplete applies flow control.  Flow control is eventually released
-  when the buffer space drops below the maximum amount and EslTcp4Receive
-  calls EslTcp4RxStart.
 
-  \section Ip4ReceiveEngine IPv4 Receive Engine
-
-  The receive engine is started by calling ::EslIp4RxStart when the
-  ::ESL_PORT structure is configured and stopped when ::EslSocketPortCloseTxDone
-  calls the IPv4 configure operation to reset the port.  The receive engine
-  consists of a single receive buffer that is posted to the IPv4 driver.
-
-  Upon receive completion, ::EslIp4RxComplete posts the IPv4 buffer to the
-  ESL_SOCKET::pRxPacketListTail.  To minimize the number of buffer copies,
-  the ::EslIp4RxComplete routine queues the IP4 driver's buffer to a list
-  of datagrams waiting to be received.  The socket driver holds on to the
-  buffers from the IPv4 driver until the application layer requests
-  the data or the socket is closed.
-
-  When the application wants to receive data it indirectly calls
-  ::EslIp4Receive to remove data from the data queue.  This routine
-  removes the next available datagram from ESL_SOCKET::pRxPacketListHead
-  and copies the data from the IPv4 driver's buffer into the
-  application's buffer.  The IPv4 driver's buffer is then returned.
-
-  During socket layer shutdown, ::EslIp4RxCancel is called by ::EslSocketShutdown
-  to cancel the pending receive operations.
+  During socket layer shutdown the lower layer RxCancel routine is called by
+  ::EslSocketShutdown to cancel the pending receive operations.  These routines
+  are:
+  <ul>
+    <li>::EslIp4RxCancel</li>
+    <li>::EslTcp4RxCancel</li>
+    <li>::EslUdp4RxCancel</li>
+  </ul>
 
   Receive flow control is applied when the socket is created, since no receive
-  operation is pending to the IPv4 driver.  The flow control gets released
-  when the port is configured.  Flow control remains in the released state,
-  ::EslIp4RxComplete calls ::EslIp4RxStart until the maximum buffer space
-  is consumed.  By not calling EslIp4RxStart, EslIp4RxComplete applies flow
-  control.  Flow control is eventually released when the buffer space drops
-  below the maximum amount and EslIp4Receive calls EslIp4RxStart.
-
-  \section Udp4ReceiveEngine UDPv4 Receive Engine
-
-  The receive engine is started by calling ::EslUdp4RxStart when the
-  ::ESL_PORT structure is configured and stopped when ::EslSocketPortCloseTxDone
-  calls the UDPv4 configure operation to reset the port.  The receive engine
-  consists of a single receive buffer that is posted to the UDPv4 driver.
-
-  Upon receive completion, ::EslUdp4RxComplete posts the UDPv4 buffer to the
-  ESL_SOCKET::pRxPacketListTail.  To minimize the number of buffer copies,
-  the ::EslUdp4RxComplete routine queues the UDP4 driver's buffer to a list
-  of datagrams waiting to be received.  The socket driver holds on to the
-  buffers from the UDPv4 driver until the application layer requests
-  the data or the socket is closed.
-
-  When the application wants to receive data it indirectly calls
-  ::EslUdp4Receive to remove data from the data queue.  This routine
-  removes the next available datagram from ESL_SOCKET::pRxPacketListHead
-  and copies the data from the UDPv4 driver's buffer into the
-  application's buffer.  The UDPv4 driver's buffer is then returned.
-
-  During socket layer shutdown, ::EslUdp4RxCancel is called by ::EslSocketShutdown
-  to cancel the pending receive operations.
-
-  Receive flow control is applied when the socket is created, since no receive
-  operation is pending to the UDPv4 driver.  The flow control gets released
-  when the port is configured.  Flow control remains in the released state,
-  ::EslUdp4RxComplete calls ::EslUdp4RxStart until the maximum buffer space
-  is consumed.  By not calling EslUdp4RxStart, EslUdp4RxComplete applies flow
-  control.  Flow control is eventually released when the buffer space drops
-  below the maximum amount and EslUdp4Receive calls EslUdp4RxStart.
+  operation is pending to the low layer network driver.  The flow control gets
+  released when the low layer network port is configured or the first receive
+  operation is posted.  Flow control remains in the released state until the
+  maximum buffer space is consumed.  During this time, ::EslSocketRxComplete
+  calls ::EslSocketRxStart.  Flow control is applied in EslSocketRxComplete
+  by skipping the call to EslSocketRxStart.  Flow control is eventually
+  released when the buffer space drops below the maximum amount and
+  EslSocketReceive calls EslSocketRxStart.
 
 
   \section TransmitEngine Transmit Engine
@@ -3795,6 +3752,154 @@ EslSocketReceive (
   }
   DBG_EXIT_STATUS ( Status );
   return Status;
+}
+
+
+/**
+  Process the receive completion
+
+  This routine queues the data in FIFO order in either the urgent
+  or normal data queues depending upon the type of data received.
+  See the \ref ReceiveEngine section.
+
+  This routine is called when some data is received by:
+  <ul>
+    <li>::EslIp4RxComplete</li>
+    <li>::EslTcp4RxComplete</li>
+    <li>::EslUdp4RxComplete</li>
+  </ul>
+
+  @param [in] pPort         Address of an ::ESL_PORT structure
+  @param [in] Status        Receive status
+  @param [in] LengthInBytes Length of the receive data
+  @param [in] bUrgent       TRUE if urgent data is received and FALSE
+                            for normal data.
+
+**/
+VOID
+EslSocketRxComplete (
+  IN ESL_PORT * pPort,
+  IN EFI_STATUS Status,
+  IN UINTN LengthInBytes,
+  IN BOOLEAN bUrgent
+  )
+{
+  ESL_PACKET * pPacket;
+  ESL_PACKET * pPrevious;
+  ESL_PACKET ** ppQueueHead;
+  ESL_PACKET ** ppQueueTail;
+  size_t * pRxBytes;
+  ESL_SOCKET * pSocket;
+
+  DBG_ENTER ( );
+
+  //
+  //  Mark this receive complete
+  //
+  pPacket = pPort->pReceivePending;
+  pPort->pReceivePending = NULL;
+
+  //
+  //  Account for the received data
+  //
+  pSocket = pPort->pSocket;
+  if ( bUrgent && ( !pSocket->bOobInLine )) {
+    ppQueueHead = &pSocket->pRxOobPacketListHead;
+    ppQueueTail = &pSocket->pRxOobPacketListTail;
+    pRxBytes = &pSocket->RxOobBytes;
+  }
+  else {
+    ppQueueHead = &pSocket->pRxPacketListHead;
+    ppQueueTail = &pSocket->pRxPacketListTail;
+    pRxBytes = &pSocket->RxBytes;
+  }
+  *pRxBytes += LengthInBytes;
+
+  //
+  //  Determine if this receive was successful
+  //
+  if (( !EFI_ERROR ( Status ))
+    && ( PORT_STATE_CLOSE_STARTED > pPort->State )
+    && ( !pSocket->bRxDisable )) {
+    //
+    //  Set the buffer size and address
+    //
+    pPacket->Op.Tcp4Rx.pBuffer = pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentBuffer;
+    LengthInBytes = pPacket->Op.Tcp4Rx.RxData.DataLength;
+    pPacket->Op.Tcp4Rx.ValidBytes = LengthInBytes;
+
+    //
+    //  Log the received data
+    //
+    DEBUG (( DEBUG_RX | DEBUG_INFO,
+              "0x%08x: Packet queued on port 0x%08x with 0x%08x bytes of %s data\r\n",
+              pPacket,
+              pPort,
+              LengthInBytes,
+              bUrgent ? L"urgent" : L"normal" ));
+
+    //
+    //  Add the packet to the list tail.
+    //
+    pPacket->pNext = NULL;
+    pPrevious = *ppQueueTail;
+    if ( NULL == pPrevious ) {
+      *ppQueueHead = pPacket;
+    }
+    else {
+      pPrevious->pNext = pPacket;
+    }
+    *ppQueueTail = pPacket;
+
+    //
+    //  Attempt to restart this receive operation
+    //
+    if ( pSocket->MaxRxBuf > pSocket->RxBytes ) {
+      EslSocketRxStart ( pPort );
+    }
+    else {
+      DEBUG (( DEBUG_RX,
+                "0x%08x: Port RX suspended, 0x%08x bytes queued\r\n",
+                pPort,
+                pSocket->RxBytes ));
+    }
+  }
+  else {
+    if ( EFI_ERROR ( Status )) {
+        DEBUG (( DEBUG_RX | DEBUG_INFO,
+                  "ERROR - Receive error on port 0x%08x, packet 0x%08x, Status:%r\r\n",
+                  pPort,
+                  pPacket,
+                  Status ));
+    }
+
+    //
+    //  Account for the receive bytes and release the driver's buffer
+    //
+    pSocket->pApi->pfnPortClosePktFree ( pPacket, pRxBytes );
+
+    //
+    //  Receive error, free the packet save the error
+    //
+    EslSocketPacketFree ( pPacket, DEBUG_RX );
+    if ( !EFI_ERROR ( pSocket->RxError )) {
+      pSocket->RxError = Status;
+    }
+
+    //
+    //  Update the port state
+    //
+    if ( PORT_STATE_CLOSE_TX_DONE <= pPort->State ) {
+      EslSocketPortCloseRxDone ( pPort );
+    }
+    else {
+      if ( EFI_ERROR ( Status )) {
+        pPort->State = PORT_STATE_RX_ERROR;
+      }
+    }
+  }
+
+  DBG_EXIT ( );
 }
 
 

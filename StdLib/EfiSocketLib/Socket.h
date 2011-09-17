@@ -1294,6 +1294,35 @@ EslSocketPortCloseTxDone (
   );
 
 /**
+  Process the receive completion
+
+  This routine queues the data in FIFO order in either the urgent
+  or normal data queues depending upon the type of data received.
+  See the \ref ReceiveEngine section.
+
+  This routine is called when some data is received by:
+  <ul>
+    <li>::EslIp4RxComplete</li>
+    <li>::EslTcp4RxComplete</li>
+    <li>::EslUdp4RxComplete</li>
+  </ul>
+
+  @param [in] pPort         Address of an ::ESL_PORT structure
+  @param [in] Status        Receive status
+  @param [in] LengthInBytes Length of the receive data
+  @param [in] bUrgent       TRUE if urgent data is received and FALSE
+                            for normal data.
+
+**/
+VOID
+EslSocketRxComplete (
+  IN ESL_PORT * pPort,
+  IN EFI_STATUS Status,
+  IN UINTN LengthInBytes,
+  IN BOOLEAN bUrgent
+  );
+
+/**
   Start a receive operation
 
   This routine posts a receive buffer to the network adapter.

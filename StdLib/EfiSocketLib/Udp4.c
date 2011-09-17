@@ -842,129 +842,34 @@ EslUdp4RxComplete (
 {
   size_t LengthInBytes;
   ESL_PACKET * pPacket;
-  ESL_PACKET * pPrevious;
   EFI_UDP4_RECEIVE_DATA * pRxData;
-  ESL_SOCKET * pSocket;
   ESL_UDP4_CONTEXT * pUdp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
-  
+
   //
-  //  Mark this receive complete
+  //  Get the operation status.
   //
   pUdp4 = &pPort->Context.Udp4;
-  pPacket = pPort->pReceivePending;
-  pPort->pReceivePending = NULL;
-  
-  //
-  //  Determine if this receive was successful
-  //
-  pSocket = pPort->pSocket;
   Status = pUdp4->RxToken.Status;
-  if (( !EFI_ERROR ( Status )) && ( !pSocket->bRxDisable )) {
-    pRxData = pUdp4->RxToken.Packet.RxData;
-    if ( PORT_STATE_CLOSE_STARTED >= pPort->State ) {
-      //
-      //  Save the data in the packet
-      //
-      pPacket->Op.Udp4Rx.pRxData = pRxData;
-
-      //
-      //  Queue this packet
-      //
-      pPrevious = pSocket->pRxPacketListTail;
-      if ( NULL == pPrevious ) {
-        pSocket->pRxPacketListHead = pPacket;
-      }
-      else {
-        pPrevious->pNext = pPacket;
-      }
-      pSocket->pRxPacketListTail = pPacket;
-
-      //
-      //  Account for the data
-      //
-      LengthInBytes = pRxData->DataLength;
-      pSocket->RxBytes += LengthInBytes;
-
-      //
-      //  Log the received data
-      //
-      DEBUG (( DEBUG_RX | DEBUG_INFO,
-                "Received packet from: %d.%d.%d.%d:%d\r\n",
-                pRxData->UdpSession.SourceAddress.Addr[0],
-                pRxData->UdpSession.SourceAddress.Addr[1],
-                pRxData->UdpSession.SourceAddress.Addr[2],
-                pRxData->UdpSession.SourceAddress.Addr[3],
-                pRxData->UdpSession.SourcePort ));
-      DEBUG (( DEBUG_RX | DEBUG_INFO,
-                "Received packet sent to: %d.%d.%d.%d:%d\r\n",
-                pRxData->UdpSession.DestinationAddress.Addr[0],
-                pRxData->UdpSession.DestinationAddress.Addr[1],
-                pRxData->UdpSession.DestinationAddress.Addr[2],
-                pRxData->UdpSession.DestinationAddress.Addr[3],
-                pRxData->UdpSession.DestinationPort ));
-      DEBUG (( DEBUG_RX | DEBUG_INFO,
-                "0x%08x: Packet queued on port 0x%08x with 0x%08x bytes of data\r\n",
-                pPacket,
-                pPort,
-                LengthInBytes ));
-
-      //
-      //  Attempt to restart this receive operation
-      //
-      if ( pSocket->MaxRxBuf > pSocket->RxBytes ) {
-        EslSocketRxStart ( pPort );
-      }
-      else {
-        DEBUG (( DEBUG_RX,
-                  "0x%08x: Port RX suspended, 0x%08x bytes queued\r\n",
-                  pPort,
-                  pSocket->RxBytes ));
-      }
-    }
-    else {
-      //
-      //  The port is being closed
-      //  Return the buffer to the UDP4 driver
-      //
-      gBS->SignalEvent ( pRxData->RecycleSignal );
-
-      //
-      //  Free the packet
-      //
-      EslSocketPacketFree ( pPacket, DEBUG_RX );
-    }
-  }
-  else {
-    DEBUG (( DEBUG_RX | DEBUG_INFO,
-              "ERROR - Receiving packet 0x%08x, on port 0x%08x, Status:%r\r\n",
-              pPacket,
-              pPort,
-              Status ));
   
-    //
-    //  Receive error, free the packet save the error
-    //
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-    if ( !EFI_ERROR ( pSocket->RxError )) {
-      pSocket->RxError = Status;
-    }
-  
-    //
-    //  Update the port state
-    //
-    if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
-      EslSocketPortCloseRxDone ( pPort );
-    }
-    else {
-      if ( EFI_ERROR ( Status )) {
-        pPort->State = PORT_STATE_RX_ERROR;
-      }
-    }
-  }
-  
+  //
+  //  Get the packet length
+  //
+  pRxData = pUdp4->RxToken.Packet.RxData;
+  LengthInBytes = pRxData->DataLength;
+
+  //
+  //  Save the data in the packet
+  //
+  pPacket = pPort->pReceivePending;
+  pPacket->Op.Udp4Rx.pRxData = pRxData;
+
+  //
+  //  Complete this request
+  //
+  EslSocketRxComplete ( pPort, Status, LengthInBytes, FALSE );
   DBG_EXIT ( );
 }
 

@@ -1948,126 +1948,34 @@ EslTcp4RxComplete (
   BOOLEAN bUrgent;
   size_t LengthInBytes;
   ESL_PACKET * pPacket;
-  ESL_PACKET * pPrevious;
-  ESL_SOCKET * pSocket;
   ESL_TCP4_CONTEXT * pTcp4;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Mark this receive complete
+  //  Get the operation status.
   //
   pTcp4 = &pPort->Context.Tcp4;
-  pPacket = pPort->pReceivePending;
-  pPort->pReceivePending = NULL;
-
-  //
-  //  Determine if this receive was successful
-  //
-  pSocket = pPort->pSocket;
   Status = pTcp4->RxToken.CompletionToken.Status;
-  if (( !EFI_ERROR ( Status )) && ( !pSocket->bRxDisable )) {
-    //
-    //  Set the buffer size and address
-    //
-    pPacket->Op.Tcp4Rx.pBuffer = pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentBuffer;
-    LengthInBytes = pPacket->Op.Tcp4Rx.RxData.DataLength;
-    pPacket->Op.Tcp4Rx.ValidBytes = LengthInBytes;
-    pPacket->pNext = NULL;
 
-    //
-    //  Queue this packet
-    //
-    bUrgent = pPacket->Op.Tcp4Rx.RxData.UrgentFlag;
-    if ( bUrgent && ( !pSocket->bOobInLine )) {
-      //
-      //  Add packet to the urgent list
-      //
-      pPrevious = pSocket->pRxOobPacketListTail;
-      if ( NULL == pPrevious ) {
-        pSocket->pRxOobPacketListHead = pPacket;
-      }
-      else {
-        pPrevious->pNext = pPacket;
-      }
-      pSocket->pRxOobPacketListTail = pPacket;
+  //
+  //  Get the packet length and type
+  //
+  pPacket = pPort->pReceivePending;
+  pPacket->Op.Tcp4Rx.pBuffer = pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentBuffer;
+  LengthInBytes = pPacket->Op.Tcp4Rx.RxData.DataLength;
+  bUrgent = pPacket->Op.Tcp4Rx.RxData.UrgentFlag;
 
-      //
-      //  Account for the urgent data
-      //
-      pSocket->RxOobBytes += LengthInBytes;
-    }
-    else {
-      //
-      //  Add packet to the normal list
-      //
-      pPrevious = pSocket->pRxPacketListTail;
-      if ( NULL == pPrevious ) {
-        pSocket->pRxPacketListHead = pPacket;
-      }
-      else {
-        pPrevious->pNext = pPacket;
-      }
-      pSocket->pRxPacketListTail = pPacket;
+  //
+  //  Set the buffer size
+  //
+  pPacket->Op.Tcp4Rx.ValidBytes = LengthInBytes;
 
-      //
-      //  Account for the normal data
-      //
-      pSocket->RxBytes += LengthInBytes;
-    }
-
-    //
-    //  Log the received data
-    //
-    DEBUG (( DEBUG_RX | DEBUG_INFO,
-              "0x%08x: Packet queued on port 0x%08x with 0x%08x bytes of %s data\r\n",
-              pPacket,
-              pPort,
-              LengthInBytes,
-              bUrgent ? L"urgent" : L"normal" ));
-
-    //
-    //  Attempt to restart this receive operation
-    //
-    if ( pSocket->MaxRxBuf > pSocket->RxBytes ) {
-      EslSocketRxStart ( pPort );
-    }
-    else {
-      DEBUG (( DEBUG_RX,
-                "0x%08x: Port RX suspended, 0x%08x bytes queued\r\n",
-                pPort,
-                pSocket->RxBytes ));
-    }
-  }
-  else {
-    DEBUG (( DEBUG_RX | DEBUG_INFO,
-              "ERROR - Receiving packet 0x%08x, on port 0x%08x, Status:%r\r\n",
-              pPacket,
-              pPort,
-              Status ));
-
-    //
-    //  Receive error, free the packet save the error
-    //
-    EslSocketPacketFree ( pPacket, DEBUG_RX );
-    if ( !EFI_ERROR ( pSocket->RxError )) {
-      pSocket->RxError = Status;
-    }
-
-    //
-    //  Update the port state
-    //
-    if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
-      EslSocketPortCloseRxDone ( pPort );
-    }
-    else {
-      if ( EFI_ERROR ( Status )) {
-        pPort->State = PORT_STATE_RX_ERROR;
-      }
-    }
-  }
-
+  //
+  //  Complete this request
+  //
+  EslSocketRxComplete ( pPort, Status, LengthInBytes, bUrgent );
   DBG_EXIT ( );
 }
 
