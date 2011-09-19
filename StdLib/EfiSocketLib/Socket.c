@@ -1378,6 +1378,87 @@ EslSocketConnect (
 
 
 /**
+  Copy a fragmented buffer into a destination buffer.
+
+  This support routine copies a fragmented buffer to the caller specified buffer.
+
+  This routine is called by ::EslIp4Receive and ::EslUdp4Receive.
+
+  @param [in] FragmentCount   Number of fragments in the table
+
+  @param [in] pFragmentTable  Address of an EFI_IP4_FRAGMENT_DATA structure
+
+  @param [in] BufferLength    Length of the the buffer
+
+  @param [in] pBuffer         Address of a buffer to receive the data.
+
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @return   Returns the address of the next free byte in the buffer.
+
+**/
+UINT8 *
+EslSocketCopyFragmentedBuffer (
+  IN UINT32 FragmentCount,
+  IN EFI_IP4_FRAGMENT_DATA * pFragmentTable,
+  IN size_t BufferLength,
+  IN UINT8 * pBuffer,
+  OUT size_t * pDataLength
+  )
+{
+  size_t BytesToCopy;
+  UINT32 Fragment;
+  UINT8 * pBufferEnd;
+  UINT8 * pData;
+
+  DBG_ENTER ( );
+
+  //
+  //  Validate the IP and UDP structures are identical
+  //
+  ASSERT ( OFFSET_OF ( EFI_IP4_FRAGMENT_DATA, FragmentLength )
+           == OFFSET_OF ( EFI_UDP4_FRAGMENT_DATA, FragmentLength ));
+  ASSERT ( OFFSET_OF ( EFI_IP4_FRAGMENT_DATA, FragmentBuffer )
+           == OFFSET_OF ( EFI_UDP4_FRAGMENT_DATA, FragmentBuffer ));
+
+  //
+  //  Copy the received data
+  //
+  Fragment = 0;
+  pBufferEnd = &pBuffer [ BufferLength ];
+  while (( pBufferEnd > pBuffer ) && ( FragmentCount > Fragment )) {
+    //
+    //  Determine the amount of received data
+    //
+    pData = pFragmentTable[Fragment].FragmentBuffer;
+    BytesToCopy = pFragmentTable[Fragment].FragmentLength;
+    if (((size_t)( pBufferEnd - pBuffer )) < BytesToCopy ) {
+      BytesToCopy = pBufferEnd - pBuffer;
+    }
+
+    //
+    //  Move the data into the buffer
+    //
+    DEBUG (( DEBUG_RX,
+              "0x%08x --> 0x%08x: Copy data 0x%08x bytes\r\n",
+              pData,
+              pBuffer,
+              BytesToCopy ));
+    CopyMem ( pBuffer, pData, BytesToCopy );
+    pBuffer += BytesToCopy;
+    Fragment += 1;
+  }
+
+  //
+  //  Return the data length and the buffer address
+  //
+  *pDataLength = BufferLength - ( pBufferEnd - pBuffer );
+  DBG_EXIT_HEX ( pBuffer );
+  return pBuffer;
+}
+
+
+/**
   Get the local address.
 
   This routine calls the network specific layer to get the network
@@ -3650,7 +3731,22 @@ EslSocketReceive (
   IN int * pErrno
   )
 {
+  union {
+    struct sockaddr_in v4;
+    struct sockaddr_in6 v6;
+  } Addr;
+  socklen_t AddressLength;
+  BOOLEAN bConsumePacket;
+  size_t DataLength;
+  ESL_PACKET * pNextPacket;
+  ESL_PACKET * pPacket;
+  ESL_PORT * pPort;
+  ESL_PACKET ** ppQueueHead;
+  ESL_PACKET ** ppQueueTail;
+  struct sockaddr * pRemoteAddress;
+  size_t * pRxDataBytes;
   ESL_SOCKET * pSocket;
+  size_t SkipBytes;
   EFI_STATUS Status;
   EFI_TPL TplPrevious;
 
@@ -3669,72 +3765,275 @@ EslSocketReceive (
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
 
     //
-    //  Return the transmit error if necessary
+    //  Validate the return address parameters
     //
-    if ( EFI_SUCCESS != pSocket->TxError ) {
-      pSocket->errno = EIO;
-      Status = pSocket->TxError;
-      pSocket->TxError = EFI_SUCCESS;
-    }
-    else {
+    if (( NULL == pAddress ) || ( NULL != pAddressLength )) {
       //
-      //  Verify the socket state
+      //  Return the transmit error if necessary
       //
-      Status = EslSocketIsConfigured ( pSocket );
-      if ( !EFI_ERROR ( Status )) {
+      if ( EFI_SUCCESS != pSocket->TxError ) {
+        pSocket->errno = EIO;
+        Status = pSocket->TxError;
+        pSocket->TxError = EFI_SUCCESS;
+      }
+      else {
         //
-        //  Validate the buffer length
+        //  Verify the socket state
         //
-        if (( NULL == pDataLength )
-          && ( 0 > pDataLength )
-          && ( NULL == pBuffer )) {
-          if ( NULL == pDataLength ) {
-            DEBUG (( DEBUG_RX,
-                      "ERROR - pDataLength is NULL!\r\n" ));
-          }
-          else if ( NULL == pBuffer ) {
-            DEBUG (( DEBUG_RX,
-                      "ERROR - pBuffer is NULL!\r\n" ));
-          }
-          else {
-            DEBUG (( DEBUG_RX,
-                      "ERROR - Data length < 0!\r\n" ));
-          }
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EFAULT;
-        }
-        else {
+        Status = EslSocketIsConfigured ( pSocket );
+        if ( !EFI_ERROR ( Status )) {
           //
-          //  Verify the API
+          //  Validate the buffer length
           //
-          if ( NULL == pSocket->pApi->pfnReceive ) {
-            Status = EFI_UNSUPPORTED;
-            pSocket->errno = ENOTSUP;
+          if (( NULL == pDataLength )
+            && ( 0 > pDataLength )
+            && ( NULL == pBuffer )) {
+            if ( NULL == pDataLength ) {
+              DEBUG (( DEBUG_RX,
+                        "ERROR - pDataLength is NULL!\r\n" ));
+            }
+            else if ( NULL == pBuffer ) {
+              DEBUG (( DEBUG_RX,
+                        "ERROR - pBuffer is NULL!\r\n" ));
+            }
+            else {
+              DEBUG (( DEBUG_RX,
+                        "ERROR - Data length < 0!\r\n" ));
+            }
+            Status = EFI_INVALID_PARAMETER;
+            pSocket->errno = EFAULT;
           }
           else {
             //
-            //  Synchronize with the socket layer
+            //  Verify the API
             //
-            RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+            if ( NULL == pSocket->pApi->pfnReceive ) {
+              Status = EFI_UNSUPPORTED;
+              pSocket->errno = ENOTSUP;
+            }
+            else {
+              //
+              //  Zero the receive address if being returned
+              //
+              pRemoteAddress = NULL;
+              if ( NULL != pAddress ) {
+                pRemoteAddress = (struct sockaddr *)&Addr;
+                ZeroMem ( pRemoteAddress, sizeof ( Addr ));
+                ZeroMem ( pAddress, *pAddressLength );
+                pRemoteAddress->sa_len = (UINT8)pSocket->pApi->AddressLength;
+                pRemoteAddress->sa_family = pSocket->pApi->AddressFamily;
+              }
+              
+              //
+              //  Synchronize with the socket layer
+              //
+              RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-            //
-            //  Attempt to receive a packet
-            //
-            Status = pSocket->pApi->pfnReceive ( pSocket,
-                                                 Flags,
-                                                 BufferLength,
-                                                 pBuffer,
-                                                 pDataLength,
-                                                 pAddress,
-                                                 pAddressLength);
+              //
+              //  Assume failure
+              //
+              Status = EFI_UNSUPPORTED;
+              pSocket->errno = ENOTCONN;
 
-            //
-            //  Release the socket layer synchronization
-            //
-            RESTORE_TPL ( TplPrevious );
+              //
+              //  Verify that the socket is connected
+              //
+              if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+                //
+                //  Locate the port
+                //
+                pPort = pSocket->pPortList;
+                if ( NULL != pPort ) {
+                  //
+                  //  Determine the queue head
+                  //
+                  if ( pSocket->bOobSupported && ( 0 != ( Flags & MSG_OOB ))) {
+                    ppQueueHead = &pSocket->pRxOobPacketListHead;
+                    ppQueueTail = &pSocket->pRxOobPacketListTail;
+                    pRxDataBytes = &pSocket->RxOobBytes;
+                  }
+                  else {
+                    ppQueueHead = &pSocket->pRxPacketListHead;
+                    ppQueueTail = &pSocket->pRxPacketListTail;
+                    pRxDataBytes = &pSocket->RxBytes;
+                  }
+
+                  //
+                  //  Determine if there is any data on the queue
+                  //
+                  *pDataLength = 0;
+                  pPacket = *ppQueueHead;
+                  if ( NULL != pPacket ) {
+                    //
+                    //  Copy the received data
+                    //
+                    do {
+                      //
+                      //  Attempt to receive a packet
+                      //
+                      SkipBytes = 0;
+                      bConsumePacket = (BOOLEAN)( 0 == ( Flags & MSG_PEEK ));
+                      pBuffer = pSocket->pApi->pfnReceive ( pPort,
+                                                            pPacket,
+                                                            &bConsumePacket,
+                                                            BufferLength,
+                                                            pBuffer,
+                                                            &DataLength,
+                                                            (struct sockaddr *)&Addr,
+                                                            &SkipBytes );
+                      *pDataLength += DataLength;
+                      BufferLength -= DataLength;
+
+                      //
+                      //  Determine if the data is being read
+                      //
+                      pNextPacket = pPacket->pNext;
+                      if ( bConsumePacket ) {
+                        //
+                        //  All done with this packet
+                        //  Account for any discarded data
+                        //
+                        pSocket->pApi->pfnPortClosePktFree ( pPacket, pRxDataBytes );
+                        if ( 0 != SkipBytes ) {
+                          DEBUG (( DEBUG_RX,
+                                    "0x%08x: Port, packet read, skipping over 0x%08x bytes\r\n",
+                                    pPort,
+                                    SkipBytes ));
+                        }
+
+                        //
+                        //  Remove this packet from the queue
+                        //
+                        *ppQueueHead = pPacket->pNext;
+                        if ( NULL == *ppQueueHead ) {
+                          *ppQueueTail = NULL;
+                        }
+
+                        //
+                        //  Move the packet to the free queue
+                        //
+                        pPacket->pNext = pSocket->pRxFree;
+                        pSocket->pRxFree = pPacket;
+                        DEBUG (( DEBUG_RX,
+                                  "0x%08x: Port freeing packet 0x%08x\r\n",
+                                  pPort,
+                                  pPacket ));
+
+                        //
+                        //  Restart this receive operation if necessary
+                        //
+                        if (( NULL == pPort->pReceivePending )
+                          && ( MAX_RX_DATA > pSocket->RxBytes )) {
+                            EslSocketRxStart ( pPort );
+                        }
+                      }
+
+                      //
+                      //  Get the next packet
+                      //
+                      pPacket = pNextPacket;
+                    } while (( SOCK_STREAM == pSocket->Type )
+                          && ( NULL != pPacket )
+                          && ( 0 < BufferLength ));
+
+                    //
+                    //  Successful operation
+                    //
+                    Status = EFI_SUCCESS;
+                    pSocket->errno = 0;
+                  }
+                  else {
+                    //
+                    //  The queue is empty
+                    //  Determine if it is time to return the receive error
+                    //
+                    if ( EFI_ERROR ( pSocket->RxError )
+                      && ( NULL == pSocket->pRxPacketListHead )
+                      && ( NULL == pSocket->pRxOobPacketListHead )) {
+                      Status = pSocket->RxError;
+                      pSocket->RxError = EFI_SUCCESS;
+                      switch ( Status ) {
+                      default:
+                        pSocket->errno = EIO;
+                        break;
+
+                      case EFI_CONNECTION_FIN:
+                        //
+                        //  Continue to return zero bytes received when the
+                        //  peer has successfully closed the connection
+                        //
+                        pSocket->RxError = EFI_CONNECTION_FIN;
+                        *pDataLength = 0;
+                        pSocket->errno = 0;
+                        Status = EFI_SUCCESS;
+                        break;
+
+                      case EFI_CONNECTION_REFUSED:
+                        pSocket->errno = ECONNREFUSED;
+                        break;
+
+                      case EFI_CONNECTION_RESET:
+                        pSocket->errno = ECONNRESET;
+                        break;
+
+                      case EFI_HOST_UNREACHABLE:
+                        pSocket->errno = EHOSTUNREACH;
+                        break;
+
+                      case EFI_NETWORK_UNREACHABLE:
+                        pSocket->errno = ENETUNREACH;
+                        break;
+
+                      case EFI_PORT_UNREACHABLE:
+                        pSocket->errno = EPROTONOSUPPORT;
+                        break;
+
+                      case EFI_PROTOCOL_UNREACHABLE:
+                        pSocket->errno = ENOPROTOOPT;
+                        break;
+                      }
+                    }
+                    else {
+                      Status = EFI_NOT_READY;
+                      pSocket->errno = EAGAIN;
+                    }
+                  }
+                }
+              }
+
+              //
+              //  Release the socket layer synchronization
+              //
+              RESTORE_TPL ( TplPrevious );
+
+              if (( !EFI_ERROR ( Status )) && ( NULL != pAddress )) {
+                //
+                //  Return the remote address if requested, truncate if necessary
+                //
+                AddressLength = pRemoteAddress->sa_len;
+                if ( AddressLength > *pAddressLength ) {
+                  AddressLength = *pAddressLength;
+                }
+                CopyMem ( pAddress, &Addr, AddressLength );
+
+                //
+                //  Update the address length
+                //
+                *pAddressLength = pRemoteAddress->sa_len;
+              }
+            }
           }
         }
       }
+
+      
+    }
+    else {
+      //
+      //  Bad return address pointer and length
+      //
+      Status = EFI_INVALID_PARAMETER;
+      pSocket->errno = EINVAL;
     }
   }
 
@@ -3800,7 +4099,7 @@ EslSocketRxComplete (
   pPort->pReceivePending = NULL;
 
   //
-  //  Account for the received data
+  //  Determine the queue to use
   //
   pSocket = pPort->pSocket;
   if ( bUrgent && ( !pSocket->bOobInLine )) {
@@ -3813,7 +4112,6 @@ EslSocketRxComplete (
     ppQueueTail = &pSocket->pRxPacketListTail;
     pRxBytes = &pSocket->RxBytes;
   }
-  *pRxBytes += LengthInBytes;
 
   //
   //  Determine if this receive was successful
@@ -3821,6 +4119,11 @@ EslSocketRxComplete (
   if (( !EFI_ERROR ( Status ))
     && ( PORT_STATE_CLOSE_STARTED > pPort->State )
     && ( !pSocket->bRxDisable )) {
+    //
+    //  Account for the received data
+    //
+    *pRxBytes += LengthInBytes;
+
     //
     //  Set the buffer size and address
     //
@@ -3876,7 +4179,10 @@ EslSocketRxComplete (
     //
     //  Account for the receive bytes and release the driver's buffer
     //
-    pSocket->pApi->pfnPortClosePktFree ( pPacket, pRxBytes );
+    if ( !EFI_ERROR ( Status )) {
+      *pRxBytes += LengthInBytes;
+      pSocket->pApi->pfnPortClosePktFree ( pPacket, pRxBytes );
+    }
 
     //
     //  Receive error, free the packet save the error

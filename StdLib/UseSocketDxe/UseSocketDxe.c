@@ -162,7 +162,7 @@ EslServiceGetProtocol (
   }
   else {
     DEBUG (( DEBUG_ERROR,
-              "ERROR - No socket service binding protocol, Status: %r\r\n",
+              "ERROR - Socket driver not loaded, Status: %r\r\n",
               Status ));
     RetVal = ENODEV;
   }

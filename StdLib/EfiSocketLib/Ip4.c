@@ -504,12 +504,14 @@ EslIp4PortClosePacketFree (
   IN OUT size_t * pRxBytes
   )
 {
+  EFI_IP4_RECEIVE_DATA * pRxData;
   DBG_ENTER ( );
 
   //
   //  Account for the receive bytes
   //
-  *pRxBytes -= pPacket->Op.Ip4Rx.pRxData->DataLength;
+  pRxData = pPacket->Op.Ip4Rx.pRxData;
+  *pRxBytes -= pRxData->HeaderLength + pRxData->DataLength;
 
   //
   //  Return the buffer to the IP4 driver
@@ -580,300 +582,124 @@ EslIp4PortCloseRxStop (
   Receive data from a network connection.
 
   This routine attempts to return buffered data to the caller.  The
-  data is only removed from the normal queue, the message flag
-  MSG_OOB is ignored.  See the \ref Ip4ReceiveEngine section.
+  data is removed from the urgent queue if the message flag MSG_OOB
+  is specified, otherwise data is removed from the normal queue.
+  See the \ref ReceiveEngine section.
 
   This routine is called by ::EslSocketReceive to handle the network
   specific receive operation to support SOCK_RAW sockets.
 
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure
+  @param [in] pPort           Address of an ::ESL_PORT structure.
 
-  @param [in] Flags           Message control flags
-
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  
+  @param [in] pbConsumePacket Address of a BOOLEAN indicating if the packet is to be consumed
+  
   @param [in] BufferLength    Length of the the buffer
-
+  
   @param [in] pBuffer         Address of a buffer to receive the data.
-
+  
   @param [in] pDataLength     Number of received data bytes in the buffer.
 
   @param [out] pAddress       Network address to receive the remote system address
 
-  @param [in,out] pAddressLength  Length of the remote network address structure
+  @param [out] pSkipBytes     Address to receive the number of bytes skipped
 
-  @retval EFI_SUCCESS - Socket data successfully received
+  @return   Returns the address of the next free byte in the buffer.
 
-**/
-EFI_STATUS
+ **/
+UINT8 *
 EslIp4Receive (
-  IN ESL_SOCKET * pSocket,
-  IN INT32 Flags,
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET * pPacket,
+  IN BOOLEAN * pbConsumePacket,
   IN size_t BufferLength,
   IN UINT8 * pBuffer,
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+  OUT size_t * pSkipBytes
   )
 {
-  socklen_t AddressLength;
-  size_t BytesToCopy;
   size_t DataBytes;
-  UINT32 Fragment;
   size_t HeaderBytes;
-  in_addr_t IpAddress;
   size_t LengthInBytes;
-  UINT8 * pData;
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPort;
   struct sockaddr_in * pRemoteAddress;
   EFI_IP4_RECEIVE_DATA * pRxData;
-  ESL_IP4_CONTEXT * pIp4;
-  struct sockaddr_in RemoteAddress;
-  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Assume failure
+  //  Return the remote system address if requested
   //
-  Status = EFI_UNSUPPORTED;
-  pSocket->errno = ENOTCONN;
-
-  //
-  //  Verify that the socket is connected
-  //
-  if (( SOCKET_STATE_CONNECTED == pSocket->State )
-    || ( PORT_STATE_RX_ERROR == pSocket->State )) {
+  pRxData = pPacket->Op.Ip4Rx.pRxData;
+  if ( NULL != pAddress ) {
     //
-    //  Locate the port
+    //  Build the remote address
     //
-    pPort = pSocket->pPortList;
-    if ( NULL != pPort ) {
-      //
-      //  Determine if there is any data on the queue
-      //
-      pIp4 = &pPort->Context.Ip4;
-      pPacket = pSocket->pRxPacketListHead;
-      if ( NULL != pPacket ) {
-        //
-        //  Validate the return address parameters
-        //
-        pRxData = pPacket->Op.Ip4Rx.pRxData;
-        if (( NULL == pAddress ) || ( NULL != pAddressLength )) {
-          //
-          //  Return the remote system address if requested
-          //
-          if ( NULL != pAddress ) {
-            //
-            //  Build the remote address
-            //
-            DEBUG (( DEBUG_RX,
-                      "Getting packet source address: %d.%d.%d.%d\r\n",
-                      pRxData->Header->SourceAddress.Addr[0],
-                      pRxData->Header->SourceAddress.Addr[1],
-                      pRxData->Header->SourceAddress.Addr[2],
-                      pRxData->Header->SourceAddress.Addr[3]));
-            ZeroMem ( &RemoteAddress, sizeof ( RemoteAddress ));
-            RemoteAddress.sin_len = sizeof ( RemoteAddress );
-            RemoteAddress.sin_family = AF_INET;
-            IpAddress = pRxData->Header->SourceAddress.Addr[3];
-            IpAddress <<= 8;
-            IpAddress |= pRxData->Header->SourceAddress.Addr[2];
-            IpAddress <<= 8;
-            IpAddress |= pRxData->Header->SourceAddress.Addr[1];
-            IpAddress <<= 8;
-            IpAddress |= pRxData->Header->SourceAddress.Addr[0];
-            RemoteAddress.sin_addr.s_addr = IpAddress;
-
-            //
-            //  Copy the address
-            //
-            pRemoteAddress = (struct sockaddr_in *)pAddress;
-            AddressLength = sizeof ( *pRemoteAddress );
-            if ( AddressLength > *pAddressLength ) {
-              AddressLength = *pAddressLength;
-            }
-            CopyMem ( pRemoteAddress,
-                      &RemoteAddress,
-                      AddressLength );
-
-            //
-            //  Update the address length
-            //
-            *pAddressLength = AddressLength;
-          }
-
-          //
-          //  Reduce the buffer length if necessary
-          //
-          DataBytes = pRxData->HeaderLength + pRxData->DataLength;
-          if ( DataBytes < BufferLength ) {
-            BufferLength = DataBytes;
-          }
-
-          //
-          //  Copy the IP header
-          //
-          LengthInBytes = 0;
-          HeaderBytes = pRxData->HeaderLength;
-          if ( HeaderBytes > BufferLength ) {
-            HeaderBytes = BufferLength;
-          }
-          DEBUG (( DEBUG_RX,
-                    "0x%08x: Port copy header 0x%08x data into 0x%08x, 0x%08x bytes\r\n",
-                    pPort,
-                    pRxData->Header,
-                    pBuffer,
-                    HeaderBytes ));
-          CopyMem ( pBuffer, pRxData->Header, HeaderBytes );
-          pBuffer += HeaderBytes;
-          LengthInBytes += HeaderBytes;
-          
-          //
-          //  Copy the received data
-          //
-          Fragment = 0;
-          while ( BufferLength > LengthInBytes ) {
-            //
-            //  Determine the amount of received data
-            //
-            pData = pRxData->FragmentTable[Fragment].FragmentBuffer;
-            BytesToCopy = pRxData->FragmentTable[Fragment].FragmentLength;
-            if (( BufferLength - LengthInBytes ) < BytesToCopy ) {
-              BytesToCopy = BufferLength - LengthInBytes;
-            }
-            LengthInBytes += BytesToCopy;
-
-            //
-            //  Move the data into the buffer
-            //
-            DEBUG (( DEBUG_RX,
-                      "0x%08x: Port copy packet 0x%08x data into 0x%08x, 0x%08x bytes\r\n",
-                      pPort,
-                      pPacket,
-                      pBuffer,
-                      BytesToCopy ));
-            CopyMem ( pBuffer, pData, BytesToCopy );
-            pBuffer += BytesToCopy;
-          }
-
-          //
-          //  Determine if the data is being read
-          //
-          if ( 0 == ( Flags & MSG_PEEK )) {
-            //
-            //  Display for the bytes consumed
-            //
-            DEBUG (( DEBUG_RX,
-                      "0x%08x: Port account for 0x%08x bytes\r\n",
-                      pPort,
-                      BufferLength ));
-
-            //
-            //  All done with this packet
-            //  Account for any discarded data
-            //
-            pSocket->RxBytes -= DataBytes;
-            if ( 0 != ( DataBytes - BufferLength )) {
-              DEBUG (( DEBUG_RX,
-                        "0x%08x: Port, packet read, skipping over 0x%08x bytes\r\n",
-                        pPort,
-                        DataBytes - BufferLength ));
-            }
-
-            //
-            //  Remove this packet from the queue
-            //
-            pSocket->pRxPacketListHead = pPacket->pNext;
-            if ( NULL == pSocket->pRxPacketListHead ) {
-              pSocket->pRxPacketListTail = NULL;
-            }
-
-            //
-            //  Return this packet to the IP4 driver
-            //
-            gBS->SignalEvent ( pRxData->RecycleSignal );
-
-            //
-            //  Move the packet to the free queue
-            //
-            pPacket->pNext = pSocket->pRxFree;
-            pSocket->pRxFree = pPacket;
-            DEBUG (( DEBUG_RX,
-                      "0x%08x: Port freeing packet 0x%08x\r\n",
-                      pPort,
-                      pPacket ));
-
-            //
-            //  Restart this receive operation if necessary
-            //
-            if (( NULL == pPort->pReceivePending )
-              && ( MAX_RX_DATA > pSocket->RxBytes )) {
-                EslSocketRxStart ( pPort );
-            }
-          }
-
-          //
-          //  Return the data length
-          //
-          *pDataLength = LengthInBytes;
-
-          //
-          //  Successful operation
-          //
-          Status = EFI_SUCCESS;
-          pSocket->errno = 0;
-        }
-        else {
-          //
-          //  Bad return address pointer and length
-          //
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EINVAL;
-        }
-      }
-      else {
-        //
-        //  The queue is empty
-        //  Determine if it is time to return the receive error
-        //
-        if ( EFI_ERROR ( pSocket->RxError )) {
-          Status = pSocket->RxError;
-          switch ( Status ) {
-          default:
-            pSocket->errno = EIO;
-            break;
-
-          case EFI_HOST_UNREACHABLE:
-            pSocket->errno = EHOSTUNREACH;
-            break;
-
-          case EFI_NETWORK_UNREACHABLE:
-            pSocket->errno = ENETUNREACH;
-            break;
-
-          case EFI_PORT_UNREACHABLE:
-            pSocket->errno = EPROTONOSUPPORT;
-            break;
-
-          case EFI_PROTOCOL_UNREACHABLE:
-            pSocket->errno = ENOPROTOOPT;
-            break;
-          }
-          pSocket->RxError = EFI_SUCCESS;
-        }
-        else {
-          Status = EFI_NOT_READY;
-          pSocket->errno = EAGAIN;
-        }
-      }
-    }
+    DEBUG (( DEBUG_RX,
+              "Getting packet remote address: %d.%d.%d.%d\r\n",
+              pRxData->Header->SourceAddress.Addr[0],
+              pRxData->Header->SourceAddress.Addr[1],
+              pRxData->Header->SourceAddress.Addr[2],
+              pRxData->Header->SourceAddress.Addr[3]));
+    pRemoteAddress = (struct sockaddr_in *)pAddress;
+    CopyMem ( &pRemoteAddress->sin_addr,
+              &pRxData->Header->SourceAddress.Addr[0],
+              sizeof ( pRemoteAddress->sin_addr ));
   }
 
   //
-  //  Return the operation status
+  //  Copy the IP header
   //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
+  HeaderBytes = pRxData->HeaderLength;
+  if ( HeaderBytes > BufferLength ) {
+    HeaderBytes = BufferLength;
+  }
+  DEBUG (( DEBUG_RX,
+            "0x%08x --> 0x%08x: Copy header 0x%08x bytes\r\n",
+            pRxData->Header,
+            pBuffer,
+            HeaderBytes ));
+  CopyMem ( pBuffer, pRxData->Header, HeaderBytes );
+  pBuffer += HeaderBytes;
+  LengthInBytes = HeaderBytes;
+
+  //
+  //  Copy the received data
+  //
+  if ( 0 < ( BufferLength - LengthInBytes )) {
+    pBuffer = EslSocketCopyFragmentedBuffer ( pRxData->FragmentCount,
+                                              &pRxData->FragmentTable[0],
+                                              BufferLength - LengthInBytes,
+                                              pBuffer,
+                                              &DataBytes );
+    LengthInBytes += DataBytes;
+  }
+
+  //
+  //  Determine if the data is being read
+  //
+  if ( *pbConsumePacket ) {
+    //
+    //  Display for the bytes consumed
+    //
+    DEBUG (( DEBUG_RX,
+              "0x%08x: Port account for 0x%08x bytes\r\n",
+              pPort,
+              LengthInBytes ));
+
+    //
+    //  Account for any discarded data
+    //
+    *pSkipBytes = pRxData->HeaderLength + pRxData->DataLength - LengthInBytes;
+  }
+
+  //
+  //  Return the data length and the buffer address
+  //
+  *pDataLength = LengthInBytes;
+  DBG_EXIT_HEX ( pBuffer );
+  return pBuffer;
 }
 
 
@@ -1657,6 +1483,7 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   sizeof ( struct sockaddr_in ),
   AF_INET,
   sizeof (((ESL_PACKET *)0 )->Op.Ip4Rx ),
+  FALSE,
   NULL,   //  Accept
   NULL,   //  ConnectPoll
   NULL,   //  ConnectStart

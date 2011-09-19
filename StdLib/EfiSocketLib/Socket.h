@@ -634,9 +634,19 @@ VOID
 /**
   Receive data from a network connection.
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
+  This routine attempts to return buffered data to the caller.  The
+  data is removed from the urgent queue if the message flag MSG_OOB
+  is specified, otherwise data is removed from the normal queue.
+  See the \ref ReceiveEngine section.
+
+  This routine is called by ::EslSocketReceive to handle the network
+  specific receive operation.
+
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
   
-  @param [in] Flags           Message control flags
+  @param [in] pbConsumePacket Address of a BOOLEAN indicating if the packet is to be consumed
   
   @param [in] BufferLength    Length of the the buffer
   
@@ -646,21 +656,22 @@ VOID
 
   @param [out] pAddress       Network address to receive the remote system address
 
-  @param [in,out] pAddressLength  Length of the remote network address structure
+  @param [out] pSkipBytes     Address to receive the number of bytes skipped
 
-  @retval EFI_SUCCESS - Socket data successfully received
+  @return   Returns the address of the next free byte in the buffer.
 
-**/
+ **/
 typedef
-EFI_STATUS
+UINT8 *
 (* PFN_API_RECEIVE) (
-  IN ESL_SOCKET * pSocket,
-  IN INT32 Flags,
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET * pPacket,
+  IN BOOLEAN * pbConsumePacket,
   IN size_t BufferLength,
   IN UINT8 * pBuffer,
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+  OUT size_t * pSkipBytes
   );
 
 /**
@@ -801,6 +812,7 @@ typedef struct {
   socklen_t AddressLength;                  ///<  Address length in bytes
   sa_family_t AddressFamily;                ///<  Address family
   UINTN RxPacketBytes;                      ///<  Length of the RX packet allocation
+  BOOLEAN bOobSupported;                    ///<  TRUE if out-of-band messages are supported
   PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
   PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
   PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
@@ -851,6 +863,7 @@ typedef struct _ESL_SOCKET {
   //
   //  Socket options
   //
+  BOOLEAN bOobSupported;        ///<  TRUE if out-of-band messages are supported
   BOOLEAN bOobInLine;           ///<  TRUE if out-of-band messages are to be received inline with normal data
   BOOLEAN bIncludeHeader;       ///<  TRUE if including the IP header
 
@@ -994,6 +1007,35 @@ EslSocketAllocate (
   IN OUT EFI_HANDLE * pChildHandle,
   IN     UINTN DebugFlags,
   IN OUT ESL_SOCKET ** ppSocket
+  );
+
+/**
+  Copy a fragmented buffer into a destination buffer.
+
+  This support routine copies a fragmented buffer to the caller specified buffer.
+
+  This routine is called by ::EslIp4Receive and ::EslUdp4Receive.
+
+  @param [in] FragmentCount   Number of fragments in the table
+
+  @param [in] pFragmentTable  Address of an EFI_IP4_FRAGMENT_DATA structure
+
+  @param [in] BufferLength    Length of the the buffer
+
+  @param [in] pBuffer         Address of a buffer to receive the data.
+
+  @param [in] pDataLength     Number of received data bytes in the buffer.
+
+  @return   Returns the address of the next free byte in the buffer.
+
+**/
+UINT8 *
+EslSocketCopyFragmentedBuffer (
+  IN UINT32 FragmentCount,
+  IN EFI_IP4_FRAGMENT_DATA * pFragmentTable,
+  IN size_t BufferLength,
+  IN UINT8 * pBuffer,
+  OUT size_t * pDataLength
   );
 
 /**

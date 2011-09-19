@@ -1467,15 +1467,17 @@ EslTcp4PortCloseRxStop (
   This routine attempts to return buffered data to the caller.  The
   data is removed from the urgent queue if the message flag MSG_OOB
   is specified, otherwise data is removed from the normal queue.
-  See the \ref Tcp4ReceiveEngine section.
+  See the \ref ReceiveEngine section.
 
   This routine is called by ::EslSocketReceive to handle the network
   specific receive operation to support SOCK_STREAM and SOCK_SEQPACKET
   sockets.
 
-  @param [in] pSocket         Address of an ::ESL_SOCKET structure.
+  @param [in] pPort           Address of an ::ESL_PORT structure.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
   
-  @param [in] Flags           Message control flags
+  @param [in] pbConsumePacket Address of a BOOLEAN indicating if the packet is to be consumed
   
   @param [in] BufferLength    Length of the the buffer
   
@@ -1485,292 +1487,110 @@ EslTcp4PortCloseRxStop (
 
   @param [out] pAddress       Network address to receive the remote system address
 
-  @param [in,out] pAddressLength  Length of the remote network address structure
+  @param [out] pSkipBytes     Address to receive the number of bytes skipped
 
-  @retval EFI_SUCCESS - Socket data successfully received
+  @return   Returns the address of the next free byte in the buffer.
 
  **/
-EFI_STATUS
+UINT8 *
 EslTcp4Receive (
-  IN ESL_SOCKET * pSocket,
-  IN INT32 Flags,
+  IN ESL_PORT * pPort,
+  IN ESL_PACKET * pPacket,
+  IN BOOLEAN * pbConsumePacket,
   IN size_t BufferLength,
   IN UINT8 * pBuffer,
   OUT size_t * pDataLength,
   OUT struct sockaddr * pAddress,
-  IN OUT socklen_t * pAddressLength
+  OUT size_t * pSkipBytes
   )
 {
-  socklen_t AddressLength;
-  size_t BytesToCopy;
-  in_addr_t IpAddress;
-  size_t LengthInBytes;
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPort;
-  ESL_PACKET ** ppQueueHead;
-  ESL_PACKET ** ppQueueTail;
+  size_t DataLength;
   struct sockaddr_in * pRemoteAddress;
-  size_t * pRxDataBytes;
   ESL_TCP4_CONTEXT * pTcp4;
-  struct sockaddr_in RemoteAddress;
-  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Assume failure
+  //  Return the remote system address if requested
   //
-  Status = EFI_UNSUPPORTED;
-  pSocket->errno = ENOTCONN;
-
-  //
-  //  Verify that the socket is connected
-  //
-   if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+  if ( NULL != pAddress ) {
     //
-    //  Locate the port
+    //  Build the remote address
     //
-    pPort = pSocket->pPortList;
-    if ( NULL != pPort ) {
+    pTcp4 = &pPort->Context.Tcp4;
+    DEBUG (( DEBUG_RX,
+              "Getting packet remote address: %d.%d.%d.%d:%d\r\n",
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2],
+              pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3],
+              pTcp4->ConfigData.AccessPoint.RemotePort ));
+    pRemoteAddress = (struct sockaddr_in *)pAddress;
+    CopyMem ( &pRemoteAddress->sin_addr,
+              &pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0],
+              sizeof ( pRemoteAddress->sin_addr ));
+    pRemoteAddress->sin_port = SwapBytes16 ( pTcp4->ConfigData.AccessPoint.RemotePort );
+  }
+
+  //
+  //  Determine the amount of received data
+  //
+  DataLength = pPacket->Op.Tcp4Rx.ValidBytes;
+  if ( BufferLength < DataLength ) {
+    DataLength = BufferLength;
+  }
+
+  //
+  //  Move the data into the buffer
+  //
+  DEBUG (( DEBUG_RX,
+            "0x%08x: Port copy packet 0x%08x data into 0x%08x, 0x%08x bytes\r\n",
+            pPort,
+            pPacket,
+            pBuffer,
+            DataLength ));
+  CopyMem ( pBuffer, pPacket->Op.Tcp4Rx.pBuffer, DataLength );
+
+  //
+  //  Determine if the data is being read
+  //
+  if ( *pbConsumePacket ) {
+    //
+    //  Account for the bytes consumed
+    //
+    pPacket->Op.Tcp4Rx.pBuffer += DataLength;
+    pPacket->Op.Tcp4Rx.ValidBytes -= DataLength;
+    DEBUG (( DEBUG_RX,
+              "0x%08x: Port account for 0x%08x bytes\r\n",
+              pPort,
+              DataLength ));
+
+    //
+    //  Determine if the entire packet was consumed
+    //
+    if (( 0 == pPacket->Op.Tcp4Rx.ValidBytes )
+      || ( SOCK_STREAM != pPort->pSocket->Type )) {
       //
-      //  Determine the queue head
+      //  All done with this packet
+      //  Account for any discarded data
       //
-      pTcp4 = &pPort->Context.Tcp4;
-      if ( 0 != ( Flags & MSG_OOB )) {
-        ppQueueHead = &pSocket->pRxOobPacketListHead;
-        ppQueueTail = &pSocket->pRxOobPacketListTail;
-        pRxDataBytes = &pSocket->RxOobBytes;
-      }
-      else {
-        ppQueueHead = &pSocket->pRxPacketListHead;
-        ppQueueTail = &pSocket->pRxPacketListTail;
-        pRxDataBytes = &pSocket->RxBytes;
-      }
-
+      *pSkipBytes = pPacket->Op.Tcp4Rx.ValidBytes;
+    }
+    else
+    {
       //
-      //  Determine if there is any data on the queue
+      //  More data to consume later
       //
-      pPacket = *ppQueueHead;
-      if ( NULL != pPacket ) {
-        //
-        //  Validate the return address parameters
-        //
-        if (( NULL == pAddress ) || ( NULL != pAddressLength )) {
-          //
-          //  Return the remote system address if requested
-          //
-          if ( NULL != pAddress ) {
-            //
-            //  Build the remote address
-            //
-            ZeroMem ( &RemoteAddress, sizeof ( RemoteAddress ));
-            RemoteAddress.sin_len = sizeof ( RemoteAddress );
-            RemoteAddress.sin_family = AF_INET;
-            IpAddress = pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3];
-            IpAddress <<= 8;
-            IpAddress |= pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2];
-            IpAddress <<= 8;
-            IpAddress |= pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[1];
-            IpAddress <<= 8;
-            IpAddress |= pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[0];
-            RemoteAddress.sin_addr.s_addr = IpAddress;
-            RemoteAddress.sin_port = SwapBytes16 ( pTcp4->ConfigData.AccessPoint.RemotePort );
-
-            //
-            //  Copy the address
-            //
-            pRemoteAddress = (struct sockaddr_in *)pAddress;
-            AddressLength = sizeof ( *pRemoteAddress );
-            if ( AddressLength > *pAddressLength ) {
-              AddressLength = *pAddressLength;
-            }
-            CopyMem ( pRemoteAddress,
-                      &RemoteAddress,
-                      AddressLength );
-
-            //
-            //  Update the address length
-            //
-            *pAddressLength = AddressLength;
-          }
-
-          //
-          //  Copy the received data
-          //
-          LengthInBytes = 0;
-          do {
-            //
-            //  Determine the amount of received data
-            //
-            BytesToCopy = pPacket->Op.Tcp4Rx.ValidBytes;
-            if (( BufferLength - LengthInBytes ) < BytesToCopy ) {
-              BytesToCopy = BufferLength - LengthInBytes;
-            }
-            LengthInBytes += BytesToCopy;
-
-            //
-            //  Move the data into the buffer
-            //
-            DEBUG (( DEBUG_RX,
-                      "0x%08x: Port copy packet 0x%08x data into 0x%08x, 0x%08x bytes\r\n",
-                      pPort,
-                      pPacket,
-                      pBuffer,
-                      BytesToCopy ));
-            CopyMem ( pBuffer, pPacket->Op.Tcp4Rx.pBuffer, BytesToCopy );
-
-            //
-            //  Determine if the data is being read
-            //
-            if ( 0 == ( Flags & MSG_PEEK )) {
-              //
-              //  Account for the bytes consumed
-              //
-              pPacket->Op.Tcp4Rx.pBuffer += BytesToCopy;
-              pPacket->Op.Tcp4Rx.ValidBytes -= BytesToCopy;
-              *pRxDataBytes -= BytesToCopy;
-              DEBUG (( DEBUG_RX,
-                        "0x%08x: Port account for 0x%08x bytes\r\n",
-                        pPort,
-                        BytesToCopy ));
-
-              //
-              //  Determine if the entire packet was consumed
-              //
-              if (( 0 == pPacket->Op.Tcp4Rx.ValidBytes )
-                || ( SOCK_STREAM != pSocket->Type )) {
-                //
-                //  All done with this packet
-                //  Account for any discarded data
-                //
-                *pRxDataBytes -= pPacket->Op.Tcp4Rx.ValidBytes;
-                if ( 0 != pPacket->Op.Tcp4Rx.ValidBytes ) {
-                  DEBUG (( DEBUG_RX,
-                            "0x%08x: Port, packet read, skipping over 0x%08x bytes\r\n",
-                            pPort,
-                            pPacket->Op.Tcp4Rx.ValidBytes ));
-                }
-
-                //
-                //  Remove this packet from the queue
-                //
-                *ppQueueHead = pPacket->pNext;
-                if ( NULL == *ppQueueHead ) {
-                  *ppQueueTail = NULL;
-                }
-
-                //
-                //  Move the packet to the free queue
-                //
-                pPacket->pNext = pSocket->pRxFree;
-                pSocket->pRxFree = pPacket;
-                DEBUG (( DEBUG_RX,
-                          "0x%08x: Port freeing packet 0x%08x\r\n",
-                          pPort,
-                          pPacket ));
-
-                //
-                //  Restart this receive operation if necessary
-                //
-                if (( NULL == pPort->pReceivePending )
-                  && ( MAX_RX_DATA > pSocket->RxBytes )) {
-                    EslSocketRxStart ( pPort );
-                }
-              }
-            }
-
-            //
-            //  Get the next packet
-            //
-            pPacket = *ppQueueHead;
-          } while (( SOCK_STREAM == pSocket->Type )
-                && ( NULL != pPacket )
-                && ( 0 == ( Flags & MSG_PEEK ))
-                && ( BufferLength > LengthInBytes ));
-
-          //
-          //  Return the data length
-          //
-          *pDataLength = LengthInBytes;
-
-          //
-          //  Successful operation
-          //
-          Status = EFI_SUCCESS;
-          pSocket->errno = 0;
-        }
-        else {
-          //
-          //  Bad return address pointer and length
-          //
-          Status = EFI_INVALID_PARAMETER;
-          pSocket->errno = EINVAL;
-        }
-      }
-      else {
-        //
-        //  The queue is empty
-        //  Determine if it is time to return the receive error
-        //
-        if ( EFI_ERROR ( pSocket->RxError )
-          && ( NULL == pSocket->pRxPacketListHead )
-          && ( NULL == pSocket->pRxOobPacketListHead )) {
-          Status = pSocket->RxError;
-          pSocket->RxError = EFI_SUCCESS;
-          switch ( Status ) {
-          default:
-            pSocket->errno = EIO;
-            break;
-          
-          case EFI_CONNECTION_FIN:
-            //
-            //  Continue to return zero bytes received when the
-            //  peer has successfully closed the connection
-            //
-            pSocket->RxError = EFI_CONNECTION_FIN;
-            *pDataLength = 0;
-            pSocket->errno = 0;
-            Status = EFI_SUCCESS;
-            break;
-
-          case EFI_CONNECTION_REFUSED:
-            pSocket->errno = ECONNREFUSED;
-            break;
-
-          case EFI_CONNECTION_RESET:
-            pSocket->errno = ECONNRESET;
-            break;
-
-          case EFI_HOST_UNREACHABLE:
-            pSocket->errno = EHOSTUNREACH;
-            break;
-          
-          case EFI_NETWORK_UNREACHABLE:
-            pSocket->errno = ENETUNREACH;
-            break;
-          
-          case EFI_PORT_UNREACHABLE:
-            pSocket->errno = EPROTONOSUPPORT;
-            break;
-          
-          case EFI_PROTOCOL_UNREACHABLE:
-            pSocket->errno = ENOPROTOOPT;
-            break;
-          }
-        }
-        else {
-          Status = EFI_NOT_READY;
-          pSocket->errno = EAGAIN;
-        }
-      }
+      *pbConsumePacket = FALSE;
     }
   }
 
   //
-  //  Return the operation status
+  //  Return the data length and the buffer address
   //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
+  *pDataLength = DataLength;
+  DBG_EXIT_HEX ( pBuffer );
+  return pBuffer;
 }
 
 
@@ -2422,6 +2242,7 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   sizeof ( struct sockaddr_in ),
   AF_INET,
   sizeof (((ESL_PACKET *)0 )->Op.Tcp4Rx ),
+  FALSE,
   EslTcp4Accept,
   EslTcp4ConnectPoll,
   EslTcp4ConnectStart,
