@@ -120,8 +120,6 @@ typedef struct
 typedef struct
 {
   EFI_TCP4_RECEIVE_DATA RxData;         ///<  Receive operation description
-  size_t ValidBytes;                    ///<  Length of valid data in bytes
-  UINT8 * pBuffer;                      ///<  Current data pointer
   UINT8 Buffer[ RX_PACKET_DATA ];       ///<  Data buffer
 } ESL_TCP4_RX_DATA;
 
@@ -164,6 +162,8 @@ typedef struct
 typedef struct _ESL_PACKET {
   ESL_PACKET * pNext;                   ///<  Next packet in the receive list
   size_t PacketSize;                    ///<  Size of this data structure
+  size_t ValidBytes;                    ///<  Length of valid data in bytes
+  UINT8 * pBuffer;                      ///<  Current data pointer
   union {
     ESL_IP4_RX_DATA Ip4Rx;              ///<  Receive operation description
     ESL_IP4_TX_DATA Ip4Tx;              ///<  Transmit operation description
@@ -210,8 +210,11 @@ typedef struct _ESL_IO_MGMT {
   ESL_PORT * pPort;                   ///<  Port structure address
   ESL_PACKET * pPacket;               ///<  Packet structure address
   union {
+    EFI_IP4_COMPLETION_TOKEN Ip4Rx;   ///<  IP4 receive token
     EFI_IP4_COMPLETION_TOKEN Ip4Tx;   ///<  IP4 transmit token
+    EFI_TCP4_IO_TOKEN Tcp4Rx;         ///<  TCP4 receive token
     EFI_TCP4_IO_TOKEN Tcp4Tx;         ///<  TCP4 transmit token
+    EFI_UDP4_COMPLETION_TOKEN Udp4Rx; ///<  UDP4 receive token
     EFI_UDP4_COMPLETION_TOKEN Udp4Tx; ///<  UDP4 transmit token
   } Token;                            ///<  Completion token for the network operation
 };
@@ -227,11 +230,6 @@ typedef struct {
   //
   EFI_IP4_MODE_DATA ModeData;           ///<  IP4 mode data, includes configuration data
   EFI_IPv4_ADDRESS DestinationAddress;  ///<  Default destination address
-
-  //
-  //  Receive data management
-  //
-  EFI_IP4_COMPLETION_TOKEN RxToken;     ///<  Receive token
 } ESL_IP4_CONTEXT;
 
 
@@ -253,11 +251,6 @@ typedef struct {
   EFI_TCP4_LISTEN_TOKEN ListenToken;      ///<  Listen control
   EFI_TCP4_CONNECTION_TOKEN ConnectToken; ///<  Connection control
   EFI_TCP4_CLOSE_TOKEN CloseToken;        ///<  Close control
-
-  //
-  //  Receive data management
-  //
-  EFI_TCP4_IO_TOKEN RxToken;              ///<  Receive token
 } ESL_TCP4_CONTEXT;
 
 /**
@@ -270,11 +263,6 @@ typedef struct {
   //  UDP4 context
   //
   EFI_UDP4_CONFIG_DATA ConfigData;  ///<  UDP4 configuration data
-
-  //
-  //  Receive data management
-  //
-  EFI_UDP4_COMPLETION_TOKEN RxToken;///<  Receive token
 } ESL_UDP4_CONTEXT;
 
 
@@ -289,7 +277,7 @@ typedef struct {
 **/
 typedef
 EFI_STATUS
-(* PFN_NET_TX_START) (
+(* PFN_NET_IO_START) (
   IN VOID * pProtocol,
   IN VOID * pToken
   );
@@ -333,7 +321,7 @@ typedef struct _ESL_PORT {
   //
   //  Transmit data management
   //
-  PFN_NET_TX_START pfnTxStart;  ///<  Start a transmit on the network
+  PFN_NET_IO_START pfnTxStart;  ///<  Start a transmit on the network
   ESL_IO_MGMT * pTxActive;      ///<  Normal data queue
   ESL_IO_MGMT * pTxFree;        ///<  Normal free queue
 
@@ -343,7 +331,10 @@ typedef struct _ESL_PORT {
   //
   //  Receive data management
   //
-  ESL_PACKET * pReceivePending; ///<  Receive operation in progress
+  PFN_NET_IO_START pfnRxCancel; ///<  Cancel a receive on the network
+  PFN_NET_IO_START pfnRxStart;  ///<  Start a receive on the network
+  ESL_IO_MGMT * pRxActive;      ///<  Active receive operation queue
+  ESL_IO_MGMT * pRxFree;        ///<  Free structure queue
 
   //
   //  Protocol specific management data
@@ -574,7 +565,7 @@ EFI_STATUS
 
   This routine is called by ::EslSocketPortCloseRxDone as
   the last step of closing processing.
-  See the \ref Tcp4PortCloseStateMachine section.
+  See the \ref PortCloseStateMachine section.
   
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -617,7 +608,7 @@ EFI_STATUS
   This routine performs the network specific operations necessary
   to free a receive packet.
 
-  This routine is called by ::EslSocketPortCloseTx to free a
+  This routine is called by ::EslSocketPortCloseTxDone to free a
   receive packet.
 
   @param [in] pPacket         Address of an ::ESL_PACKET structure.
@@ -713,38 +704,42 @@ VOID
   );
 
 /**
-  Cancel the receive operations
+  Process the receive completion
 
-  @param [in] pSocket         Address of a ESL_SOCKET structure
-  
-  @retval EFI_SUCCESS - The cancel was successful
+  This routine handles the receive completion event.
 
- **/
+  This routine is called by the low level network driver when
+  data is received.
+
+  @param [in] Event     The receive completion event
+
+  @param [in] pIo       The address of an ::ESL_IO_MGMT structure
+
+**/
 typedef
-EFI_STATUS
-(* PFN_API_RX_CANCEL) (
-  IN ESL_SOCKET * pSocket
+VOID
+(* PFN_API_RX_COMPLETE) (
+  IN EFI_EVENT Event,
+  IN ESL_IO_MGMT * pIo
   );
 
 /**
   Start a receive operation
 
-  This routine posts a receive buffer to the network adapter.
+  This routine prepares a packet for the receive operation.
   See the \ref ReceiveEngine section.
 
   This support routine is called by EslSocketRxStart.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] pPacket     Address of an ::ESL_PACKET structure.
-
-  @retval EFI_SUCCESS Receive operation started successfully
+  @param [in] pIo         Address of an ::ESL_IO_MGMT structure.
 
  **/
 typedef
-EFI_STATUS
+VOID
 (* PFN_API_RX_START) (
   IN ESL_PORT * pPort,
-  IN ESL_PACKET * pPacket
+  IN ESL_IO_MGMT * pIo
   );
 
 /**
@@ -812,6 +807,8 @@ typedef struct {
   socklen_t AddressLength;                  ///<  Address length in bytes
   sa_family_t AddressFamily;                ///<  Address family
   UINTN RxPacketBytes;                      ///<  Length of the RX packet allocation
+  UINTN RxZeroBytes;                        ///<  Number of bytes to zero in RX packet
+  UINTN RxBufferOffset;                     ///<  Offset of buffer address in ESL_IO_MGMT structure
   BOOLEAN bOobSupported;                    ///<  TRUE if out-of-band messages are supported
   PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
   PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
@@ -824,13 +821,13 @@ typedef struct {
   PFN_API_OPTION_SET pfnOptionSet;          ///<  Set the option value
   PFN_API_PORT_ALLOC pfnPortAllocate;       ///<  Allocate the network specific resources for the port
   PFN_API_PORT_CLOSE pfnPortClose;          ///<  Close the network specific resources for the port
+  PFN_API_PORT_CLOSE_OP pfnPortCloseOp;     ///<  Perform the close operation on the port
   PFN_API_PORT_CLOSE_PF pfnPortClosePktFree;///<  Free the receive packet
-  PFN_API_PORT_CLOSE_OP pfnPortCloseRxStop; ///<  Perform the close operation on the port
   BOOLEAN bPortCloseComplete;               ///<  TRUE = Close is complete after close operation
   PFN_API_RECEIVE pfnReceive;               ///<  Attempt to receive some data
   PFN_API_REMOTE_ADDR_GET pfnRemoteAddrGet; ///<  Get remote address
   PFN_API_REMOTE_ADDR_SET pfnRemoteAddrSet; ///<  Set the remote system address
-  PFN_API_RX_CANCEL pfnRxCancel;            ///<  Cancel a receive operation
+  PFN_API_RX_COMPLETE pfnRxComplete;        ///<  RX completion
   PFN_API_RX_START pfnRxStart;              ///<  Start a network specific receive operation
   PFN_API_TRANSMIT pfnTransmit;             ///<  Attempt to buffer a packet for transmit
   PFN_API_TX_COMPLETE pfnTxComplete;        ///<  TX completion for normal data
@@ -1123,11 +1120,13 @@ EslSocketIsConfigured (
 /**
   Allocate a packet for a receive or transmit operation
 
-  This support routine is called by the network specific RxStart
-  and TxBuffer routines to get buffer space for the next operation.
+  This support routine is called by ::EslSocketRxStart and the
+  network specific TxBuffer routines to get buffer space for the
+  next operation.
 
   @param [in] ppPacket      Address to receive the ::ESL_PACKET structure
   @param [in] LengthInBytes Length of the packet structure
+  @param [in] ZeroBytes     Length of packet to zero
   @param [in] DebugFlags    Flags for debug messages
 
   @retval EFI_SUCCESS - The packet was allocated successfully
@@ -1137,6 +1136,7 @@ EFI_STATUS
 EslSocketPacketAllocate (
   IN ESL_PACKET ** ppPacket,
   IN size_t LengthInBytes,
+  IN size_t ZeroBytes,
   IN UINTN DebugFlags
   );
 
@@ -1169,14 +1169,9 @@ EslSocketPacketFree (
   specific resources.  The resources are released later by the
   \ref PortCloseStateMachine.
 
-  This support routine is called by:
-  <ul>
-    <li>::EslIp4Bind</li>
-    <li>::EslTcp4Bind</li>
-    <li>::EslTcp4ListenComplete</li>
-    <li>::EslUdp4Bind::</li>
-  to connect the socket with the underlying network adapter
-  to the socket.
+  This support routine is called by ::EslSocketBind and
+  ::EslTcp4ListenComplete to connect the socket with the
+  underlying network adapter to the socket.
 
   @param [in] pSocket     Address of an ::ESL_SOCKET structure.
   @param [in] pService    Address of an ::ESL_SERVICE structure.
@@ -1264,12 +1259,12 @@ EslSocketPortCloseComplete (
   This routine is called by
   <ul>
     <li>::EslIp4RxComplete</li>
+    <li>::EslSocketPortCloseComplete</li>
     <li>::EslSocketPortCloseTxDone</li>
-    <li>::EslTcp4PortCloseComplete</li>
     <li>::EslUdp4RxComplete</li>
   </ul>
   to determine the state of the receive operations.
-  See the \ref Tcp4PortCloseStateMachine section.
+  See the \ref PortCloseStateMachine section.
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
@@ -1316,7 +1311,7 @@ EslSocketPortCloseStart (
 
   This routine determines the state of the transmit engine and
   continue the close operation after the transmission is complete.
-  The next step is to stop the \ref Tcp4ReceiveEngine.
+  The next step is to stop the \ref ReceiveEngine.
   See the \ref PortCloseStateMachine section.
 
   This routine is called by ::EslSocketPortCloseStart to determine
@@ -1336,6 +1331,25 @@ EslSocketPortCloseTxDone (
   );
 
 /**
+  Cancel the receive operations
+
+  This routine cancels a pending receive operation.
+  See the \ref ReceiveEngine section.
+
+  This routine is called by ::EslSocketShutdown when the socket
+  layer is being shutdown.
+
+  @param [in] pPort     Address of an ::ESL_PORT structure
+  @param [in] pIo       Address of an ::ESL_IO_MGMT structure
+
+ **/
+VOID
+EslSocketRxCancel (
+  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT * pIo
+  );
+
+/**
   Process the receive completion
 
   This routine queues the data in FIFO order in either the urgent
@@ -1349,7 +1363,7 @@ EslSocketPortCloseTxDone (
     <li>::EslUdp4RxComplete</li>
   </ul>
 
-  @param [in] pPort         Address of an ::ESL_PORT structure
+  @param [in] pIo           Address of an ::ESL_IO_MGMT structure
   @param [in] Status        Receive status
   @param [in] LengthInBytes Length of the receive data
   @param [in] bUrgent       TRUE if urgent data is received and FALSE
@@ -1358,7 +1372,7 @@ EslSocketPortCloseTxDone (
 **/
 VOID
 EslSocketRxComplete (
-  IN ESL_PORT * pPort,
+  IN ESL_IO_MGMT * pIo,
   IN EFI_STATUS Status,
   IN UINTN LengthInBytes,
   IN BOOLEAN bUrgent

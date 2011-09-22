@@ -16,29 +16,6 @@
 
 
 /**
-  Process the receive completion
-
-  This routine keeps the IPv4 driver's buffer and queues it in
-  in FIFO order to the data queue.  The IP4 driver's buffer will
-  be returned by either ::EslIp4Receive or ::EslSocketPortCloseTxDone.
-  See the \ref Tcp4ReceiveEngine section.
-
-  This routine is called by the IPv4 driver when data is
-  received.
-
-  @param [in] Event     The receive completion event
-
-  @param [in] pPort     The address of an ::ESL_PORT structure
-
-**/
-VOID
-EslIp4RxComplete (
-  IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
-  );
-
-
-/**
   Get the local socket address
 
   This routine returns the IPv4 address associated with the local
@@ -84,7 +61,7 @@ EslIp4LocalAddressGet (
 
   This support routine is called by ::EslSocketPortAllocate.
 
-  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pPort       Address of an ESL_PORT structure
   @param [in] pSockAddr   Address of a sockaddr structure that contains the
                           connection point on the local machine.  An IPv4 address
                           of INADDR_ANY specifies that the connection is made to
@@ -341,7 +318,7 @@ EslIp4OptionSet (
   to connect the socket with the underlying network adapter
   running the IPv4 protocol.
 
-  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pPort       Address of an ESL_PORT structure
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -354,128 +331,46 @@ EslIp4PortAllocate (
   )
 {
   EFI_IP4_CONFIG_DATA * pConfig;
-  ESL_IP4_CONTEXT * pIp4;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Use for/break instead of goto
-  for ( ; ; ) {
-    //
-    //  Allocate the receive event
-    //
-    pSocket = pPort->pSocket;
-    pIp4 = &pPort->Context.Ip4;
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslIp4RxComplete,
-                                 pPort,
-                                 &pIp4->RxToken.Event);
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the receive event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      break;
-    }
-    DEBUG (( DEBUG_RX | DEBUG_POOL,
-              "0x%08x: Created receive event\r\n",
-              pIp4->RxToken.Event ));
-
-    //
-    //  Initialize the port
-    //
-    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Ip4Tx.TxData );
-    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event );
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
-
-    //
-    //  Save the transmit address
-    //
-    pPort->pfnTxStart = (PFN_NET_TX_START)pPort->pProtocol.IPv4->Transmit;
-
-    //
-    //  Set the configuration flags
-    //
-    pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
-    pConfig->AcceptIcmpErrors = FALSE;
-    pConfig->AcceptBroadcast = FALSE;
-    pConfig->AcceptPromiscuous = FALSE;
-    pConfig->TypeOfService = 0;
-    pConfig->TimeToLive = 255;
-    pConfig->DoNotFragment = FALSE;
-    pConfig->RawData = FALSE;
-    pConfig->ReceiveTimeout = 0;
-    pConfig->TransmitTimeout = 0;
-
-    //
-    //  Set the default protocol
-    //
-    pConfig->DefaultProtocol = (UINT8)pSocket->Protocol;
-    pConfig->AcceptAnyProtocol = (BOOLEAN)( 0 == pConfig->DefaultProtocol );
-    break;
-  }
+  //  Initialize the port
+  //
+  pSocket = pPort->pSocket;
+  pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Ip4Tx.TxData );
+  pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Tx.Event );
+  pSocket->TxTokenOffset = OFFSET_OF ( EFI_IP4_COMPLETION_TOKEN, Packet.TxData );
 
   //
-  //  Return the operation status
+  //  Save the cancel, receive and transmit addresses
   //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Close an IP4 port.
-
-  This routine releases the resources allocated by
-  ::EslIp4PortAllocate.
-
-  This routine is called by ::EslSocketPortClose.
-  See the \ref PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-
-  @retval EFI_SUCCESS     The port is closed
-  @retval other           Port close error
-
-**/
-EFI_STATUS
-EslIp4PortClose (
-  IN ESL_PORT * pPort
-  )
-{
-  UINTN DebugFlags;
-  ESL_IP4_CONTEXT * pIp4;
-  EFI_STATUS Status;
-  
-  DBG_ENTER ( );
+  pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.IPv4->Cancel;
+  pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.IPv4->Receive;
+  pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.IPv4->Transmit;
 
   //
-  //  Assume success
+  //  Set the configuration flags
   //
+  pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
+  pConfig->AcceptIcmpErrors = FALSE;
+  pConfig->AcceptBroadcast = FALSE;
+  pConfig->AcceptPromiscuous = FALSE;
+  pConfig->TypeOfService = 0;
+  pConfig->TimeToLive = 255;
+  pConfig->DoNotFragment = FALSE;
+  pConfig->RawData = FALSE;
+  pConfig->ReceiveTimeout = 0;
+  pConfig->TransmitTimeout = 0;
+
+  //
+  //  Set the default protocol
+  //
+  pConfig->DefaultProtocol = (UINT8)pSocket->Protocol;
+  pConfig->AcceptAnyProtocol = (BOOLEAN)( 0 == pConfig->DefaultProtocol );
   Status = EFI_SUCCESS;
-  DebugFlags = pPort->DebugFlags;
-  pIp4 = &pPort->Context.Ip4;
-
-  //
-  //  Done with the receive event
-  //
-  if ( NULL != pIp4->RxToken.Event ) {
-    Status = gBS->CloseEvent ( pIp4->RxToken.Event );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Closed receive event\r\n",
-                pIp4->RxToken.Event ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close the receive event, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
 
   //
   //  Return the operation status
@@ -514,67 +409,15 @@ EslIp4PortClosePacketFree (
   *pRxBytes -= pRxData->HeaderLength + pRxData->DataLength;
 
   //
+  //  Disconnect the buffer from the packet
+  //
+  pPacket->Op.Ip4Rx.pRxData = NULL;
+
+  //
   //  Return the buffer to the IP4 driver
   //
-  gBS->SignalEvent ( pPacket->Op.Ip4Rx.pRxData->RecycleSignal );
+  gBS->SignalEvent ( pRxData->RecycleSignal );
   DBG_EXIT ( );
-}
-
-
-/**
-  Perform the network specific close operation on the port.
-
-  This routine performs a cancel operations on the IPv4 port to
-  shutdown the receive operations on the port.
-
-  This routine is called by the ::EslSocketPortCloseTxDone
-  routine after the port completes all of the transmission.
-
-  @param [in] pPort           Address of an ::ESL_PORT structure.
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port is still closing
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslIp4PortCloseRxStop (
-  IN ESL_PORT * pPort
-  )
-{
-  ESL_IP4_CONTEXT * pIp4;
-  EFI_IP4_PROTOCOL * pIp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Reset the port, cancel the outstanding receive
-  //
-  pIp4 = &pPort->Context.Ip4;
-  pIp4Protocol = pPort->pProtocol.IPv4;
-  Status = pIp4Protocol->Cancel ( pIp4Protocol,
-                                  &pPort->Context.Ip4.RxToken );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Packet receive aborted on port: 0x%08x\r\n",
-              pPort->pReceivePending,
-              pPort ));
-  }
-  else {
-    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Packet receive pending on Port 0x%08x\r\n",
-              pPort->pReceivePending,
-              pPort ));
-    Status = EFI_SUCCESS;
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
 }
 
 
@@ -784,97 +627,31 @@ EslIp4RemoteAddressSet (
 
 
 /**
-  Cancel the receive operations
-
-  This routine cancels the pending receive operations.
-  See the \ref Ip4ReceiveEngine section.
-
-  This routine is called by ::EslSocketShutdown when the socket
-  layer is being shutdown.
-
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure
-  
-  @retval EFI_SUCCESS - The cancel was successful
-
- **/
-EFI_STATUS
-EslIp4RxCancel (
-  IN ESL_SOCKET * pSocket
-  )
-{
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPort;
-  ESL_IP4_CONTEXT * pIp4;
-  EFI_IP4_PROTOCOL * pIp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume failure
-  //
-  Status = EFI_NOT_FOUND;
-
-  //
-  //  Locate the port
-  //
-  pPort = pSocket->pPortList;
-  if ( NULL != pPort ) {
-    //
-    //  Determine if a receive is pending
-    //
-    pIp4 = &pPort->Context.Ip4;
-    pPacket = pPort->pReceivePending;
-    if ( NULL != pPacket ) {
-      //
-      //  Attempt to cancel the receive operation
-      //
-      pIp4Protocol = pPort->pProtocol.IPv4;
-      Status = pIp4Protocol->Cancel ( pIp4Protocol,
-                                       &pIp4->RxToken );
-      if ( EFI_NOT_FOUND == Status ) {
-        //
-        //  The receive is complete
-        //
-        Status = EFI_SUCCESS;
-      }
-    }
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
   Process the receive completion
 
   This routine keeps the IPv4 driver's buffer and queues it in
   in FIFO order to the data queue.  The IP4 driver's buffer will
   be returned by either ::EslIp4Receive or ::EslSocketPortCloseTxDone.
-  See the \ref Tcp4ReceiveEngine section.
+  See the \ref ReceiveEngine section.
 
   This routine is called by the IPv4 driver when data is
   received.
 
   @param [in] Event     The receive completion event
 
-  @param [in] pPort     The address of an ::ESL_PORT structure
+  @param [in] pIo       The address of an ::ESL_IO_MGMT structure
 
 **/
 VOID
 EslIp4RxComplete (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   )
 {
   size_t LengthInBytes;
+  ESL_PORT * pPort;
   ESL_PACKET * pPacket;
   EFI_IP4_RECEIVE_DATA * pRxData;
-  ESL_IP4_CONTEXT * pIp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -882,74 +659,26 @@ EslIp4RxComplete (
   //
   //  Get the operation status.
   //
-  pIp4 = &pPort->Context.Ip4;
-  Status = pIp4->RxToken.Status;
+  pPort = pIo->pPort;
+  Status = pIo->Token.Ip4Rx.Status;
 
   //
   //  Get the packet length
   //
-  pRxData = pIp4->RxToken.Packet.RxData;
+  pRxData = pIo->Token.Ip4Rx.Packet.RxData;
   LengthInBytes = pRxData->HeaderLength + pRxData->DataLength;
 
   //
   //  Save the data in the packet
   //
-  pPacket = pPort->pReceivePending;
+  pPacket = pIo->pPacket;
   pPacket->Op.Ip4Rx.pRxData = pRxData;
 
   //
   //  Complete this request
   //
-  EslSocketRxComplete ( pPort, Status, LengthInBytes, FALSE );
+  EslSocketRxComplete ( pIo, Status, LengthInBytes, FALSE );
   DBG_EXIT ( );
-}
-
-
-/**
-  Start a receive operation
-
-  This routine posts a receive buffer to the IPv4 driver.
-  See the \ref ReceiveEngine section.
-
-  This support routine is called by EslSocketRxStart.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] pPacket     Address of an ::ESL_PACKET structure.
-
-  @retval EFI_SUCCESS Receive operation started successfully
-
- **/
-EFI_STATUS
-EslIp4RxStart (
-  IN ESL_PORT * pPort,
-  IN ESL_PACKET * pPacket
-  )
-{
-  ESL_IP4_CONTEXT * pIp4;
-  EFI_IP4_PROTOCOL * pIp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Initialize the buffer for receive
-  //
-  pPacket->Op.Ip4Rx.pRxData = NULL;
-  pIp4 = &pPort->Context.Ip4;
-  pIp4->RxToken.Packet.RxData = NULL;
-
-  //
-  //  Start the receive on the packet
-  //
-  pIp4Protocol = pPort->pProtocol.IPv4;
-  Status = pIp4Protocol->Receive ( pIp4Protocol,
-                                    &pIp4->RxToken );
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
 }
 
 
@@ -960,7 +689,7 @@ EslIp4RxStart (
   if the network layer's configuration routine has been called.
   This routine calls the ::EslSocketBind and configuration routines
   if they were not already called.  After the port is configured,
-  the \ref Ip4ReceiveEngine is started.
+  the \ref ReceiveEngine is started.
 
   This routine is called by EslSocketIsConfigured to verify
   that the socket is configured.
@@ -1260,6 +989,7 @@ EslIp4TxBuffer (
                                            sizeof ( pPacket->Op.Ip4Tx )
                                            - sizeof ( pPacket->Op.Ip4Tx.Buffer )
                                            + BufferLength,
+                                           0,
                                            DEBUG_TX );
         if ( !EFI_ERROR ( Status )) {
           //
@@ -1483,6 +1213,8 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   sizeof ( struct sockaddr_in ),
   AF_INET,
   sizeof (((ESL_PACKET *)0 )->Op.Ip4Rx ),
+  sizeof (((ESL_PACKET *)0 )->Op.Ip4Rx ),
+  OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Rx.Packet.RxData ),
   FALSE,
   NULL,   //  Accept
   NULL,   //  ConnectPoll
@@ -1494,15 +1226,15 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   EslIp4OptionGet,
   EslIp4OptionSet,
   EslIp4PortAllocate,
-  EslIp4PortClose,
+  NULL,   //  PortClose
+  NULL,   //  PortCloseOp
   EslIp4PortClosePacketFree,
-  EslIp4PortCloseRxStop,
   TRUE,
   EslIp4Receive,
   EslIp4RemoteAddressGet,
   EslIp4RemoteAddressSet,
-  EslIp4RxCancel,
-  EslIp4RxStart,
+  EslIp4RxComplete,
+  NULL,   //  RxStart
   EslIp4TxBuffer,
   EslIp4TxComplete,
   NULL    //  TxOobComplete

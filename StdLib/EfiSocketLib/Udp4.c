@@ -16,29 +16,6 @@
 
 
 /**
-  Process the receive completion
-
-  This routine keeps the UDPv4 driver's buffer and queues it in
-  in FIFO order to the data queue.  The UDP4 driver's buffer will
-  be returned by either ::EslUdp4Receive or ::EslSocketPortCloseTxDone.
-  See the \ref Tcp4ReceiveEngine section.
-
-  This routine is called by the UDPv4 driver when data is
-  received.
-
-  @param [in] Event     The receive completion event
-
-  @param [in] pPort     Address of an ::ESL_PORT structure
-
-**/
-VOID
-EslUdp4RxComplete (
-  IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
-  );
-
-
-/**
   Get the local socket address
 
   This routine returns the IPv4 address and UDP port number associated
@@ -49,13 +26,13 @@ EslUdp4RxComplete (
 
   @param [in] pPort       Address of an ::ESL_PORT structure.
 
-  @param [out] pAddress   Network address to receive the local system address
+  @param [out] pSockAddr  Network address to receive the local system address
 
 **/
 VOID
 EslUdp4LocalAddressGet (
   IN ESL_PORT * pPort,
-  OUT struct sockaddr * pAddress
+  OUT struct sockaddr * pSockAddr
   )
 {
   struct sockaddr_in * pLocalAddress;
@@ -67,7 +44,7 @@ EslUdp4LocalAddressGet (
   //  Return the local address
   //
   pUdp4 = &pPort->Context.Udp4;
-  pLocalAddress = (struct sockaddr_in *)pAddress;
+  pLocalAddress = (struct sockaddr_in *)pSockAddr;
   pLocalAddress->sin_family = AF_INET;
   pLocalAddress->sin_port = SwapBytes16 ( pUdp4->ConfigData.StationPort );
   CopyMem ( &pLocalAddress->sin_addr,
@@ -85,7 +62,7 @@ EslUdp4LocalAddressGet (
 
   This support routine is called by ::EslSocketPortAllocate.
 
-  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pPort       Address of an ESL_PORT structure
   @param [in] pSockAddr   Address of a sockaddr structure that contains the
                           connection point on the local machine.  An IPv4 address
                           of INADDR_ANY specifies that the connection is made to
@@ -160,7 +137,7 @@ EslUdp4LocalAddressSet (
   to connect the socket with the underlying network adapter
   running the UDPv4 protocol.
 
-  @param [in] ppPort      Address of an ESL_PORT structure
+  @param [in] pPort       Address of an ESL_PORT structure
   @param [in] DebugFlags  Flags for debug messages
 
   @retval EFI_SUCCESS - Socket successfully created
@@ -173,119 +150,37 @@ EslUdp4PortAllocate (
   )
 {
   EFI_UDP4_CONFIG_DATA * pConfig;
-  ESL_UDP4_CONTEXT * pUdp4;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Use for/break instead of goto
-  for ( ; ; ) {
-    //
-    //  Allocate the receive event
-    //
-    pSocket = pPort->pSocket;
-    pUdp4 = &pPort->Context.Udp4;
-    Status = gBS->CreateEvent (  EVT_NOTIFY_SIGNAL,
-                                 TPL_SOCKETS,
-                                 (EFI_EVENT_NOTIFY)EslUdp4RxComplete,
-                                 pPort,
-                                 &pUdp4->RxToken.Event);
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to create the receive event, Status: %r\r\n",
-                Status ));
-      pSocket->errno = ENOMEM;
-      break;
-    }
-    DEBUG (( DEBUG_RX | DEBUG_POOL,
-              "0x%08x: Created receive event\r\n",
-              pUdp4->RxToken.Event ));
-
-    //
-    //  Initialize the port
-    //
-    pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
-    pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event );
-    pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
-
-    //
-    //  Save the transmit address
-    //
-    pPort->pfnTxStart = (PFN_NET_TX_START)pPort->pProtocol.UDPv4->Transmit;
-
-    //
-    //  Set the configuration flags
-    //
-    pConfig = &pPort->Context.Udp4.ConfigData;
-    pConfig->TimeToLive = 255;
-    pConfig->AcceptAnyPort = FALSE;
-    pConfig->AcceptBroadcast = FALSE;
-    pConfig->AcceptPromiscuous = FALSE;
-    pConfig->AllowDuplicatePort = TRUE;
-    pConfig->DoNotFragment = TRUE;
-    break;
-  }
+  //  Initialize the port
+  //
+  pSocket = pPort->pSocket;
+  pSocket->TxPacketOffset = OFFSET_OF ( ESL_PACKET, Op.Udp4Tx.TxData );
+  pSocket->TxTokenEventOffset = OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Tx.Event );
+  pSocket->TxTokenOffset = OFFSET_OF ( EFI_UDP4_COMPLETION_TOKEN, Packet.TxData );
 
   //
-  //  Return the operation status
+  //  Save the cancel, receive and transmit addresses
   //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
-  Close a UDP4 port.
-
-  This routine releases the resources allocated by
-  ::EslUdp4PortAllocate.
-
-  This routine is called by ::EslSocketPortClose.
-  See the \ref PortCloseStateMachine section.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-
-  @retval EFI_SUCCESS     The port is closed
-  @retval other           Port close error
-
-**/
-EFI_STATUS
-EslUdp4PortClose (
-  IN ESL_PORT * pPort
-  )
-{
-  UINTN DebugFlags;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_STATUS Status;
-  
-  DBG_ENTER ( );
+  pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Cancel;
+  pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Receive;
+  pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Transmit;
 
   //
-  //  Assume success
+  //  Set the configuration flags
   //
+  pConfig = &pPort->Context.Udp4.ConfigData;
+  pConfig->TimeToLive = 255;
+  pConfig->AcceptAnyPort = FALSE;
+  pConfig->AcceptBroadcast = FALSE;
+  pConfig->AcceptPromiscuous = FALSE;
+  pConfig->AllowDuplicatePort = TRUE;
+  pConfig->DoNotFragment = TRUE;
   Status = EFI_SUCCESS;
-  DebugFlags = pPort->DebugFlags;
-  pUdp4 = &pPort->Context.Udp4;
-
-  //
-  //  Done with the receive event
-  //
-  if ( NULL != pUdp4->RxToken.Event ) {
-    Status = gBS->CloseEvent ( pUdp4->RxToken.Event );
-    if ( !EFI_ERROR ( Status )) {
-      DEBUG (( DebugFlags | DEBUG_POOL,
-                "0x%08x: Closed receive event\r\n",
-                pUdp4->RxToken.Event ));
-    }
-    else {
-      DEBUG (( DEBUG_ERROR | DebugFlags,
-                "ERROR - Failed to close the receive event, Status: %r\r\n",
-                Status ));
-      ASSERT ( EFI_SUCCESS == Status );
-    }
-  }
 
   //
   //  Return the operation status
@@ -314,75 +209,26 @@ EslUdp4PortClosePacketFree (
   IN OUT size_t * pRxBytes
   )
 {
+  EFI_UDP4_RECEIVE_DATA * pRxData;
+
   DBG_ENTER ( );
 
   //
   //  Account for the receive bytes
   //
-  *pRxBytes -= pPacket->Op.Udp4Rx.pRxData->DataLength;
+  pRxData = pPacket->Op.Udp4Rx.pRxData;
+  *pRxBytes -= pRxData->DataLength;
+
+  //
+  //  Disconnect the buffer from the packet
+  //
+  pPacket->Op.Udp4Rx.pRxData = NULL;
 
   //
   //  Return the buffer to the UDP4 driver
   //
-  gBS->SignalEvent ( pPacket->Op.Udp4Rx.pRxData->RecycleSignal );
+  gBS->SignalEvent ( pRxData->RecycleSignal );
   DBG_EXIT ( );
-}
-
-
-/**
-  Perform the network specific close operation on the port.
-
-  This routine performs a cancel operations on the UDPv4 port to
-  shutdown the receive operations on the port.
-
-  This routine is called by the ::EslSocketPortCloseTxDone
-  routine after the port completes all of the transmission.
-
-  @param [in] pPort           Address of an ::ESL_PORT structure.
-
-  @retval EFI_SUCCESS         The port is closed, not normally returned
-  @retval EFI_NOT_READY       The port is still closing
-  @retval EFI_ALREADY_STARTED Error, the port is in the wrong state,
-                              most likely the routine was called already.
-
-**/
-EFI_STATUS
-EslUdp4PortCloseRxStop (
-  IN ESL_PORT * pPort
-  )
-{
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_PROTOCOL * pUdp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Reset the port, cancel the outstanding receive
-  //
-  pUdp4 = &pPort->Context.Udp4;
-  pUdp4Protocol = pPort->pProtocol.UDPv4;
-  Status = pUdp4Protocol->Cancel ( pUdp4Protocol,
-                                   &pPort->Context.Udp4.RxToken );
-  if ( !EFI_ERROR ( Status )) {
-    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Packet receive aborted on port: 0x%08x\r\n",
-              pPort->pReceivePending,
-              pPort ));
-  }
-  else {
-    DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-             "0x%08x: Packet receive pending on Port 0x%08x\r\n",
-             pPort->pReceivePending,
-             pPort ));
-    Status = EFI_SUCCESS;
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
 }
 
 
@@ -575,97 +421,30 @@ EslUdp4RemoteAddressSet (
 
 
 /**
-  Cancel the receive operations
-
-  This routine cancels the pending receive operations.
-  See the \ref Udp4ReceiveEngine section.
-
-  This routine is called by ::EslSocketShutdown when the socket
-  layer is being shutdown.
-
-  @param [in] pSocket   Address of an ::ESL_SOCKET structure
-  
-  @retval EFI_SUCCESS - The cancel was successful
-
- **/
-EFI_STATUS
-EslUdp4RxCancel (
-  IN ESL_SOCKET * pSocket
-  )
-{
-  ESL_PACKET * pPacket;
-  ESL_PORT * pPort;
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_PROTOCOL * pUdp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Assume failure
-  //
-  Status = EFI_NOT_FOUND;
-
-  //
-  //  Locate the port
-  //
-  pPort = pSocket->pPortList;
-  if ( NULL != pPort ) {
-    //
-    //  Determine if a receive is pending
-    //
-    pUdp4 = &pPort->Context.Udp4;
-    pPacket = pPort->pReceivePending;
-    if ( NULL != pPacket ) {
-      //
-      //  Attempt to cancel the receive operation
-      //
-      pUdp4Protocol = pPort->pProtocol.UDPv4;
-      Status = pUdp4Protocol->Cancel ( pUdp4Protocol,
-                                       &pUdp4->RxToken );
-      if ( EFI_NOT_FOUND == Status ) {
-        //
-        //  The receive is complete
-        //
-        Status = EFI_SUCCESS;
-      }
-    }
-  }
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
-}
-
-
-/**
   Process the receive completion
 
   This routine keeps the UDPv4 driver's buffer and queues it in
   in FIFO order to the data queue.  The UDP4 driver's buffer will
   be returned by either ::EslUdp4Receive or ::EslSocketPortCloseTxDone.
-  See the \ref Tcp4ReceiveEngine section.
+  See the \ref ReceiveEngine section.
 
   This routine is called by the UDPv4 driver when data is
   received.
 
   @param [in] Event     The receive completion event
 
-  @param [in] pPort     Address of an ::ESL_PORT structure
+  @param [in] pIo       Address of an ::ESL_IO_MGMT structure
 
 **/
 VOID
 EslUdp4RxComplete (
   IN EFI_EVENT Event,
-  IN ESL_PORT * pPort
+  IN ESL_IO_MGMT * pIo
   )
 {
   size_t LengthInBytes;
   ESL_PACKET * pPacket;
   EFI_UDP4_RECEIVE_DATA * pRxData;
-  ESL_UDP4_CONTEXT * pUdp4;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -673,74 +452,25 @@ EslUdp4RxComplete (
   //
   //  Get the operation status.
   //
-  pUdp4 = &pPort->Context.Udp4;
-  Status = pUdp4->RxToken.Status;
+  Status = pIo->Token.Udp4Rx.Status;
   
   //
   //  Get the packet length
   //
-  pRxData = pUdp4->RxToken.Packet.RxData;
+  pRxData = pIo->Token.Udp4Rx.Packet.RxData;
   LengthInBytes = pRxData->DataLength;
 
   //
   //  Save the data in the packet
   //
-  pPacket = pPort->pReceivePending;
+  pPacket = pIo->pPacket;
   pPacket->Op.Udp4Rx.pRxData = pRxData;
 
   //
   //  Complete this request
   //
-  EslSocketRxComplete ( pPort, Status, LengthInBytes, FALSE );
+  EslSocketRxComplete ( pIo, Status, LengthInBytes, FALSE );
   DBG_EXIT ( );
-}
-
-
-/**
-  Start a receive operation
-
-  This routine posts a receive buffer to the UDPv4 driver.
-  See the \ref ReceiveEngine section.
-
-  This support routine is called by EslSocketRxStart.
-
-  @param [in] pPort       Address of an ::ESL_PORT structure.
-  @param [in] pPacket     Address of an ::ESL_PACKET structure.
-
-  @retval EFI_SUCCESS Receive operation started successfully
-
- **/
-EFI_STATUS
-EslUdp4RxStart (
-  IN ESL_PORT * pPort,
-  IN ESL_PACKET * pPacket
-  )
-{
-  ESL_UDP4_CONTEXT * pUdp4;
-  EFI_UDP4_PROTOCOL * pUdp4Protocol;
-  EFI_STATUS Status;
-
-  DBG_ENTER ( );
-
-  //
-  //  Initialize the buffer for receive
-  //
-  pPacket->Op.Udp4Rx.pRxData = NULL;
-  pUdp4 = &pPort->Context.Udp4;
-  pUdp4->RxToken.Packet.RxData = NULL;
-
-  //
-  //  Start the receive on the packet
-  //
-  pUdp4Protocol = pPort->pProtocol.UDPv4;
-  Status = pUdp4Protocol->Receive ( pUdp4Protocol,
-                                    &pUdp4->RxToken );
-
-  //
-  //  Return the operation status
-  //
-  DBG_EXIT_STATUS ( Status );
-  return Status;
 }
 
 
@@ -751,7 +481,7 @@ EslUdp4RxStart (
   if the network layer's configuration routine has been called.
   This routine calls the bind and configuration routines if they
   were not already called.  After the port is configured, the
-  \ref Udp4ReceiveEngine is started.
+  \ref ReceiveEngine is started.
 
   This routine is called by EslSocketIsConfigured to verify
   that the socket is configured.
@@ -1018,6 +748,7 @@ EslUdp4TxBuffer (
                                            sizeof ( pPacket->Op.Udp4Tx )
                                            - sizeof ( pPacket->Op.Udp4Tx.Buffer )
                                            + BufferLength,
+                                           0,
                                            DEBUG_TX );
         if ( !EFI_ERROR ( Status )) {
           //
@@ -1224,6 +955,8 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   sizeof ( struct sockaddr_in ),
   AF_INET,
   sizeof (((ESL_PACKET *)0 )->Op.Udp4Rx ),
+  sizeof (((ESL_PACKET *)0 )->Op.Udp4Rx ),
+  OFFSET_OF ( ESL_IO_MGMT, Token.Udp4Rx.Packet.RxData ),
   FALSE,
   NULL,   //  Accept
   NULL,   //  ConnectPoll
@@ -1235,15 +968,15 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   NULL,   //  OptionGet
   NULL,   //  OptionSet
   EslUdp4PortAllocate,
-  EslUdp4PortClose,
+  NULL,   //  PortClose,
+  NULL,   //  PortCloseOp
   EslUdp4PortClosePacketFree,
-  EslUdp4PortCloseRxStop,
   TRUE,
   EslUdp4Receive,
   EslUdp4RemoteAddressGet,
   EslUdp4RemoteAddressSet,
-  EslUdp4RxCancel,
-  EslUdp4RxStart,
+  EslUdp4RxComplete,
+  NULL,   //  RxStart
   EslUdp4TxBuffer,
   EslUdp4TxComplete,
   NULL    //  TxOobComplete

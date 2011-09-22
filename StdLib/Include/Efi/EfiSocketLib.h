@@ -130,6 +130,7 @@ typedef struct {
   EFI_GUID * pNetworkProtocolGuid;///<  Network protocol GUID
   CONST EFI_GUID * pTagGuid;      ///<  Tag to mark protocol in use
   UINTN ServiceListOffset;        ///<  Offset in ::ESL_LAYER for the list of services
+  UINTN RxIo;                     ///<  Number of receive ESL_IO_MGMT structures for data
   UINTN TxIoNormal;               ///<  Number of transmit ESL_IO_MGMT structures for normal data
   UINTN TxIoUrgent;               ///<  Number of transmit ESL_IO_MGMT structures for urgent data
 } ESL_SOCKET_BINDING;
