@@ -309,6 +309,47 @@ EslIp4OptionSet (
 
 
 /**
+  Free a receive packet
+
+  This routine performs the network specific operations necessary
+  to free a receive packet.
+
+  This routine is called by ::EslSocketPortCloseTxDone to free a
+  receive packet.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  @param [in, out] pRxBytes   Address of the count of RX bytes
+
+**/
+VOID
+EslIp4PacketFree (
+  IN ESL_PACKET * pPacket,
+  IN OUT size_t * pRxBytes
+  )
+{
+  EFI_IP4_RECEIVE_DATA * pRxData;
+  DBG_ENTER ( );
+
+  //
+  //  Account for the receive bytes
+  //
+  pRxData = pPacket->Op.Ip4Rx.pRxData;
+  *pRxBytes -= pRxData->HeaderLength + pRxData->DataLength;
+
+  //
+  //  Disconnect the buffer from the packet
+  //
+  pPacket->Op.Ip4Rx.pRxData = NULL;
+
+  //
+  //  Return the buffer to the IP4 driver
+  //
+  gBS->SignalEvent ( pRxData->RecycleSignal );
+  DBG_EXIT ( );
+}
+
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -377,47 +418,6 @@ EslIp4PortAllocate (
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
-}
-
-
-/**
-  Free a receive packet
-
-  This routine performs the network specific operations necessary
-  to free a receive packet.
-
-  This routine is called by ::EslSocketPortCloseTxDone to free a
-  receive packet.
-
-  @param [in] pPacket         Address of an ::ESL_PACKET structure.
-  @param [in, out] pRxBytes   Address of the count of RX bytes
-
-**/
-VOID
-EslIp4PortClosePacketFree (
-  IN ESL_PACKET * pPacket,
-  IN OUT size_t * pRxBytes
-  )
-{
-  EFI_IP4_RECEIVE_DATA * pRxData;
-  DBG_ENTER ( );
-
-  //
-  //  Account for the receive bytes
-  //
-  pRxData = pPacket->Op.Ip4Rx.pRxData;
-  *pRxBytes -= pRxData->HeaderLength + pRxData->DataLength;
-
-  //
-  //  Disconnect the buffer from the packet
-  //
-  pPacket->Op.Ip4Rx.pRxData = NULL;
-
-  //
-  //  Return the buffer to the IP4 driver
-  //
-  gBS->SignalEvent ( pRxData->RecycleSignal );
-  DBG_EXIT ( );
 }
 
 
@@ -668,6 +668,24 @@ EslIp4RxComplete (
   pRxData = pIo->Token.Ip4Rx.Packet.RxData;
   LengthInBytes = pRxData->HeaderLength + pRxData->DataLength;
 
+  //
+  //      +--------------------+   +----------------------+
+  //      | ESL_IO_MGMT        |   |      Data Buffer     |
+  //      |                    |   |     (Driver owned)   |
+  //      |    +---------------+   +----------------------+
+  //      |    | Token         |               ^
+  //      |    |      Rx Event |               |
+  //      |    |               |   +----------------------+
+  //      |    |        RxData --> | EFI_IP4_RECEIVE_DATA |
+  //      +----+---------------+   |    (Driver owned)    |
+  //                               +----------------------+
+  //      +--------------------+               ^
+  //      | ESL_PACKET         |               .
+  //      |                    |               .
+  //      |    +---------------+               .
+  //      |    |       pRxData --> NULL  .......
+  //      +----+---------------+
+  //
   //
   //  Save the data in the packet
   //
@@ -1225,10 +1243,10 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   NULL,   //  Listen
   EslIp4OptionGet,
   EslIp4OptionSet,
+  EslIp4PacketFree,
   EslIp4PortAllocate,
   NULL,   //  PortClose
   NULL,   //  PortCloseOp
-  EslIp4PortClosePacketFree,
   TRUE,
   EslIp4Receive,
   EslIp4RemoteAddressGet,

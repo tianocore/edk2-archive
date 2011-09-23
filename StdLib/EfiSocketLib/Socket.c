@@ -15,84 +15,223 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 
+  \section DataStructures Data Structures
+
+  <code><pre>
+
+                +-------------+   +-------------+   +-------------+   
+  Service Lists | ::ESL_SERVICE |-->| ESL_SERVICE |-->| ESL_SERVICE |--> NULL (pNext)
+                +-------------+   +-------------+   +-------------+   
+                  ^                       | (pPortList)    |
+    pUdp4List ^   | pTcp4List             |                |
+              |   |                       |                |
+          ^   |   |                       |                |
+ pIp4List |   |   |                       |                |
+        +---------------+                 |                |
+        |   ::ESL_LAYER   |   ::mEslLayer     |                |
+        +---------------+                 |                |
+                  | (pSocketList)         |                |
+    Socket List   V                       V                V
+                +-------------+   +-------------+   +-------------+   
+                | ::ESL_SOCKET  |-->|   ::ESL_PORT  |-->|   ESL_PORT  |--> NULL (pLinkSocket)
+                +-------------+   +-------------+   +-------------+   
+                  |                       |                |
+                  |                       |                V
+                  V                       V               NULL
+                +-------------+   +-------------+         
+                | ESL_SOCKET  |-->|   ESL_PORT  |--> NULL
+                +-------------+   +-------------+
+                  |    | | | |            |
+                  V    | | | |            V
+                 NULL  | | | |           NULL
+               (pNext) | | | |     (pLinkService)
+                       | | | |                                     pRxPacketListHead
+                       | | | `-----------------------------------------------.
+                       | | |                     pRxOobPacketListHead        |
+                       | | `--------------------------------.                |
+                       | |      pTxPacketListHead           |                |
+                       | `---------------.                  |                |
+  pTxOobPacketListHead |                 |                  |                |
+                       V                 V                  V                V
+                  +------------+    +------------+    +------------+    +------------+
+                  | ::ESL_PACKET |    | ESL_PACKET |    | ESL_PACKET |    | ESL_PACKET |
+                  +------------+    +------------+    +------------+    +------------+
+                         |                 |                |                |
+                         V                 V                V                V
+                  +------------+    +------------+    +------------+    +------------+
+                  | ESL_PACKET |    | ESL_PACKET |    | ESL_PACKET |    | ESL_PACKET |
+                  +------------+    +------------+    +------------+    +------------+
+                         |                 |                |                |
+                         V                 V                V                V
+                        NULL              NULL             NULL             NULL
+                       (pNext)
+
+  </pre></code>
+
+  ::mEslLayer is the one and only ::ESL_LAYER structure.  It connects directly or
+  indirectly to the other data structures.  The ESL_LAYER structure has a unique
+  service list for each of the network protocol interfaces.
+
+  ::ESL_SERVICE manages the network interfaces for a given transport type (IP4, TCP4, UDP4, etc.)
+
+  ::ESL_SOCKET manages the activity for a single socket instance.  As such, it contains
+  the ::EFI_SOCKET_PROTOCOL structure which the BSD socket library uses as the object
+  reference and the API into the EFI socket library.
+
+  ::ESL_PORT manages the connection with a single instance of the lower layer network.
+  This structure is the socket equivalent of an IP connection or a TCP or UDP port.
+
+  ::ESL_PACKET buffers data for transmit and receive.  There are four queues connected
+  to the ::ESL_SOCKET that manage the data:
+  <ul>
+    <li>ESL_SOCKET::pRxPacketListHead - Normal (low) priority receive data</li>
+    <li>ESL_SOCKET::pRxOobPacketListHead - High (out-of-band or urgent) priority receive data</li>
+    <li>ESL_SOCKET::pTxPacketListHead - Normal (low) priority transmit data</li>
+    <li>ESL_SOCKET::pTxOobPacketListHead - High (out-of-band or urgent) priority transmit data</li>
+  </ul>
+  The selection of the transmit queue is controlled by the MSG_OOB flag on the transmit
+  request as well as the socket option SO_OOBINLINE.  The receive queue is selected by
+  the URGENT data flag for TCP and the setting of the socket option SO_OOBINLINE.
+
   \section PortCloseStateMachine Port Close State Machine
 
   The port close state machine walks the port through the necessary
   states to stop activity on the port and get it into a state where
   the resources may be released.  The state machine consists of the
   following arcs and states:
+
+  <code><pre>
+
+      +--------------------------+
+      |          Open            |
+      +--------------------------+
+                   |
+                   |  ::EslSocketPortCloseStart
+                   V
+      +--------------------------+
+      | PORT_STATE_CLOSE_STARTED |
+      +--------------------------+
+                   |
+                   |  ::EslSocketPortCloseTxDone
+                   V
+      +--------------------------+
+      | PORT_STATE_CLOSE_TX_DONE |
+      +--------------------------+
+                   |
+                   |  ::EslSocketPortCloseComplete
+                   V
+      +--------------------------+
+      |  PORT_STATE_CLOSE_DONE   |
+      +--------------------------+
+                   |
+                   |  ::EslSocketPortCloseRxDone
+                   V
+      +--------------------------+
+      | PORT_STATE_CLOSE_RX_DONE |
+      +--------------------------+
+                   |
+                   |  ::EslSocketPortClose
+                   V
+      +--------------------------+
+      |          Closed          |
+      +--------------------------+
+
+  </pre></code>
+
   <ul>
     <li>Arc: ::EslSocketPortCloseStart - Marks the port as closing and
       initiates the port close operation</li>
     <li>State: PORT_STATE_CLOSE_STARTED</li>
     <li>Arc: ::EslSocketPortCloseTxDone - Waits until all of the transmit
       operations to complete.  After all of the transmits are complete,
-      this routine discards any receive buffers using a network specific
-      support routine via ESL_PROTOCOL_API::pfnPortClosePktFree.  This
-      routine also calls ::EslSocketRxCancel to abort the pending receive
-      operations.
+      this routine initiates the network specific close operation by calling
+      through ESL_PROTOCOL_API::pfnPortCloseOp.  One such routine is
+      ::EslTcp4PortCloseOp.
     </li>
     <li>State: PORT_STATE_CLOSE_TX_DONE</li>
-    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
-      operation have been cancelled.</li>
-    <li>State: PORT_STATE_CLOSE_RX_DONE</li>
-    <li>Arc: ::EslSocketPortCloseComplete - Called by the TCP layer
-      when the port is closed.
+    <li>Arc: ::EslSocketPortCloseComplete - Called when the close operation is 
+      complete.  After the transition to PORT_STATE_CLOSE_DONE,
+      this routine calls ::EslSocketRxCancel to abort the pending receive operations.
+    </li>
     <li>State: PORT_STATE_CLOSE_DONE</li>
-    <li>Arc: ::EslSocketPortClose - Releases the port resources allocated
-      by ::EslSocketPortAllocate.  Calls ::EslTcp4PortClose via
-      ESL_PROTOCOL_API::pfnPortClose to close the TCP port.
+    <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
+      operation have been cancelled.  After the transition to
+      PORT_STATE_CLOSE_RX_DONE, this routine calls ::EslSocketPortClose.
+    </li>
+    <li>State: PORT_STATE_CLOSE_RX_DONE</li>
+    <li>Arc: ::EslSocketPortClose - This routine discards any receive buffers
+      using a network specific support routine via ESL_PROTOCOL_API::pfnPacketFree.
+      This routine then releases the port resources allocated by ::EslSocketPortAllocate
+      and calls the network specific port close routine (e.g. ::EslTcp4PortClose)
+      via ESL_PROTOCOL_API::pfnPortClose to release any network specific resources.
     </li>
   </ul>
-  Note that the state machine takes into account that close and receive
-  completions may happen in either order.
 
 
   \section ReceiveEngine Receive Engine
 
-  The receive engine consists of a set of ::ESL_IO_MGMT structures that are allocated
-  along with the ::ESL_PORT structure in ::EslSocketPortAllocate.  The ESL_IO_MGMT
-  structure contains the network layer specific receive completion token and event.
+  The receive path accepts data from the network and queues (buffers) it for the
+  application.  Flow control is applied once a maximum amount of buffering is reached
+  and is released when the buffer usage drops below that limit.  Eventually the
+  application requests data from the socket which removes entries from the queue and
+  returns the data.
 
-  The receive engine is started by calling ::EslSocketRxStart sometime after the
-  ::ESL_PORT structure is allocated.  Flow control pauses the receive engine when
-  the amount of receive data waiting for the application meets or exceeds MAX_RX_DATA.
-  Finally, the receive engine is shutdown by ::EslSocketPortCloseTxDone during the
-  port close operation.
+  The receive engine is the state machine which reads data from the network and
+  fills the queue with received packets.  The receive engine uses two data structures
+  to manage the network receive opeations and the buffers.
 
-  ::EslSocketRxStart connects an ::ESL_PACKET structure to the ::ESL_IO_MGMT structure
-  and then calls the network layer to start the receive operation.  Upon 
-  receive completion, ::EslSocketRxComplete breaks the connection between these
-  structrues and places the ESL_IO_MGMT structure on to the ESL_PORT::pRxFree list to
-  make it available for another receive operation.  EslSocketRxComplete then queues
-  the ESL_PACKET structure (data packet) to either the ESL_SOCKET::pRxOobPacketListTail
-  or ESL_SOCKET::pRxPacketListTail depending on whether urgent or normal data was
-  received.  Finally ::EslSocketRxComplete attempts to start another receive operation.
+  At a high level, the ::ESL_IO_MGMT structures are managing the tokens and
+  events for the interface to the UEFI network stack.  The ::ESL_PACKET
+  structures are managing the receive data buffers.  The receive engine
+  connects these two structures in the network specific receive completion
+  routines.
 
-  To minimize the number of buffer copies, the data is not copied until the
-  application makes a receive call.  At this point socket performs a single copy
-  in the receive path to move the data from the buffer filled by the network layer
-  into the application's buffer.
+<code><pre>
 
-  The IP4 and UDP4 drivers go one step further to reduce buffer copies.  They
-  allow the socket layer to hold on to the actual receive buffer until the
-  application has performed a receive operation or closes the socket.  Both
-  of theses operations return the buffer to the lower layer network driver
-  by calling ESL_PROTOCOL_API::pfnPortClosePktFree.
+      +------------------+
+      |     ::ESL_PORT     |
+      |                  |
+      +------------------+
+      |    ::ESL_IO_MGMT   |
+      +------------------+
+      |    ESL_IO_MGMT   |
+      +------------------+
+      .                  .
+      .    ESL_IO_MGMT   .
+      .                  .
+      +------------------+
 
-  When a socket application wants to receive data it indirectly calls
-  ::EslSocketReceive to remove data from the receive data queue.  This routine
-  removes the next available packet from ESL_SOCKET::pRxOobPacketListHead or
-  ESL_SOCKET::pRxPacketListHead and copies the data from the packet
-  into the application's buffer.  For SOCK_STREAM sockets, if the packet
-  contains more data then the ESL_PACKET structures remains at the head of the
-  receive queue for the next application receive
-  operation.  For SOCK_DGRAM, SOCK_RAW and SOCK_SEQ_PACKET sockets, the ::ESL_PACKET
-  structure is removed from the head of the receive queue and any remaining data is
-  "discarded" as the packet is placed on the free queue.
+</pre></code>
 
-  During socket layer shutdown, ::EslSocketShutdown calls ::EslSocketRxCancel to
-  cancel any pending receive operations.
+  The ::ESL_IO_MGMT structures are allocated as part of the ::ESL_PORT structure in
+  ::EslSocketPortAllocate.  The ESL_IO_MGMT structures are separated and placed on
+  the free list by calling ::EslSocketIoInit.  The ESL_IO_MGMT structure contains
+  the network layer specific receive completion token and event.  The receive engine
+  is eventually shutdown by ::EslSocketPortCloseTxDone and the resources in these
+  structures are released in ::EslSocketPortClose by a call to ::EslSocketIoFree.
+
+<code><pre>
+
+         pPort->pRxActive
+                |
+                V
+          +-------------+   +-------------+   +-------------+   
+  Active  | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+          +-------------+   +-------------+   +-------------+   
+
+          +-------------+   +-------------+   +-------------+   
+  Free    | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+          +-------------+   +-------------+   +-------------+   
+                ^
+                |
+          pPort->pRxFree
+</pre></code>
+
+  The receive engine is started by calling ::EslSocketRxStart.  Flow control pauses
+  the receive engine by stopping the calls to EslSocketRxStart when the amount of
+  receive data waiting for the application meets or exceeds MAX_RX_DATA.  After
+  the application reads enough data that the amount of buffering drops below this
+  limit, the calls to EslSockeRxStart continue which releases the flow control.
 
   Receive flow control is applied when the port is created, since no receive
   operation are pending to the low layer network driver.  The flow control gets
@@ -104,18 +243,195 @@
   released in ::EslSocketReceive when the buffer space drops below the
   maximum amount causing EslSocketReceive to call EslSocketRxStart.
 
+<code><pre>
+
+                    +------------+   +------------+   
+    High     .----->| ESL_PACKET |-->| ESL_PACKET |--> NULL (pNext)
+  Priority   |      +------------+   +------------+
+             |
+             | pRxOobPacketListHead
+       +------------+
+       | ::ESL_SOCKET |
+       +------------+
+             | pRxPacketListHead
+    Low      |
+  Priority   |      +------------+   +------------+   +------------+   
+             `----->| ::ESL_PACKET |-->| ESL_PACKET |-->| ESL_PACKET |--> NULL
+                    +------------+   +------------+   +------------+   
+
+</pre></code>
+
+  ::EslSocketRxStart connects an ::ESL_PACKET structure to the ::ESL_IO_MGMT structure
+  and then calls the network layer to start the receive operation.  Upon 
+  receive completion, ::EslSocketRxComplete breaks the connection between these
+  structrues and places the ESL_IO_MGMT structure onto the ESL_PORT::pRxFree list to
+  make token and event available for another receive operation.  EslSocketRxComplete
+  then queues the ESL_PACKET structure (data packet) to either the
+  ESL_SOCKET::pRxOobPacketListTail or ESL_SOCKET::pRxPacketListTail depending on
+  whether urgent or normal data was received.  Finally ::EslSocketRxComplete attempts
+  to start another receive operation.
+
+<code><pre>
+
+  Setup for IP4 and UDP4
+
+      +--------------------+
+      | ESL_IO_MGMT        |
+      |                    |
+      |    +---------------+
+      |    | Token         |
+      |    |        RxData --> NULL
+      +----+---------------+
+         |
+         V
+      +--------------------+
+      | ESL_PACKET         |
+      |                    |
+      |    +---------------+
+      |    |       pRxData --> NULL
+      +----+---------------+
+
+  Completion for IP4 and UDP4
+
+      +--------------------+   +----------------------+
+      | ESL_IO_MGMT        |   |      Data Buffer     |
+      |                    |   |     (Driver owned)   |
+      |    +---------------+   +----------------------+
+      |    | Token         |               ^
+      |    |      Rx Event |               |
+      |    |               |   +----------------------+
+      |    |        RxData --> | EFI_IP4_RECEIVE_DATA |
+      +----+---------------+   |    (Driver owned)    |
+         |                     +----------------------+
+         V                                 ^
+      +--------------------+               .
+      | ESL_PACKET         |               .
+      |                    |               .
+      |    +---------------+               .
+      |    |       pRxData --> NULL  .......
+      +----+---------------+
+
+
+  Setup and completion for TCP4
+
+      +--------------------+   +--------------------------+
+      | ESL_IO_MGMT        |-->| ESL_PACKET               |
+      |                    |   |                          |
+      |    +---------------+   +----------------------+   |
+      |    | Token         |   | EFI_IP4_RECEIVE_DATA |   |
+      |    |        RxData --> |                      |   |
+      |    |               |   +----------------------+---+
+      |    |        Event  |   |       Data Buffer        |
+      +----+---------------+   |                          |
+                               |                          |
+                               +--------------------------+
+
+</pre></code>
+
+  To minimize the number of buffer copies, the data is not copied until the
+  application makes a receive call.  At this point socket performs a single copy
+  in the receive path to move the data from the buffer filled by the network layer
+  into the application's buffer.
+
+  The IP4 and UDP4 drivers go one step further to reduce buffer copies.  They
+  allow the socket layer to hold on to the actual receive buffer until the
+  application has performed a receive operation or closes the socket.  Both
+  of theses operations return the buffer to the lower layer network driver
+  by calling ESL_PROTOCOL_API::pfnPacketFree.
+
+  When a socket application wants to receive data it indirectly calls
+  ::EslSocketReceive to remove data from one of the receive data queues.  This routine
+  removes the next available packet from ESL_SOCKET::pRxOobPacketListHead or
+  ESL_SOCKET::pRxPacketListHead and copies the data from the packet
+  into the application's buffer.  For SOCK_STREAM sockets, if the packet
+  contains more data then the ESL_PACKET structures remains at the head of the
+  receive queue for the next application receive
+  operation.  For SOCK_DGRAM, SOCK_RAW and SOCK_SEQ_PACKET sockets, the ::ESL_PACKET
+  structure is removed from the head of the receive queue and any remaining data is
+  discarded as the packet is placed on the free queue.
+
+  During socket layer shutdown, ::EslSocketShutdown calls ::EslSocketRxCancel to
+  cancel any pending receive operations.  EslSocketRxCancel calls the network specific
+  cancel routine using ESL_PORT::pfnRxCancel.
+
 
   \section TransmitEngine Transmit Engine
 
-  The transmit engine uses the ESL_IO_MGMT structures to manage
-  multiple transmit buffers.  ::EslSocketPortAllocate allocates the
-  ::ESL_IO_MGMT structures and place them on the free list by calling
+  Application calls to ::EslSocketTransmit cause data to be copied into a buffer.
+  The buffer exists as an extension to an ESL_PACKET structure and the structure
+  is placed at the end of the transmit queue.
+
+<code><pre>
+
+     *ppQueueHead: pSocket->pRxPacketListHead or pSocket->pRxOobPacketListHead
+          |
+          V
+        +------------+   +------------+   +------------+   
+  Data  | ESL_PACKET |-->| ESL_PACKET |-->| ESL_PACKET |--> NULL
+        +------------+   +------------+   +------------+   
+                                                     ^
+                                                     |
+     *ppQueueTail: pSocket->pRxPacketListTail or pSocket->pRxOobPacketListTail
+
+</pre></code>
+
+  There are actually two transmit queues the normal or low priority queue which is
+  the default and the urgent or high priority queue which is addressed by specifying
+  the MSG_OOB flag during the transmit request.  Associated with each queue is a
+  transmit engine which is responsible for sending the data in that queue.
+
+  The transmit engine is the state machine which removes entries from the head
+  of the transmit queue and causes the data to be sent over the network.
+
+<code><pre>
+
+      +--------------------+   +--------------------+
+      | ESL_IO_MGMT        |   | ESL_PACKET         |
+      |                    |   |                    |
+      |    +---------------+   +----------------+   |
+      |    | Token         |   | Buffer Length  |   |
+      |    |        TxData --> | Buffer Address |   |
+      |    |               |   +----------------+---+
+      |    |        Event  |   | Data Buffer        |
+      +----+---------------+   |                    |
+                               +--------------------+
+</pre></code>
+
+  At a high level, the transmit engine uses a couple of data structures
+  to manage the data flow.  The ::ESL_IO_MGMT structures manage the tokens and
+  events for the interface to the UEFI network stack.  The ::ESL_PACKET
+  structures manage the data buffers that get sent.  The transmit
+  engine connects these two structures prior to transmission and disconnects
+  them upon completion.
+
+<code><pre>
+
+         pPort->pTxActive or pTxOobActive
+                |
+                V
+          +-------------+   +-------------+   +-------------+   
+  Active  | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+          +-------------+   +-------------+   +-------------+   
+
+          +-------------+   +-------------+   +-------------+   
+  Free    | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+          +-------------+   +-------------+   +-------------+   
+                ^
+                |
+          pPort->pTxFree or pTxOobFree
+
+</pre></code>
+
+  The transmit engine manages multiple transmit operations using the
+  active and free lists shown above.  ::EslSocketPortAllocate allocates the
+  ::ESL_IO_MGMT structures as an extension to the ::ESL_PORT structure.
+  This routine places the ESL_IO_MGMT structures on the free list by calling
   ::EslSocketIoInit.  During their lifetime, the ESL_IO_MGMT structures
   will move from the free list to the active list and back again.  The
   active list contains the packets that are actively being processed by
-  the network stack.  Eventually the ESL_IO_MGMT structures will be
-  removed from the free list and be deallocated by the network specific
-  PortClose routines.
+  the UEFI network stack.  Eventually the ESL_IO_MGMT structures will be
+  removed from the free list and be deallocated by the EslSocketPortClose
+  routine.
 
   The network specific code calls the ::EslSocketTxStart routine
   to hand a packet to the network stack.  EslSocketTxStart connects
@@ -126,12 +442,12 @@
 
   Upon completion, the network specific TxComplete routine calls
   ::EslSocketTxComplete to disconnect the transmit packet from the
-  ESL_IO_MGMT structure and freeing the ::ESL_PACKET structure by calling
+  ESL_IO_MGMT structure and frees the ::ESL_PACKET structure by calling
   ::EslSocketPacketFree.  The routine places the ::ESL_IO_MGMT structure
-  into either the ESL_PORT::pTxFree or ESL_PORT::pTxOobFree list.
+  into the free list either ESL_PORT::pTxFree or ESL_PORT::pTxOobFree.
   EslSocketTxComplete then starts the next transmit operation while
-  the socket is active or calls the network specific PortCloseTxDone
-  routine via ESL_PROTOCOL_API::pfnPortCloseTxDone when the socket is shutting down.
+  the socket is active or calls the ::EslSocketPortCloseTxDone routine
+  when the socket is shutting down.
 
 **/
 
@@ -606,12 +922,8 @@ EslSocketAllocate (
   //  Create a socket structure
   //
   LengthInBytes = sizeof ( *pSocket );
-  Status = gBS->AllocatePool (
-                  EfiRuntimeServicesData,
-                  LengthInBytes,
-                  (VOID **) &pSocket
-                  );
-  if ( !EFI_ERROR ( Status )) {
+  pSocket = (ESL_SOCKET *) AllocateZeroPool ( LengthInBytes );
+  if ( NULL != pSocket ) {
     DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
               "0x%08x: Allocate pSocket, %d bytes\r\n",
               pSocket,
@@ -620,8 +932,6 @@ EslSocketAllocate (
     //
     //  Initialize the socket protocol
     //
-    ZeroMem ( pSocket, LengthInBytes );
-
     pSocket->Signature = SOCKET_SIGNATURE;
     pSocket->SocketProtocol.pfnAccept = EslSocketAccept;
     pSocket->SocketProtocol.pfnBind = EslSocketBind;
@@ -699,9 +1009,7 @@ EslSocketAllocate (
     }
   }
   else {
-    DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
-              "ERROR - Failed socket allocation, Status: %r\r\n",
-              Status ));
+    Status = EFI_OUT_OF_RESOURCES;
   }
 
   //
@@ -1119,8 +1427,8 @@ EslSocketCloseStart (
     }
   }
   else {
-    Status = EFI_ALREADY_STARTED;
-    errno = EALREADY;
+    Status = EFI_NOT_READY;
+    errno = EAGAIN;
   }
 
   //
@@ -2296,7 +2604,7 @@ EslSocketOptionGet (
         
       case SO_RCVBUF:
         //
-        //  Return the maximum transmit buffer size
+        //  Return the maximum receive buffer size
         //
         pOptionData = (UINT8 *)&pSocket->MaxRxBuf;
         LengthInBytes = sizeof ( pSocket->MaxRxBuf );
@@ -2497,7 +2805,7 @@ EslSocketOptionSet (
 
       case SO_RCVBUF:
         //
-        //  Return the maximum transmit buffer size
+        //  Return the maximum receive buffer size
         //
         pOptionData = (UINT8 *)&pSocket->MaxRxBuf;
         LengthInBytes = sizeof ( pSocket->MaxRxBuf );
@@ -2896,15 +3204,10 @@ EslSocketPortAllocate (
                        + pSocketBinding->TxIoNormal
                        + pSocketBinding->TxIoUrgent )
                      * sizeof ( ESL_IO_MGMT ));
-    Status = gBS->AllocatePool ( EfiRuntimeServicesData,
-                                 LengthInBytes,
-                                 (VOID **)&pPort );
-    if ( EFI_ERROR ( Status )) {
-      DEBUG (( DEBUG_ERROR | DebugFlags | DEBUG_POOL | DEBUG_INIT,
-                "ERROR - Failed to allocate the port structure, Status: %r\r\n",
-                Status ));
+    pPort = (ESL_PORT *) AllocateZeroPool ( LengthInBytes );
+    if ( NULL == pPort ) {
+      Status = EFI_OUT_OF_RESOURCES;
       pSocket->errno = ENOMEM;
-      pPort = NULL;
       break;
     }
     DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
@@ -2915,7 +3218,6 @@ EslSocketPortAllocate (
     //
     //  Initialize the port
     //
-    ZeroMem ( pPort, LengthInBytes );
     pPort->DebugFlags = DebugFlags;
     pPort->Handle = ChildHandle;
     pPort->pService = pService;
@@ -3089,7 +3391,7 @@ EslSocketPortAllocate (
   <ul>
     <li>::EslSocketPortAllocate - Port initialization failure</li>
     <li>::EslSocketPortCloseRxDone - Last step of close processing</li>
-    <li>::EslTcp4ConnectComplete - Connection failure and reducint the port list to a single port</li>
+    <li>::EslTcp4ConnectComplete - Connection failure and reducing the port list to a single port</li>
   </ul>
   See the \ref PortCloseStateMachine section.
   
@@ -3188,7 +3490,7 @@ EslSocketPortClose (
   while ( NULL != pSocket->pRxOobPacketListHead ) {
     pPacket = pSocket->pRxOobPacketListHead;
     pSocket->pRxOobPacketListHead = pPacket->pNext;
-    pSocket->pApi->pfnPortClosePktFree ( pPacket, &pSocket->RxOobBytes );
+    pSocket->pApi->pfnPacketFree ( pPacket, &pSocket->RxOobBytes );
     EslSocketPacketFree ( pPacket, DEBUG_RX );
   }
   pSocket->pRxOobPacketListTail = NULL;
@@ -3200,7 +3502,7 @@ EslSocketPortClose (
   while ( NULL != pSocket->pRxPacketListHead ) {
     pPacket = pSocket->pRxPacketListHead;
     pSocket->pRxPacketListHead = pPacket->pNext;
-    pSocket->pApi->pfnPortClosePktFree ( pPacket, &pSocket->RxBytes );
+    pSocket->pApi->pfnPacketFree ( pPacket, &pSocket->RxBytes );
     EslSocketPacketFree ( pPacket, DEBUG_RX );
   }
   pSocket->pRxPacketListTail = NULL;
@@ -3329,12 +3631,12 @@ EslSocketPortClose (
 
 
 /**
-  Process the port close completion event
+  Port close state 3
 
   This routine attempts to complete the port close operation.
 
   This routine is called by the TCP layer upon completion of
-  the close operation.
+  the close operation and by ::EslSocketPortCloseTxDone.
   See the \ref PortCloseStateMachine section.
 
   @param [in] Event     The close completion event
@@ -3348,6 +3650,7 @@ EslSocketPortCloseComplete (
   IN ESL_PORT * pPort
   )
 {
+  ESL_IO_MGMT * pIo;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -3356,9 +3659,23 @@ EslSocketPortCloseComplete (
   //  Update the port state
   //
   pPort->State = PORT_STATE_CLOSE_DONE;
+  DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+            "0x%08x: Port Close State: PORT_STATE_CLOSE_DONE\r\n",
+            pPort ));
 
   //
-  //  Release the resources once the receive operation completes
+  //  Shutdown the receive operation on the port
+  //
+  if ( NULL != pPort->pfnRxCancel ) {
+    pIo = pPort->pRxActive;
+    while ( NULL != pIo ) {
+      EslSocketRxCancel ( pPort, pIo );
+      pIo = pIo->pNext;
+    }
+  }
+
+  //
+  //  Determine if the receive operation is pending
   //
   Status = EslSocketPortCloseRxDone ( pPort );
   DBG_EXIT_STATUS ( Status );
@@ -3366,7 +3683,7 @@ EslSocketPortCloseComplete (
 
 
 /**
-  Port close state 3
+  Port close state 4
 
   This routine determines the state of the receive operations and
   continues the close operation after the pending receive operations
@@ -3394,9 +3711,6 @@ EslSocketPortCloseRxDone (
   IN ESL_PORT * pPort
   )
 {
-  ESL_IO_MGMT * pIo;
-  PORT_STATE PortState;
-  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -3410,9 +3724,7 @@ EslSocketPortCloseRxDone (
   //  Verify that the port is closing
   //
   Status = EFI_ALREADY_STARTED;
-  PortState = pPort->State;
-  if (( PORT_STATE_CLOSE_TX_DONE == PortState )
-    || ( PORT_STATE_CLOSE_DONE == PortState )) {
+  if ( PORT_STATE_CLOSE_DONE == pPort->State ) {
     //
     //  Determine if the receive operation is pending
     //
@@ -3428,37 +3740,29 @@ EslSocketPortCloseRxDone (
                 pPort ));
 
       //
-      //  Determine if the close operation has completed
+      //  Complete the port close operation
       //
-      pSocket = pPort->pSocket;
-      if (( PORT_STATE_CLOSE_DONE == PortState )
-        || ( pSocket->pApi->bPortCloseComplete )) {
-        //
-        //  The close operation has completed
-        //  Release the port resources
-        //
-        Status = EslSocketPortClose ( pPort );
-      }
-      else {
-        //
-        //  Must wait for TCP to close the port
-        //
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close: Close operation still pending!\r\n",
-                  pPort ));
-      }
+      Status = EslSocketPortClose ( pPort );
     }
     else {
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close: Receive still pending!\r\n",
-                pPort ));
-      pIo = pPort->pRxActive;
-      while ( NULL != pIo ) {
+      DEBUG_CODE_BEGIN ();
+      {
+        ESL_IO_MGMT * pIo;
+        //
+        //  Display the outstanding receive operations
+        //
         DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Packet pending on network adapter\r\n",
-                  pIo->pPacket ));
-        pIo = pIo->pNext;
+                  "0x%08x: Port Close: Receive still pending!\r\n",
+                  pPort ));
+        pIo = pPort->pRxActive;
+        while ( NULL != pIo ) {
+          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                    "0x%08x: Packet pending on network adapter\r\n",
+                    pIo->pPacket ));
+          pIo = pIo->pNext;
+        }
       }
+      DEBUG_CODE_END ( );
     }
   }
 
@@ -3564,7 +3868,6 @@ EslSocketPortCloseTxDone (
   )
 {
   ESL_IO_MGMT * pIo;
-  ESL_PACKET * pPacket;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
@@ -3590,111 +3893,99 @@ EslSocketPortCloseTxDone (
          || (( NULL == pPort->pTxActive )
                 && ( NULL == pPort->pTxOobActive ))) {
       //
-      //  Start the close operation on the port
+      //  Update the port state
       //
-      if ( !pPort->bConfigured ) {
-        //
-        //  Skip the close operation since the port is not
-        //  configured
-        //
-        //  Update the port state
-        //
-        pPort->State = PORT_STATE_CLOSE_DONE;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close State: PORT_STATE_CLOSE_DONE\r\n",
-                  pPort ));
-        Status = EFI_SUCCESS;
+      pPort->State = PORT_STATE_CLOSE_TX_DONE;
+      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                "0x%08x: Port Close State: PORT_STATE_CLOSE_TX_DONE\r\n",
+                pPort ));
+
+      //
+      //  Close the port
+      //  Skip the close operation if the port is not configured
+      //
+      Status = EFI_SUCCESS;
+      pSocket = pPort->pSocket;
+      if (( pPort->bConfigured )
+        && ( NULL != pSocket->pApi->pfnPortCloseOp )) {
+          //
+          //  Start the close operation
+          //
+          Status = pSocket->pApi->pfnPortCloseOp ( pPort );
+          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                    "0x%08x: Port Close: Close operation still pending!\r\n",
+                    pPort ));
+          ASSERT ( EFI_SUCCESS == Status );
       }
       else {
         //
+        //  The receive operation is complete
         //  Update the port state
         //
-        pPort->State = PORT_STATE_CLOSE_TX_DONE;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Port Close State: PORT_STATE_CLOSE_TX_DONE\r\n",
-                  pPort ));
-
-        //
-        //  Shutdown the receive operation on the port
-        //
-        pIo = pPort->pRxActive;
-        while ( NULL != pIo ) {
-          EslSocketRxCancel ( pPort, pIo );
-          pIo = pIo->pNext;
-        }
-
-        //
-        //  Close the port
-        //
-        Status = EFI_SUCCESS;
-        if ( NULL != pSocket->pApi->pfnPortCloseOp ) {
-          Status = pSocket->pApi->pfnPortCloseOp ( pPort );
-        }
-        ASSERT ( EFI_SUCCESS == Status );
-      }
-
-      //
-      //  Determine if the receive operation is pending
-      //
-      if ( !EFI_ERROR ( Status )) {
-        Status = EslSocketPortCloseRxDone ( pPort );
+        EslSocketPortCloseComplete ( NULL, pPort );
       }
     }
     else {
       //
       //  Transmissions are still active, exit
       //
-      DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                "0x%08x: Port Close: Transmits are still pending!\r\n",
-                pPort ));
       Status = EFI_NOT_READY;
       pSocket->errno = EAGAIN;
+      DEBUG_CODE_BEGIN ( );
+      {
+        ESL_PACKET * pPacket;
 
-      //
-      //  Display the urgent transmit packets
-      //
-      pPacket = pSocket->pTxOobPacketListHead;
-      while ( NULL != pPacket ) {
         DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Packet pending on urgent TX list, %d bytes\r\n",
-                  pPacket,
-                  pPacket->PacketSize ));
-        pPacket = pPacket->pNext;
-      }
+                  "0x%08x: Port Close: Transmits are still pending!\r\n",
+                  pPort ));
 
-      pIo = pPort->pTxOobActive;
-      while ( NULL != pIo ) {
-        pPacket = pIo->pPacket;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Packet active %d bytes, pIo: 0x%08x\r\n",
-                  pPacket,
-                  pPacket->PacketSize,
-                  pIo ));
-        pIo = pIo->pNext;
-      }
+        //
+        //  Display the pending urgent transmit packets
+        //
+        pPacket = pSocket->pTxOobPacketListHead;
+        while ( NULL != pPacket ) {
+          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                    "0x%08x: Packet pending on urgent TX list, %d bytes\r\n",
+                    pPacket,
+                    pPacket->PacketSize ));
+          pPacket = pPacket->pNext;
+        }
 
-      //
-      //  Display the normal transmit packets
-      //
-      pPacket = pSocket->pTxPacketListHead;
-      while ( NULL != pPacket ) {
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Packet pending on normal TX list, %d bytes\r\n",
-                  pPacket,
-                  pPacket->PacketSize ));
-        pPacket = pPacket->pNext;
-      }
+        pIo = pPort->pTxOobActive;
+        while ( NULL != pIo ) {
+          pPacket = pIo->pPacket;
+          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                    "0x%08x: Packet active %d bytes, pIo: 0x%08x\r\n",
+                    pPacket,
+                    pPacket->PacketSize,
+                    pIo ));
+          pIo = pIo->pNext;
+        }
 
-      pIo = pPort->pTxActive;
-      while ( NULL != pIo ) {
-        pPacket = pIo->pPacket;
-        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
-                  "0x%08x: Packet active %d bytes, pIo: 0x%08x\r\n",
-                  pPacket,
-                  pPacket->PacketSize,
-                  pIo ));
-        pIo = pIo->pNext;
+        //
+        //  Display the pending normal transmit packets
+        //
+        pPacket = pSocket->pTxPacketListHead;
+        while ( NULL != pPacket ) {
+          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                    "0x%08x: Packet pending on normal TX list, %d bytes\r\n",
+                    pPacket,
+                    pPacket->PacketSize ));
+          pPacket = pPacket->pNext;
+        }
+
+        pIo = pPort->pTxActive;
+        while ( NULL != pIo ) {
+          pPacket = pIo->pPacket;
+          DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                    "0x%08x: Packet active %d bytes, pIo: 0x%08x\r\n",
+                    pPacket,
+                    pPacket->PacketSize,
+                    pIo ));
+          pIo = pIo->pNext;
+        }
       }
+      DEBUG_CODE_END ();
     }
   }
 
@@ -3910,7 +4201,7 @@ EslSocketReceive (
                         //  All done with this packet
                         //  Account for any discarded data
                         //
-                        pSocket->pApi->pfnPortClosePktFree ( pPacket, pRxDataBytes );
+                        pSocket->pApi->pfnPacketFree ( pPacket, pRxDataBytes );
                         if ( 0 != SkipBytes ) {
                           DEBUG (( DEBUG_RX,
                                     "0x%08x: Port, packet read, skipping over 0x%08x bytes\r\n",
@@ -4107,9 +4398,10 @@ EslSocketRxCancel (
   }
   else {
     DEBUG (( pPort->DebugFlags | DEBUG_CLOSE | DEBUG_INFO,
-              "0x%08x: Packet receive pending on Port 0x%08x\r\n",
+              "0x%08x: Packet receive pending on Port 0x%08x, Status: %r\r\n",
               pIo->pPacket,
-              pPort ));
+              pPort,
+              Status ));
   }
   DBG_EXIT ( );
 }
@@ -4163,7 +4455,25 @@ EslSocketRxComplete (
   pSocket = pPort->pSocket;
 
   //
+  //         pPort->pRxActive
+  //                |
+  //                V
+  //          +-------------+   +-------------+   +-------------+   
+  //  Active  | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+  //          +-------------+   +-------------+   +-------------+   
+  //
+  //          +-------------+   +-------------+   +-------------+   
+  //  Free    | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+  //          +-------------+   +-------------+   +-------------+   
+  //                ^
+  //                |
+  //          pPort->pRxFree
+  //
+  //
   //  Remove the IO structure from the active list
+  //  The following code searches for the entry in the list and does not
+  //  assume that the receive operations complete in the order they were
+  //  issued to the UEFI network layer.
   //
   pIoNext = pPort->pRxActive;
   while (( NULL != pIoNext ) && ( pIoNext != pIo ) && ( pIoNext->pNext != pIo ))
@@ -4184,6 +4494,21 @@ EslSocketRxComplete (
   pIo->pNext = pPort->pRxFree;
   pPort->pRxFree = pIo;
 
+  //
+  //            pRxOobPacketListHead              pRxOobPacketListTail
+  //                      |                                 |
+  //                      V                                 V
+  //               +------------+   +------------+   +------------+   
+  //  Urgent Data  | ESL_PACKET |-->| ESL_PACKET |-->| ESL_PACKET |--> NULL
+  //               +------------+   +------------+   +------------+   
+  //
+  //               +------------+   +------------+   +------------+   
+  //  Normal Data  | ESL_PACKET |-->| ESL_PACKET |-->| ESL_PACKET |--> NULL
+  //               +------------+   +------------+   +------------+   
+  //                      ^                                 ^
+  //                      |                                 |
+  //              pRxPacketListHead                pRxPacketListTail
+  //
   //
   //  Determine the queue to use
   //
@@ -4259,7 +4584,7 @@ EslSocketRxComplete (
     //
     if ( !EFI_ERROR ( Status )) {
       *pRxBytes += LengthInBytes;
-      pSocket->pApi->pfnPortClosePktFree ( pPacket, pRxBytes );
+      pSocket->pApi->pfnPacketFree ( pPacket, pRxBytes );
     }
 
     //
@@ -4273,8 +4598,10 @@ EslSocketRxComplete (
     //
     //  Update the port state
     //
-    if ( PORT_STATE_CLOSE_TX_DONE <= pPort->State ) {
-      EslSocketPortCloseRxDone ( pPort );
+    if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
+      if ( PORT_STATE_CLOSE_DONE == pPort->State ) {
+        EslSocketPortCloseRxDone ( pPort );
+      }
     }
     else {
       if ( EFI_ERROR ( Status )) {
@@ -4375,12 +4702,26 @@ EslSocketRxStart (
         pIo->pPacket = pPacket;
 
         //
-        //  Initialize the packet for receive
+        //  Eliminate the need for IP4 and UDP4 specific routines by
+        //  clearing the RX data pointer here.
+        //
         //  No driver buffer for this packet
+        //
+        //    +--------------------+
+        //    | ESL_IO_MGMT        |
+        //    |                    |
+        //    |    +---------------+
+        //    |    | Token         |
+        //    |    |        RxData --> NULL
+        //    +----+---------------+
         //
         pBuffer = (UINT8 *)pIo;
         pBuffer = &pBuffer[ pSocket->pApi->RxBufferOffset ];
         *(VOID **)pBuffer = NULL;
+
+        //
+        //  Network specific receive packet initialization
+        //
         if ( NULL != pSocket->pApi->pfnRxStart ) {
           pSocket->pApi->pfnRxStart ( pPort, pIo );
         }
@@ -4967,6 +5308,18 @@ EslSocketTxStart (
   pPacket = *ppQueueHead;
   pIo = *ppFree;
   if (( NULL != pPacket ) && ( NULL != pIo )) {
+    pSocket = pPort->pSocket;
+    //
+    //     *ppQueueHead: pSocket->pRxPacketListHead or pSocket->pRxOobPacketListHead
+    //          |
+    //          V
+    //        +------------+   +------------+   +------------+   
+    //  Data  | ESL_PACKET |-->| ESL_PACKET |-->| ESL_PACKET |--> NULL
+    //        +------------+   +------------+   +------------+   
+    //                                                     ^
+    //                                                     |
+    //     *ppQueueTail: pSocket->pRxPacketListTail or pSocket->pRxOobPacketListTail
+    //
     //
     //  Remove the packet from the queue
     //
@@ -4975,28 +5328,42 @@ EslSocketTxStart (
     if ( NULL == pNextPacket ) {
       *ppQueueTail = NULL;
     }
+    pPacket->pNext = NULL;
 
     //
-    //  Remove the IO structure from the queue
+    //  Eliminate the need for IP4 and UDP4 specific routines by
+    //  connecting the token with the TX data control structure here.
     //
-    *ppFree = pIo->pNext;
-
+    //    +--------------------+   +--------------------+
+    //    | ESL_IO_MGMT        |   | ESL_PACKET         |
+    //    |                    |   |                    |
+    //    |    +---------------+   +----------------+   |
+    //    |    | Token         |   | Buffer Length  |   |
+    //    |    |        TxData --> | Buffer Address |   |
+    //    |    |               |   +----------------+---+
+    //    |    |        Event  |   | Data Buffer        |
+    //    +----+---------------+   |                    |
+    //                             +--------------------+
     //
-    //  Mark this packet as active
+    //  Compute the address of the TxData pointer in the token
     //
-    pIo->pPacket = pPacket;
-    pIo->pNext = *ppActive;
-    *ppActive = pIo;
-
-    //
-    //  Connect the token to the transmit data
-    //
-    pSocket = pPort->pSocket;
     pBuffer = (UINT8 *)&pIo->Token;
     pBuffer = &pBuffer[ pSocket->TxTokenOffset ];
     ppTokenData = (VOID **)pBuffer;
+
+    //
+    //  Compute the address of the TX data control structure in the packet
+    //
+    //      * EFI_IP4_TRANSMIT_DATA
+    //      * EFI_TCP4_TRANSMIT_DATA
+    //      * EFI_UDP4_TRANSMIT_DATA
+    //
     pBuffer = (UINT8 *)pPacket;
     pBuffer = &pBuffer[ pSocket->TxPacketOffset ];
+
+    //
+    //  Connect the token to the transmit data control structure
+    //
     *ppTokenData = (VOID **)pBuffer;
 
     //
@@ -5012,10 +5379,49 @@ EslSocketTxStart (
     //
     Status = pPort->pfnTxStart ( pPort->pProtocol.v,
                                  &pIo->Token );
-    if ( EFI_ERROR ( Status )) {
+    if ( !EFI_ERROR ( Status )) {
+      //
+      //  Connect the structures
+      //
+      pIo->pPacket = pPacket;
+
+      //
+      //          +-------------+   +-------------+   +-------------+   
+      //  Free    | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+      //          +-------------+   +-------------+   +-------------+   
+      //              ^
+      //              |
+      //          *ppFree:  pPort->pTxFree or pTxOobFree
+      //
+      //
+      //  Remove the IO structure from the queue
+      //
+      *ppFree = pIo->pNext;
+      
+      //
+      //         *ppActive:  pPort->pTxActive or pTxOobActive
+      //             |
+      //             V
+      //          +-------------+   +-------------+   +-------------+   
+      //  Active  | ESL_IO_MGMT |-->| ESL_IO_MGMT |-->| ESL_IO_MGMT |--> NULL
+      //          +-------------+   +-------------+   +-------------+   
+      //
+      //
+      //  Mark this packet as active
+      //
+      pIo->pPacket = pPacket;
+      pIo->pNext = *ppActive;
+      *ppActive = pIo;
+    }
+    else {
       if ( EFI_SUCCESS == pSocket->TxError ) {
         pSocket->TxError = Status;
       }
+
+      //
+      //  Discard the transmit buffer
+      //
+      EslSocketPacketFree ( pPacket, DEBUG_TX );
     }
   }
 

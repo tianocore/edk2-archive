@@ -1120,6 +1120,35 @@ EslTcp4LocalAddressSet (
 
 
 /**
+  Free a receive packet
+
+  This routine performs the network specific operations necessary
+  to free a receive packet.
+
+  This routine is called by ::EslSocketPortCloseTxDone to free a
+  receive packet.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  @param [in, out] pRxBytes   Address of the count of RX bytes
+
+**/
+VOID
+EslTcp4PacketFree (
+  IN ESL_PACKET * pPacket,
+  IN OUT size_t * pRxBytes
+  )
+{
+  DBG_ENTER ( );
+
+  //
+  //  Account for the receive bytes
+  //
+  *pRxBytes -= pPacket->Op.Tcp4Rx.RxData.DataLength;
+  DBG_EXIT ( );
+}
+
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -1200,8 +1229,8 @@ EslTcp4PortAllocate (
 
     //
     //  Save the cancel, receive and transmit addresses
+    //  pPort->pfnRxCancel = NULL; since the UEFI implementation returns EFI_UNSUPPORTED
     //
-    pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.TCPv4->Cancel;
     pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.TCPv4->Receive;
     pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.TCPv4->Transmit;
 
@@ -1351,7 +1380,7 @@ EslTcp4PortCloseOp (
   Status = EFI_SUCCESS;
   pTcp4 = &pPort->Context.Tcp4;
   pTcp4Protocol = pPort->pProtocol.TCPv4;
-  pTcp4->CloseToken.AbortOnClose = FALSE;
+  pTcp4->CloseToken.AbortOnClose = pPort->bCloseNow;
   Status = pTcp4Protocol->Close ( pTcp4Protocol,
                                   &pTcp4->CloseToken );
   if ( !EFI_ERROR ( Status )) {
@@ -1371,35 +1400,6 @@ EslTcp4PortCloseOp (
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
-}
-
-
-/**
-  Free a receive packet
-
-  This routine performs the network specific operations necessary
-  to free a receive packet.
-
-  This routine is called by ::EslSocketPortCloseTxDone to free a
-  receive packet.
-
-  @param [in] pPacket         Address of an ::ESL_PACKET structure.
-  @param [in, out] pRxBytes   Address of the count of RX bytes
-
-**/
-VOID
-EslTcp4PortClosePacketFree (
-  IN ESL_PACKET * pPacket,
-  IN OUT size_t * pRxBytes
-  )
-{
-  DBG_ENTER ( );
-
-  //
-  //  Account for the receive bytes
-  //
-  *pRxBytes -= pPacket->Op.Tcp4Rx.RxData.DataLength;
-  DBG_EXIT ( );
 }
 
 
@@ -1654,12 +1654,33 @@ EslTcp4RxComplete (
   Status = pIo->Token.Tcp4Rx.CompletionToken.Status;
 
   //
-  //  Get the packet length and type
+  //      +--------------------+   +---------------------------+
+  //      | ESL_IO_MGMT        |   | ESL_PACKET                |
+  //      |                    |   |                           |
+  //      |    +---------------+   +-----------------------+   |
+  //      |    | Token         |   | EFI_TCP4_RECEIVE_DATA |   |
+  //      |    |        RxData --> |                       |   |
+  //      |    |               |   +-----------------------+---+
+  //      |    |        Event  |   |       Data Buffer         |
+  //      +----+---------------+   |                           |
+  //                               |                           |
+  //                               +---------------------------+
+  //
+  //
+  //  Duplicate the buffer address and length for use by the
+  //  buffer handling code in EslTcp4Receive.  These fields are
+  //  used when a partial read is done of the data from the
+  //  packet.
   //
   pPacket = pIo->pPacket;
   pPacket->pBuffer = pPacket->Op.Tcp4Rx.RxData.FragmentTable[0].FragmentBuffer;
   LengthInBytes = pPacket->Op.Tcp4Rx.RxData.DataLength;
   pPacket->ValidBytes = LengthInBytes;
+
+  //
+  //  Get the data type so that it may be linked to the
+  //  correct receive buffer list on the ESL_SOCKET structure
+  //
   bUrgent = pPacket->Op.Tcp4Rx.RxData.UrgentFlag;
 
   //
@@ -2110,10 +2131,10 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   EslTcp4Listen,
   NULL,   //  OptionGet
   NULL,   //  OptionSet
+  EslTcp4PacketFree,
   EslTcp4PortAllocate,
   EslTcp4PortClose,
   EslTcp4PortCloseOp,
-  EslTcp4PortClosePacketFree,
   FALSE,
   EslTcp4Receive,
   EslTcp4RemoteAddressGet,

@@ -19,6 +19,7 @@
 
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
 
@@ -78,8 +79,7 @@
 {                                                 \
   EFI_TPL PreviousTpl;                            \
                                                   \
-  PreviousTpl = gBS->RaiseTPL ( TPL_HIGH_LEVEL ); \
-  gBS->RestoreTPL ( PreviousTpl );                \
+  PreviousTpl = EfiGetCurrentTpl ( );             \
   if ( PreviousTpl > tpl ) {                      \
     DEBUG (( DEBUG_ERROR | DEBUG_TPL,             \
               "Current TPL: %d, New TPL: %d\r\n", \

@@ -77,12 +77,15 @@ typedef enum
   PORT_STATE_RX_ERROR,      ///<  Receive error detected
 
   //
-  //  Close state must be last in the list
+  //  Close state must be last in the list!
+  //
+  //  Using < <= > >= in tests code to detect port close state
+  //  machine has started
   //
   PORT_STATE_CLOSE_STARTED, ///<  Close started on port
   PORT_STATE_CLOSE_TX_DONE, ///<  Transmits shutdown
-  PORT_STATE_CLOSE_RX_DONE, ///<  Receives shutdown
-  PORT_STATE_CLOSE_DONE     ///<  Port close operation complete
+  PORT_STATE_CLOSE_DONE,    ///<  Port close operation complete
+  PORT_STATE_CLOSE_RX_DONE  ///<  Receives shutdown
 } PORT_STATE;
 
 //------------------------------------------------------------------------------
@@ -535,6 +538,26 @@ EFI_STATUS
   );
 
 /**
+  Free a receive packet
+
+  This routine performs the network specific operations necessary
+  to free a receive packet.
+
+  This routine is called by ::EslSocketPortCloseTxDone to free a
+  receive packet.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  @param [in, out] pRxBytes   Address of the count of RX bytes
+
+**/
+typedef
+VOID
+(* PFN_API_PACKET_FREE) (
+  IN ESL_PACKET * pPacket,
+  IN OUT size_t * pRxBytes
+  );
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -600,26 +623,6 @@ typedef
 EFI_STATUS
 (* PFN_API_PORT_CLOSE_OP) (
   IN ESL_PORT * pPort
-  );
-
-/**
-  Free a receive packet
-
-  This routine performs the network specific operations necessary
-  to free a receive packet.
-
-  This routine is called by ::EslSocketPortCloseTxDone to free a
-  receive packet.
-
-  @param [in] pPacket         Address of an ::ESL_PACKET structure.
-  @param [in, out] pRxBytes   Address of the count of RX bytes
-
-**/
-typedef
-VOID
-(* PFN_API_PORT_CLOSE_PF) (
-  IN ESL_PACKET * pPacket,
-  IN OUT size_t * pRxBytes
   );
 
 /**
@@ -819,10 +822,10 @@ typedef struct {
   PFN_API_LISTEN pfnListen;                 ///<  Listen for connections on known server port
   PFN_API_OPTION_GET pfnOptionGet;          ///<  Get the option value
   PFN_API_OPTION_SET pfnOptionSet;          ///<  Set the option value
+  PFN_API_PACKET_FREE pfnPacketFree;        ///<  Free the receive packet
   PFN_API_PORT_ALLOC pfnPortAllocate;       ///<  Allocate the network specific resources for the port
   PFN_API_PORT_CLOSE pfnPortClose;          ///<  Close the network specific resources for the port
   PFN_API_PORT_CLOSE_OP pfnPortCloseOp;     ///<  Perform the close operation on the port
-  PFN_API_PORT_CLOSE_PF pfnPortClosePktFree;///<  Free the receive packet
   BOOLEAN bPortCloseComplete;               ///<  TRUE = Close is complete after close operation
   PFN_API_RECEIVE pfnReceive;               ///<  Attempt to receive some data
   PFN_API_REMOTE_ADDR_GET pfnRemoteAddrGet; ///<  Get remote address

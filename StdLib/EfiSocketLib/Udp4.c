@@ -128,6 +128,48 @@ EslUdp4LocalAddressSet (
 
 
 /**
+  Free a receive packet
+
+  This routine performs the network specific operations necessary
+  to free a receive packet.
+
+  This routine is called by ::EslSocketPortCloseTxDone to free a
+  receive packet.
+
+  @param [in] pPacket         Address of an ::ESL_PACKET structure.
+  @param [in, out] pRxBytes   Address of the count of RX bytes
+
+**/
+VOID
+EslUdp4PacketFree (
+  IN ESL_PACKET * pPacket,
+  IN OUT size_t * pRxBytes
+  )
+{
+  EFI_UDP4_RECEIVE_DATA * pRxData;
+
+  DBG_ENTER ( );
+
+  //
+  //  Account for the receive bytes
+  //
+  pRxData = pPacket->Op.Udp4Rx.pRxData;
+  *pRxBytes -= pRxData->DataLength;
+
+  //
+  //  Disconnect the buffer from the packet
+  //
+  pPacket->Op.Udp4Rx.pRxData = NULL;
+
+  //
+  //  Return the buffer to the UDP4 driver
+  //
+  gBS->SignalEvent ( pRxData->RecycleSignal );
+  DBG_EXIT ( );
+}
+
+
+/**
   Initialize the network specific portions of an ::ESL_PORT structure.
 
   This routine initializes the network specific portions of an
@@ -187,48 +229,6 @@ EslUdp4PortAllocate (
   //
   DBG_EXIT_STATUS ( Status );
   return Status;
-}
-
-
-/**
-  Free a receive packet
-
-  This routine performs the network specific operations necessary
-  to free a receive packet.
-
-  This routine is called by ::EslSocketPortCloseTxDone to free a
-  receive packet.
-
-  @param [in] pPacket         Address of an ::ESL_PACKET structure.
-  @param [in, out] pRxBytes   Address of the count of RX bytes
-
-**/
-VOID
-EslUdp4PortClosePacketFree (
-  IN ESL_PACKET * pPacket,
-  IN OUT size_t * pRxBytes
-  )
-{
-  EFI_UDP4_RECEIVE_DATA * pRxData;
-
-  DBG_ENTER ( );
-
-  //
-  //  Account for the receive bytes
-  //
-  pRxData = pPacket->Op.Udp4Rx.pRxData;
-  *pRxBytes -= pRxData->DataLength;
-
-  //
-  //  Disconnect the buffer from the packet
-  //
-  pPacket->Op.Udp4Rx.pRxData = NULL;
-
-  //
-  //  Return the buffer to the UDP4 driver
-  //
-  gBS->SignalEvent ( pRxData->RecycleSignal );
-  DBG_EXIT ( );
 }
 
 
@@ -460,6 +460,24 @@ EslUdp4RxComplete (
   pRxData = pIo->Token.Udp4Rx.Packet.RxData;
   LengthInBytes = pRxData->DataLength;
 
+  //
+  //      +--------------------+   +-----------------------+
+  //      | ESL_IO_MGMT        |   |      Data Buffer      |
+  //      |                    |   |     (Driver owned)    |
+  //      |    +---------------+   +-----------------------+
+  //      |    | Token         |               ^
+  //      |    |      Rx Event |               |
+  //      |    |               |   +-----------------------+
+  //      |    |        RxData --> | EFI_UDP4_RECEIVE_DATA |
+  //      +----+---------------+   |     (Driver owned)    |
+  //                               +-----------------------+
+  //      +--------------------+               ^
+  //      | ESL_PACKET         |               .
+  //      |                    |               .
+  //      |    +---------------+               .
+  //      |    |       pRxData --> NULL  .......
+  //      +----+---------------+
+  //
   //
   //  Save the data in the packet
   //
@@ -967,10 +985,10 @@ CONST ESL_PROTOCOL_API cEslUdp4Api = {
   NULL,   //  Listen
   NULL,   //  OptionGet
   NULL,   //  OptionSet
+  EslUdp4PacketFree,
   EslUdp4PortAllocate,
   NULL,   //  PortClose,
   NULL,   //  PortCloseOp
-  EslUdp4PortClosePacketFree,
   TRUE,
   EslUdp4Receive,
   EslUdp4RemoteAddressGet,
