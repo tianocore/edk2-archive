@@ -71,9 +71,9 @@ connect (
                                             &errno );
   if ( NULL != pSocketProtocol ) {
     //
-    // TODO: Check for NON_BLOCKING
+    //  Determine if the operation is blocking
     //
-    bBlocking = TRUE;
+    bBlocking = (BOOLEAN)( 0 == ( pDescriptor->Oflags & O_NONBLOCK ));
 
     //
     //  Attempt to connect to a remote system

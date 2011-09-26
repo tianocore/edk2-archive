@@ -54,6 +54,7 @@ sendto (
   socklen_t tolen
   )
 {
+  BOOLEAN bBlocking;
   ssize_t LengthInBytes;
   CONST UINT8 * pData;
   struct __filedes * pDescriptor;
@@ -72,6 +73,11 @@ sendto (
                                             &pDescriptor,
                                             &errno );
   if ( NULL != pSocketProtocol ) {
+    //
+    //  Determine if the operation is blocking
+    //
+    bBlocking = (BOOLEAN)( 0 == ( pDescriptor->Oflags & O_NONBLOCK ));
+
     //
     //  Send the data using the socket
     //
@@ -96,8 +102,7 @@ sendto (
       //
       pData += LengthInBytes;
       length -= LengthInBytes;
-      // TODO: Add non-blocking check
-    } while (( 0 != length ) && ( EFI_NOT_READY == Status ));
+    } while (( 0 != length ) && ( EFI_NOT_READY == Status ) && bBlocking );
   }
 
   //

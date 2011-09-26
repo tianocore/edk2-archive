@@ -18,10 +18,10 @@
 /**
   Worker routine for ::accept and ::AcceptNB
 
-  @param [in] s         Socket file descriptor returned from ::socket.
+  @param [in] s                 Socket file descriptor returned from ::socket.
 
-  @param [in] bBlocking TRUE if this is a blocking call
-  @param [in] address   Address of a buffer to receive the remote network address.
+  @param [in] bBlockingAllowed  TRUE if this is a blocking call
+  @param [in] address           Address of a buffer to receive the remote network address.
 
   @param [in, out] address_len  Address of a buffer containing the Length in bytes
                                 of the remote network address buffer.  Upon return,
@@ -34,11 +34,12 @@
 int
 AcceptWork (
   int s,
-  BOOLEAN bBlocking,
+  BOOLEAN bBlockingAllowed,
   struct sockaddr * address,
   socklen_t * address_len
   )
 {
+  BOOLEAN bBlocking;
   INT32 NewSocketFd;
   struct __filedes * pDescriptor;
   EFI_SOCKET_PROTOCOL * pNewSocket;
@@ -58,8 +59,10 @@ AcceptWork (
                                             &errno );
   if ( NULL != pSocketProtocol ) {
     //
-    // TODO: Update bBlocking by anding with check for NON_BLOCKING
+    //  Determine if the operation is blocking
     //
+    bBlocking = (BOOLEAN)( 0 == ( pDescriptor->Oflags & O_NONBLOCK ));
+    bBlocking &= bBlockingAllowed;
 
     //
     //  Attempt to accept a new network connection
