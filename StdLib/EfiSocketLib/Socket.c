@@ -564,6 +564,7 @@ EslSocket (
 {
   CONST ESL_PROTOCOL_API * pApi;
   CONST ESL_PROTOCOL_API ** ppApiArray;
+  CONST ESL_PROTOCOL_API ** ppApiArrayEnd;
   int ApiArraySize;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
@@ -635,8 +636,11 @@ EslSocket (
       || ( NULL == ppApiArray[ type ])) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
                 "ERROR - Invalid type value\r\n" ));
+      //
+      //  The socket type is not supported
+      //
       Status = EFI_INVALID_PARAMETER;
-      errno = EINVAL;
+      errno = EPROTOTYPE;
       break;
     }
 
@@ -653,10 +657,48 @@ EslSocket (
     //
     if (( pApi->DefaultProtocol != protocol )
       && ( SOCK_RAW != type )) {
-      DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
-                "ERROR - Invalid protocol value" ));
       Status = EFI_INVALID_PARAMETER;
-      errno = EINVAL;
+
+      //
+      //  Assume that the driver supports this protocol
+      //
+      ppApiArray = &cEslAfInetApi[0];
+      ppApiArrayEnd = &ppApiArray [ cEslAfInetApiSize ];
+      while ( ppApiArrayEnd > ppApiArray ) {
+        pApi = *ppApiArray;
+        if ( protocol == pApi->DefaultProtocol ) {
+          break;
+        }
+        ppApiArray += 1;
+      }
+      if ( ppApiArrayEnd <= ppApiArray ) {
+        //
+        //  Verify against the IPv6 table
+        //
+        ppApiArray = &cEslAfInet6Api[0];
+        ppApiArrayEnd = &ppApiArray [ cEslAfInet6ApiSize ];
+        while ( ppApiArrayEnd > ppApiArray ) {
+          pApi = *ppApiArray;
+          if ( protocol == pApi->DefaultProtocol ) {
+            break;
+          }
+          ppApiArray += 1;
+        }
+      }
+      if ( ppApiArrayEnd <= ppApiArray ) {
+        DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
+                  "ERROR - The protocol is not supported!" ));
+        errno = EPROTONOSUPPORT;
+        break;
+      }
+
+      //
+      //  The driver does not support this protocol
+      //
+      DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
+                "ERROR - The protocol does not support this socket type!" ));
+      errno = EPROTONOSUPPORT;
+      errno = EPROTOTYPE;
       break;
     }
 
@@ -775,8 +817,20 @@ EslSocketAccept (
         if ( SOCKET_STATE_LISTENING != pSocket->State ) {
           DEBUG (( DEBUG_ACCEPT,
                     "ERROR - Socket is not listening!\r\n" ));
-          Status = EFI_NOT_STARTED;
-          pSocket->errno = EOPNOTSUPP;
+          if ( NULL == pSocket->pApi->pfnAccept ) {
+            //
+            //  Socket does not support listen
+            //
+            pSocket->errno = EOPNOTSUPP;
+            Status = EFI_UNSUPPORTED;
+          }
+          else {
+            //
+            //  Socket supports listen, but not in listen state
+            //
+            pSocket->errno = EINVAL;
+            Status = EFI_NOT_STARTED;
+          }
         }
         else {
           //
@@ -1090,91 +1144,113 @@ EslSocketBind (
       Status = EFI_INVALID_PARAMETER;
       pSocket->errno = EFAULT;
     }
-    else{
-      //
-      //  Validate the local address length
-      //
-      if (( SockAddrLength < pSocket->pApi->MinimumAddressLength )
-        || ( pSockAddr->sa_len < pSocket->pApi->MinimumAddressLength )) {
-        DEBUG (( DEBUG_BIND,
-                  "ERROR - Invalid bind name length: %d, sa_len: %d\r\n",
-                  SockAddrLength,
-                  pSockAddr->sa_len ));
-        Status = EFI_INVALID_PARAMETER;
-        pSocket->errno = EINVAL;
-      }
-      else {
-        //
-        //  Synchronize with the socket layer
-        //
-        RAISE_TPL ( TplPrevious, TPL_SOCKETS );
 
-        //
-        //  Walk the list of services
-        //
-        pBuffer = (UINT8 *)&mEslLayer;
-        pBuffer = &pBuffer[ pSocket->pApi->ServiceListOffset ];
-        ppServiceListHead = (ESL_SERVICE **)pBuffer;
-        pService = *ppServiceListHead;
-        while ( NULL != pService ) {
-          //
-          //  Create the port
-          //
-          pServiceBinding = pService->pServiceBinding;
-          ChildHandle = NULL;
-          Status = pServiceBinding->CreateChild ( pServiceBinding,
-                                                  &ChildHandle );
-          if ( !EFI_ERROR ( Status )) {
-            DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                      "0x%08x: %s port handle created\r\n",
-                      ChildHandle,
-                      pService->pSocketBinding->pName ));
-      
-            //
-            //  Open the port
-            //
-            Status = EslSocketPortAllocate ( pSocket,
-                                             pService,
-                                             ChildHandle,
-                                             pSockAddr,
-                                             DEBUG_BIND,
-                                             &pPort );
-          }
-          else {
-            DEBUG (( DEBUG_BIND | DEBUG_POOL,
-                      "ERROR - Failed to open %s port handle, Status: %r\r\n",
-                      pService->pSocketBinding->pName,
-                      Status ));
-          }
-      
-          //
-          //  Set the next service
-          //
-          pService = pService->pNext;
-        }
-      
-        //
-        //  Verify that at least one network connection was found
-        //
-        if ( NULL == pSocket->pPortList ) {
-          DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
-                    "Socket address is not available!\r\n" ));
-          pSocket->errno = EADDRNOTAVAIL;
-          Status = EFI_INVALID_PARAMETER;
-        }
+    //
+    //  Validate the local address length
+    //
+    else if (( SockAddrLength < pSocket->pApi->MinimumAddressLength )
+      || ( pSockAddr->sa_len < pSocket->pApi->MinimumAddressLength )) {
+      DEBUG (( DEBUG_BIND,
+                "ERROR - Invalid bind name length: %d, sa_len: %d\r\n",
+                SockAddrLength,
+                pSockAddr->sa_len ));
+      Status = EFI_INVALID_PARAMETER;
+      pSocket->errno = EINVAL;
+    }
 
+    //
+    //  Validate the shutdown state
+    //
+    else if ( pSocket->bRxDisable || pSocket->bTxDisable ) {
+      DEBUG (( DEBUG_BIND,
+                "ERROR - Shutdown has been called on socket 0x%08x\r\n",
+                pSocket ));
+      pSocket->errno = EINVAL;
+      Status = EFI_INVALID_PARAMETER;
+    }
+
+    //
+    //  Verify the socket state
+    //
+    else if ( SOCKET_STATE_NOT_CONFIGURED != pSocket->State ) {
+      DEBUG (( DEBUG_BIND,
+                "ERROR - The socket 0x%08x is already configured!\r\n",
+                pSocket ));
+      pSocket->errno = EINVAL;
+      Status = EFI_ALREADY_STARTED;
+    }
+    else {
+      //
+      //  Synchronize with the socket layer
+      //
+      RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+      //
+      //  Walk the list of services
+      //
+      pBuffer = (UINT8 *)&mEslLayer;
+      pBuffer = &pBuffer[ pSocket->pApi->ServiceListOffset ];
+      ppServiceListHead = (ESL_SERVICE **)pBuffer;
+      pService = *ppServiceListHead;
+      while ( NULL != pService ) {
         //
-        //  Mark this socket as bound if successful
+        //  Create the port
         //
+        pServiceBinding = pService->pServiceBinding;
+        ChildHandle = NULL;
+        Status = pServiceBinding->CreateChild ( pServiceBinding,
+                                                &ChildHandle );
         if ( !EFI_ERROR ( Status )) {
-          pSocket->State = SOCKET_STATE_BOUND;
+          DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                    "0x%08x: %s port handle created\r\n",
+                    ChildHandle,
+                    pService->pSocketBinding->pName ));
+
+          //
+          //  Open the port
+          //
+          Status = EslSocketPortAllocate ( pSocket,
+                                           pService,
+                                           ChildHandle,
+                                           pSockAddr,
+                                           TRUE,
+                                           DEBUG_BIND,
+                                           &pPort );
+        }
+        else {
+          DEBUG (( DEBUG_BIND | DEBUG_POOL,
+                    "ERROR - Failed to open %s port handle, Status: %r\r\n",
+                    pService->pSocketBinding->pName,
+                    Status ));
         }
 
         //
-        //  Release the socket layer synchronization
+        //  Set the next service
         //
-        RESTORE_TPL ( TplPrevious );
+        pService = pService->pNext;
       }
+
+      //
+      //  Verify that at least one network connection was found
+      //
+      if ( NULL == pSocket->pPortList ) {
+        DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
+                  "Socket address is not available!\r\n" ));
+        pSocket->errno = EADDRNOTAVAIL;
+        Status = EFI_INVALID_PARAMETER;
+      }
+
+      //
+      //  Mark this socket as bound if successful
+      //
+      if ( !EFI_ERROR ( Status )) {
+        pSocket->State = SOCKET_STATE_BOUND;
+      }
+
+      //
+      //  Release the socket layer synchronization
+      //
+      RESTORE_TPL ( TplPrevious );
     }
   }
 
@@ -1190,6 +1266,66 @@ EslSocketBind (
       *pErrno = EBADF;
     }
   }
+  DBG_EXIT_STATUS ( Status );
+  return Status;
+}
+
+
+/**
+  Test the bind configuration.
+
+  @param [in] pPort     Address of the ::ESL_PORT structure.
+
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval Others        The connection attempt failed.
+
+ **/
+EFI_STATUS
+EslSocketBindTest (
+  IN ESL_PORT * pPort
+  )
+{
+  UINT8 * pBuffer;
+  VOID * pConfigData;
+  EFI_STATUS Status;
+
+  DBG_ENTER ( );
+
+  //
+  //  Locate the configuration data
+  //
+  pBuffer = (UINT8 *)pPort;
+  pBuffer = &pBuffer [ pPort->pSocket->pApi->ConfigDataOffset ];
+  pConfigData = (VOID *)pBuffer;
+
+  //
+  //  Attempt to use this configuration
+  //
+  Status = pPort->pfnConfigure ( pPort->pProtocol.v, pConfigData );
+  if ( EFI_ERROR ( Status )) {
+    DEBUG (( DEBUG_WARN | DEBUG_BIND,
+              "WARNING - Port 0x%08x failed configuration, Status: %r\r\n",
+              pPort,
+              Status ));
+    pPort->pSocket->errno = EADDRINUSE;
+  }
+  else {
+    //
+    //  Reset the port
+    //
+    Status = pPort->pfnConfigure ( pPort->pProtocol.v, NULL );
+    if ( EFI_ERROR ( Status )) {
+      DEBUG (( DEBUG_ERROR | DEBUG_BIND,
+                "ERROR - Port 0x%08x failed configuration reset, Status: %r\r\n",
+                pPort,
+                Status ));
+      ASSERT ( EFI_SUCCESS == Status );
+    }
+  }
+
+  //
+  //  Return the operation status
+  //
   DBG_EXIT_STATUS ( Status );
   return Status;
 }
@@ -2429,6 +2565,7 @@ EslSocketListen (
           //
           if ( !EFI_ERROR ( Status )) {
             pSocket->State = SOCKET_STATE_LISTENING;
+            pSocket->bListenCalled = TRUE;
           }
           else {
             //
@@ -2464,7 +2601,9 @@ EslSocketListen (
       else {
         DEBUG (( DEBUG_ERROR | DEBUG_LISTEN,
                   "ERROR - Bind operation must be performed first!\r\n" ));
-        pSocket->errno = EDESTADDRREQ;
+        pSocket->errno = ( SOCKET_STATE_NOT_CONFIGURED == pSocket->State ) ? EDESTADDRREQ
+                                                                           : EINVAL;
+        Status = EFI_NO_MAPPING;
       }
     }
   }
@@ -2559,9 +2698,9 @@ EslSocketOptionGet (
         //
         //  Protocol level not supported
         //
-        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid option level\r\n" ));
-        errno = ENOTSUP;
-        Status = EFI_UNSUPPORTED;
+        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid protocol option\r\n" ));
+        errno = ENOPROTOOPT;
+        Status = EFI_INVALID_PARAMETER;
       }
       break;
 
@@ -2569,27 +2708,25 @@ EslSocketOptionGet (
       switch ( OptionName ) {
       default:
         //
-        //  See if the protocol will handle the socket option
+        //  Socket option not supported
         //
-        if ( NULL != pSocket->pApi->pfnOptionGet ) {
-          Status = pSocket->pApi->pfnOptionGet ( pSocket,
-                                                 level,
-                                                 OptionName,
-                                                 &pOptionData,
-                                                 &LengthInBytes );
-          errno = pSocket->errno;
-        }
-        else {
-          //
-          //  Socket option not supported
-          //
-          DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid socket option\r\n" ));
-          errno = ENOTSUP;
-          Status = EFI_UNSUPPORTED;
-        }
+        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid socket option\r\n" ));
+        errno = EINVAL;
+        Status = EFI_INVALID_PARAMETER;
+        break;
+
+      case SO_ACCEPTCONN:
+        //
+        //  Return the listen flag
+        //
+        pOptionData = (UINT8 *)&pSocket->bListenCalled;
+        LengthInBytes = sizeof ( pSocket->bListenCalled );
         break;
 
       case SO_OOBINLINE:
+        //
+        //  Return the out-of-band inline flag
+        //
         pOptionData = (UINT8 *)&pSocket->bOobInLine;
         LengthInBytes = sizeof ( pSocket->bOobInLine );
         break;
@@ -2721,7 +2858,9 @@ EslSocketOptionSet (
   //
   pSocket = NULL;
   if (( NULL != pSocketProtocol )
-    && ( NULL != pOptionValue )) {
+    && ( NULL != pOptionValue )
+    && ( !pSocket->bRxDisable )
+    && ( !pSocket->bTxDisable )) {
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
     LengthInBytes = 0;
     pOptionData = NULL;
@@ -2742,8 +2881,8 @@ EslSocketOptionSet (
         //
         //  Protocol level not supported
         //
-        errno = ENOTSUP;
-        Status = EFI_UNSUPPORTED;
+        errno = ENOPROTOOPT;
+        Status = EFI_INVALID_PARAMETER;
       }
       break;
   
@@ -2751,23 +2890,10 @@ EslSocketOptionSet (
       switch ( OptionName ) {
       default:
         //
-        //  See if the protocol will handle the socket option
+        //  Option not supported
         //
-        if ( NULL != pSocket->pApi->pfnOptionSet ) {
-          Status = pSocket->pApi->pfnOptionSet ( pSocket,
-                                                 level,
-                                                 OptionName,
-                                                 pOptionValue,
-                                                 OptionLength );
-          errno = pSocket->errno;
-        }
-        else {
-          //
-          //  Option not supported
-          //
-          errno = ENOTSUP;
-          Status = EFI_UNSUPPORTED;
-        }
+        errno = EINVAL;
+        Status = EFI_INVALID_PARAMETER;
         break;
 
       case SO_OOBINLINE:
@@ -3157,6 +3283,7 @@ EslSocketPoll (
                           for the port causes the network layer to assign a port
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
+  @param [in] bBindTest   TRUE if EslSocketBindTest should be called
   @param [in] DebugFlags  Flags for debug messages
   @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
@@ -3169,6 +3296,7 @@ EslSocketPortAllocate (
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
   IN CONST struct sockaddr * pSockAddr,
+  IN BOOLEAN bBindTest,
   IN UINTN DebugFlags,
   OUT ESL_PORT ** ppPort
   )
@@ -3260,6 +3388,16 @@ EslSocketPortAllocate (
     //  Set the local address
     //
     pSocket->pApi->pfnLocalAddrSet ( pPort, pSockAddr );
+
+    //
+    //  Test the configuration
+    //
+    if ( bBindTest ) {
+      Status = EslSocketBindTest ( pPort );
+      if ( EFI_ERROR ( Status )) {
+        break;
+      }
+    }
 
     //
     //  Initialize the receive structures

@@ -532,11 +532,44 @@ EslTcp4ConnectStart (
         //
         //  Connection error
         //
-        pSocket->errno = EINVAL;
         DEBUG (( DEBUG_CONNECT,
                   "ERROR - Port 0x%08x not connected, Status: %r\r\n",
                   pPort,
                   Status ));
+        //
+        //  Determine the errno value
+        //
+        switch ( Status ) {
+        default:
+          pSocket->errno = EIO;
+          break;
+
+        case EFI_OUT_OF_RESOURCES:
+          pSocket->errno = ENOBUFS;
+          break;
+
+        case EFI_TIMEOUT:
+          pSocket->errno = ETIMEDOUT;
+          break;
+
+        case EFI_NETWORK_UNREACHABLE:
+          pSocket->errno = ENETDOWN;
+          break;
+
+        case EFI_HOST_UNREACHABLE:
+          pSocket->errno = EHOSTUNREACH;
+          break;
+
+        case EFI_PORT_UNREACHABLE:
+        case EFI_PROTOCOL_UNREACHABLE:
+        case EFI_CONNECTION_REFUSED:
+          pSocket->errno = ECONNREFUSED;
+          break;
+
+        case EFI_CONNECTION_RESET:
+          pSocket->errno = ECONNRESET;
+          break;
+        }
       }
     }
   }
@@ -851,11 +884,13 @@ EslTcp4ListenComplete (
 
       //
       //  Allocate a port for this connection
+      //  Note in this instance Configure may not be called with NULL!
       //
       Status = EslSocketPortAllocate ( pNewSocket,
                                        pPort->pService,
                                        TcpPortHandle,
                                        (struct sockaddr *)&LocalAddress,
+                                       FALSE,
                                        DEBUG_CONNECTION,
                                        &pNewPort );
       if ( !EFI_ERROR ( Status )) {
@@ -1231,6 +1266,7 @@ EslTcp4PortAllocate (
     //  Save the cancel, receive and transmit addresses
     //  pPort->pfnRxCancel = NULL; since the UEFI implementation returns EFI_UNSUPPORTED
     //
+    pPort->pfnConfigure = (PFN_NET_CONFIGURE)pPort->pProtocol.TCPv4->Configure;
     pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.TCPv4->Receive;
     pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.TCPv4->Transmit;
 
@@ -2114,6 +2150,7 @@ EslTcp4TxOobComplete (
 **/
 CONST ESL_PROTOCOL_API cEslTcp4Api = {
   IPPROTO_TCP,
+  OFFSET_OF ( ESL_PORT, Context.Tcp4.ConfigData ),
   OFFSET_OF ( ESL_LAYER, pTcp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),
   sizeof ( struct sockaddr_in ),

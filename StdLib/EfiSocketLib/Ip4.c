@@ -165,8 +165,8 @@ EslIp4OptionGet (
     //
     //  Protocol level not supported
     //
-    pSocket->errno = ENOTSUP;
-    Status = EFI_UNSUPPORTED;
+    pSocket->errno = ENOPROTOOPT;
+    Status = EFI_INVALID_PARAMETER;
     break;
 
   case IPPROTO_IP:
@@ -175,8 +175,8 @@ EslIp4OptionGet (
       //
       //  Option not supported
       //
-      pSocket->errno = ENOTSUP;
-      Status = EFI_UNSUPPORTED;
+      pSocket->errno = ENOPROTOOPT;
+      Status = EFI_INVALID_PARAMETER;
       break;
 
     case IP_HDRINCL:
@@ -388,6 +388,7 @@ EslIp4PortAllocate (
   //
   //  Save the cancel, receive and transmit addresses
   //
+  pPort->pfnConfigure = (PFN_NET_CONFIGURE)pPort->pProtocol.IPv4->Configure;
   pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.IPv4->Cancel;
   pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.IPv4->Receive;
   pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.IPv4->Transmit;
@@ -1226,6 +1227,7 @@ EslIp4TxComplete (
 **/
 CONST ESL_PROTOCOL_API cEslIp4Api = {
   IPPROTO_IP,
+  OFFSET_OF ( ESL_PORT, Context.Ip4.ModeData.ConfigData ),
   OFFSET_OF ( ESL_LAYER, pIp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),
   sizeof ( struct sockaddr_in ),

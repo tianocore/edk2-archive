@@ -208,6 +208,7 @@ EslUdp4PortAllocate (
   //
   //  Save the cancel, receive and transmit addresses
   //
+  pPort->pfnConfigure = (PFN_NET_CONFIGURE)pPort->pProtocol.UDPv4->Configure;
   pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Cancel;
   pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Receive;
   pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Transmit;
@@ -968,6 +969,7 @@ EslUdp4TxComplete (
 **/
 CONST ESL_PROTOCOL_API cEslUdp4Api = {
   IPPROTO_UDP,
+  OFFSET_OF ( ESL_PORT, Context.Udp4.ConfigData ),
   OFFSET_OF ( ESL_LAYER, pUdp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),
   sizeof ( struct sockaddr_in ),

@@ -75,12 +75,14 @@ AcceptWork (
     //
     //  Convert the protocol to a socket
     //
-    NewSocketFd = BslSocketProtocolToFd ( pNewSocket, &errno );
-    if ( -1 == NewSocketFd ) {
-      //
-      //  Close the socket
-      //
-      BslSocketCloseWork ( pNewSocket, NULL );
+    if ( !EFI_ERROR ( Status )) {
+      NewSocketFd = BslSocketProtocolToFd ( pNewSocket, &errno );
+      if ( -1 == NewSocketFd ) {
+        //
+        //  Close the socket
+        //
+        BslSocketCloseWork ( pNewSocket, NULL );
+      }
     }
   }
 

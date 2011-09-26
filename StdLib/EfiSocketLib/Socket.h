@@ -270,6 +270,22 @@ typedef struct {
 
 
 /**
+  Configure the network layer.
+
+  @param [in] pProtocol   Protocol structure address
+  @param [in] pConfigData Address of the confiuration data
+
+  @return   Returns EFI_SUCCESS if the operation is successfully
+            started.
+**/
+typedef
+EFI_STATUS
+(* PFN_NET_CONFIGURE) (
+  IN VOID * pProtocol,
+  IN VOID * pConfigData
+  );
+
+/**
   Hand an I/O operation to the network layer.
 
   @param [in] pProtocol   Protocol structure address
@@ -315,11 +331,12 @@ typedef struct _ESL_PORT {
   //
   //  Port management
   //
-  EFI_HANDLE Handle;            ///<  Network port handle
-  PORT_STATE State;             ///<  State of the port
-  UINTN DebugFlags;             ///<  Debug flags used to close the port
-  BOOLEAN bCloseNow;            ///<  TRUE = Close the port immediately
-  BOOLEAN bConfigured;          ///<  TRUE = Configure call made to network layer
+  EFI_HANDLE Handle;              ///<  Network port handle
+  PORT_STATE State;               ///<  State of the port
+  UINTN DebugFlags;               ///<  Debug flags used to close the port
+  BOOLEAN bCloseNow;              ///<  TRUE = Close the port immediately
+  BOOLEAN bConfigured;            ///<  TRUE = Configure call made to network layer
+  PFN_NET_CONFIGURE pfnConfigure; ///<  Configure the network layer
 
   //
   //  Transmit data management
@@ -382,7 +399,7 @@ EFI_STATUS
 /**
   Poll for completion of the connection attempt.
 
-  @param [in] pSocket         Address of the socket structure.
+  @param [in] pSocket   Address of an ::ESL_SOCKET structure.
 
   @retval EFI_SUCCESS   The connection was successfully established.
   @retval EFI_NOT_READY The connection is in progress, call this routine again.
@@ -805,6 +822,7 @@ VOID
 **/
 typedef struct {
   int DefaultProtocol;                      ///<  Default protocol
+  UINTN ConfigDataOffset;                   ///<  Offset in ::ESL_PORT to the configuration data
   UINTN ServiceListOffset;                  ///<  Offset in ::ESL_LAYER for the list of services
   socklen_t MinimumAddressLength;           ///<  Minimum address length in bytes
   socklen_t AddressLength;                  ///<  Address length in bytes
@@ -863,6 +881,7 @@ typedef struct _ESL_SOCKET {
   //
   //  Socket options
   //
+  BOOLEAN bListenCalled;        ///<  TRUE if listen was successfully called
   BOOLEAN bOobSupported;        ///<  TRUE if out-of-band messages are supported
   BOOLEAN bOobInLine;           ///<  TRUE if out-of-band messages are to be received inline with normal data
   BOOLEAN bIncludeHeader;       ///<  TRUE if including the IP header
@@ -1188,6 +1207,7 @@ EslSocketPacketFree (
                           for the port causes the network layer to assign a port
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
+  @param [in] bBindTest   TRUE if EslSocketBindTest should be called
   @param [in] DebugFlags  Flags for debug messages
   @param [out] ppPort     Buffer to receive new ::ESL_PORT structure address
 
@@ -1200,6 +1220,7 @@ EslSocketPortAllocate (
   IN ESL_SERVICE * pService,
   IN EFI_HANDLE ChildHandle,
   IN CONST struct sockaddr * pSockAddr,
+  IN BOOLEAN bBindTest,
   IN UINTN DebugFlags,
   OUT ESL_PORT ** ppPort
   );
