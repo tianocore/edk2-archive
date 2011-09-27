@@ -600,7 +600,7 @@ EslSocket (
     if (( AF_INET != domain )
       && ( AF_LOCAL != domain )) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
-                "ERROR - Invalid domain value" ));
+                "ERROR - Invalid domain value\r\n" ));
       Status = EFI_INVALID_PARAMETER;
       errno = EAFNOSUPPORT;
       break;
@@ -687,7 +687,7 @@ EslSocket (
       }
       if ( ppApiArrayEnd <= ppApiArray ) {
         DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
-                  "ERROR - The protocol is not supported!" ));
+                  "ERROR - The protocol is not supported!\r\n" ));
         errno = EPROTONOSUPPORT;
         break;
       }
@@ -696,7 +696,7 @@ EslSocket (
       //  The driver does not support this protocol
       //
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
-                "ERROR - The protocol does not support this socket type!" ));
+                "ERROR - The protocol does not support this socket type!\r\n" ));
       errno = EPROTONOSUPPORT;
       errno = EPROTOTYPE;
       break;
@@ -1148,12 +1148,10 @@ EslSocketBind (
     //
     //  Validate the local address length
     //
-    else if (( SockAddrLength < pSocket->pApi->MinimumAddressLength )
-      || ( pSockAddr->sa_len < pSocket->pApi->MinimumAddressLength )) {
+    else if ( SockAddrLength < pSocket->pApi->MinimumAddressLength ) {
       DEBUG (( DEBUG_BIND,
-                "ERROR - Invalid bind name length: %d, sa_len: %d\r\n",
-                SockAddrLength,
-                pSockAddr->sa_len ));
+                "ERROR - Invalid bind name length: %d\r\n",
+                SockAddrLength ));
       Status = EFI_INVALID_PARAMETER;
       pSocket->errno = EINVAL;
     }
@@ -1184,6 +1182,12 @@ EslSocketBind (
       //  Synchronize with the socket layer
       //
       RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+      //
+      //  Assume no ports are available
+      //
+      pSocket->errno = EADDRNOTAVAIL;
+      Status = EFI_INVALID_PARAMETER;
 
       //
       //  Walk the list of services
@@ -1234,9 +1238,14 @@ EslSocketBind (
       //  Verify that at least one network connection was found
       //
       if ( NULL == pSocket->pPortList ) {
-        DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
-                  "Socket address is not available!\r\n" ));
-        pSocket->errno = EADDRNOTAVAIL;
+        if ( EADDRNOTAVAIL == pSocket->errno ) {
+          DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
+                    "ERROR - Socket address is not available!\r\n" ));
+        }
+        if ( EADDRINUSE == pSocket->errno ) {
+          DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
+                    "ERROR - Socket address is in use!\r\n" ));
+        }
         Status = EFI_INVALID_PARAMETER;
       }
 
@@ -1245,6 +1254,7 @@ EslSocketBind (
       //
       if ( !EFI_ERROR ( Status )) {
         pSocket->State = SOCKET_STATE_BOUND;
+        pSocket->errno = 0;
       }
 
       //
@@ -1274,7 +1284,8 @@ EslSocketBind (
 /**
   Test the bind configuration.
 
-  @param [in] pPort     Address of the ::ESL_PORT structure.
+  @param [in] pPort       Address of the ::ESL_PORT structure.
+  @param [in] ErrnoValue  errno value if test fails
 
   @retval EFI_SUCCESS   The connection was successfully established.
   @retval Others        The connection attempt failed.
@@ -1282,7 +1293,8 @@ EslSocketBind (
  **/
 EFI_STATUS
 EslSocketBindTest (
-  IN ESL_PORT * pPort
+  IN ESL_PORT * pPort,
+  IN int ErrnoValue
   )
 {
   UINT8 * pBuffer;
@@ -1307,7 +1319,7 @@ EslSocketBindTest (
               "WARNING - Port 0x%08x failed configuration, Status: %r\r\n",
               pPort,
               Status ));
-    pPort->pSocket->errno = EADDRINUSE;
+    pPort->pSocket->errno = ErrnoValue;
   }
   else {
     //
@@ -1639,12 +1651,10 @@ EslSocketConnect (
     //
     //  Validate the name length
     //
-    if (( SockAddrLength < ( sizeof ( struct sockaddr ) - sizeof ( pSockAddr->sa_data )))
-      || ( pSockAddr->sa_len < ( sizeof ( struct sockaddr ) - sizeof ( pSockAddr->sa_data )))) {
+    if ( SockAddrLength < ( sizeof ( struct sockaddr ) - sizeof ( pSockAddr->sa_data ))) {
       DEBUG (( DEBUG_CONNECT,
-                "ERROR - Invalid bind name length: %d, sa_len: %d\r\n",
-                SockAddrLength,
-                pSockAddr->sa_len ));
+                "ERROR - Invalid bind name length: %d\r\n",
+                SockAddrLength ));
       Status = EFI_INVALID_PARAMETER;
       pSocket->errno = EINVAL;
     }
@@ -1653,13 +1663,6 @@ EslSocketConnect (
       //  Assume success
       //
       pSocket->errno = 0;
-
-      //
-      //  Set the socket address length
-      //
-      if ( SockAddrLength > pSockAddr->sa_len ) {
-        SockAddrLength = pSockAddr->sa_len;
-      }
 
       //
       //  Synchronize with the socket layer
@@ -1719,9 +1722,12 @@ EslSocketConnect (
                 //
                 //  Set the remote address
                 //
-                pSocket->pApi->pfnRemoteAddrSet ( pPort,
-                                                  pSockAddr,
-                                                  SockAddrLength );
+                Status = pSocket->pApi->pfnRemoteAddrSet ( pPort,
+                                                           pSockAddr,
+                                                           SockAddrLength );
+                if ( EFI_ERROR ( Status )) {
+                  break;
+                }
 
                 //
                 //  Set the next port
@@ -1732,7 +1738,8 @@ EslSocketConnect (
               //
               //  Verify the API
               //
-              if ( NULL != pSocket->pApi->pfnConnectStart ) {
+              if (( !EFI_ERROR ( Status ))
+                && ( NULL != pSocket->pApi->pfnConnectStart )) {
                 //
                 //  Initiate the connection with the remote system
                 //
@@ -2723,6 +2730,14 @@ EslSocketOptionGet (
         LengthInBytes = sizeof ( pSocket->bListenCalled );
         break;
 
+      case SO_DEBUG:
+        //
+        //  Return the debug flags
+        //
+        pOptionData = (UINT8 *)&pSocket->bOobInLine;
+        LengthInBytes = sizeof ( pSocket->bOobInLine );
+        break;
+
       case SO_OOBINLINE:
         //
         //  Return the out-of-band inline flag
@@ -2894,6 +2909,14 @@ EslSocketOptionSet (
         //
         errno = EINVAL;
         Status = EFI_INVALID_PARAMETER;
+        break;
+
+      case SO_DEBUG:
+        //
+        //  Set the debug flags
+        //
+        pOptionData = (UINT8 *)&pSocket->bOobInLine;
+        LengthInBytes = sizeof ( pSocket->bOobInLine );
         break;
 
       case SO_OOBINLINE:
@@ -3387,13 +3410,16 @@ EslSocketPortAllocate (
     //
     //  Set the local address
     //
-    pSocket->pApi->pfnLocalAddrSet ( pPort, pSockAddr );
+    Status = pSocket->pApi->pfnLocalAddrSet ( pPort, pSockAddr );
+    if ( EFI_ERROR ( Status )) {
+      break;
+    }
 
     //
-    //  Test the configuration
+    //  Test the address/port configuration
     //
     if ( bBindTest ) {
-      Status = EslSocketBindTest ( pPort );
+      Status = EslSocketBindTest ( pPort, pSocket->pApi->BindTestErrno );
       if ( EFI_ERROR ( Status )) {
         break;
       }

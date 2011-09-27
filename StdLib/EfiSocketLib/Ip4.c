@@ -72,8 +72,10 @@ EslIp4LocalAddressGet (
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
 
+  @retval EFI_SUCCESS     The operation was successful
+
  **/
-VOID
+EFI_STATUS
 EslIp4LocalAddressSet (
   IN ESL_PORT * pPort,
   IN CONST struct sockaddr * pSockAddr
@@ -82,42 +84,73 @@ EslIp4LocalAddressSet (
   EFI_IP4_CONFIG_DATA * pConfig;
   CONST struct sockaddr_in * pIpAddress;
   CONST UINT8 * pIpv4Address;
+  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Set the local address
+  //  Validate the address
   //
   pIpAddress = (struct sockaddr_in *)pSockAddr;
-  pIpv4Address = (UINT8 *)&pIpAddress->sin_addr.s_addr;
-  pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
-  pConfig->StationAddress.Addr[0] = pIpv4Address[0];
-  pConfig->StationAddress.Addr[1] = pIpv4Address[1];
-  pConfig->StationAddress.Addr[2] = pIpv4Address[2];
-  pConfig->StationAddress.Addr[3] = pIpv4Address[3];
-
-  //
-  //  Determine if the default address is used
-  //
-  pConfig->UseDefaultAddress = (BOOLEAN)( 0 == pIpAddress->sin_addr.s_addr );
-
-  //
-  //  Set the subnet mask
-  //
-  if ( pConfig->UseDefaultAddress ) {
-    pConfig->SubnetMask.Addr[0] = 0;
-    pConfig->SubnetMask.Addr[1] = 0;
-    pConfig->SubnetMask.Addr[2] = 0;
-    pConfig->SubnetMask.Addr[3] = 0;
+  if ( INADDR_BROADCAST == pIpAddress->sin_addr.s_addr ) {
+    //
+    //  The local address must not be the broadcast address
+    //
+    Status = EFI_INVALID_PARAMETER;
+    pPort->pSocket->errno = EADDRNOTAVAIL;
   }
   else {
-    pConfig->SubnetMask.Addr[0] = 0xff;
-    pConfig->SubnetMask.Addr[1] = 0xff;
-    pConfig->SubnetMask.Addr[2] = 0xff;
-    pConfig->SubnetMask.Addr[3] = 0xff;
+    Status = EFI_SUCCESS;
+
+    //
+    //  Set the local address
+    //
+    pIpAddress = (struct sockaddr_in *)pSockAddr;
+    pIpv4Address = (UINT8 *)&pIpAddress->sin_addr.s_addr;
+    pConfig = &pPort->Context.Ip4.ModeData.ConfigData;
+    pConfig->StationAddress.Addr[0] = pIpv4Address[0];
+    pConfig->StationAddress.Addr[1] = pIpv4Address[1];
+    pConfig->StationAddress.Addr[2] = pIpv4Address[2];
+    pConfig->StationAddress.Addr[3] = pIpv4Address[3];
+
+    //
+    //  Determine if the default address is used
+    //
+    pConfig->UseDefaultAddress = (BOOLEAN)( 0 == pIpAddress->sin_addr.s_addr );
+
+    //
+    //  Display the local address
+    //
+    DEBUG (( DEBUG_BIND,
+              "0x%08x: Port, Local IP4 Address: %d.%d.%d.%d\r\n",
+              pPort,
+              pConfig->StationAddress.Addr[0],
+              pConfig->StationAddress.Addr[1],
+              pConfig->StationAddress.Addr[2],
+              pConfig->StationAddress.Addr[3]));
+
+    //
+    //  Set the subnet mask
+    //
+    if ( pConfig->UseDefaultAddress ) {
+      pConfig->SubnetMask.Addr[0] = 0;
+      pConfig->SubnetMask.Addr[1] = 0;
+      pConfig->SubnetMask.Addr[2] = 0;
+      pConfig->SubnetMask.Addr[3] = 0;
+    }
+    else {
+      pConfig->SubnetMask.Addr[0] = 0xff;
+      pConfig->SubnetMask.Addr[1] = 0xff;
+      pConfig->SubnetMask.Addr[2] = 0xff;
+      pConfig->SubnetMask.Addr[3] = 0xff;
+    }
   }
 
-  DBG_EXIT ( );
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
 }
 
 
@@ -600,8 +633,10 @@ EslIp4RemoteAddressGet (
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
+  @retval EFI_SUCCESS     The operation was successful
+
  **/
-VOID
+EFI_STATUS
 EslIp4RemoteAddressSet (
   IN ESL_PORT * pPort,
   IN CONST struct sockaddr * pSockAddr,
@@ -610,6 +645,7 @@ EslIp4RemoteAddressSet (
 {
   ESL_IP4_CONTEXT * pIp4;
   CONST struct sockaddr_in * pRemoteAddress;
+  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
@@ -622,8 +658,13 @@ EslIp4RemoteAddressSet (
   pIp4->DestinationAddress.Addr[1] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 8 );
   pIp4->DestinationAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
   pIp4->DestinationAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
+  Status = EFI_SUCCESS;
 
-  DBG_EXIT ( );
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
 }
 
 
@@ -1236,6 +1277,7 @@ CONST ESL_PROTOCOL_API cEslIp4Api = {
   sizeof (((ESL_PACKET *)0 )->Op.Ip4Rx ),
   OFFSET_OF ( ESL_IO_MGMT, Token.Ip4Rx.Packet.RxData ),
   FALSE,
+  EADDRNOTAVAIL,
   NULL,   //  Accept
   NULL,   //  ConnectPoll
   NULL,   //  ConnectStart

@@ -467,9 +467,11 @@ VOID
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
 
+  @retval EFI_SUCCESS     The operation was successful
+
  **/
 typedef
-VOID
+EFI_STATUS
 (* PFN_API_LOCAL_ADDR_SET) (
   IN ESL_PORT * pPort,
   IN CONST struct sockaddr * pSockAddr
@@ -714,9 +716,11 @@ VOID
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
+  @retval EFI_SUCCESS     The operation was successful
+
  **/
 typedef
-VOID
+EFI_STATUS
 (* PFN_API_REMOTE_ADDR_SET) (
   IN ESL_PORT * pPort,
   IN CONST struct sockaddr * pSockAddr,
@@ -831,6 +835,7 @@ typedef struct {
   UINTN RxZeroBytes;                        ///<  Number of bytes to zero in RX packet
   UINTN RxBufferOffset;                     ///<  Offset of buffer address in ESL_IO_MGMT structure
   BOOLEAN bOobSupported;                    ///<  TRUE if out-of-band messages are supported
+  int BindTestErrno;                        ///<  errno value if EslSocketBindTest fails
   PFN_API_ACCEPT pfnAccept;                 ///<  Accept a network connection
   PFN_API_CONNECT_POLL pfnConnectPoll;      ///<  Poll for connection complete
   PFN_API_CONNECT_START pfnConnectStart;    ///<  Start the connection to a remote system
@@ -877,6 +882,7 @@ typedef struct _ESL_SOCKET {
   int errno;                    ///<  Error information for this socket
   EFI_STATUS Status;            ///<  Asyncronous error information for this socket
   SOCKET_STATE State;           ///<  Socket state
+  UINT32 DebugFlags;            ///<  Debug flags
 
   //
   //  Socket options
@@ -1026,6 +1032,22 @@ EslSocketAllocate (
   IN OUT EFI_HANDLE * pChildHandle,
   IN     UINTN DebugFlags,
   IN OUT ESL_SOCKET ** ppSocket
+  );
+
+/**
+  Test the bind configuration.
+
+  @param [in] pPort       Address of the ::ESL_PORT structure.
+  @param [in] ErrnoValue  errno value if test fails
+
+  @retval EFI_SUCCESS   The connection was successfully established.
+  @retval Others        The connection attempt failed.
+
+ **/
+EFI_STATUS
+EslSocketBindTest (
+  IN ESL_PORT * pPort,
+  IN int ErrnoValue
   );
 
 /**

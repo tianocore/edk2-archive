@@ -1097,8 +1097,10 @@ EslTcp4LocalAddressGet (
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
 
+  @retval EFI_SUCCESS     The operation was successful
+
  **/
-VOID
+EFI_STATUS
 EslTcp4LocalAddressSet (
   IN ESL_PORT * pPort,
   IN CONST struct sockaddr * pSockAddr
@@ -1107,50 +1109,83 @@ EslTcp4LocalAddressSet (
   EFI_TCP4_ACCESS_POINT * pAccessPoint;
   CONST struct sockaddr_in * pIpAddress;
   CONST UINT8 * pIpv4Address;
+  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
   //
-  //  Set the local address
+  //  Validate the address
   //
   pIpAddress = (struct sockaddr_in *)pSockAddr;
-  pIpv4Address = (UINT8 *)&pIpAddress->sin_addr.s_addr;
-  pAccessPoint = &pPort->Context.Tcp4.ConfigData.AccessPoint;
-  pAccessPoint->StationAddress.Addr[0] = pIpv4Address[0];
-  pAccessPoint->StationAddress.Addr[1] = pIpv4Address[1];
-  pAccessPoint->StationAddress.Addr[2] = pIpv4Address[2];
-  pAccessPoint->StationAddress.Addr[3] = pIpv4Address[3];
-
-  //
-  //  Determine if the default address is used
-  //
-  pAccessPoint->UseDefaultAddress = (BOOLEAN)( 0 == pIpAddress->sin_addr.s_addr );
-
-  //
-  //  Set the port number
-  //
-  pAccessPoint->StationPort = SwapBytes16 ( pIpAddress->sin_port );
-
-  //
-  //  Set the subnet mask
-  //
-  if ( pAccessPoint->UseDefaultAddress ) {
-    pAccessPoint->SubnetMask.Addr[0] = 0;
-    pAccessPoint->SubnetMask.Addr[1] = 0;
-    pAccessPoint->SubnetMask.Addr[2] = 0;
-    pAccessPoint->SubnetMask.Addr[3] = 0;
+  if ( INADDR_BROADCAST == pIpAddress->sin_addr.s_addr ) {
+    //
+    //  The local address must not be the broadcast address
+    //
+    Status = EFI_INVALID_PARAMETER;
+    pPort->pSocket->errno = EADDRNOTAVAIL;
   }
   else {
-    pAccessPoint->SubnetMask.Addr[0] = 0xff;
-    pAccessPoint->SubnetMask.Addr[1] = 0xff;
-    pAccessPoint->SubnetMask.Addr[2] = 0xff;
-    pAccessPoint->SubnetMask.Addr[3] = 0xff;
+    //
+    //  Set the local address
+    //
+    pIpv4Address = (UINT8 *)&pIpAddress->sin_addr.s_addr;
+    pAccessPoint = &pPort->Context.Tcp4.ConfigData.AccessPoint;
+    pAccessPoint->StationAddress.Addr[0] = pIpv4Address[0];
+    pAccessPoint->StationAddress.Addr[1] = pIpv4Address[1];
+    pAccessPoint->StationAddress.Addr[2] = pIpv4Address[2];
+    pAccessPoint->StationAddress.Addr[3] = pIpv4Address[3];
+
+    //
+    //  Determine if the default address is used
+    //
+    pAccessPoint->UseDefaultAddress = (BOOLEAN)( 0 == pIpAddress->sin_addr.s_addr );
+    
+    //
+    //  Set the subnet mask
+    //
+    if ( pAccessPoint->UseDefaultAddress ) {
+      pAccessPoint->SubnetMask.Addr[0] = 0;
+      pAccessPoint->SubnetMask.Addr[1] = 0;
+      pAccessPoint->SubnetMask.Addr[2] = 0;
+      pAccessPoint->SubnetMask.Addr[3] = 0;
+    }
+    else {
+      pAccessPoint->SubnetMask.Addr[0] = 0xff;
+      pAccessPoint->SubnetMask.Addr[1] = 0xff;
+      pAccessPoint->SubnetMask.Addr[2] = 0xff;
+      pAccessPoint->SubnetMask.Addr[3] = 0xff;
+    }
+
+    //
+    //  Validate the IP address
+    //
+    pAccessPoint->StationPort = 0;
+    Status = EslSocketBindTest ( pPort, EADDRNOTAVAIL );
+    if ( !EFI_ERROR ( Status )) {
+      //
+      //  Set the port number
+      //
+      pAccessPoint->StationPort = SwapBytes16 ( pIpAddress->sin_port );
+
+      //
+      //  Display the local address
+      //
+      DEBUG (( DEBUG_BIND,
+                "0x%08x: Port, Local TCP4 Address: %d.%d.%d.%d:%d\r\n",
+                pPort,
+                pAccessPoint->StationAddress.Addr[0],
+                pAccessPoint->StationAddress.Addr[1],
+                pAccessPoint->StationAddress.Addr[2],
+                pAccessPoint->StationAddress.Addr[3],
+                pAccessPoint->StationPort ));
+    }
   }
 
   //
   //  Return the operation status
   //
-  DBG_EXIT ( );
+  DBG_EXIT_STATUS ( Status );
+  return Status;
 }
 
 
@@ -1626,8 +1661,10 @@ EslTcp4RemoteAddressGet (
 
   @param [in] SockAddrLength  Length in bytes of the network address.
 
+  @retval EFI_SUCCESS     The operation was successful
+
  **/
-VOID
+EFI_STATUS
 EslTcp4RemoteAddressSet (
   IN ESL_PORT * pPort,
   IN CONST struct sockaddr * pSockAddr,
@@ -1636,6 +1673,7 @@ EslTcp4RemoteAddressSet (
 {
   CONST struct sockaddr_in * pRemoteAddress;
   ESL_TCP4_CONTEXT * pTcp4;
+  EFI_STATUS Status;
 
   DBG_ENTER ( );
 
@@ -1649,8 +1687,19 @@ EslTcp4RemoteAddressSet (
   pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[2] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 16 );
   pTcp4->ConfigData.AccessPoint.RemoteAddress.Addr[3] = (UINT8)( pRemoteAddress->sin_addr.s_addr >> 24 );
   pTcp4->ConfigData.AccessPoint.RemotePort = SwapBytes16 ( pRemoteAddress->sin_port );
+  Status = EFI_SUCCESS;
+  if ( INADDR_BROADCAST == pRemoteAddress->sin_addr.s_addr ) {
+    DEBUG (( DEBUG_CONNECT,
+              "ERROR - Invalid remote address\r\n" ));
+    Status = EFI_INVALID_PARAMETER;
+    pPort->pSocket->errno = EAFNOSUPPORT;
+  }
 
-  DBG_EXIT ( );
+  //
+  //  Return the operation status
+  //
+  DBG_EXIT_STATUS ( Status );
+  return Status;
 }
 
 
@@ -2159,6 +2208,7 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   OFFSET_OF ( ESL_PACKET, Op.Tcp4Rx.Buffer ) - OFFSET_OF ( ESL_PACKET, Op ),
   OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Rx.Packet.RxData ),
   FALSE,
+  EADDRINUSE,
   EslTcp4Accept,
   EslTcp4ConnectPoll,
   EslTcp4ConnectStart,
