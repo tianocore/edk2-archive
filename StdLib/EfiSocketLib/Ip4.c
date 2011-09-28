@@ -72,13 +72,16 @@ EslIp4LocalAddressGet (
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
 
+  @param [in] bBindTest   TRUE = run bind testing
+
   @retval EFI_SUCCESS     The operation was successful
 
  **/
 EFI_STATUS
 EslIp4LocalAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr * pSockAddr
+  IN CONST struct sockaddr * pSockAddr,
+  IN BOOLEAN bBindTest
   )
 {
   EFI_IP4_CONFIG_DATA * pConfig;
@@ -163,7 +166,6 @@ EslIp4LocalAddressSet (
   the IPv4 options one at a time by name.
 
   @param [in] pSocket           Address of an ::ESL_SOCKET structure
-  @param [in] level             Option protocol level
   @param [in] OptionName        Name of the option
   @param [out] ppOptionData     Buffer to receive address of option value
   @param [out] pOptionLength    Buffer to receive the option length
@@ -174,7 +176,6 @@ EslIp4LocalAddressSet (
 EFI_STATUS
 EslIp4OptionGet (
   IN ESL_SOCKET * pSocket,
-  IN int level,
   IN int OptionName,
   OUT CONST void ** __restrict ppOptionData,
   OUT socklen_t * __restrict pOptionLength
@@ -193,30 +194,19 @@ EslIp4OptionGet (
   //
   //  Attempt to get the option
   //
-  switch ( level ) {
+  switch ( OptionName ) {
   default:
     //
-    //  Protocol level not supported
+    //  Option not supported
     //
     pSocket->errno = ENOPROTOOPT;
     Status = EFI_INVALID_PARAMETER;
     break;
 
-  case IPPROTO_IP:
-    switch ( OptionName ) {
-    default:
-      //
-      //  Option not supported
-      //
-      pSocket->errno = ENOPROTOOPT;
-      Status = EFI_INVALID_PARAMETER;
-      break;
-
-    case IP_HDRINCL:
-      *ppOptionData = (void *)pSocket->bIncludeHeader;
-      *pOptionLength = sizeof ( pSocket->bIncludeHeader );
-      break;
-    }
+  case IP_HDRINCL:
+    *ppOptionData = (void *)pSocket->bIncludeHeader;
+    *pOptionLength = sizeof ( pSocket->bIncludeHeader );
+    break;
   }
 
   //
@@ -236,7 +226,6 @@ EslIp4OptionGet (
   the IPv4 options one at a time by name.
 
   @param [in] pSocket         Address of an ::ESL_SOCKET structure
-  @param [in] level           Option protocol level
   @param [in] OptionName      Name of the option
   @param [in] pOptionValue    Buffer containing the option value
   @param [in] OptionLength    Length of the buffer in bytes
@@ -247,7 +236,6 @@ EslIp4OptionGet (
 EFI_STATUS
 EslIp4OptionSet (
   IN ESL_SOCKET * pSocket,
-  IN int level,
   IN int OptionName,
   IN CONST void * pOptionValue,
   IN socklen_t OptionLength
@@ -261,78 +249,50 @@ EslIp4OptionSet (
   DBG_ENTER ( );
 
   //
-  //  Assume failure
+  //  Assume success
   //
-  pSocket->errno = EINVAL;
-  Status = EFI_INVALID_PARAMETER;
+  pSocket->errno = 0;
+  Status = EFI_SUCCESS;
 
   //
   //  Determine if the option protocol matches
   //
   LengthInBytes = 0;
   pOptionData = NULL;
-  switch ( level ) {
+  switch ( OptionName ) {
   default:
     //
     //  Protocol level not supported
     //
-    DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid option level\r\n" ));
+    DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid protocol option\r\n" ));
     pSocket->errno = ENOTSUP;
     Status = EFI_UNSUPPORTED;
     break;
 
-  case IPPROTO_IP:
-    switch ( OptionName ) {
-    default:
-      //
-      //  Protocol level not supported
-      //
-      DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid protocol option\r\n" ));
-      pSocket->errno = ENOTSUP;
-      Status = EFI_UNSUPPORTED;
-      break;
+  case IP_HDRINCL:
 
-    case IP_HDRINCL:
-
+    //
+    //  Validate the option length
+    //
+    if ( sizeof ( UINT32 ) == OptionLength ) {
       //
-      //  Validate the option length
+      //  Restrict the input to TRUE or FALSE
       //
-      if ( sizeof ( UINT32 ) == OptionLength ) {
-        //
-        //  Restrict the input to TRUE or FALSE
-        //
-        bTrueFalse = TRUE;
-        if ( 0 == *(UINT32 *)pOptionValue ) {
-          bTrueFalse = FALSE;
-        }
-        pOptionValue = &bTrueFalse;
-
-        //
-        //  Set the option value
-        //
-        pOptionData = (UINT8 *)&pSocket->bIncludeHeader;
-        LengthInBytes = sizeof ( pSocket->bIncludeHeader );
+      bTrueFalse = TRUE;
+      if ( 0 == *(UINT32 *)pOptionValue ) {
+        bTrueFalse = FALSE;
       }
-      break;
-      
+      pOptionValue = &bTrueFalse;
+
+      //
+      //  Set the option value
+      //
+      pOptionData = (UINT8 *)&pSocket->bIncludeHeader;
+      LengthInBytes = sizeof ( pSocket->bIncludeHeader );
     }
     break;
   }
 
-  //
-  //  Validate the option length
-  //
-  if ( LengthInBytes <= OptionLength ) {
-    //
-    //  Set the option value
-    //
-    if ( NULL != pOptionData ) {
-      CopyMem ( pOptionData, pOptionValue, LengthInBytes );
-      pSocket->errno = 0;
-      Status = EFI_SUCCESS;
-    }
-  }
-  
   //
   //  Return the operation status
   //
@@ -1267,7 +1227,8 @@ EslIp4TxComplete (
   code that supports SOCK_RAW sockets over IPv4.
 **/
 CONST ESL_PROTOCOL_API cEslIp4Api = {
-  IPPROTO_IP,
+  "IPv4",
+    IPPROTO_IP,
   OFFSET_OF ( ESL_PORT, Context.Ip4.ModeData.ConfigData ),
   OFFSET_OF ( ESL_LAYER, pIp4List ),
   OFFSET_OF ( struct sockaddr_in, sin_zero ),

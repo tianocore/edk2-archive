@@ -73,13 +73,16 @@ EslUdp4LocalAddressGet (
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
 
+  @param [in] bBindTest   TRUE = run bind testing
+
   @retval EFI_SUCCESS     The operation was successful
 
  **/
 EFI_STATUS
 EslUdp4LocalAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr * pSockAddr
+  IN CONST struct sockaddr * pSockAddr,
+  IN BOOLEAN bBindTest
   )
 {
   EFI_UDP4_CONFIG_DATA * pConfig;
@@ -101,8 +104,6 @@ EslUdp4LocalAddressSet (
     pPort->pSocket->errno = EADDRNOTAVAIL;
   }
   else {
-    Status = EFI_SUCCESS;
-
     //
     //  Set the local address
     //
@@ -139,7 +140,8 @@ EslUdp4LocalAddressSet (
     //  Validate the IP address
     //
     pConfig->StationPort = 0;
-    Status = EslSocketBindTest ( pPort, EADDRNOTAVAIL );
+    Status = bBindTest ? EslSocketBindTest ( pPort, EADDRNOTAVAIL )
+                       : EFI_SUCCESS;
     if ( !EFI_ERROR ( Status )) {
       //
       //  Set the port number
@@ -1017,6 +1019,7 @@ EslUdp4TxComplete (
   code that supports SOCK_DGRAM sockets over UDPv4.
 **/
 CONST ESL_PROTOCOL_API cEslUdp4Api = {
+  "UDPv4",
   IPPROTO_UDP,
   OFFSET_OF ( ESL_PORT, Context.Udp4.ConfigData ),
   OFFSET_OF ( ESL_LAYER, pUdp4List ),

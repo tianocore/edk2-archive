@@ -466,6 +466,7 @@ VOID
                           for the port causes the network layer to assign a port
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
+  @param [in] bBindTest   TRUE = run bind testing
 
   @retval EFI_SUCCESS     The operation was successful
 
@@ -474,7 +475,8 @@ typedef
 EFI_STATUS
 (* PFN_API_LOCAL_ADDR_SET) (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr * pSockAddr
+  IN CONST struct sockaddr * pSockAddr,
+  IN BOOLEAN bBindTest
   );
 
 /**
@@ -514,7 +516,6 @@ EFI_STATUS
   Retrieve the protocol options one at a time by name.
 
   @param [in] pSocket           Address of a ESL_SOCKET structure
-  @param [in] level             Option protocol level
   @param [in] OptionName        Name of the option
   @param [out] ppOptionData     Buffer to receive address of option value
   @param [out] pOptionLength    Buffer to receive the option length
@@ -526,7 +527,6 @@ typedef
 EFI_STATUS
 (* PFN_API_OPTION_GET) (
   IN ESL_SOCKET * pSocket,
-  IN int level,
   IN int OptionName,
   OUT CONST void ** __restrict ppOptionData,
   OUT socklen_t * __restrict pOptionLength
@@ -538,7 +538,6 @@ EFI_STATUS
   Adjust the protocol options one at a time by name.
 
   @param [in] pSocket         Address of a ESL_SOCKET structure
-  @param [in] level           Option protocol level
   @param [in] OptionName      Name of the option
   @param [in] pOptionValue    Buffer containing the option value
   @param [in] OptionLength    Length of the buffer in bytes
@@ -550,7 +549,6 @@ typedef
 EFI_STATUS
 (* PFN_API_OPTION_SET) (
   IN ESL_SOCKET * pSocket,
-  IN int level,
   IN int OptionName,
   IN CONST void * pOptionValue,
   IN socklen_t OptionLength
@@ -825,6 +823,7 @@ VOID
   This driver uses this structure to define the API for the socket type.
 **/
 typedef struct {
+  CONST CHAR8 * pName;                      ///<  Protocol name
   int DefaultProtocol;                      ///<  Default protocol
   UINTN ConfigDataOffset;                   ///<  Offset in ::ESL_PORT to the configuration data
   UINTN ServiceListOffset;                  ///<  Offset in ::ESL_LAYER for the list of services

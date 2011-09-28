@@ -1097,13 +1097,16 @@ EslTcp4LocalAddressGet (
                           number from the dynamic range.  Specifying a specific
                           port number causes the network layer to use that port.
 
+  @param [in] bBindTest   TRUE = run bind testing
+
   @retval EFI_SUCCESS     The operation was successful
 
  **/
 EFI_STATUS
 EslTcp4LocalAddressSet (
   IN ESL_PORT * pPort,
-  IN CONST struct sockaddr * pSockAddr
+  IN CONST struct sockaddr * pSockAddr,
+  IN BOOLEAN bBindTest
   )
 {
   EFI_TCP4_ACCESS_POINT * pAccessPoint;
@@ -1160,7 +1163,8 @@ EslTcp4LocalAddressSet (
     //  Validate the IP address
     //
     pAccessPoint->StationPort = 0;
-    Status = EslSocketBindTest ( pPort, EADDRNOTAVAIL );
+    Status = bBindTest ? EslSocketBindTest ( pPort, EADDRNOTAVAIL )
+                       : EFI_SUCCESS;
     if ( !EFI_ERROR ( Status )) {
       //
       //  Set the port number
@@ -2198,6 +2202,7 @@ EslTcp4TxOobComplete (
   over TCPv4.
 **/
 CONST ESL_PROTOCOL_API cEslTcp4Api = {
+  "TCPv4",
   IPPROTO_TCP,
   OFFSET_OF ( ESL_PORT, Context.Tcp4.ConfigData ),
   OFFSET_OF ( ESL_LAYER, pTcp4List ),

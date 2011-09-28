@@ -2681,9 +2681,16 @@ EslSocketOptionGet (
   //  Validate the socket
   //
   pSocket = NULL;
-  if (( NULL != pSocketProtocol )
-    && ( NULL != pOptionValue )
-    && ( NULL != pOptionLength )) {
+  if ( NULL == pSocketProtocol ) {
+    DEBUG (( DEBUG_OPTION, "ERROR - pSocketProtocol is NULL!\r\n" ));
+  }
+  else if ( NULL == pOptionValue ) {
+    DEBUG (( DEBUG_OPTION, "ERROR - No option buffer specified\r\n" ));
+  }
+  else if ( NULL == pOptionLength ) {
+    DEBUG (( DEBUG_OPTION, "ERROR - Option length not specified!\r\n" ));
+  }
+  else {
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
     LengthInBytes = 0;
     MaxBytes = *pOptionLength;
@@ -2694,21 +2701,32 @@ EslSocketOptionGet (
       //  See if the protocol will handle the option
       //
       if ( NULL != pSocket->pApi->pfnOptionGet ) {
-        Status = pSocket->pApi->pfnOptionGet ( pSocket,
-                                               level,
-                                               OptionName,
-                                               &pOptionData,
-                                               &LengthInBytes );
-        errno = pSocket->errno;
+        if ( pSocket->pApi->DefaultProtocol == level ) {
+          Status = pSocket->pApi->pfnOptionGet ( pSocket,
+                                                 OptionName,
+                                                 &pOptionData,
+                                                 &LengthInBytes );
+          errno = pSocket->errno;
+          break;
+        }
+        else {
+          //
+          //  Protocol not supported
+          //
+          DEBUG (( DEBUG_OPTION,
+                    "ERROR - The socket does not support this protocol!\r\n" ));
+        }
       }
       else {
         //
         //  Protocol level not supported
         //
-        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid protocol option\r\n" ));
-        errno = ENOPROTOOPT;
-        Status = EFI_INVALID_PARAMETER;
+        DEBUG (( DEBUG_OPTION,
+                  "ERROR - %a does not support any options!\r\n",
+                  pSocket->pApi->pName ));
       }
+      errno = ENOPROTOOPT;
+      Status = EFI_INVALID_PARAMETER;
       break;
 
     case SOL_SOCKET:
@@ -2717,7 +2735,7 @@ EslSocketOptionGet (
         //
         //  Socket option not supported
         //
-        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid socket option\r\n" ));
+        DEBUG (( DEBUG_INFO | DEBUG_OPTION, "ERROR - Invalid socket option!\r\n" ));
         errno = EINVAL;
         Status = EFI_INVALID_PARAMETER;
         break;
@@ -2787,13 +2805,17 @@ EslSocketOptionGet (
     *pOptionLength = LengthInBytes;
 
     //
-    //  Return the option value
+    //  Determine if the option is present
     //
-    if ( NULL != pOptionData ) {
+    if ( 0 != LengthInBytes ) {
       //
       //  Silently truncate the value length
       //
       if ( LengthInBytes > MaxBytes ) {
+        DEBUG (( DEBUG_OPTION,
+                  "INFO - Truncating option from %d to %d bytes\r\n",
+                  LengthInBytes,
+                  MaxBytes ));
         LengthInBytes = MaxBytes;
       }
 
@@ -2872,123 +2894,155 @@ EslSocketOptionSet (
   //  Validate the socket
   //
   pSocket = NULL;
-  if (( NULL != pSocketProtocol )
-    && ( NULL != pOptionValue )
-    && ( !pSocket->bRxDisable )
-    && ( !pSocket->bTxDisable )) {
+  if ( NULL == pSocketProtocol ) {
+    DEBUG (( DEBUG_OPTION, "ERROR - pSocketProtocol is NULL!\r\n" ));
+  }
+  else if ( NULL == pOptionValue ) {
+    DEBUG (( DEBUG_OPTION, "ERROR - No option buffer specified\r\n" ));
+  }
+  else
+  {
     pSocket = SOCKET_FROM_PROTOCOL ( pSocketProtocol );
-    LengthInBytes = 0;
-    pOptionData = NULL;
-    switch ( level ) {
-    default:
-      //
-      //  See if the protocol will handle the option
-      //
-      if ( NULL != pSocket->pApi->pfnOptionSet ) {
-        Status = pSocket->pApi->pfnOptionSet ( pSocket,
-                                               level,
-                                               OptionName,
-                                               pOptionValue,
-                                               OptionLength );
-        errno = pSocket->errno;
-      }
-      else {
-        //
-        //  Protocol level not supported
-        //
-        errno = ENOPROTOOPT;
-        Status = EFI_INVALID_PARAMETER;
-      }
-      break;
-  
-    case SOL_SOCKET:
-      switch ( OptionName ) {
+    if ( pSocket->bRxDisable || pSocket->bTxDisable ) {
+      DEBUG (( DEBUG_OPTION, "ERROR - Socket has been shutdown!\r\n" ));
+    }
+    else {
+      LengthInBytes = 0;
+      pOptionData = NULL;
+      switch ( level ) {
       default:
         //
-        //  Option not supported
+        //  See if the protocol will handle the option
         //
-        errno = EINVAL;
-        Status = EFI_INVALID_PARAMETER;
-        break;
-
-      case SO_DEBUG:
-        //
-        //  Set the debug flags
-        //
-        pOptionData = (UINT8 *)&pSocket->bOobInLine;
-        LengthInBytes = sizeof ( pSocket->bOobInLine );
-        break;
-
-      case SO_OOBINLINE:
-        pOptionData = (UINT8 *)&pSocket->bOobInLine;
-        LengthInBytes = sizeof ( pSocket->bOobInLine );
-
-        //
-        //  Validate the option length
-        //
-        if ( sizeof ( UINT32 ) == OptionLength ) {
-          //
-          //  Restrict the input to TRUE or FALSE
-          //
-          bTrueFalse = TRUE;
-          if ( 0 == *(UINT32 *)pOptionValue ) {
-            bTrueFalse = FALSE;
+        if ( NULL != pSocket->pApi->pfnOptionSet ) {
+          if ( pSocket->pApi->DefaultProtocol == level ) {
+            Status = pSocket->pApi->pfnOptionSet ( pSocket,
+                                                   OptionName,
+                                                   pOptionValue,
+                                                   OptionLength );
+            errno = pSocket->errno;
+            break;
           }
-          pOptionValue = &bTrueFalse;
+          else {
+            //
+            //  Protocol not supported
+            //
+            DEBUG (( DEBUG_OPTION,
+                      "ERROR - The socket does not support this protocol!\r\n" ));
+          }
         }
         else {
           //
-          //  Force an invalid option length error
+          //  Protocol level not supported
           //
-          OptionLength = LengthInBytes - 1;
+          DEBUG (( DEBUG_OPTION,
+                    "ERROR - %a does not support any options!\r\n",
+                    pSocket->pApi->pName ));
+        }
+        errno = ENOPROTOOPT;
+        Status = EFI_INVALID_PARAMETER;
+        break;
+    
+      case SOL_SOCKET:
+        switch ( OptionName ) {
+        default:
+          //
+          //  Option not supported
+          //
+          DEBUG (( DEBUG_OPTION,
+                    "ERROR - Sockets does not support this option!\r\n" ));
+          errno = EINVAL;
+          Status = EFI_INVALID_PARAMETER;
+          break;
+
+        case SO_DEBUG:
+          //
+          //  Set the debug flags
+          //
+          pOptionData = (UINT8 *)&pSocket->bOobInLine;
+          LengthInBytes = sizeof ( pSocket->bOobInLine );
+          break;
+
+        case SO_OOBINLINE:
+          pOptionData = (UINT8 *)&pSocket->bOobInLine;
+          LengthInBytes = sizeof ( pSocket->bOobInLine );
+
+          //
+          //  Validate the option length
+          //
+          if ( sizeof ( UINT32 ) == OptionLength ) {
+            //
+            //  Restrict the input to TRUE or FALSE
+            //
+            bTrueFalse = TRUE;
+            if ( 0 == *(UINT32 *)pOptionValue ) {
+              bTrueFalse = FALSE;
+            }
+            pOptionValue = &bTrueFalse;
+          }
+          else {
+            //
+            //  Force an invalid option length error
+            //
+            OptionLength = LengthInBytes - 1;
+          }
+          break;
+
+        case SO_RCVTIMEO:
+          //
+          //  Return the receive timeout
+          //
+          pOptionData = (UINT8 *)&pSocket->RxTimeout;
+          LengthInBytes = sizeof ( pSocket->RxTimeout );
+          break;
+
+        case SO_RCVBUF:
+          //
+          //  Return the maximum receive buffer size
+          //
+          pOptionData = (UINT8 *)&pSocket->MaxRxBuf;
+          LengthInBytes = sizeof ( pSocket->MaxRxBuf );
+          break;
+
+        case SO_SNDBUF:
+          //
+          //  Send buffer size
+          //
+          //
+          //  Return the maximum transmit buffer size
+          //
+          pOptionData = (UINT8 *)&pSocket->MaxTxBuf;
+          LengthInBytes = sizeof ( pSocket->MaxTxBuf );
+          break;
         }
         break;
-
-      case SO_RCVTIMEO:
-        //
-        //  Return the receive timeout
-        //
-        pOptionData = (UINT8 *)&pSocket->RxTimeout;
-        LengthInBytes = sizeof ( pSocket->RxTimeout );
-        break;
-
-      case SO_RCVBUF:
-        //
-        //  Return the maximum receive buffer size
-        //
-        pOptionData = (UINT8 *)&pSocket->MaxRxBuf;
-        LengthInBytes = sizeof ( pSocket->MaxRxBuf );
-        break;
-
-      case SO_SNDBUF:
-        //
-        //  Send buffer size
-        //
-        //
-        //  Return the maximum transmit buffer size
-        //
-        pOptionData = (UINT8 *)&pSocket->MaxTxBuf;
-        LengthInBytes = sizeof ( pSocket->MaxTxBuf );
-        break;
       }
-      break;
-    }
 
-    //
-    //  Validate the option length
-    //
-    if ( LengthInBytes <= OptionLength ) {
       //
-      //  Set the option value
+      //  Determine if an option was found
       //
-      if ( NULL != pOptionData ) {
-        CopyMem ( pOptionData, pOptionValue, LengthInBytes );
-        errno = 0;
-        Status = EFI_SUCCESS;
+      if ( 0 != LengthInBytes ) {
+        //
+        //  Validate the option length
+        //
+        if ( LengthInBytes <= OptionLength ) {
+          //
+          //  Set the option value
+          //
+          CopyMem ( pOptionData, pOptionValue, LengthInBytes );
+          errno = 0;
+          Status = EFI_SUCCESS;
+        }
+        else {
+          DEBUG (( DEBUG_OPTION,
+                    "ERROR - Buffer to small, %d bytes < %d bytes!\r\n",
+                    OptionLength,
+                    LengthInBytes ));
+        }
       }
     }
   }
-  
+
   //
   //  Return the operation status
   //
@@ -3410,7 +3464,7 @@ EslSocketPortAllocate (
     //
     //  Set the local address
     //
-    Status = pSocket->pApi->pfnLocalAddrSet ( pPort, pSockAddr );
+    Status = pSocket->pApi->pfnLocalAddrSet ( pPort, pSockAddr, bBindTest );
     if ( EFI_ERROR ( Status )) {
       break;
     }
