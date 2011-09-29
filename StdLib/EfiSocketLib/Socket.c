@@ -924,7 +924,7 @@ EslSocketAccept (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -1273,7 +1273,7 @@ EslSocketBind (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -1822,7 +1822,7 @@ EslSocketConnect (
       DEBUG (( DEBUG_ERROR | DEBUG_CONNECT,
                 "ERROR - pSocketProtocol invalid!\r\n" ));
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
 
@@ -2047,7 +2047,7 @@ EslSocketGetLocalAddress (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -2186,7 +2186,7 @@ EslSocketGetPeerAddress (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -2624,7 +2624,7 @@ EslSocketListen (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -4312,19 +4312,14 @@ EslSocketReceive (
           //  Validate the buffer length
           //
           if (( NULL == pDataLength )
-            && ( 0 > pDataLength )
-            && ( NULL == pBuffer )) {
+            || ( NULL == pBuffer )) {
             if ( NULL == pDataLength ) {
               DEBUG (( DEBUG_RX,
                         "ERROR - pDataLength is NULL!\r\n" ));
             }
-            else if ( NULL == pBuffer ) {
-              DEBUG (( DEBUG_RX,
-                        "ERROR - pBuffer is NULL!\r\n" ));
-            }
             else {
               DEBUG (( DEBUG_RX,
-                        "ERROR - Data length < 0!\r\n" ));
+                        "ERROR - pBuffer is NULL!\r\n" ));
             }
             Status = EFI_INVALID_PARAMETER;
             pSocket->errno = EFAULT;
@@ -4345,9 +4340,8 @@ EslSocketReceive (
               if ( NULL != pAddress ) {
                 pRemoteAddress = (struct sockaddr *)&Addr;
                 ZeroMem ( pRemoteAddress, sizeof ( Addr ));
-                ZeroMem ( pAddress, *pAddressLength );
-                pRemoteAddress->sa_len = (UINT8)pSocket->pApi->AddressLength;
                 pRemoteAddress->sa_family = pSocket->pApi->AddressFamily;
+                pRemoteAddress->sa_len = (UINT8)pSocket->pApi->AddressLength;
               }
               
               //
@@ -4540,6 +4534,9 @@ EslSocketReceive (
                 if ( AddressLength > *pAddressLength ) {
                   AddressLength = *pAddressLength;
                 }
+                DEBUG (( DEBUG_RX,
+                          "Returning the remote address, 0x%016x bytes --> 0x%16x\r\n", *pAddressLength, pAddress ));
+                ZeroMem ( pAddress, *pAddressLength );
                 CopyMem ( pAddress, &Addr, AddressLength );
 
                 //
@@ -4572,7 +4569,7 @@ EslSocketReceive (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -5142,7 +5139,7 @@ EslSocketShutdown (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
@@ -5315,7 +5312,7 @@ EslSocketTransmit (
     }
     else {
       Status = EFI_INVALID_PARAMETER;
-      *pErrno = EBADF;
+      *pErrno = ENOTSOCK;
     }
   }
   DBG_EXIT_STATUS ( Status );
