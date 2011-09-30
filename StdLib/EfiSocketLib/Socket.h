@@ -341,6 +341,7 @@ typedef struct _ESL_PORT {
   //
   //  Transmit data management
   //
+  BOOLEAN bTxFlowControl;       ///<  TX flow control applied
   PFN_NET_IO_START pfnTxStart;  ///<  Start a transmit on the network
   ESL_IO_MGMT * pTxActive;      ///<  Normal data queue
   ESL_IO_MGMT * pTxFree;        ///<  Normal free queue
@@ -887,7 +888,6 @@ typedef struct _ESL_SOCKET {
   //  Socket options
   //
   BOOLEAN bListenCalled;        ///<  TRUE if listen was successfully called
-  BOOLEAN bOobSupported;        ///<  TRUE if out-of-band messages are supported
   BOOLEAN bOobInLine;           ///<  TRUE if out-of-band messages are to be received inline with normal data
   BOOLEAN bIncludeHeader;       ///<  TRUE if including the IP header
 

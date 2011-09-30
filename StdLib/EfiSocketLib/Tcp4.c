@@ -843,6 +843,7 @@ EslTcp4ListenComplete (
   EFI_STATUS TempStatus;
 
   DBG_ENTER ( );
+  VERIFY_AT_TPL ( TPL_SOCKETS );
 
   //
   //  Assume success
@@ -1937,7 +1938,9 @@ EslTcp4TxBuffer (
       //
       pTcp4 = &pPort->Context.Tcp4;
       bUrgent = (BOOLEAN)( 0 != ( Flags & MSG_OOB ));
-      bUrgentQueue = bUrgent & ( !pSocket->bOobInLine );
+      bUrgentQueue = bUrgent
+                    && ( !pSocket->bOobInLine )
+                    && pSocket->pApi->bOobSupported;
       if ( bUrgentQueue ) {
         ppQueueHead = &pSocket->pTxOobPacketListHead;
         ppQueueTail = &pSocket->pTxOobPacketListTail;
@@ -1958,6 +1961,15 @@ EslTcp4TxBuffer (
       //  transmit operation
       //
       if ( pSocket->MaxTxBuf > *pTxBytes ) {
+        if ( pPort->bTxFlowControl ) {
+          DEBUG (( DEBUG_TX,
+                    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\r\n0x%08x: pPort, TX flow control released, Max bytes: %d > %d bufferred bytes\r\n",
+                    pPort,
+                    pSocket->MaxTxBuf,
+                    *pTxBytes ));
+          pPort->bTxFlowControl = FALSE;
+        }
+
         //
         //  Attempt to allocate the packet
         //
@@ -2065,6 +2077,14 @@ EslTcp4TxBuffer (
         }
       }
       else {
+        if ( !pPort->bTxFlowControl ) {
+          DEBUG (( DEBUG_TX,
+                    "0x%08x: pPort, TX flow control applied, Max bytes %d <= %d bufferred bytes\r\nTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\r\n",
+                    pPort,
+                    pSocket->MaxTxBuf,
+                    *pTxBytes ));
+          pPort->bTxFlowControl = TRUE;
+        }
         //
         //  Not enough buffer space available
         //
@@ -2109,7 +2129,7 @@ EslTcp4TxComplete (
   EFI_STATUS Status;
   
   DBG_ENTER ( );
-  
+
   //
   //  Locate the active transmit packet
   //
@@ -2212,7 +2232,7 @@ CONST ESL_PROTOCOL_API cEslTcp4Api = {
   sizeof (((ESL_PACKET *)0 )->Op.Tcp4Rx ),
   OFFSET_OF ( ESL_PACKET, Op.Tcp4Rx.Buffer ) - OFFSET_OF ( ESL_PACKET, Op ),
   OFFSET_OF ( ESL_IO_MGMT, Token.Tcp4Rx.Packet.RxData ),
-  FALSE,
+  TRUE,
   EADDRINUSE,
   EslTcp4Accept,
   EslTcp4ConnectPoll,

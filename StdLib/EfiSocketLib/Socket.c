@@ -93,6 +93,11 @@
   request as well as the socket option SO_OOBINLINE.  The receive queue is selected by
   the URGENT data flag for TCP and the setting of the socket option SO_OOBINLINE.
 
+  Data structure synchronization is done by raising TPL to TPL_SOCKET.  Modifying
+  critical elements within the data structures must be done at this TPL.  TPL is then
+  restored to the previous level.  Note that the code verifies that all callbacks are
+  entering at TPL_SOCKETS for proper data structure synchronization.
+
   \section PortCloseStateMachine Port Close State Machine
 
   The port close state machine walks the port through the necessary
@@ -3872,6 +3877,7 @@ EslSocketPortCloseComplete (
   EFI_STATUS Status;
 
   DBG_ENTER ( );
+  VERIFY_AT_TPL ( TPL_SOCKETS );
 
   //
   //  Update the port state
@@ -4263,6 +4269,7 @@ EslSocketReceive (
   } Addr;
   socklen_t AddressLength;
   BOOLEAN bConsumePacket;
+  BOOLEAN bUrgentQueue;
   size_t DataLength;
   ESL_PACKET * pNextPacket;
   ESL_PACKET * pPacket;
@@ -4367,7 +4374,8 @@ EslSocketReceive (
                   //
                   //  Determine the queue head
                   //
-                  if ( pSocket->bOobSupported && ( 0 != ( Flags & MSG_OOB ))) {
+                  bUrgentQueue = (BOOLEAN)( 0 != ( Flags & MSG_OOB ));
+                  if ( bUrgentQueue ) {
                     ppQueueHead = &pSocket->pRxOobPacketListHead;
                     ppQueueTail = &pSocket->pRxOobPacketListTail;
                     pRxDataBytes = &pSocket->RxOobBytes;
@@ -4651,6 +4659,7 @@ EslSocketRxComplete (
   IN BOOLEAN bUrgent
   )
 {
+  BOOLEAN bUrgentQueue;
   ESL_IO_MGMT * pIoNext;
   ESL_PACKET * pPacket;
   ESL_PORT * pPort;
@@ -4661,6 +4670,7 @@ EslSocketRxComplete (
   ESL_SOCKET * pSocket;
 
   DBG_ENTER ( );
+  VERIFY_AT_TPL ( TPL_SOCKETS );
 
   //
   //  Locate the active receive packet
@@ -4727,7 +4737,10 @@ EslSocketRxComplete (
   //
   //  Determine the queue to use
   //
-  if ( bUrgent && ( !pSocket->bOobInLine )) {
+  bUrgentQueue = (BOOLEAN)( bUrgent
+               && pSocket->pApi->bOobSupported
+               && ( !pSocket->bOobInLine ));
+  if ( bUrgentQueue ) {
     ppQueueHead = &pSocket->pRxOobPacketListHead;
     ppQueueTail = &pSocket->pRxOobPacketListTail;
     pRxBytes = &pSocket->RxOobBytes;
@@ -4753,8 +4766,9 @@ EslSocketRxComplete (
     //  Log the received data
     //
     DEBUG (( DEBUG_RX | DEBUG_INFO,
-              "0x%08x: Packet queued on port 0x%08x with 0x%08x bytes of %s data\r\n",
+              "0x%08x: Packet queued on %s queue of port 0x%08x with 0x%08x bytes of %s data\r\n",
               pPacket,
+              bUrgentQueue ? L"urgent" : L"normal",
               pPort,
               LengthInBytes,
               bUrgent ? L"urgent" : L"normal" ));
@@ -4820,6 +4834,10 @@ EslSocketRxComplete (
     }
     else {
       if ( EFI_ERROR ( Status )) {
+        DEBUG (( DEBUG_RX | DEBUG_INFO,
+                  "0x%08x: Port state: PORT_STATE_RX_ERROR, Status: %r\r\n",
+                  pPort,
+                  Status ));
         pPort->State = PORT_STATE_RX_ERROR;
       }
     }
@@ -5367,6 +5385,7 @@ EslSocketTxComplete (
   ESL_SOCKET * pSocket;
 
   DBG_ENTER ( );
+  VERIFY_AT_TPL ( TPL_SOCKETS );
 
   //
   //  Locate the active transmit packet

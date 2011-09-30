@@ -75,6 +75,19 @@
 /**
   Verify that the TPL is at the correct level
 **/
+#define VERIFY_AT_TPL(tpl)                           \
+{                                                 \
+  EFI_TPL PreviousTpl;                            \
+                                                  \
+  PreviousTpl = EfiGetCurrentTpl ( );             \
+  if ( PreviousTpl != tpl ) {                     \
+    DEBUG (( DEBUG_ERROR | DEBUG_TPL,             \
+              "Current TPL: %d, New TPL: %d\r\n", \
+              PreviousTpl, tpl ));                \
+    ASSERT ( PreviousTpl == tpl );                \
+  }                                               \
+}
+
 #define VERIFY_TPL(tpl)                           \
 {                                                 \
   EFI_TPL PreviousTpl;                            \
@@ -90,6 +103,7 @@
 
 #else   //  MDEPKG_NDEBUG
 
+#define VERIFY_AT_TPL(tpl)    ///<  Verify that the TPL is at the correct level
 #define VERIFY_TPL(tpl)       ///<  Verify that the TPL is at the correct level
 
 #endif  //  MDEPKG_NDEBUG
@@ -108,10 +122,10 @@
   Restore the TPL to the previous value
 **/
 #define RESTORE_TPL(tpl)            \
-  gBS->RestoreTPL ( tpl );          \
   DEBUG (( DEBUG_TPL | DEBUG_TPL,   \
           "%d: TPL\r\n",            \
-          tpl ))
+          tpl ));                   \
+  gBS->RestoreTPL ( tpl )
 
 //------------------------------------------------------------------------------
 // Data Types
