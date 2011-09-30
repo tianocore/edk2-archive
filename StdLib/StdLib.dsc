@@ -25,7 +25,7 @@
   PLATFORM_VERSION               = 0.01
   DSC_SPECIFICATION              = 0x00010006
   OUTPUT_DIRECTORY               = Build/StdLib
-  SUPPORTED_ARCHITECTURES        = IA32|IPF|X64
+  SUPPORTED_ARCHITECTURES        = IA32|IPF|X64|ARM
   BUILD_TARGETS                  = DEBUG|RELEASE
   SKUID_IDENTIFIER               = DEFAULT
 
@@ -120,9 +120,9 @@
   StdLib/PosixLib/Stringlist/LibStringlist.inf
 
 #    Socket Libraries - LibC based
-  StdLib/BsdSocketLib/BsdSocketLib.inf
-  StdLib/EfiSocketLib/EfiSocketLib.inf
-  StdLib/UseSocketDxe/UseSocketDxe.inf
+#  StdLib/BsdSocketLib/BsdSocketLib.inf
+#  StdLib/EfiSocketLib/EfiSocketLib.inf
+#  StdLib/UseSocketDxe/UseSocketDxe.inf
 
 ##############################################################################
 #
