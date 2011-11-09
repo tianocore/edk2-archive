@@ -481,6 +481,14 @@ CONST ESL_SOCKET_BINDING cEslSocketBinding[] = {
     4,    //  RX buffers
     4,    //  TX buffers
     4 },  //  TX Oob buffers
+  { L"Tcp6",
+    &gEfiTcp6ServiceBindingProtocolGuid,
+    &gEfiTcp6ProtocolGuid,
+    &mEslTcp6ServiceGuid,
+    OFFSET_OF ( ESL_LAYER, pTcp6List ),
+    4,    //  RX buffers
+    4,    //  TX buffers
+    4 },  //  TX Oob buffers
   { L"Udp4",
     &gEfiUdp4ServiceBindingProtocolGuid,
     &gEfiUdp4ProtocolGuid,
@@ -516,11 +524,11 @@ CONST int cEslAfInetApiSize = DIM ( cEslAfInetApi );
 **/
 CONST ESL_PROTOCOL_API * cEslAfInet6Api[] = {
   NULL,             //  0
-  NULL,             //  SOCK_STREAM
+  &cEslTcp6Api,     //  SOCK_STREAM
   NULL,             //  SOCK_DGRAM
   NULL,             //  SOCK_RAW
   NULL,             //  SOCK_RDM
-  NULL              //  SOCK_SEQPACKET
+  &cEslTcp6Api      //  SOCK_SEQPACKET
 };
 
 /**

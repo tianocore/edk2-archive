@@ -34,6 +34,7 @@
   Service.c
   Socket.c
   Tcp4.c
+  Tcp6.c
   Udp4.c
   UseEfiSocketLib.c
 
@@ -52,9 +53,15 @@
 [Protocols]
   gEfiIp4ProtocolGuid
   gEfiIp4ServiceBindingProtocolGuid
+  gEfiIp6ProtocolGuid
+  gEfiIp6ServiceBindingProtocolGuid
   gEfiTcp4ProtocolGuid
   gEfiTcp4ServiceBindingProtocolGuid
+  gEfiTcp6ProtocolGuid
+  gEfiTcp6ServiceBindingProtocolGuid
   gEfiUdp4ProtocolGuid
   gEfiUdp4ServiceBindingProtocolGuid
+  gEfiUdp6ProtocolGuid
+  gEfiUdp6ServiceBindingProtocolGuid
   gEfiSocketProtocolGuid
   gEfiSocketServiceBindingProtocolGuid
