@@ -239,32 +239,23 @@ struct addrinfo {
 /*%
  * Constants for getnameinfo()
  */
-////#if defined(_NETBSD_SOURCE)
 #define	NI_MAXHOST	1025
 #define	NI_MAXSERV	32
-////#endif
 
 /*%
  * Flag values for getnameinfo()
  */
-////#define	NI_NOFQDN	0x00000001
+#define	NI_NOFQDN	0x00000001
 #define NI_NUMERICHOST  0x00000002
-////#define	NI_NAMEREQD	0x00000004
+#define	NI_NAMEREQD	0x00000004
 #define NI_NUMERICSERV  0x00000008
-////#define	NI_DGRAM	0x00000010
-////#define	NI_NUMERICSCOPE	0x00000040
+#define	NI_DGRAM	0x00000010
+#define	NI_NUMERICSCOPE	0x00000040
 
-#if 0  //  Not supported by UEFI
-#if (_POSIX_C_SOURCE - 0) >= 200112L || (_XOPEN_SOURCE - 0) >= 520 || \
-    defined(_NETBSD_SOURCE)
 /*%
  * Scope delimit character
  */
-#if defined(_NETBSD_SOURCE)
 #define	SCOPE_DELIMITER	'%'
-#endif
-#endif /* (_POSIX_C_SOURCE - 0) >= 200112L || ... */
-#endif  // 0  Not supported by UEFI
 
 __BEGIN_DECLS
 void		endhostent(void);

@@ -38,7 +38,7 @@
   gethostname.c
   gethostnamadr.c
   gethostbynis.c
-#  getnameinfo.c
+  getnameinfo.c
   getnetbydns.c
   getnetbynis.c
   getnetbyht.c

@@ -44,6 +44,7 @@ struct servent_data {
 	void *dummy;
 };
 
+#if 0
 struct servent	*getservent_r(struct servent *, struct servent_data *);
 struct servent	*getservbyname_r(const char *, const char *,
     struct servent *, struct servent_data *);
@@ -51,6 +52,7 @@ struct servent	*getservbyport_r(int, const char *,
     struct servent *, struct servent_data *);
 void setservent_r(int, struct servent_data *);
 void endservent_r(struct servent_data *);
+#endif  //  0
 
 int _servent_open(struct servent_data *);
 void _servent_close(struct servent_data *);

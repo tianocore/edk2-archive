@@ -45,6 +45,8 @@
  *   beware on merge.
  */
 
+#define INET6   1
+
 #include <sys/cdefs.h>
 #if defined(LIBC_SCCS) && !defined(lint)
 __RCSID("$NetBSD: getnameinfo.c,v 1.45 2006/10/15 16:14:46 christos Exp $");
@@ -55,8 +57,8 @@ __RCSID("$NetBSD: getnameinfo.c,v 1.45 2006/10/15 16:14:46 christos Exp $");
 #include <sys/socket.h>
 #include <net/if.h>
 #include <net/if_dl.h>
-#include <net/if_ieee1394.h>
-#include <net/if_types.h>
+//#include <net/if_ieee1394.h>
+//#include <net/if_types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <arpa/nameser.h>
@@ -67,11 +69,24 @@ __RCSID("$NetBSD: getnameinfo.c,v 1.45 2006/10/15 16:14:46 christos Exp $");
 #include <stddef.h>
 #include <string.h>
 
-#include "servent.h"
+#include <net/servent.h>
+
+#define CLLADDR(x)          ( LLADDR(x) )
+#define endservent_r(svd)   endservent()
+#define getservbyport_r(Port,pProto,pSv,pSvd)   getservbyport(Port,pProto)
 
 #ifdef __weak_alias
 __weak_alias(getnameinfo,_getnameinfo)
 #endif
+
+static
+int
+hexname(
+  const u_int8_t * cp,
+  size_t len,
+  char * host,
+  socklen_t hostlen
+  );
 
 static const struct afd {
 	int		a_af;
@@ -111,12 +126,15 @@ static int hexname __P((const u_int8_t *, size_t, char *, socklen_t));
  * appropriate function to call.
  */
 int
-getnameinfo(sa, salen, host, hostlen, serv, servlen, flags)
-	const struct sockaddr *sa;
-	socklen_t salen;
-	char *host, *serv;
-	socklen_t hostlen, servlen;
-	int flags;
+getnameinfo(
+  const struct sockaddr * sa,
+  socklen_t salen,
+  char * host,
+  socklen_t hostlen,
+  char * serv,
+  socklen_t servlen,
+  int flags
+  )
 {
 
 	switch (sa->sa_family) {
@@ -137,15 +155,17 @@ getnameinfo(sa, salen, host, hostlen, serv, servlen, flags)
  * getnameinfo_inet():
  * Format an IPv4 or IPv6 sockaddr into a printable string.
  */
-static int
-getnameinfo_inet(sa, salen, host, hostlen, serv, servlen, flags)
-	const struct sockaddr *sa;
-	socklen_t salen;
-	char *host;
-	socklen_t hostlen;
-	char *serv;
-	socklen_t servlen;
-	int flags;
+static
+int
+getnameinfo_inet(
+  const struct sockaddr * sa,
+  socklen_t salen,
+  char * host,
+  socklen_t hostlen,
+  char * serv,
+  socklen_t servlen,
+  int flags
+  )
 {
 	const struct afd *afd;
 	struct servent *sp;
@@ -197,7 +217,7 @@ getnameinfo_inet(sa, salen, host, hostlen, serv, servlen, flags)
 			sp = NULL;
 		else {
 			struct servent_data svd;
-			struct servent sv;
+//			struct servent sv;
 
 			(void)memset(&svd, 0, sizeof(svd));
 			sp = getservbyport_r(port,
@@ -338,12 +358,13 @@ getnameinfo_inet(sa, salen, host, hostlen, serv, servlen, flags)
 
 #ifdef INET6
 static int
-ip6_parsenumeric(sa, addr, host, hostlen, flags)
-	const struct sockaddr *sa;
-	const char *addr;
-	char *host;
-	socklen_t hostlen;
-	int flags;
+ip6_parsenumeric(
+  const struct sockaddr *sa,
+  const char *addr,
+  char *host,
+  socklen_t hostlen,
+  int flags
+  )
 {
 	size_t numaddrlen;
 	char numaddr[512];
@@ -383,11 +404,12 @@ ip6_parsenumeric(sa, addr, host, hostlen, flags)
 
 /* ARGSUSED */
 static int
-ip6_sa2str(sa6, buf, bufsiz, flags)
-	const struct sockaddr_in6 *sa6;
-	char *buf;
-	size_t bufsiz;
-	int flags;
+ip6_sa2str(
+  const struct sockaddr_in6 *sa6,
+  char *buf,
+  size_t bufsiz,
+  int flags
+  )
 {
 	unsigned int ifindex;
 	const struct in6_addr *a6;
@@ -402,13 +424,14 @@ ip6_sa2str(sa6, buf, bufsiz, flags)
 #ifdef NI_NUMERICSCOPE
 	if ((flags & NI_NUMERICSCOPE) != 0) {
 		n = snprintf(buf, bufsiz, "%u", sa6->sin6_scope_id);
-		if (n < 0 || n >= bufsiz)
+		if ((n < 0) || ((size_t)n >= bufsiz))
 			return -1;
 		else
 			return n;
 	}
 #endif
 
+#if 0
 	/* if_indextoname() does not take buffer size.  not a good api... */
 	if ((IN6_IS_ADDR_LINKLOCAL(a6) || IN6_IS_ADDR_MC_LINKLOCAL(a6)) &&
 	    bufsiz >= IF_NAMESIZE) {
@@ -417,6 +440,7 @@ ip6_sa2str(sa6, buf, bufsiz, flags)
 			return(strlen(p));
 		}
 	}
+#endif  //  0
 
 	/* last resort */
 	n = snprintf(buf, bufsiz, "%u", sa6->sin6_scope_id);
@@ -434,14 +458,21 @@ ip6_sa2str(sa6, buf, bufsiz, flags)
  * the interface type.
  */
 /* ARGSUSED */
-static int
-getnameinfo_link(const struct sockaddr *sa, socklen_t salen,
-    char *host, socklen_t hostlen, char *serv, socklen_t servlen,
-    int flags)
+static
+int
+getnameinfo_link (
+  const struct sockaddr * sa,
+  socklen_t salen,
+  char * host,
+  socklen_t hostlen,
+  char * serv,
+  socklen_t servlen,
+  int flags
+  )
 {
 	const struct sockaddr_dl *sdl =
 	    (const struct sockaddr_dl *)(const void *)sa;
-	const struct ieee1394_hwaddr *iha;
+//	const struct ieee1394_hwaddr *iha;
 	int n;
 
 	if (serv != NULL && servlen > 0)
@@ -456,6 +487,7 @@ getnameinfo_link(const struct sockaddr *sa, socklen_t salen,
 		return 0;
 	}
 
+#if 0
 	switch (sdl->sdl_type) {
 #ifdef IFT_ECONET
 	case IFT_ECONET:
@@ -501,17 +533,20 @@ getnameinfo_link(const struct sockaddr *sa, socklen_t salen,
 	case IFT_HIPPI:
 	case IFT_ISO88025:
 	default:
+#endif  //  0
 		return hexname((const u_int8_t *)CLLADDR(sdl),
 		    (size_t)sdl->sdl_alen, host, hostlen);
-	}
+//	}
 }
 
-static int
-hexname(cp, len, host, hostlen)
-	const u_int8_t *cp;
-	char *host;
-	size_t len;
-	socklen_t hostlen;
+static
+int
+hexname(
+  const u_int8_t * cp,
+  size_t len,
+  char * host,
+  socklen_t hostlen
+  )
 {
 	int n;
 	size_t i;
