@@ -276,10 +276,8 @@ EslServiceNetworkDisconnect (
                                        NULL,
                                        &HandleCount,
                                        &pHandles );
-    if ( EFI_ERROR ( Status )) {
-      break;
-    }
-    if ( NULL != pHandles ) {
+    if (( !EFI_ERROR ( Status ))
+      && ( NULL != pHandles )) {
       //
       //  Attempt to disconnect from this network adapter
       //
@@ -301,6 +299,7 @@ EslServiceNetworkDisconnect (
     //  Set the next network protocol
     //
     pSocketBinding += 1;
+    Status = EFI_SUCCESS;
   }
 
   //

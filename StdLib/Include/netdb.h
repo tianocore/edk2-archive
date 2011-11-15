@@ -208,9 +208,6 @@ struct addrinfo {
 /*
  * Error return codes from getaddrinfo()
  */
-#if 0  //  Not supported by UEFI
-#if (_POSIX_C_SOURCE - 0) >= 200112L || (_XOPEN_SOURCE - 0) >= 520 || \
-    defined(_NETBSD_SOURCE)
 #define	EAI_ADDRFAMILY	 1	/*%< address family for hostname not supported */
 #define	EAI_AGAIN	 2	/*%< temporary failure in name resolution */
 #define	EAI_BADFLAGS	 3	/*%< invalid value for ai_flags */
@@ -226,31 +223,18 @@ struct addrinfo {
 #define	EAI_PROTOCOL	13	/* resolved protocol is unknown */
 #define	EAI_OVERFLOW	14	/* argument buffer overflow */
 #define	EAI_MAX		15
-#endif /* _POSIX_C_SOURCE >= 200112 || _XOPEN_SOURCE >= 520 || _NETBSD_SOURCE */
-#endif  // 0  Not supported by UEFI
 
 /*%
  * Flag values for getaddrinfo()
  */
-#if 0  //  Not supported by UEFI
-#if (_POSIX_C_SOURCE - 0) >= 200112L || (_XOPEN_SOURCE - 0) >= 520 || \
-    defined(_NETBSD_SOURCE)
 #define	AI_PASSIVE	0x00000001 /* get address to use bind() */
-#endif
-#endif  // 0  Not supported by UEFI
-
 #define AI_CANONNAME  0x00000002 /* fill ai_canonname */
 
-#if 0  //  Not supported by UEFI
-#if (_POSIX_C_SOURCE - 0) >= 200112L || (_XOPEN_SOURCE - 0) >= 520 || \
-    defined(_NETBSD_SOURCE)
 #define	AI_NUMERICHOST	0x00000004 /* prevent host name resolution */
 #define	AI_NUMERICSERV	0x00000008 /* prevent service name resolution */
 /* valid flags for addrinfo (not a standard def, apps should not use it) */
 #define	AI_MASK	\
     (AI_PASSIVE | AI_CANONNAME | AI_NUMERICHOST | AI_NUMERICSERV)
-#endif
-#endif  // 0  Not supported by UEFI
 
 /*%
  * Constants for getnameinfo()

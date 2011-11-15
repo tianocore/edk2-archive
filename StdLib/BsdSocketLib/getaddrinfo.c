@@ -58,6 +58,8 @@
 __RCSID("$NetBSD: getaddrinfo.c,v 1.91.6.1 2009/01/26 00:27:34 snj Exp $");
 #endif /* LIBC_SCCS and not lint */
 
+#define INET6   1
+
 #include "namespace.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -77,17 +79,29 @@ __RCSID("$NetBSD: getaddrinfo.c,v 1.91.6.1 2009/01/26 00:27:34 snj Exp $");
 #include <string.h>
 #include <unistd.h>
 
-#include <syslog.h>
 #include <stdarg.h>
 #include <nsswitch.h>
+#include <resolv.h>
 
-#ifdef YP
-#include <rpc/rpc.h>
-#include <rpcsvc/yp_prot.h>
-#include <rpcsvc/ypclnt.h>
-#endif
+//#ifdef YP
+//#include <rpc/rpc.h>
+//#include <rpcsvc/yp_prot.h>
+//#include <rpcsvc/ypclnt.h>
+//#endif
 
-#include "servent.h"
+#include <net/servent.h>
+
+#define endservent_r(svd)   endservent()
+#define nsdispatch(pResult,dtab,database,routine,files,hostname,pai)  NS_NOTFOUND
+#define res_nmkquery(state,op,dname,class,type,data,datalen,newrr_in,buf,buflen)  res_mkquery( op, dname, class, type, data, datalen, newrr_in, buf, buflen )
+#define res_nsend(state,buf,buflen,ans,anssiz)    res_send ( buf, buflen, ans, anssiz )
+
+/* Things involving an internal (static) resolver context. */
+__BEGIN_DECLS
+#define __res_get_state()   (( 0 != _res.nscount ) ? &_res : NULL )
+#define __res_put_state(state)
+#define __res_state()   _res
+__END_DECLS
 
 #ifdef __weak_alias
 __weak_alias(getaddrinfo,_getaddrinfo)
@@ -865,9 +879,10 @@ get_ai(const struct addrinfo *pai, const struct afd *afd, const char *addr)
 	memcpy(ai, pai, sizeof(struct addrinfo));
 	ai->ai_addr = (struct sockaddr *)(void *)(ai + 1);
 	memset(ai->ai_addr, 0, (size_t)afd->a_socklen);
-	ai->ai_addr->sa_len = afd->a_socklen;
+	ai->ai_addr->sa_len = (uint8_t)afd->a_socklen;
 	ai->ai_addrlen = afd->a_socklen;
-	ai->ai_addr->sa_family = ai->ai_family = afd->a_af;
+	ai->ai_family = afd->a_af;
+	ai->ai_addr->sa_family = (sa_family_t)ai->ai_family;
 	p = (char *)(void *)(ai->ai_addr);
 	memcpy(p + afd->a_off, addr, (size_t)afd->a_addrlen);
 	return ai;
@@ -935,7 +950,7 @@ get_port(const struct addrinfo *ai, const char *servname, int matchonly,
 			return EAI_SERVICE;
 		port = htons(port);
 	} else {
-		struct servent sv;
+//		struct servent sv;
 		if (ai->ai_flags & AI_NUMERICSERV)
 			return EAI_NONAME;
 
@@ -951,7 +966,8 @@ get_port(const struct addrinfo *ai, const char *servname, int matchonly,
 			break;
 		}
 
-		sp = getservbyname_r(servname, proto, &sv, svd);
+//		sp = getservbyname_r(servname, proto, &sv, svd);
+    sp = getservbyname ( servname, proto );
 		if (sp == NULL)
 			return EAI_SERVICE;
 		port = sp->s_port;
@@ -961,12 +977,12 @@ get_port(const struct addrinfo *ai, const char *servname, int matchonly,
 		switch (ai->ai_family) {
 		case AF_INET:
 			((struct sockaddr_in *)(void *)
-			    ai->ai_addr)->sin_port = port;
+			    ai->ai_addr)->sin_port = (in_port_t)port;
 			break;
 #ifdef INET6
 		case AF_INET6:
 			((struct sockaddr_in6 *)(void *)
-			    ai->ai_addr)->sin6_port = port;
+			    ai->ai_addr)->sin6_port = (in_port_t)port;
 			break;
 #endif
 		}
@@ -1014,10 +1030,13 @@ ip6_str2scopeid(char *scope, struct sockaddr_in6 *sin6, u_int32_t *scopeid)
 		 * and interfaces, so we simply use interface indices for
 		 * like-local scopes.
 		 */
+/*
 		*scopeid = if_nametoindex(scope);
 		if (*scopeid == 0)
 			goto trynumeric;
 		return 0;
+*/
+		return -1;
 	}
 
 	/* still unclear about literal, allow numeric only - placeholder */
@@ -1062,7 +1081,7 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 	int haveanswer, had_error;
 	char tbuf[MAXDNAME];
 	int (*name_ok) (const char *);
-	char hostbuf[8*1024];
+	static char hostbuf[8*1024];
 
 	_DIAGASSERT(answer != NULL);
 	_DIAGASSERT(qname != NULL);
@@ -1095,7 +1114,7 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 		h_errno = NO_RECOVERY;
 		return (NULL);
 	}
-	n = dn_expand(answer->buf, eom, cp, bp, ep - bp);
+	n = dn_expand(answer->buf, eom, cp, bp, (int)(ep - bp));
 	if ((n < 0) || !(*name_ok)(bp)) {
 		h_errno = NO_RECOVERY;
 		return (NULL);
@@ -1106,7 +1125,7 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 		 * same as the one we sent; this just gets the expanded name
 		 * (i.e., with the succeeding search-domain tacked on).
 		 */
-		n = strlen(bp) + 1;		/* for the \0 */
+		n = (int)strlen(bp) + 1;		/* for the \0 */
 		if (n >= MAXHOSTNAMELEN) {
 			h_errno = NO_RECOVERY;
 			return (NULL);
@@ -1119,7 +1138,7 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 	haveanswer = 0;
 	had_error = 0;
 	while (ancount-- > 0 && cp < eom && !had_error) {
-		n = dn_expand(answer->buf, eom, cp, bp, ep - bp);
+		n = dn_expand(answer->buf, eom, cp, bp, (int)(ep - bp));
 		if ((n < 0) || !(*name_ok)(bp)) {
 			had_error++;
 			continue;
@@ -1145,7 +1164,7 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 			}
 			cp += n;
 			/* Get canonical name. */
-			n = strlen(tbuf) + 1;	/* for the \0 */
+			n = (int)strlen(tbuf) + 1;	/* for the \0 */
 			if (n > ep - bp || n >= MAXHOSTNAMELEN) {
 				had_error++;
 				continue;
@@ -1162,11 +1181,13 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 			}
 		} else if (type != qtype) {
 			if (type != T_KEY && type != T_SIG) {
+#ifdef _ORG_FREEBSD_
 				struct syslog_data sd = SYSLOG_DATA_INIT;
 				syslog_r(LOG_NOTICE|LOG_AUTH, &sd,
 	       "gethostby*.getanswer: asked for \"%s %s %s\", got type \"%s\"",
 				       qname, p_class(C_IN), p_type(qtype),
 				       p_type(type));
+#endif
 			}
 			cp += n;
 			continue;		/* XXX - had_error++ ? */
@@ -1175,9 +1196,11 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 		case T_A:
 		case T_AAAA:
 			if (strcasecmp(canonname, bp) != 0) {
+#ifdef _ORG_FREEBSD_
 				struct syslog_data sd = SYSLOG_DATA_INIT;
 				syslog_r(LOG_NOTICE|LOG_AUTH, &sd,
 				       AskedForGot, canonname, bp);
+#endif
 				cp += n;
 				continue;	/* XXX - had_error++ ? */
 			}
@@ -1201,7 +1224,7 @@ getanswer(const querybuf *answer, int anslen, const char *qname, int qtype,
 				int nn;
 
 				canonname = bp;
-				nn = strlen(bp) + 1;	/* for the \0 */
+				nn = (int)strlen(bp) + 1;	/* for the \0 */
 				bp += nn;
 			}
 
@@ -1251,7 +1274,7 @@ aisort(struct addrinfo *s, res_state res)
 	head.ai_next = NULL;
 	t = &head;
 
-	for (i = 0; i < res->nsort; i++) {
+	for (i = 0; i < (int)res->nsort; i++) {
 		p = s;
 		while (p->ai_next) {
 			if ((p->ai_next->ai_family != AF_INET)
@@ -1412,22 +1435,22 @@ _gethtent(FILE **hostf, const char *name, const struct addrinfo *pai)
 	struct addrinfo hints, *res0, *res;
 	int error;
 	const char *addr;
-	char hostbuf[8*1024];
+	static char hostbuf[8*1024];
 
 	_DIAGASSERT(name != NULL);
 	_DIAGASSERT(pai != NULL);
 
-	if (!*hostf && !(*hostf = fopen(_PATH_HOSTS, "r" )))
+	if (!*hostf && ( NULL == (*hostf = fopen(_PATH_HOSTS, "r" ))))
 		return (NULL);
  again:
-	if (!(p = fgets(hostbuf, sizeof hostbuf, *hostf)))
+	if ( NULL == (p = fgets(hostbuf, sizeof hostbuf, *hostf)))
 		return (NULL);
 	if (*p == '#')
 		goto again;
-	if (!(cp = strpbrk(p, "#\n")))
+	if ( NULL == (cp = strpbrk(p, "#\n")))
 		goto again;
 	*cp = '\0';
-	if (!(cp = strpbrk(p, " \t")))
+	if ( NULL == (cp = strpbrk(p, " \t")))
 		goto again;
 	*cp++ = '\0';
 	addr = p;
@@ -1657,7 +1680,7 @@ static int
 res_queryN(const char *name, /* domain name */ struct res_target *target,
     res_state res)
 {
-	u_char buf[MAXPACKET];
+	static u_char buf[MAXPACKET];
 	HEADER *hp;
 	int n;
 	struct res_target *t;
