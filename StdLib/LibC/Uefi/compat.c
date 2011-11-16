@@ -94,6 +94,7 @@
 #include  <LibConfig.h>
 #include  <string.h>
 #include  <fcntl.h>
+#include  <sys/syslimits.h>
 
 #ifndef HAVE_GETOPT
 char *optarg;
@@ -133,20 +134,15 @@ getopt(int argc, char **argv, char *args)
                         }
                 }
         }
-
         return -1;
 }
 #endif
 
-#ifdef WIN32
 #define ISPATHSEPARATOR(x) ((x == '/') || (x == '\\'))
-#else
-#define ISPATHSEPARATOR(x) (x == '/')
-#endif
 
-#ifndef HAVE_BASENAME
+#ifdef HAVE_BASENAME
 #ifndef PATH_MAX
-#define PATH_MAX 5000
+  #define PATH_MAX 5000
 #endif
 
 char *
@@ -235,7 +231,7 @@ mkstemp(char *path)
 }
 #endif
 
-#ifndef HAVE_FFS
+#ifdef HAVE_FFS
 int
 ffs(int x)
 {
