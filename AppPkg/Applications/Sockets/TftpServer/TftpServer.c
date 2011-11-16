@@ -347,92 +347,6 @@ SocketPoll (
 
 
 /**
-  Convert a character to lower case
-
-  @param [in] Character The character to convert
-
-  @return   The lower case equivalent of the character
-
-**/
-int
-tolower (
-  int Character
-  )
-{
-  //
-  //  Determine if the character is upper case
-  //
-  if (( 'A' <= Character ) && ( 'Z' >= Character )) {
-    //
-    //  Convert the character to lower caes
-    //
-    Character += 'a' - 'A';
-  }
-
-  //
-  //  Return the converted character
-  //
-  return Character;
-}
-
-
-/**
-  Case independent string comparison
-
-  @param [in] pString1  Zero terminated string address
-  @param [in] pString2  Zero terminated string address
-
-  @return     Returns the first character difference between string 1
-              and string 2.
-
-**/
-int
-stricmp (
-  char * pString1,
-  char * pString2
-  )
-{
-  int Char1;
-  int Char2;
-  int Difference;
-
-  //
-  //  Walk the length of the strings
-  //
-  do {
-    //
-    //  Get the next characters
-    //
-    Char1 = (UINT8)*pString1++;
-    Char2 = (UINT8)*pString2++;
-
-    //
-    //  Convert them to lower case
-    //
-    Char1 = tolower ( Char1 );
-    Char2 = tolower ( Char2 );
-
-    //
-    //  Done when the characters differ
-    //
-    Difference = Char1 - Char2;
-    if ( 0 != Difference ) {
-      break;
-    }
-
-    //
-    //  Done at the end of the string
-    //
-  } while ( 0 != Char1 );
-
-  //
-  //  Return the difference
-  //
-  return Difference;
-}
-
-
-/**
   Get the next TFTP option
 
   @param [in] pOption       Address of a zero terminated option string
@@ -585,7 +499,7 @@ TftpOptions (
       //  blksize - See http://tools.ietf.org/html/rfc2348
       //
       pValue = pNextOption;
-      if ( 0 == stricmp ((char *)pOption, "blksize" )) {
+      if ( 0 == strcasecmp ((char *)pOption, "blksize" )) {
         //
         //  Get the value
         //
@@ -633,7 +547,7 @@ TftpOptions (
       //
       //  timeout - See http://tools.ietf.org/html/rfc2349
       //
-      else if ( 0 == stricmp ((char *)pOption, "timeout" )) {
+      else if ( 0 == strcasecmp ((char *)pOption, "timeout" )) {
         //
         //  Get the value
         //
@@ -671,7 +585,7 @@ TftpOptions (
       //
       //  tsize - See http://tools.ietf.org/html/rfc2349
       //
-      else if ( 0 == stricmp ((char *)pOption, "tsize" )) {
+      else if ( 0 == strcasecmp ((char *)pOption, "tsize" )) {
         //
         //  Get the value
         //
@@ -977,7 +891,7 @@ Print ( L"TFTP Opcode: 0x%08x\r\n", Opcode );
       //
       //  Verify the mode is supported
       //
-      if ( 0 != stricmp ((char *)pMode, "octet" )) {
+      if ( 0 != strcasecmp ((char *)pMode, "octet" )) {
         //
         //  File access mode not supported
         //
