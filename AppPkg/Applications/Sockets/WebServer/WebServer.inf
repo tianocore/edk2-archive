@@ -40,12 +40,14 @@
   ConfigurationTable.c
   DhcpOptions.c
   DxeServicesTable.c
+  Exit.c
   Firmware.c
   Handles.c
   Hello.c
   HTTP.c
   Index.c
   PageList.c
+  Ports.c
   Reboot.c
   RuntimeServicesTable.c
   SystemTable.c
@@ -54,7 +56,6 @@
 
 [Pcd]
   gStdLibTokenSpaceGuid.WebServer_HttpPort
-
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -68,14 +69,14 @@
   BsdSocketLib
   DebugLib
   DevShell
-#  EfiSocketLib
+  EfiSocketLib
   LibC
   ShellLib
   ShellCEntryLib
   UefiBootServicesTableLib
   UefiLib
   UefiRuntimeServicesTableLib
-  UseSocketDxe
+#  UseSocketDxe
 
 [Guids]
   gEfiAcpi10TableGuid
