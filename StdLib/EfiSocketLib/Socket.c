@@ -611,6 +611,7 @@ EslSocket (
     //  Validate the domain value
     //
     if (( AF_INET != domain )
+      && ( AF_INET6 != domain )
       && ( AF_LOCAL != domain )) {
       DEBUG (( DEBUG_ERROR | DEBUG_SOCKET,
                 "ERROR - Invalid domain value\r\n" ));
@@ -1988,7 +1989,8 @@ EslSocketGetLocalAddress (
         //
         //  Verify the socket state
         //
-        if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+        if (( SOCKET_STATE_CONNECTED == pSocket->State )
+          || ( SOCKET_STATE_LISTENING == pSocket->State )) {
           //
           //  Verify the API
           //

@@ -1155,12 +1155,24 @@ EslTcp6LocalAddressSet (
       //  Display the local address
       //
       DEBUG (( DEBUG_BIND,
-                "0x%08x: Port, Local Tcp6 Address: %d.%d.%d.%d:%d\r\n",
+                "0x%08x: Port, Local Tcp6 Address: [%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]:%d\r\n",
                 pPort,
                 pAccessPoint->StationAddress.Addr[0],
                 pAccessPoint->StationAddress.Addr[1],
                 pAccessPoint->StationAddress.Addr[2],
                 pAccessPoint->StationAddress.Addr[3],
+                pAccessPoint->StationAddress.Addr[4],
+                pAccessPoint->StationAddress.Addr[5],
+                pAccessPoint->StationAddress.Addr[6],
+                pAccessPoint->StationAddress.Addr[7],
+                pAccessPoint->StationAddress.Addr[8],
+                pAccessPoint->StationAddress.Addr[9],
+                pAccessPoint->StationAddress.Addr[10],
+                pAccessPoint->StationAddress.Addr[11],
+                pAccessPoint->StationAddress.Addr[12],
+                pAccessPoint->StationAddress.Addr[13],
+                pAccessPoint->StationAddress.Addr[14],
+                pAccessPoint->StationAddress.Addr[15],
                 pAccessPoint->StationPort ));
     }
   }
