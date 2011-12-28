@@ -413,12 +413,13 @@ HttpPageTrailer (
     LengthInBytes = sizeof ( LocalAddress );
     RetVal = getsockname ( SocketFD, (struct sockaddr *)&LocalAddress, &LengthInBytes );
     if ( 0 == RetVal ) {
+      LengthInBytes = sizeof ( LocalAddress );
       RetVal = getpeername ( SocketFD, (struct sockaddr *)&RemoteAddress, &LengthInBytes );
       if ( 0 == RetVal ) {
         //
         //  Seperate the body from the trailer
         //
-        Status = HttpSendAnsiString ( SocketFD, pPort, "  <hr>\r\n" );
+        Status = HttpSendAnsiString ( SocketFD, pPort, "  <hr>\r\n<code>" );
         if ( EFI_ERROR ( Status )) {
           break;
         }
@@ -438,7 +439,7 @@ HttpPageTrailer (
         if ( EFI_ERROR ( Status )) {
           break;
         }
-        Status = HttpSendAnsiString ( SocketFD, pPort, "\r\n" );
+        Status = HttpSendAnsiString ( SocketFD, pPort, "</code>\r\n" );
         if ( EFI_ERROR ( Status )) {
           break;
         }
@@ -1213,7 +1214,7 @@ HttpSendHexBits (
     //
     Digit = (UINT32)(( Value >> Shift ) & 0xf );
     if ( 10 <= Digit ) {
-      Digit += 'A' - '0' - 10;
+      Digit += 'a' - '0' - 10;
     }
 
     //
@@ -1274,7 +1275,7 @@ HttpSendHexValue (
     //
     Digit = (UINT32)(( Value >> Shift ) & 0xf );
     if ( 10 <= Digit ) {
-      Digit += 'A' - '0' - 10;
+      Digit += 'a' - '0' - 10;
     }
 
     //
@@ -1359,7 +1360,14 @@ HttpSendIp6Value (
       //
       //  Display the value
       //
-      Digit = ( Value >> 12 ) & 0xf;
+      Digit = ( Value >> 4 ) & 0xf;
+      Status = HttpSendHexValue ( SocketFD,
+                                  pPort,
+                                  Digit );
+      if ( EFI_ERROR ( Status )) {
+        break;
+      }
+      Digit = Value & 0xf;
       Status = HttpSendHexValue ( SocketFD,
                                   pPort,
                                   Digit );
@@ -1373,14 +1381,7 @@ HttpSendIp6Value (
       if ( EFI_ERROR ( Status )) {
         break;
       }
-      Digit = ( Value >> 12 ) & 0xf;
-      Status = HttpSendHexValue ( SocketFD,
-                                  pPort,
-                                  Digit );
-      if ( EFI_ERROR ( Status )) {
-        break;
-      }
-      Digit = ( Value >> 12 ) & 0xf;
+      Digit = ( Value >> 8 ) & 0xf;
       Status = HttpSendHexValue ( SocketFD,
                                   pPort,
                                   Digit );
