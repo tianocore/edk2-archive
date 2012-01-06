@@ -764,7 +764,7 @@ main (
           SocketPoll ( pWebServer );
         } while ( pWebServer->bRunning
                 && ( -1 != pWebServer->HttpListenPort )
-                && ( -1 == pWebServer->HttpListenPort6 ));
+                && ( -1 != pWebServer->HttpListenPort6 ));
 
         //
         //  Continue polling the network connections until both

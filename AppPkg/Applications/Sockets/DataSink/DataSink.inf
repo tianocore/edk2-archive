@@ -39,10 +39,11 @@
 
 
 [Pcd]
-  gStdLibTokenSpaceGuid.DataSource_Port
+  gAppPkgTokenSpaceGuid.DataSource_Port
 
 
 [Packages]
+  AppPkg/AppPkg.dec
   MdePkg/MdePkg.dec
   ShellPkg/ShellPkg.dec
   StdLib/StdLib.dec
