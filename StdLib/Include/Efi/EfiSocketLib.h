@@ -28,6 +28,7 @@
 #include <Protocol/Tcp4.h>
 #include <Protocol/Tcp6.h>
 #include <Protocol/Udp4.h>
+#include <Protocol/Udp6.h>
 
 #include <sys/time.h>
 

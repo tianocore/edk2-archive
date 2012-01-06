@@ -36,6 +36,7 @@
   Tcp4.c
   Tcp6.c
   Udp4.c
+  Udp6.c
   UseEfiSocketLib.c
 
 [Packages]
