@@ -39,7 +39,17 @@
   TftpServer.c
 
 
+[Pcd]
+  gAppPkgTokenSpaceGuid.Tftp_AckLogBase
+  gAppPkgTokenSpaceGuid.Tftp_AckMultiplier
+  gAppPkgTokenSpaceGuid.Tftp_Bandwidth
+  gAppPkgTokenSpaceGuid.Tftp_HighSpeed
+  gAppPkgTokenSpaceGuid.Tftp_MaxRetry
+  gAppPkgTokenSpaceGuid.Tftp_MaxTimeoutInSec
+
+
 [Packages]
+  AppPkg/AppPkg.dec
   MdePkg/MdePkg.dec
   ShellPkg/ShellPkg.dec
   StdLib/StdLib.dec
@@ -54,6 +64,7 @@
   LibC
   ShellLib
   ShellCEntryLib
+  TimerLib
   UefiBootServicesTableLib
   UefiLib
   UefiRuntimeServicesTableLib
