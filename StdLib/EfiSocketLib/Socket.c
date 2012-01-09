@@ -3114,7 +3114,7 @@ EslSocketPacketAllocate (
                                LengthInBytes,
                                (VOID **)&pPacket );
   if ( !EFI_ERROR ( Status )) {
-    DEBUG (( DebugFlags | DEBUG_POOL | DEBUG_INIT,
+    DEBUG (( DebugFlags | DEBUG_POOL,
               "0x%08x: Allocate pPacket, %d bytes\r\n",
               pPacket,
               LengthInBytes ));
