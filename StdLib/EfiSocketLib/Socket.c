@@ -3228,6 +3228,7 @@ EslSocketPoll (
   short DetectedEvents;
   ESL_SOCKET * pSocket;
   EFI_STATUS Status;
+  EFI_TPL TplPrevious;
   short ValidEvents;
 
   DEBUG (( DEBUG_POLL, "Entering SocketPoll\r\n" ));
@@ -3265,6 +3266,22 @@ EslSocketPoll (
                 Events & ( ~ValidEvents )));
     }
     else {
+      //
+      //  Synchronize with the socket layer
+      //
+      RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+      
+      //
+      //  Increase the network performance by extending the
+      //  polling (idle) loop down into the LAN driver
+      //
+      EslSocketRxPoll ( pSocket );
+      
+      //
+      //  Release the socket layer synchronization
+      //
+      RESTORE_TPL ( TplPrevious );
+
       //
       //  Check for pending connections
       //
@@ -4385,6 +4402,11 @@ EslSocketReceive (
               //
               if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
                 //
+                //  Poll the network to increase performance
+                //
+                EslSocketRxPoll ( pSocket );
+
+                //
                 //  Locate the port
                 //
                 pPort = pSocket->pPortList;
@@ -4866,6 +4888,49 @@ EslSocketRxComplete (
 
 
 /**
+  Poll a socket for pending receive activity.
+
+  This routine is called at elivated TPL and extends the idle
+  loop which polls a socket down into the LAN driver layer to
+  determine if there is any receive activity.
+
+  The ::EslSocketPoll, ::EslSocketReceive and ::EslSocketTransmit
+  routines call this routine when there is nothing to do.
+
+  @param [in] pSocket   Address of an ::EFI_SOCKET structure.
+
+ **/
+VOID
+EslSocketRxPoll (
+  IN ESL_SOCKET * pSocket
+  )
+{
+  ESL_PORT * pPort;
+
+  DEBUG (( DEBUG_POLL, "Entering EslSocketRxPoll\r\n" ));
+
+  //
+  //  Increase the network performance by extending the
+  //  polling (idle) loop down into the LAN driver
+  //
+  pPort = pSocket->pPortList;
+  while ( NULL != pPort ) {
+    //
+    //  Poll the LAN adapter
+    //
+    pPort->pfnRxPoll ( pPort->pProtocol.v );
+
+    //
+    //  Locate the next LAN adapter
+    //
+    pPort = pPort->pLinkSocket;
+  }
+
+  DEBUG (( DEBUG_POLL, "Exiting EslSocketRxPoll\r\n" ));
+}
+
+
+/**
   Start a receive operation
 
   This routine posts a receive buffer to the network adapter.
@@ -5308,6 +5373,11 @@ EslSocketTransmit (
                 //  Synchronize with the socket layer
                 //
                 RAISE_TPL ( TplPrevious, TPL_SOCKETS );
+
+                //
+                //  Poll the network to increase performance
+                //
+                EslSocketRxPoll ( pSocket );
 
                 //
                 //  Attempt to buffer the packet for transmission

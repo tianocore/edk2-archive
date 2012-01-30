@@ -253,6 +253,7 @@ EslUdp4PortAllocate (
   //
   pPort->pfnConfigure = (PFN_NET_CONFIGURE)pPort->pProtocol.UDPv4->Configure;
   pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Cancel;
+  pPort->pfnRxPoll = (PFN_NET_POLL)pPort->pProtocol.UDPv4->Poll;
   pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Receive;
   pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv4->Transmit;
 

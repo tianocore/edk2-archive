@@ -1358,6 +1358,7 @@ EslTcp6PortAllocate (
     //  pPort->pfnRxCancel = NULL; since the UEFI implementation returns EFI_UNSUPPORTED
     //
     pPort->pfnConfigure = (PFN_NET_CONFIGURE)pPort->pProtocol.TCPv6->Configure;
+    pPort->pfnRxPoll = (PFN_NET_POLL)pPort->pProtocol.TCPv6->Poll;
     pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.TCPv6->Receive;
     pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.TCPv6->Transmit;
 

@@ -384,6 +384,21 @@ EFI_STATUS
   );
 
 /**
+  Poll the LAN adapter for receive packets.
+
+  @param [in] pProtocol   Protocol structure address
+  @param [in] pToken      Completion token address
+
+  @return   Returns EFI_SUCCESS if the operation is successfully
+            started.
+**/
+typedef
+EFI_STATUS
+(* PFN_NET_POLL) (
+  IN VOID * pProtocol
+  );
+
+/**
   Port control structure
 
   The driver uses this structure to manager the socket's connection
@@ -435,6 +450,7 @@ typedef struct _ESL_PORT {
   //  Receive data management
   //
   PFN_NET_IO_START pfnRxCancel; ///<  Cancel a receive on the network
+  PFN_NET_POLL pfnRxPoll;       ///<  Poll the LAN adapter for receive packets
   PFN_NET_IO_START pfnRxStart;  ///<  Start a receive on the network
   ESL_IO_MGMT * pRxActive;      ///<  Active receive operation queue
   ESL_IO_MGMT * pRxFree;        ///<  Free structure queue
@@ -1512,6 +1528,24 @@ EslSocketRxComplete (
   IN EFI_STATUS Status,
   IN UINTN LengthInBytes,
   IN BOOLEAN bUrgent
+  );
+
+/**
+  Poll a socket for pending receive activity.
+
+  This routine is called at elivated TPL and extends the idle
+  loop which polls a socket down into the LAN driver layer to
+  determine if there is any receive activity.
+
+  The ::EslSocketPoll, ::EslSocketReceive and ::EslSocketTransmit
+  routines call this routine when there is nothing to do.
+
+  @param [in] pSocket   Address of an ::EFI_SOCKET structure.
+
+ **/
+VOID
+EslSocketRxPoll (
+  IN ESL_SOCKET * pSocket
   );
 
 /**

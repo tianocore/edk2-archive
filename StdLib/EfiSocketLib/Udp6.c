@@ -230,6 +230,7 @@ EslUdp6PortAllocate (
   //
   pPort->pfnConfigure = (PFN_NET_CONFIGURE)pPort->pProtocol.UDPv6->Configure;
   pPort->pfnRxCancel = (PFN_NET_IO_START)pPort->pProtocol.UDPv6->Cancel;
+  pPort->pfnRxPoll = (PFN_NET_POLL)pPort->pProtocol.UDPv6->Poll;
   pPort->pfnRxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv6->Receive;
   pPort->pfnTxStart = (PFN_NET_IO_START)pPort->pProtocol.UDPv6->Transmit;
 
