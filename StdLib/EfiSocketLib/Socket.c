@@ -1806,6 +1806,11 @@ EslSocketConnect (
           if ( EFI_NOT_READY != Status ) {
             if ( !EFI_ERROR ( Status )) {
               pSocket->State = SOCKET_STATE_CONNECTED;
+
+			  //
+			  //  Start the receive operations
+			  //
+			  EslSocketRxStart ( pSocket->pPortList );
             }
             else {
               pSocket->State = SOCKET_STATE_BOUND;
