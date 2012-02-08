@@ -15,7 +15,6 @@
 
 #include "Python.h"
 #include "structseq.h"
-#include "fileobject.h"
 
 #include  <stdio.h>
 #include  <stdlib.h>
