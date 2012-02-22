@@ -1259,7 +1259,10 @@ EslSocketBind (
       //
       //  Verify that at least one network connection was found
       //
-      if ( NULL == pSocket->pPortList ) {
+      if ( NULL != pSocket->pPortList ) {
+        Status = EFI_SUCCESS;
+      }
+      else {
         if ( EADDRNOTAVAIL == pSocket->errno ) {
           DEBUG (( DEBUG_BIND | DEBUG_POOL | DEBUG_INIT,
                     "ERROR - Socket address is not available!\r\n" ));
