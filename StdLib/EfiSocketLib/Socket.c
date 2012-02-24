@@ -2019,7 +2019,7 @@ EslSocketGetLocalAddress (
           //  Verify that there is just a single connection
           //
           pPort = pSocket->pPortList;
-          if (( NULL != pPort ) && ( NULL == pPort->pLinkSocket )) {
+          if ( NULL != pPort ) {
             //
             //  Verify the address length
             //
