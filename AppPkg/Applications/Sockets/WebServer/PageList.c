@@ -49,6 +49,7 @@ CONST DT_PAGE mPageList[] = {
   { L"/Firmware", FirmwarePage, L"Firmware" },          ///<  Firmware status
   { L"/Handles", HandlePage, L"Display handles and associated protocol GUIDs" },        ///<  Handle database page
   { L"/Hello", HelloPage, L"Hello World" },             ///<  Hello world page
+  { L"/MemoryMap", MemoryMapPage, L"Memory Map" },      ///<  Memory list
   { L"/Ports", PortsPage, L"Display web-server ports" },///<  Web-server ports page
   { L"/Reboot", RebootPage, L"Reboot the sytem" },      ///<  Reboot page
   { PAGE_ACPI_RSDP_10B, AcpiRsdp10Page, L"RSDP 1.0b - ACPI Root System Description Pointer" },  ///<  Format RSDP 1.0b table

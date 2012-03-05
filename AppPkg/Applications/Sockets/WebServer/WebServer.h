@@ -466,6 +466,23 @@ IndexPage (
   );
 
 /**
+  Page to display the memory map
+
+  @param [in] SocketFD      The socket's file descriptor to add to the list.
+  @param [in] pPort         The WSDT_PORT structure address
+  @param [out] pbDone       Address to receive the request completion status
+
+  @retval EFI_SUCCESS       The request was successfully processed
+
+**/
+EFI_STATUS
+MemoryMapPage (
+  IN int SocketFD,
+  IN WSDT_PORT * pPort,
+  OUT BOOLEAN * pbDone
+  );
+
+/**
   Respond with the Ports page
 
   @param [in] SocketFD      The socket's file descriptor to add to the list.

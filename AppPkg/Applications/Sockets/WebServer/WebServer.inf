@@ -46,6 +46,7 @@
   Hello.c
   HTTP.c
   Index.c
+  MemoryMap.c
   PageList.c
   Ports.c
   Reboot.c
@@ -70,6 +71,7 @@
   BsdSocketLib
   DebugLib
   DevShell
+  DxeServicesTableLib
   EfiSocketLib
   LibC
   ShellLib
