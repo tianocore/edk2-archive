@@ -49,7 +49,7 @@ RebootPage (
   DBG_ENTER ( );
   
   //
-  //  Send the Hello World page
+  //  Send the Reboot page
   //
   for ( ; ; ) {
     //
