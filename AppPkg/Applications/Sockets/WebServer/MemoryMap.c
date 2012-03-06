@@ -58,6 +58,7 @@ MemoryMapPage (
   UINTN Count;
   EFI_GCD_MEMORY_SPACE_DESCRIPTOR * pMemoryEnd;
   EFI_GCD_MEMORY_SPACE_DESCRIPTOR * pMemoryDescriptor;
+  EFI_GCD_MEMORY_SPACE_DESCRIPTOR * pMemoryDescriptorStart;
   EFI_STATUS Status;
   
   DBG_ENTER ( );
@@ -65,6 +66,7 @@ MemoryMapPage (
   //
   //  Send the memory map page
   //
+  pMemoryDescriptorStart = NULL;
   for ( ; ; ) {
     //
     //  Send the page header
@@ -92,6 +94,7 @@ MemoryMapPage (
     Status = gDS->GetMemorySpaceMap ( &Count,
                                       &pMemoryDescriptor );
     if ( !EFI_ERROR ( Status )) {
+      pMemoryDescriptorStart = pMemoryDescriptor;
       pMemoryEnd = &pMemoryDescriptor[ Count ];
       while ( pMemoryEnd > pMemoryDescriptor ) {
         //
@@ -355,7 +358,14 @@ MemoryMapPage (
     Status = HttpPageTrailer ( SocketFD, pPort, pbDone );
     break;
   }
-    
+
+  //
+  //  Release the memory descriptors
+  //
+  if ( NULL != pMemoryDescriptorStart ) {
+    FreePool ( pMemoryDescriptorStart );
+  }
+
   //
   //  Return the operation status
   //

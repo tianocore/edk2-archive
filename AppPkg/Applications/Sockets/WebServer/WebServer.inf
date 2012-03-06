@@ -54,6 +54,12 @@
   SystemTable.c
   WebServer.c
 
+[Sources.IA32]
+  Mtrr.c
+
+[Sources.X64]
+  Mtrr.c
+
 
 [Pcd]
   gAppPkgTokenSpaceGuid.WebServer_HttpPort
@@ -64,6 +70,12 @@
   MdeModulePkg/MdeModulePkg.dec
   ShellPkg/ShellPkg.dec
   StdLib/StdLib.dec
+
+[Packages.IA32]
+  UefiCpuPkg/UefiCpuPkg.dec
+
+[Packages.X64]
+  UefiCpuPkg/UefiCpuPkg.dec
 
 
 [LibraryClasses]
@@ -80,6 +92,13 @@
   UefiLib
   UefiRuntimeServicesTableLib
 #  UseSocketDxe
+
+[LibraryClasses.IA32]
+  MtrrLib
+
+[LibraryClasses.X64]
+  MtrrLib
+
 
 [Guids]
   gEfiAcpi10TableGuid
