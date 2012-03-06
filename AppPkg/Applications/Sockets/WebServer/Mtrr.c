@@ -16,6 +16,8 @@
 #include <WebServer.h>
 #include <Library/MtrrLib.h>
 
+#define VARIABLE_MTRR_VALID     0x800
+
 CONST char * mMemoryType [ ] = {
   "Uncached",
   "Write Combining",
@@ -142,10 +144,14 @@ MemoryTypeRegistersPage (
   OUT BOOLEAN * pbDone
   )
 {
+  UINT64 Addr;
+  BOOLEAN bValid;
   UINT64 Capabilities;
   UINTN Count;
   UINT64 DefType;
   UINTN Index;
+  UINT64 Mask;
+  UINT64 MaxMtrrs;
   CONST UINT64 mFixedAddresses [( 8 * MTRR_NUMBER_OF_FIXED_MTRR ) + 1 ] = {
            0ULL,
      0x10000ULL,
@@ -252,8 +258,10 @@ MemoryTypeRegistersPage (
   CONST UINT64 * pMemEnd;
   CONST UINT64 * pMemStart;
   UINT64 PreviousType;
+  UINT64 ShiftCount;
   EFI_STATUS Status;
   UINT64 Type;
+  INT64 Value;
   
   DBG_ENTER ( );
   
@@ -589,6 +597,202 @@ MemoryTypeRegistersPage (
                                          *pMemStart,
                                          *pMemEnd,
                                          PreviousType );
+          if ( EFI_ERROR ( Status )) {
+            break;
+          }
+
+          //
+          //  End of table 
+          //
+          Status = HttpSendAnsiString ( SocketFD,
+                                        pPort,
+                                        "</table>\r\n" );
+          if ( EFI_ERROR ( Status )) {
+            break;
+          }
+        }
+
+        //
+        //  Determine if the variable MTRRs are supported
+        //
+        MaxMtrrs = Capabilities & MTRR_LIB_IA32_MTRR_CAP_VCNT_MASK;
+        if ( 0 < MaxMtrrs ) {
+          //
+          //  Beginning of table
+          //
+          Status = HttpSendAnsiString ( SocketFD,
+                                        pPort,
+                                        "<h2>Variable MTRRs</h2>\r\n"
+                                        "<table>\r\n"
+                                        "  <tr><th>Index</th><th align=\"right\">Base</th><th align=\"right\">Mask</th><th align=\"right\">Start</th><th align=\"right\">End</th></tr>\r\n" );
+          if ( EFI_ERROR ( Status )) {
+            break;
+          }
+
+          //
+          //  Display the variable MTRRs
+          //
+          for ( Count = 0; MaxMtrrs > Count; Count++ ) {
+            //
+            //  Start the row
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "  <tr><td>" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            
+            //
+            //  Index
+            //
+            Status = HttpSendValue ( SocketFD,
+                                     pPort,
+                                     Count );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            
+            //
+            //  Base
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "</td><td align=\"right\"><code>0x" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            Status = HttpSendHexValue ( SocketFD,
+                                        pPort,
+                                        Mtrr.Variables.Mtrr[ Count ].Base );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+
+            //
+            //  Mask
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "</td><td align=\"right\"><code>0x" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            Status = HttpSendHexValue ( SocketFD,
+                                        pPort,
+                                        Mtrr.Variables.Mtrr[ Count ].Mask );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+
+            //
+            //  Determine if the entry is valid
+            //
+            bValid = ( Mtrr.Variables.Mtrr[ Count ].Mask & VARIABLE_MTRR_VALID ) ? TRUE : FALSE;
+
+            //
+            //  Start
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "</code></td><td align=\"right\"><code>" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            Addr = Mtrr.Variables.Mtrr[ Count ].Base & 0xfffffffffffff000ULL;
+            if ( bValid ) {
+              Status = HttpSendAnsiString ( SocketFD,
+                                            pPort,
+                                            "0x" );
+              if ( EFI_ERROR ( Status )) {
+                break;
+              }
+              Status = HttpSendHexValue ( SocketFD,
+                                          pPort,
+                                          Addr );
+            }
+            else {
+              Status = HttpSendAnsiString ( SocketFD,
+                                            pPort,
+                                            "Invalid" );
+            }
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+
+            //
+            //  End
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "</code></td><td align=\"right\"><code>" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            if ( bValid ) {
+              //
+              //  Determine the end address
+              //
+              Mask = Mtrr.Variables.Mtrr[ Count ].Mask;
+              Value = Mask;
+              ShiftCount = 0;
+              while ( 0 < Value ) {
+                Value <<= 1;
+                ShiftCount += 1;
+              }
+              Value = 1;
+              Value <<= 64 - ShiftCount;
+              Value -= 1;
+              Value = ~Value;
+              Value |= Mask;
+              Value &= ~VARIABLE_MTRR_VALID;
+              Value = ~Value;
+
+              Status = HttpSendAnsiString ( SocketFD,
+                                            pPort,
+                                            "0x" );
+              if ( EFI_ERROR ( Status )) {
+                break;
+              }
+              Status = HttpSendHexValue ( SocketFD,
+                                          pPort,
+                                          Addr + Value );
+            }
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+
+            //
+            //  Type
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "</code></td><td>" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+            if ( bValid ) {
+              Type = Mtrr.Variables.Mtrr[ Count ].Base & 0xFF;
+              Status = HttpSendAnsiString ( SocketFD,
+                                            pPort,
+                                            ( DIM ( mMemoryType ) > Type )
+                                            ? mMemoryType [ Type ]
+                                            : "Reserved" );
+            }
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+
+            //
+            //  End of row
+            //
+            Status = HttpSendAnsiString ( SocketFD,
+                                          pPort,
+                                          "</td></tr>\r\n" );
+            if ( EFI_ERROR ( Status )) {
+              break;
+            }
+          }
           if ( EFI_ERROR ( Status )) {
             break;
           }
