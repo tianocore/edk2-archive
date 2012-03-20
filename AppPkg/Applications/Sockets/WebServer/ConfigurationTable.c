@@ -14,12 +14,12 @@
 **/
 
 #include <WebServer.h>
-#include <Guid\Acpi.h>
-#include <Guid\DebugImageInfoTable.h>
-#include <Guid\DxeServices.h>
-#include <Guid\HobList.h>
-#include <Guid\MemoryTypeInformation.h>
-#include <Guid\LoadModuleAtFixedAddress.h>
+#include <Guid/Acpi.h>
+#include <Guid/DebugImageInfoTable.h>
+#include <Guid/DxeServices.h>
+#include <Guid/HobList.h>
+#include <Guid/MemoryTypeInformation.h>
+#include <Guid/LoadModuleAtFixedAddress.h>
 
 
 typedef struct {
