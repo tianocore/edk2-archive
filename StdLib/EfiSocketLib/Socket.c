@@ -124,9 +124,21 @@
       +--------------------------+
                    |
                    |  ::EslSocketPortCloseComplete
+                   |
+   .---------------+
+   |               |
+   |               V
+   |  +--------------------------+
+   |  |  PORT_STATE_CLOSE_DONE   |
+   |  +--------------------------+
+   |               |
+   |               |  ::EslSocketRxComplete
+   |               |
+   `-------------->+
+                   |
                    V
       +--------------------------+
-      |  PORT_STATE_CLOSE_DONE   |
+      |  PORT_STATE_CLOSE_RX_FIN |
       +--------------------------+
                    |
                    |  ::EslSocketPortCloseRxDone
@@ -155,8 +167,16 @@
     </li>
     <li>State: PORT_STATE_CLOSE_TX_DONE</li>
     <li>Arc: ::EslSocketPortCloseComplete - Called when the close operation is 
-      complete.  After the transition to PORT_STATE_CLOSE_DONE,
+      complete.  After the transition to PORT_STATE_CLOSE_DONE, if closing "now",
       this routine calls ::EslSocketRxCancel to abort the pending receive operations.
+      For normal close operations on stream and SEQ_PACKET sockets the port
+      transitions to the PORT_STATE_CLOSE_RX_FIN state to allow a receive error
+      or FIN to finish closing the port.
+    </li>
+    <li>State: PORT_STATE_CLOSE_RX_FIN</li>
+    <li>Arc: ::EslSocketRxComplete - Transitions to the PORT_STATE_CLOSE_DONE
+      state when an error or FIN is received and the active receive list is
+      empty.
     </li>
     <li>State: PORT_STATE_CLOSE_DONE</li>
     <li>Arc: ::EslSocketPortCloseRxDone - Waits until all of the receive
@@ -3930,6 +3950,7 @@ EslSocketPortCloseComplete (
   )
 {
   ESL_IO_MGMT * pIo;
+  ESL_SOCKET * pSocket;
   EFI_STATUS Status;
 
   DBG_ENTER ( );
@@ -3946,12 +3967,29 @@ EslSocketPortCloseComplete (
   //
   //  Shutdown the receive operation on the port
   //
-  if ( NULL != pPort->pfnRxCancel ) {
-    pIo = pPort->pRxActive;
-    while ( NULL != pIo ) {
-      EslSocketRxCancel ( pPort, pIo );
-      pIo = pIo->pNext;
+  pSocket = pPort->pSocket;
+  if ((( SOCK_STREAM != pSocket->Type )
+    && ( SOCK_SEQPACKET != pSocket->Type ))
+    || ( EFI_ERROR ( pSocket->RxError ))
+    || pPort->bCloseNow ) {
+    //
+    //  Cancel the receive operations
+    //
+    if ( NULL != pPort->pfnRxCancel ) {
+      pIo = pPort->pRxActive;
+      while ( NULL != pIo ) {
+        EslSocketRxCancel ( pPort, pIo );
+        pIo = pIo->pNext;
+      }
     }
+
+    //
+    //  Update the port state
+    //
+    pPort->State = PORT_STATE_CLOSE_RX_FIN;
+    DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+              "0x%08x: Port Close State: PORT_STATE_CLOSE_FIN\r\n",
+              pPort ));
   }
 
   //
@@ -4004,7 +4042,7 @@ EslSocketPortCloseRxDone (
   //  Verify that the port is closing
   //
   Status = EFI_ALREADY_STARTED;
-  if ( PORT_STATE_CLOSE_DONE == pPort->State ) {
+  if ( PORT_STATE_CLOSE_RX_FIN == pPort->State ) {
     //
     //  Determine if the receive operation is pending
     //
@@ -4421,7 +4459,8 @@ EslSocketReceive (
               //
               //  Verify that the socket is connected
               //
-              if ( SOCKET_STATE_CONNECTED == pSocket->State ) {
+              if (( SOCKET_STATE_CONNECTED == pSocket->State )
+                || pSocket->bTxDisable ) {
                 //
                 //  Poll the network to increase performance
                 //
@@ -4816,7 +4855,7 @@ EslSocketRxComplete (
   //  Determine if this receive was successful
   //
   if (( !EFI_ERROR ( Status ))
-    && ( PORT_STATE_CLOSE_STARTED > pPort->State )
+    && ( PORT_STATE_CLOSE_RX_FIN > pPort->State )
     && ( !pSocket->bRxDisable )) {
     //
     //  Account for the received data
@@ -4889,7 +4928,18 @@ EslSocketRxComplete (
     //  Update the port state
     //
     if ( PORT_STATE_CLOSE_STARTED <= pPort->State ) {
-      if ( PORT_STATE_CLOSE_DONE == pPort->State ) {
+      if (( PORT_STATE_CLOSE_DONE == pPort->State )
+        && EFI_ERROR ( Status )) {
+        //
+        //  Update the port state
+        //
+        pPort->State = PORT_STATE_CLOSE_RX_FIN;
+        DEBUG (( DEBUG_CLOSE | DEBUG_INFO,
+                  "0x%08x: Port Close State: PORT_STATE_CLOSE_FIN\r\n",
+                  pPort ));
+      }
+
+      if ( PORT_STATE_CLOSE_RX_FIN == pPort->State ) {
         EslSocketPortCloseRxDone ( pPort );
       }
     }
@@ -5182,7 +5232,8 @@ EslSocketShutdown (
     //
     //  Verify that the socket is connected
     //
-    if ( pSocket->bConnected ) {
+    if (( SOCKET_STATE_LISTENING == pSocket->State )
+      || ( SOCKET_STATE_CONNECTED == pSocket->State )) {
       //
       //  Validate the How value
       //
@@ -5195,22 +5246,12 @@ EslSocketShutdown (
         //
         //  Disable the receiver if requested
         //
+        pSocket->errno = 0;
         if (( SHUT_RD == How ) || ( SHUT_RDWR == How )) {
           pSocket->bRxDisable = TRUE;
-        }
 
-        //
-        //  Disable the transmitter if requested
-        //
-        if (( SHUT_WR == How ) || ( SHUT_RDWR == How )) {
-          pSocket->bTxDisable = TRUE;
-        }
-
-        //
-        //  Cancel the pending receive operations
-        //
-        if ( pSocket->bRxDisable ) {
           //
+          //  Cancel the pending receive operations
           //  Walk the list of ports
           //
           pPort = pSocket->pPortList;
@@ -5227,6 +5268,28 @@ EslSocketShutdown (
             //  Set the next port
             //
             pPort = pPort->pLinkSocket;
+          }
+        }
+
+        //
+        //  Disable the transmitter if requested
+        //
+        if (( SHUT_WR == How ) || ( SHUT_RDWR == How )) {
+          pSocket->bTxDisable = TRUE;
+
+          //
+          //  Start the close operation
+          //
+          Status = EslSocketCloseStart ( pSocketProtocol,
+                                         FALSE,
+                                         &pSocket->errno );
+          if ( EFI_NOT_READY == Status ) {
+            //
+            //  Allow the transmit and receive engines
+            //  to shutdown
+            //
+            Status = EFI_SUCCESS;
+            pSocket->errno = 0;
           }
         }
 

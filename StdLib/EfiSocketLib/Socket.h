@@ -85,6 +85,7 @@ typedef enum
   PORT_STATE_CLOSE_STARTED, ///<  Close started on port
   PORT_STATE_CLOSE_TX_DONE, ///<  Transmits shutdown
   PORT_STATE_CLOSE_DONE,    ///<  Port close operation complete
+  PORT_STATE_CLOSE_RX_FIN,  ///<  Error or FIN received
   PORT_STATE_CLOSE_RX_DONE  ///<  Receives shutdown
 } PORT_STATE;
 
