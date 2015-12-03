@@ -1493,6 +1493,7 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 !endif
 
   Vlv2TbltDevicePkg/Application/FirmwareUpdate/FirmwareUpdate.inf
+  Vlv2TbltDevicePkg/Application/SsdtUpdate/SsdtUpdate.inf
 
 [BuildOptions]
 #
