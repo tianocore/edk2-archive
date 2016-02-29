@@ -1,7 +1,7 @@
 /** @file
   The XHCI controller driver.
 
-Copyright (c) 2011 - 2014, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2011 - 2015, Intel Corporation. All rights reserved.<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -905,17 +905,28 @@ XhcControlTransfer (
   *TransferResult = Urb->Result;
   *DataLength     = Urb->Completed;
 
-  if (*TransferResult == EFI_USB_NOERROR) {
-    Status = EFI_SUCCESS;
-  } else if ((*TransferResult == EFI_USB_ERR_STALL) || (*TransferResult == EFI_USB_ERR_BABBLE)) {
-    RecoveryStatus = XhcRecoverHaltedEndpoint(Xhc, Urb);
-    if (EFI_ERROR (RecoveryStatus)) {
-      DEBUG ((EFI_D_ERROR, "XhcControlTransfer: XhcRecoverHaltedEndpoint failed\n"));
+  if (Status == EFI_TIMEOUT) {
+    //
+    // The transfer timed out. Abort the transfer by dequeueing of the TD.
+    //
+    RecoveryStatus = XhcDequeueTrbFromEndpoint(Xhc, Urb);
+    if (EFI_ERROR(RecoveryStatus)) {
+      DEBUG((EFI_D_ERROR, "XhcControlTransfer: XhcDequeueTrbFromEndpoint failed\n"));
     }
-    Status = EFI_DEVICE_ERROR;
     goto FREE_URB;
   } else {
-    goto FREE_URB;
+    if (*TransferResult == EFI_USB_NOERROR) {
+      Status = EFI_SUCCESS;
+    } else if ((*TransferResult == EFI_USB_ERR_STALL) || (*TransferResult == EFI_USB_ERR_BABBLE)) {
+      RecoveryStatus = XhcRecoverHaltedEndpoint(Xhc, Urb);
+      if (EFI_ERROR (RecoveryStatus)) {
+        DEBUG ((EFI_D_ERROR, "XhcControlTransfer: XhcRecoverHaltedEndpoint failed\n"));
+      }
+      Status = EFI_DEVICE_ERROR;
+      goto FREE_URB;
+    } else {
+      goto FREE_URB;
+    }
   }
 
   Xhc->PciIo->Flush (Xhc->PciIo);
@@ -1241,14 +1252,24 @@ XhcBulkTransfer (
   *TransferResult = Urb->Result;
   *DataLength     = Urb->Completed;
 
-  if (*TransferResult == EFI_USB_NOERROR) {
-    Status = EFI_SUCCESS;
-  } else if (*TransferResult == EFI_USB_ERR_STALL) {
-    RecoveryStatus = XhcRecoverHaltedEndpoint(Xhc, Urb);
-    if (EFI_ERROR (RecoveryStatus)) {
-      DEBUG ((EFI_D_ERROR, "XhcBulkTransfer: XhcRecoverHaltedEndpoint failed\n"));
+  if (Status == EFI_TIMEOUT) {
+    //
+    // The transfer timed out. Abort the transfer by dequeueing of the TD.
+    //
+    RecoveryStatus = XhcDequeueTrbFromEndpoint(Xhc, Urb);
+    if (EFI_ERROR(RecoveryStatus)) {
+      DEBUG((EFI_D_ERROR, "XhcBulkTransfer: XhcDequeueTrbFromEndpoint failed\n"));
     }
-    Status = EFI_DEVICE_ERROR;
+  } else {
+    if (*TransferResult == EFI_USB_NOERROR) {
+      Status = EFI_SUCCESS;
+    } else if (*TransferResult == EFI_USB_ERR_STALL) {
+      RecoveryStatus = XhcRecoverHaltedEndpoint(Xhc, Urb);
+      if (EFI_ERROR (RecoveryStatus)) {
+        DEBUG ((EFI_D_ERROR, "XhcBulkTransfer: XhcRecoverHaltedEndpoint failed\n"));
+      }
+      Status = EFI_DEVICE_ERROR;
+    }
   }
 
   Xhc->PciIo->Flush (Xhc->PciIo);
@@ -1483,10 +1504,6 @@ XhcSyncInterruptTransfer (
     return EFI_INVALID_PARAMETER;
   }
 
-  if (!XHCI_IS_DATAIN (EndPointAddress)) {
-    return EFI_INVALID_PARAMETER;
-  }
-
   if ((*DataToggle != 1) && (*DataToggle != 0)) {
     return EFI_INVALID_PARAMETER;
   }
@@ -1542,14 +1559,24 @@ XhcSyncInterruptTransfer (
   *TransferResult = Urb->Result;
   *DataLength     = Urb->Completed;
 
-  if (*TransferResult == EFI_USB_NOERROR) {
-    Status = EFI_SUCCESS;
-  } else if (*TransferResult == EFI_USB_ERR_STALL) {
-    RecoveryStatus = XhcRecoverHaltedEndpoint(Xhc, Urb);
-    if (EFI_ERROR (RecoveryStatus)) {
-      DEBUG ((EFI_D_ERROR, "XhcSyncInterruptTransfer: XhcRecoverHaltedEndpoint failed\n"));
+  if (Status == EFI_TIMEOUT) {
+    //
+    // The transfer timed out. Abort the transfer by dequeueing of the TD.
+    //
+    RecoveryStatus = XhcDequeueTrbFromEndpoint(Xhc, Urb);
+    if (EFI_ERROR(RecoveryStatus)) {
+      DEBUG((EFI_D_ERROR, "XhcSyncInterruptTransfer: XhcDequeueTrbFromEndpoint failed\n"));
     }
-    Status = EFI_DEVICE_ERROR;
+  } else {
+    if (*TransferResult == EFI_USB_NOERROR) {
+      Status = EFI_SUCCESS;
+    } else if (*TransferResult == EFI_USB_ERR_STALL) {
+      RecoveryStatus = XhcRecoverHaltedEndpoint(Xhc, Urb);
+      if (EFI_ERROR (RecoveryStatus)) {
+        DEBUG ((EFI_D_ERROR, "XhcSyncInterruptTransfer: XhcRecoverHaltedEndpoint failed\n"));
+      }
+      Status = EFI_DEVICE_ERROR;
+    }
   }
 
   Xhc->PciIo->Flush (Xhc->PciIo);
@@ -1826,7 +1853,7 @@ XhcCreateUsbHc (
   //
   Status = gBS->CreateEvent (
                   EVT_TIMER | EVT_NOTIFY_SIGNAL,
-                  TPL_CALLBACK,
+                  TPL_NOTIFY,
                   XhcMonitorAsyncRequests,
                   Xhc,
                   &Xhc->PollTimer

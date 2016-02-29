@@ -2235,22 +2235,13 @@ BdsLibBootViaBootOption (
   EFI_DEVICE_PATH_PROTOCOL  *FilePath;
   EFI_LOADED_IMAGE_PROTOCOL *ImageInfo;
   EFI_DEVICE_PATH_PROTOCOL  *WorkingDevicePath;
-  EFI_ACPI_S3_SAVE_PROTOCOL *AcpiS3Save;
   LIST_ENTRY                TempBootLists;
   EFI_BOOT_LOGO_PROTOCOL    *BootLogo;
 
+  Status        = EFI_SUCCESS;
   *ExitDataSize = 0;
   *ExitData     = NULL;
 
-  //
-  // Notes: this code can be remove after the s3 script table
-  // hook on the event EVT_SIGNAL_READY_TO_BOOT or
-  // EVT_SIGNAL_LEGACY_BOOT
-  //
-  Status = gBS->LocateProtocol (&gEfiAcpiS3SaveProtocolGuid, NULL, (VOID **) &AcpiS3Save);
-  if (!EFI_ERROR (Status)) {
-    AcpiS3Save->S3Save (AcpiS3Save, NULL);
-  }
   //
   // If it's Device Path that starts with a hard drive path, append it with the front part to compose a
   // full device path
@@ -2285,14 +2276,14 @@ BdsLibBootViaBootOption (
   }
 
   //
-  // Report Status Code to indicate ReadyToBoot event will be signalled
-  //
-  REPORT_STATUS_CODE (EFI_PROGRESS_CODE, (EFI_SOFTWARE_DXE_BS_DRIVER | EFI_SW_DXE_BS_PC_READY_TO_BOOT_EVENT));
-
-  //
   // Signal the EVT_SIGNAL_READY_TO_BOOT event
   //
   EfiSignalEventReadyToBoot();
+
+  //
+  // Report Status Code to indicate ReadyToBoot event was signalled
+  //
+  REPORT_STATUS_CODE (EFI_PROGRESS_CODE, (EFI_SOFTWARE_DXE_BS_DRIVER | EFI_SW_DXE_BS_PC_READY_TO_BOOT_EVENT));
 
   //
   // Expand USB Class or USB WWID device path node to be full device path of a USB
