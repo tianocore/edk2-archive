@@ -45,7 +45,7 @@ DefinitionBlock ("RHPX.aml", "SSDT", 1, "MSFT", "RHPROXY", 1)
     
                 // Index 1     
                 I2CSerialBus(            // Pin 13, 15 of JP1, for SIO_I2C5 (signal)
-                    0xFF,                  // SlaveAddress: bus address (TBD)
+                    0x7F,                  // SlaveAddress, 7bit valid   
                     ,                      // SlaveMode: default to ControllerInitiated
                     400000,                // ConnectionSpeed: in Hz
                     ,                      // Addressing Mode: default to 7 bit
