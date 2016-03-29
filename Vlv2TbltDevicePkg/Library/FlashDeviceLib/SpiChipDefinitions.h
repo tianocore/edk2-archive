@@ -16,7 +16,7 @@
 
 #include <Library/SpiFlash.H>
 
-#define FLASH_SIZE  0x300000
+#define FLASH_SIZE  0x400000
 #define FLASH_DEVICE_BASE_ADDRESS (0xFFFFFFFF-FLASH_SIZE+1)
 
 //

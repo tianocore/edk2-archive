@@ -25,6 +25,7 @@ Copyright (c) 2006  - 2014, Intel Corporation. All rights reserved.<BR>
 
 #include <Library/UefiDriverEntryPoint.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/BaseLib.h>
 #include <Library/UefiLib.h>
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
@@ -35,6 +36,7 @@ Copyright (c) 2006  - 2014, Intel Corporation. All rights reserved.<BR>
 #include <Library/PcdLib.h>
 #include <Library/FlashDeviceLib.h>
 #include <Library/DevicePathLib.h>
+#include <Library/HobLib.h>
 
 //
 // Define two helper macro to extract the Capability field or Status field in FVB

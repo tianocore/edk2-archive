@@ -43,6 +43,7 @@ Abstract:
 #include <Protocol/MmioDevice.h>
 #include <Protocol/I2cBusMcg.h>
 #include <Protocol/I2cHostMcg.h>
+#include <Protocol/EsrtManagement.h>
 #include <Guid/CapsuleVendor.h>
 #include <Guid/MemoryTypeInformation.h>
 #include <Guid/GlobalVariable.h>
@@ -450,6 +451,29 @@ BdsDeleteAllInvalidEfiBootOption (
   VOID
   );
 
+/**
+
+  This routine is called to see if there are any capsules we need to process.
+  If the boot mode is not UPDATE, then we do nothing. Otherwise find the
+  capsule HOBS and produce firmware volumes for them via the DXE service.
+  Then call the dispatcher to dispatch drivers from them. Finally, check
+  the status of the updates.
+
+  This function should be called by BDS in case we need to do some
+  sort of processing even if there is no capsule to process. We
+  need to do this if an earlier update went away and we need to
+  clear the capsule variable so on the next reset PEI does not see it and
+  think there is a capsule available.
+
+  @retval EFI_INVALID_PARAMETER   boot mode is not correct for an update
+  @retval EFI_SUCCESS             There is no error when processing capsule
+
+**/
+EFI_STATUS
+EFIAPI
+PlatformBootManagerProcessCapsules (
+  VOID
+  );
 
 #define ONE_SECOND  10000000
 #define FRONT_PAGE_KEY_CONTINUE        0x1000

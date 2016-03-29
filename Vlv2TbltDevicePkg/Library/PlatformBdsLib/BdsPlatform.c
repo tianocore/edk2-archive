@@ -45,6 +45,7 @@ Abstract:
 #include <Library/GenericBdsLib/String.h>
 #include <Library/NetLib.h>
 #include <Library/PchPlatformLib.h>
+#include <Library/CapsuleLib.h>
 
 EFI_GUID *ConnectDriverTable[] = {
   &gEfiMmioDeviceProtocolGuid,
@@ -778,6 +779,43 @@ UpdateConsoleResolution(
 
   return;
 }
+
+
+VOID
+EFIAPI
+PlatformBootManagerBeforeConsole (
+  VOID
+  )
+{
+  ESRT_MANAGEMENT_PROTOCOL  *EsrtManagement;
+  EFI_BOOT_MODE              BootMode;
+  EFI_STATUS                   Status;
+
+ //
+ // Require to sync ESRT from FMP in flash update boot path
+ //
+ Status = gBS->LocateProtocol(&gEsrtManagementProtocolGuid, NULL, (VOID **)&EsrtManagement);
+ if (EFI_ERROR(Status)) {
+   EsrtManagement = NULL;
+ }
+
+ if (EsrtManagement != NULL) {
+   BootMode = GetBootModeHob ();
+   DEBUG ((DEBUG_INFO, "esrtesrt!\n"));
+   if (BootMode == BOOT_ON_FLASH_UPDATE) {
+   PcdSetBool(PcdEsrtSyncFmp, TRUE);
+   }
+
+   //
+   // Lock ESRT cache repository before EndofDxe if ESRT sync is not needed 
+   //
+   if (PcdGetBool(PcdEsrtSyncFmp) == FALSE) {
+     EsrtManagement->LockEsrtRepository();
+   }
+  }
+}
+
+
 
 /**
   Connect the predefined platform default console device. Always try to find
@@ -1616,6 +1654,7 @@ PlatformBdsPolicyBehavior (
   UINT16                             *BootOrder;
   UINTN                              BootOrderSize;
   UINT32                             DxeGpioValue;
+  ESRT_MANAGEMENT_PROTOCOL           *EsrtManagement;
 
   Timeout = PcdGet16 (PcdPlatformBootTimeOut);
   if (Timeout > 10 ) {
@@ -1737,6 +1776,11 @@ PlatformBdsPolicyBehavior (
                       &RegistrationExitPmAuth
                       );
     }
+  }
+
+  Status = gBS->LocateProtocol(&gEsrtManagementProtocolGuid, NULL, (VOID **)&EsrtManagement);
+  if (EFI_ERROR(Status)) {
+    EsrtManagement = NULL;
   }
 
   switch (BootMode) {
@@ -1910,11 +1954,24 @@ PlatformBdsPolicyBehavior (
     }
 
     //
+    // Always sync ESRT Cache from FMP Instances after connect all and before capsule process
+    //
+    if (EsrtManagement != NULL) {
+      EsrtManagement->SyncEsrtFmp();
+      PcdSetBool(PcdEsrtSyncFmp, FALSE);
+    }
+
+    //
     // Close boot script and install ready to lock
     //
     InstallReadyToLock ();
 
-    ProcessCapsules (BOOT_ON_FLASH_UPDATE);
+
+    PlatformBootManagerProcessCapsules();
+
+    
+    PlatformBdsLockNonUpdatableFlash ();
+    
     break;
 
   case BOOT_IN_RECOVERY_MODE:

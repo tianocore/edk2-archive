@@ -78,11 +78,11 @@ SpiFlashBlockErase (
   UINT32              SpiAddress;
 
   SpiAddress = (UINT32)(UINTN)(BaseAddress) - (UINT32)FlashDeviceBase;
-  SectorSize = SECTOR_SIZE_64KB;
+  SectorSize = SECTOR_SIZE_4KB;
   while ( (NumBytes > 0) && (NumBytes <= MAX_FWH_SIZE) ) {
     Status = mSpiProtocol->Execute (
                              mSpiProtocol,
-                             SPI_BERASE,
+                             SPI_SERASE,
                              SPI_WREN,
                              FALSE,
                              TRUE,

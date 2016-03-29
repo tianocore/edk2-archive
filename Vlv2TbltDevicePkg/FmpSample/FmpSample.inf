@@ -1,0 +1,64 @@
+## @file
+#  Component description file for FmpSample module
+#
+#
+#  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = FmpSample
+  FILE_GUID                      = 30743C10-6706-4E45-9722-EC7FB6D2161D
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = FmpSampleMain
+  UNLOAD_IMAGE                   = FmpSampleUnload
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = X64
+#
+
+[Sources]
+  FmpSample.c
+  FmpSampleImpl.c
+  FmpSample.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  Vlv2TbltDevicePkg/PlatformPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  UefiLib
+  BaseMemoryLib
+  DebugLib
+  PcdLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  HobLib
+  UefiRuntimeServicesTableLib
+  UefiDriverEntryPoint
+
+[Guids]
+  gFMPSampleUpdateImageInfoGuid
+ 
+[Protocols]
+  gEfiFirmwareManagementProtocolGuid            ## SOMTIMES_PRODUCE
+
+[Pcd]
+
+[FixedPcd]
+
+[Depex]
+  gEfiVariableWriteArchProtocolGuid

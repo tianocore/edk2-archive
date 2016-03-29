@@ -48,10 +48,10 @@ DEFINE FLASH_REGION_AZALIABIN_BASE                            = 0xFFD08000
 !endif
 
 DEFINE FLASH_REGION_FVMAIN_OFFSET                             = 0x00110000
-DEFINE FLASH_REGION_FVMAIN_SIZE                               = 0x00215000
+DEFINE FLASH_REGION_FVMAIN_SIZE                               = 0x00210000
 
-DEFINE FLASH_REGION_FV_RECOVERY2_OFFSET                       = 0x00325000
-DEFINE FLASH_REGION_FV_RECOVERY2_SIZE                         = 0x0006B000
+DEFINE FLASH_REGION_FV_RECOVERY2_OFFSET                       = 0x00320000
+DEFINE FLASH_REGION_FV_RECOVERY2_SIZE                         = 0x00070000
  
 DEFINE FLASH_REGION_FV_RECOVERY_OFFSET                        = 0x00390000
 DEFINE FLASH_REGION_FV_RECOVERY_SIZE                          = 0x00070000
@@ -358,9 +358,13 @@ INF RuleOverride = BINARY $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET
 
 
 !if $(CAPSULE_ENABLE) == TRUE
+!if $(DXE_ARCHITECTURE) == X64
 INF  MdeModulePkg/Universal/CapsulePei/CapsulePei.inf
 !if $(DXE_ARCHITECTURE) == "X64"
 INF  MdeModulePkg/Universal/CapsulePei/CapsuleX64.inf
+!else
+INF  MdeModulePkg/Universal/CapsulePei/CapsulePei.inf
+!endif
 !endif
 !endif
 
@@ -719,6 +723,12 @@ FILE FREEFORM = 878AC2CC-5343-46F2-B563-51F89DAF56BA {
   !endif
 !endif
 
+!if $(ESRT_ENABLE) == TRUE
+  INF  MdeModulePkg/Universal/EsrtDxe/EsrtDxe.inf
+  INF  $(PLATFORM_PACKAGE)/PlatformEsrt/PlatformEsrtDxe.inf
+  INF  $(PLATFORM_PACKAGE)/FmpSample/FmpSample.inf
+!endif
+
 [FV.FVMAIN_COMPACT]
 BlockSize          = $(FLASH_BLOCK_SIZE)
 FvAlignment        = 16
@@ -737,8 +747,6 @@ READ_ENABLED_CAP   = TRUE
 READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
-
-
 
 FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
 !if $(LZMA_ENABLE) == TRUE
@@ -782,7 +790,7 @@ READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
 
-[FV.Update_Data]
+[FV.Bios_Update_Data]
 BlockSize          = $(FLASH_BLOCK_SIZE)
 FvAlignment        = 16
 ERASE_POLARITY     = 1
@@ -801,8 +809,8 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
-FILE RAW = 88888888-8888-8888-8888-888888888888 {
-       FD = Vlv
+FILE FV_IMAGE = 4A538818-5AE0-4eb2-B2EB-488B23657022 {
+       SECTION FV_IMAGE = FVMAIN_COMPACT
      }
 
 [FV.BiosUpdateCargo]
@@ -824,6 +832,17 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
+!if $(ESRT_ENABLE) == TRUE
+  INF   $(PLATFORM_PACKAGE)/UpdateDriverDxe/UpdateDriverDxe.inf
+!else
+  INF  IntelFrameworkModulePkg/Universal/FirmwareVolume/UpdateDriverDxe/UpdateDriverDxe.inf
+!endif
+FILE RAW = 283FA2EE-532C-484d-9383-9F93B36F0B7E {
+       FV = Bios_Update_Data
+     }
+FILE RAW = 98B8D59B-E8BA-48EE-98DD-C295392F1EDB {
+   Vlv2TbltDevicePkg/BiosUpdateConfig/BiosUpdateConfig.ini
+   }
 
 
 [FV.BiosUpdate]
@@ -845,23 +864,33 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
+FILE FV_IMAGE = EDBEDF47-6EA3-4512-83C1-70F4769D4BDE {
+       SECTION GUIDED {
+          SECTION FV_IMAGE = BiosUpdateCargo
+       }
+     }
+
 [Capsule.Capsule_Boot]
-#
-# gEfiCapsuleGuid supported by platform
-# { 0x3B6686BD, 0x0D76, 0x4030, { 0xB7, 0x0E, 0xB5, 0x51, 0x9E, 0x2F, 0xC5, 0xA0 }}
-#
-CAPSULE_GUID  = 3B6686BD-0D76-4030-B70E-B5519E2FC5A0
-CAPSULE_FLAGS = PersistAcrossReset
+!if $(ESRT_ENABLE) == TRUE
+CAPSULE_GUID      = 819b858e-c52c-402f-80e1-5b311b6c1959
+!else
+CAPSULE_GUID      = 3B6686BD-0D76-4030-B70E-B5519E2FC5A0 
+!endif
+
+CAPSULE_FLAGS     = PersistAcrossReset, InitiateReset
+OEM_CAPSULE_FLAGS = 0x0001
+
 CAPSULE_HEADER_SIZE = 0x20
 
 FV = BiosUpdate
 
 [Capsule.Capsule_Reset]
-#
-# gEfiCapsuleGuid supported by platform
-# { 0x3B6686BD, 0x0D76, 0x4030, { 0xB7, 0x0E, 0xB5, 0x51, 0x9E, 0x2F, 0xC5, 0xA0 }}
-#
-CAPSULE_GUID  = 3B6686BD-0D76-4030-B70E-B5519E2FC5A0
+!if $(ESRT_ENABLE) == TRUE
+CAPSULE_GUID      = 819b858e-c52c-402f-80e1-5b311b6c1959
+!else
+CAPSULE_GUID      = 3B6686BD-0D76-4030-B70E-B5519E2FC5A0 
+!endif
+
 CAPSULE_FLAGS = PersistAcrossReset
 CAPSULE_HEADER_SIZE = 0x20
 

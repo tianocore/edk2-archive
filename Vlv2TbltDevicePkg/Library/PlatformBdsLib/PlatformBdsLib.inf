@@ -38,6 +38,7 @@
   BdsPlatform.h
   PlatformData.c
   PlatformBdsStrings.uni
+  Capsules.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -73,6 +74,7 @@
   S3BootScriptLib
   SerialPortLib
   PchPlatformLib
+  UefiBootManagerLib
 
 [Protocols]
   gEfiFirmwareVolume2ProtocolGuid
@@ -91,6 +93,7 @@
   gEfiMmioDeviceProtocolGuid
   gEfiI2cMasterProtocolGuid
   gEfiI2cHostProtocolGuid
+  gEsrtManagementProtocolGuid                   ## SOMETIMES_CONSUME
 
 [Guids]
   gEfiMemoryTypeInformationGuid
@@ -98,6 +101,7 @@
   gEfiGlobalVariableGuid
   gEfiNormalSetupGuid
   gEfiPartTypeSystemPartGuid
+  gWindowsUxCapsuleGuid
 
 [Pcd]
   gPlatformModuleTokenSpaceGuid.PcdFlashFvRecovery2Base
@@ -119,3 +123,5 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBootState
+  gPlatformModuleTokenSpaceGuid.PcdEsrtSyncFmp
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSystemRebootAfterCapsuleProcessFlag ## CONSUMES

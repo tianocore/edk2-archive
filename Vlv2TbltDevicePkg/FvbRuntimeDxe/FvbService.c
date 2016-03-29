@@ -1017,13 +1017,42 @@ FvbInitialize (
   UINTN                                 Idx;
   UINT32                                MaxLbaSize;
   BOOLEAN                               FvHeaderValid;
+EFI_BOOT_MODE                         BootMode;
+UINT32                                PlatformFvBaseAddress[2];
+UINT32                                PlatformFvBaseAddressCount;
+UINT32                                PlatformFvLockList[3];
+UINT32                                PlatformFvLockListCount;
+  //
+  // This platform driver knows there are 3 FVs on
+  // FD, which are FvRecovery, FvMain and FvNvStorage.
+  //
+  BootMode = GetBootModeHob ();
+  if ( FeaturePcdGet ( PcdFeatureRecoveryDisabled ) || BootMode == BOOT_IN_RECOVERY_MODE) {
+    //
+    // On recovery boot, don't report any firmware FV images, because their data can't be trusted.
+    //
+    PlatformFvBaseAddressCount = 1;
+    PlatformFvBaseAddress[0]   = PcdGet32 (PcdFlashNvStorageVariableBase);
+  } else {
+    PlatformFvBaseAddressCount = 2;
+    PlatformFvBaseAddress[0]   = PcdGet32 (PcdFlashFvMainBase);
+    PlatformFvBaseAddress[1]   = PcdGet32 (PcdFlashNvStorageVariableBase);
+    PlatformFvBaseAddress[2]   = PcdGet32 (PcdFlashFvRecoveryBase);
+  }
+
+  //
+  // List of FVs that should be write protected on normal boots.
+  //
+  PlatformFvLockListCount = 1;
+  PlatformFvLockList[0]   = PcdGet32 (PcdFlashFvMainBase);
+  PlatformFvLockList[1]   = PcdGet32 (PcdFlashFvRecoveryBase);
 
   //
   // Calculate the total size for all firmware volume block instances.
   //
   BufferSize = 0;
-  for (Idx = 0; Idx < 1; Idx++) {
-    FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) mPlatformFvBaseAddress[Idx];
+  for (Idx = 0; Idx < PlatformFvBaseAddressCount; Idx++) {
+    FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) PlatformFvBaseAddress[Idx];
     BufferSize +=  (FvHeader->HeaderLength +
                     sizeof (EFI_FW_VOL_INSTANCE) -
                     sizeof (EFI_FIRMWARE_VOLUME_HEADER)
@@ -1038,8 +1067,8 @@ FvbInitialize (
   FwhInstance     = mFvbModuleGlobal.FvInstance;
   mFvbModuleGlobal.NumFv   = 0;
 
-  for (Idx = 0; Idx < 1; Idx++) {
-    BaseAddress = mPlatformFvBaseAddress[Idx];
+  for (Idx = 0; Idx < PlatformFvBaseAddressCount; Idx++) {
+    BaseAddress = PlatformFvBaseAddress[Idx];
     FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) BaseAddress;
 
     if (!IsFvHeaderValid (BaseAddress, FwVolHeader)) {

@@ -181,11 +181,15 @@
 !endif
 
   OemHookStatusCodeLib|MdeModulePkg/Library/OemHookStatusCodeLibNull/OemHookStatusCodeLibNull.inf
-!if $(CAPSULE_ENABLE) == TRUE
- CapsuleLib|IntelFrameworkModulePkg/Library/DxeCapsuleLib/DxeCapsuleLib.inf
+
+!if $(ESRT_ENABLE) == TRUE
+  CapsuleLib|$(PLATFORM_PACKAGE)/Library/DxeEsrtCapsuleBsLib/DxeEsrtCapsuleBsLib.inf
 !else
-  CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
+  CapsuleLib|IntelFrameworkModulePkg/Library/DxeCapsuleLib/DxeCapsuleLib.inf
 !endif
+
+  UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
+
   LanguageLib|EdkCompatibilityPkg/Compatibility/Library/UefiLanguageLib/UefiLanguageLib.inf
   SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
   SecurityManagementLib|MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf
@@ -681,6 +685,9 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseHardwareFlowControl|FALSE
 !endif
 
+[PcdsFixedAtBuild.X64]
+gEfiMdeModulePkgTokenSpaceGuid.PcdSystemRebootAfterCapsuleProcessFlag|0x0001
+
 [PcdsFixedAtBuild.IA32.PEIM, PcdsFixedAtBuild.IA32.PEI_CORE, PcdsFixedAtBuild.IA32.SEC]
 !if $(TARGET) == RELEASE
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x0
@@ -823,6 +830,15 @@
   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|L"Timeout"|gEfiGlobalVariableGuid|0x0|5 # Variable: L"Timeout"
   gEfiMdePkgTokenSpaceGuid.PcdHardwareErrorRecordLevel|L"HwErrRecSupport"|gEfiGlobalVariableGuid|0x0|1 # Variable: L"HwErrRecSupport"
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBootState|L"BootState"|gEfiBootStateGuid|0x0|TRUE
+  
+  #
+  #  Indicator to sync ESRT repository from FMP instance. Set to TRUE on first boot
+  #
+!if $(ESRT_ENABLE) == TRUE
+  gPlatformModuleTokenSpaceGuid.PcdEsrtSyncFmp|L"EsrtSyncFmp"|gPlatformModuleTokenSpaceGuid|0x0|TRUE|NV,BS
+!else
+  gPlatformModuleTokenSpaceGuid.PcdEsrtSyncFmp|L"EsrtSyncFmp"|gPlatformModuleTokenSpaceGuid|0x0|FALSE|NV,BS
+!endif
 
 [PcdsDynamicDefault.common.DEFAULT]
   gEfiMdeModulePkgTokenSpaceGuid.PcdS3BootScriptTablePrivateDataPtr|0x0
@@ -1101,6 +1117,8 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 !endif
   }
 
+
+
   MdeModulePkg/Universal/ReportStatusCodeRouter/Smm/ReportStatusCodeRouterSmm.inf
   MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf{
     <LibraryClasses>
@@ -1164,14 +1182,22 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 !endif
    MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf {
     <LibraryClasses>
-      FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
+      !if $(ESRT_ENABLE) == TRUE
+      CapsuleLib|$(PLATFORM_PACKAGE)/Library/DxeEsrtCapsuleRtLib/DxeEsrtCapsuleRtLib.inf
+!endif
   }
 
   MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe.inf
   PcAtChipsetPkg/PcatRealTimeClockRuntimeDxe/PcatRealTimeClockRuntimeDxe.inf
   MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
 
-  $(PLATFORM_PACKAGE)/FvbRuntimeDxe/FvbRuntimeDxe.inf
+  $(PLATFORM_PACKAGE)/FvbRuntimeDxe/FvbRuntimeDxe.inf {
+  !if $(TARGET) == DEBUG
+    <LibraryClasses>
+      DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+	  SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf
+    !endif
+	}
 
   $(PLATFORM_PACKAGE)/PlatformSetupDxe/PlatformSetupDxe.inf
 
@@ -1490,6 +1516,28 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
     !else
       MdeModulePkg/Universal/Network/UefiPxeBcDxe/UefiPxeBcDxe.inf
     !endif
+!endif
+
+#
+# capsule related drivers
+#
+IntelFrameworkModulePkg/Universal/FirmwareVolume/FwVolDxe/FwVolDxe.inf
+!if $(ESRT_ENABLE) == TRUE
+  $(PLATFORM_PACKAGE)/UpdateDriverDxe/UpdateDriverDxe.inf{
+     !if $(TARGET) == DEBUG
+    <LibraryClasses>
+      DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+	  SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf
+    !endif
+  }
+!else
+  IntelFrameworkModulePkg/Universal/FirmwareVolume/UpdateDriverDxe/UpdateDriverDxe.inf
+!endif
+MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteSmmDxe.inf
+!if $(ESRT_ENABLE) == TRUE
+  MdeModulePkg/Universal/EsrtDxe/EsrtDxe.inf
+  $(PLATFORM_PACKAGE)/PlatformEsrt/PlatformEsrtDxe.inf
+  $(PLATFORM_PACKAGE)/FmpSample/FmpSample.inf
 !endif
 
   Vlv2TbltDevicePkg/Application/FirmwareUpdate/FirmwareUpdate.inf

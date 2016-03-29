@@ -60,6 +60,7 @@
   SmmServicesTableLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
+  HobLib
 
 [Guids]
   gEfiFirmwareFileSystem2Guid                   # ALWAYS_CONSUMED
@@ -74,6 +75,9 @@
   gPlatformModuleTokenSpaceGuid.PcdFlashFvMainBase
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
   gPlatformModuleTokenSpaceGuid.PcdFlashFvRecoveryBase
+  
+[FeaturePcd]
+  gPlatformModuleTokenSpaceGuid.PcdFeatureRecoveryDisabled
 
 [Pcd]
   gPlatformModuleTokenSpaceGuid.PcdFlashFvMainSize

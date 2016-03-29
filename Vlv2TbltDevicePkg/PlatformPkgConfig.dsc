@@ -2,15 +2,15 @@
 # platform configuration file.
 #
 # Copyright (c) 2012  - 2015, Intel Corporation. All rights reserved.<BR>
-#                                                                                  
-# This program and the accompanying materials are licensed and made available under
-# the terms and conditions of the BSD License that accompanies this distribution.  
-# The full text of the license may be found at                                     
-# http://opensource.org/licenses/bsd-license.php.                                  
-#                                                                                  
-# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,            
-# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.    
-#                                                                                  
+#                                                                                  
+# This program and the accompanying materials are licensed and made available under
+# the terms and conditions of the BSD License that accompanies this distribution.  
+# The full text of the license may be found at                                     
+# http://opensource.org/licenses/bsd-license.php.                                  
+#                                                                                  
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,            
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.    
+#                                                                                  
 #
 #**/
 
@@ -63,7 +63,7 @@ DEFINE SECURE_BOOT_ENABLE = TRUE
 DEFINE USER_IDENTIFICATION_ENABLE = FALSE
 DEFINE VARIABLE_INFO_ENABLE = FALSE
 DEFINE S3_ENABLE = TRUE
-DEFINE CAPSULE_ENABLE = FALSE
+DEFINE CAPSULE_ENABLE = TRUE
 DEFINE CAPSULE_RESET_ENABLE = TRUE
 
 DEFINE GOP_DRIVER_ENABLE = TRUE
@@ -86,6 +86,7 @@ DEFINE NETWORK_VLAN_ENABLE = FALSE
 
 DEFINE SATA_ENABLE       = TRUE
 DEFINE PCIESC_ENABLE     = TRUE
+DEFINE ESRT_ENABLE       = TRUE
 
 #
 # Enable source level debug default
