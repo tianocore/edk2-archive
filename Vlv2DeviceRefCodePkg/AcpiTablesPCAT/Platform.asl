@@ -5,7 +5,7 @@
 ;*    Family of Customer Reference Boards.                                *;
 ;*                                                                        *;
 ;*                                                                        *;
-;*    Copyright (c) 2012  - 2014, Intel Corporation. All rights reserved    *;
+;*    Copyright (c) 2012  - 2016, Intel Corporation. All rights reserved    *;
 ;
 ; This program and the accompanying materials are licensed and made available under
 ; the terms and conditions of the BSD License that accompanies this distribution.
@@ -29,7 +29,7 @@ External(PDC2)
 External(PDC3)
 External(CFGD)
 External(\_PR.CPU0._PPC, IntObj)
-External(\_SB.PCI0.LPCB.TPM.PTS, MethodObj)
+External(\_SB.TPM.PTS, MethodObj)
 External(\_SB.STR3, DeviceObj)
 External(\_SB.I2C1.BATC, DeviceObj)
 External(\_SB.DPTF, DeviceObj)
@@ -145,6 +145,16 @@ Method(_PTS,1)
   //clear GPE0_STS
   Store(Ones, G0S)
 
+  //
+  // Check whether TPM Module support is included in the project or not
+  //
+  If(CondRefOf(\_SB.TPM.PTS))
+  {
+    //
+    // Call TPM PTS method
+    //
+    \_SB.TPM.PTS (Arg0)
+  }
 
   If(LEqual(Arg0,3))   // If S3 Suspend
   {

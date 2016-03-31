@@ -1280,6 +1280,7 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 !if $(FTPM_ENABLE) == TRUE
   $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/$(DXE_ARCHITECTURE)/Tpm2DeviceSeCDxe.inf
   SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.inf
+  SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.inf
   SecurityPkg/Tcg/TrEEDxe/TrEEDxe.inf{
     <LibraryClasses>
       NULL|SecurityPkg/Library/HashInstanceLibSha1/HashInstanceLibSha1.inf
