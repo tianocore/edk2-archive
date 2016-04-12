@@ -1,7 +1,7 @@
 #/** @file
 # Platform description.
 #
-# Copyright (c) 2012  - 2015, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 2012  - 2016, Intel Corporation. All rights reserved.<BR>
 #                                                                                  
 # This program and the accompanying materials are licensed and made available under
 # the terms and conditions of the BSD License that accompanies this distribution.  
@@ -604,16 +604,16 @@
 [PcdsFixedAtBuild.common]
 !if $(MINNOW2_FSP_BUILD) == TRUE
 # $(FLASH_REGION_VLVMICROCODE_BASE)
-  gFspWrapperTokenSpaceGuid.PcdCpuMicrocodePatchAddress|0xFFD00000
+  gFspWrapperTokenSpaceGuid.PcdCpuMicrocodePatchAddress|0xFFC00000
 # $(FLASH_REGION_VLVMICROCODE_SIZE)
-  gFspWrapperTokenSpaceGuid.PcdCpuMicrocodePatchRegionSize|0x00030000
+  gFspWrapperTokenSpaceGuid.PcdCpuMicrocodePatchRegionSize|0x00040000
   gFspWrapperTokenSpaceGuid.PcdFlashMicroCodeOffset|0x60
 # $(FLASH_AREA_BASE_ADDRESS)
   gFspWrapperTokenSpaceGuid.PcdFlashCodeCacheAddress|0xFF800000
 # $(FLASH_AREA_SIZE)
   gFspWrapperTokenSpaceGuid.PcdFlashCodeCacheSize|0x00800000
 # $(FLASH_REGION_FSPBIN_BASE)
-  gFspWrapperTokenSpaceGuid.PcdFlashFvFspBase|0xFFDB0000
+  gFspWrapperTokenSpaceGuid.PcdFlashFvFspBase|0xFFCC0000
 !endif
 
 !if $(PERFORMANCE_ENABLE) == TRUE
@@ -1142,7 +1142,7 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
   MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmmRuntimeDxe.inf
-  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmm.inf {
+   MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmm.inf {
     <LibraryClasses>
       NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
       SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf

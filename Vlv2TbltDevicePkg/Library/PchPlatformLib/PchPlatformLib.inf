@@ -29,7 +29,7 @@
   FILE_GUID                      = 32F89CBC-305D-4bdd-8B2C-9C65592E66AC
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
-  LIBRARY_CLASS                  = PchPlatformLib
+  LIBRARY_CLASS                  = PchPlatformLib | DXE_DRIVER DXE_RUNTIME_DRIVER  UEFI_DRIVER PEIM DXE_SMM_DRIVER
 
 [sources.common]
   PchPlatformLibrary.h
