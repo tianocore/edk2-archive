@@ -360,11 +360,9 @@ INF RuleOverride = BINARY $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET
 !if $(CAPSULE_ENABLE) == TRUE
 !if $(DXE_ARCHITECTURE) == X64
 INF  MdeModulePkg/Universal/CapsulePei/CapsulePei.inf
-!if $(DXE_ARCHITECTURE) == "X64"
 INF  MdeModulePkg/Universal/CapsulePei/CapsuleX64.inf
 !else
 INF  MdeModulePkg/Universal/CapsulePei/CapsulePei.inf
-!endif
 !endif
 !endif
 
