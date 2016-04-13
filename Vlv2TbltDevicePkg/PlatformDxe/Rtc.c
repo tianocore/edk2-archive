@@ -22,6 +22,13 @@
 #define RTC_INIT_SECOND 0
 #define RTC_INIT_MINUTE 0
 #define RTC_INIT_HOUR   0
+
+#define RTC_ADDRESS_CENTURY           50  // R/W  Range 19..20 Bit 8 is R/W
+
+#define RTC_ADDRESS_REGISTER     0x70
+#define RTC_DATA_REGISTER        0x71
+
+
  
 CHAR16  mBiosReleaseDate[20];    
   
@@ -91,6 +98,7 @@ AdjustDefaultRtcTimeCallback (
 {
   EFI_STATUS      Status;
   EFI_TIME        EfiTime;
+  UINT8           Century;
   CHAR16          BiosVersion[60];    
   CHAR16          BiosReleaseTime[20];    
   //
@@ -154,6 +162,14 @@ AdjustDefaultRtcTimeCallback (
     //
     Status = gRT->SetTime (&EfiTime);
     ASSERT_EFI_ERROR(Status);
+
+    //
+    // Set the RTC century in case that UEFI SetTime sevice does not set this register.
+    //
+    Century    = DecimalToBcd8 ((UINT8) (EfiTime.Year / 100));
+    IoWrite8 (RTC_ADDRESS_REGISTER, (UINT8) (RTC_ADDRESS_CENTURY | (UINT8) (IoRead8 (PCAT_RTC_ADDRESS_REGISTER) & 0x80)));
+    IoWrite8 (RTC_DATA_REGISTER, Century);
+
   }
 
   return;
