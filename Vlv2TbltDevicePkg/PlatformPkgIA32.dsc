@@ -1125,7 +1125,16 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 !endif
   }
 
-
+!if $(DXE_ARCHITECTURE) == X64
+!if $(CAPSULE_ENABLE) == TRUE
+  MdeModulePkg/Universal/CapsulePei/CapsuleX64.inf {
+    <LibraryClasses>
+    PcdLib|MdePkg/Library/PeiPcdLib/PeiPcdLib.inf
+    MemoryAllocationLib|MdePkg/Library/PeiMemoryAllocationLib/PeiMemoryAllocationLib.inf
+    HobLib|MdePkg/Library/PeiHobLib/PeiHobLib.inf
+  }
+!endif
+!endif
 
   MdeModulePkg/Universal/ReportStatusCodeRouter/Smm/ReportStatusCodeRouterSmm.inf
   MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf{
