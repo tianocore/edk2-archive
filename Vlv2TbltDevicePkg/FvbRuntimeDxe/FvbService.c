@@ -1017,11 +1017,11 @@ FvbInitialize (
   UINTN                                 Idx;
   UINT32                                MaxLbaSize;
   BOOLEAN                               FvHeaderValid;
-EFI_BOOT_MODE                         BootMode;
-UINT32                                PlatformFvBaseAddress[2];
-UINT32                                PlatformFvBaseAddressCount;
-UINT32                                PlatformFvLockList[3];
-UINT32                                PlatformFvLockListCount;
+  EFI_BOOT_MODE                         BootMode;
+  UINT32                                PlatformFvBaseAddress[3];
+  UINT32                                PlatformFvBaseAddressCount;
+  UINT32                                PlatformFvLockList[2];
+  UINT32                                PlatformFvLockListCount;
   //
   // This platform driver knows there are 3 FVs on
   // FD, which are FvRecovery, FvMain and FvNvStorage.
@@ -1034,7 +1034,7 @@ UINT32                                PlatformFvLockListCount;
     PlatformFvBaseAddressCount = 1;
     PlatformFvBaseAddress[0]   = PcdGet32 (PcdFlashNvStorageVariableBase);
   } else {
-    PlatformFvBaseAddressCount = 2;
+    PlatformFvBaseAddressCount = 3;
     PlatformFvBaseAddress[0]   = PcdGet32 (PcdFlashFvMainBase);
     PlatformFvBaseAddress[1]   = PcdGet32 (PcdFlashNvStorageVariableBase);
     PlatformFvBaseAddress[2]   = PcdGet32 (PcdFlashFvRecoveryBase);
@@ -1043,7 +1043,7 @@ UINT32                                PlatformFvLockListCount;
   //
   // List of FVs that should be write protected on normal boots.
   //
-  PlatformFvLockListCount = 1;
+  PlatformFvLockListCount = 2;
   PlatformFvLockList[0]   = PcdGet32 (PcdFlashFvMainBase);
   PlatformFvLockList[1]   = PcdGet32 (PcdFlashFvRecoveryBase);
 

@@ -787,12 +787,10 @@ ProcessCapsuleImage (
   ProcessedFvImage = NULL;
   Status           = EFI_SUCCESS;
   AttemptStatus    = LAST_ATTEMPT_STATUS_SUCCESS;
-  DEBUG ((DEBUG_INFO, "ProcessCapsuleImage1\n"));
 
   if (SupportCapsuleImage (CapsuleHeader) != EFI_SUCCESS) {
     return EFI_UNSUPPORTED;
   }
-  DEBUG ((DEBUG_INFO, "ProcessCapsuleImage2\n"));
 
   //
   // Display image in firmware update display capsule
@@ -802,7 +800,6 @@ ProcessCapsuleImage (
              (DISPLAY_DISPLAY_PAYLOAD *)(CapsuleHeader + 1), 
              (UINTN)(CapsuleHeader->CapsuleImageSize - sizeof(EFI_CAPSULE_HEADER)));
   }
-  DEBUG ((DEBUG_INFO, "ProcessCapsuleImage3\n"));
 
   //
   // Check FMP capsule layout
@@ -812,23 +809,18 @@ ProcessCapsuleImage (
     if (EFI_ERROR(Status)) {
       return Status;
     }
-	DEBUG ((DEBUG_INFO, "ProcessCapsuleImage4\n"));
 
     //
     // Press EFI FMP Capsule
     //
     Status = ProcessFmpCapsuleImage(CapsuleHeader);
-	DEBUG ((DEBUG_INFO, "ProcessCapsuleImage5\n"));
 
     //
     // Indicate to sync Esrt on next boot
     //
     PcdSetBool(PcdEsrtSyncFmp, TRUE);
-	DEBUG ((DEBUG_INFO, "ProcessCapsuleImage6\n"));
-
     return Status;
   }
-  DEBUG ((DEBUG_INFO, "ProcessCapsuleImage7\n"));
 
   //
   // Other non-FMP capsule handler
@@ -843,7 +835,6 @@ ProcessCapsuleImage (
     // Point to the next firmware volume header, and then
     // call the DXE service to process it.
     //
-     DEBUG ((DEBUG_INFO, "ProcessCapsuleImage8\n"));
     if (FvImage->FvLength > (UINTN) Length) {
       //
       // Notes: need to stuff this status somewhere so that the
@@ -852,7 +843,6 @@ ProcessCapsuleImage (
       Status = EFI_VOLUME_CORRUPTED;
       break;
     }
-	DEBUG ((DEBUG_INFO, "ProcessCapsuleImage9\n"));
 
     FvAlignment = 1 << ((FvImage->Attributes & EFI_FVB2_ALIGNMENT) >> 16);
     //
@@ -861,7 +851,6 @@ ProcessCapsuleImage (
     if (FvAlignment < 8) {
       FvAlignment = 8;
     }
-	 DEBUG ((DEBUG_INFO, "ProcessCapsuleImage10\n"));
     //
     // Check FvImage Align is required.
     //
@@ -879,7 +868,6 @@ ProcessCapsuleImage (
       }
       CopyMem (ProcessedFvImage, FvImage, (UINTN) FvImage->FvLength);
     }
-	 DEBUG ((DEBUG_INFO, "ProcessCapsuleImage11\n"));
 
     Status = gDS->ProcessFirmwareVolume (
                     (VOID *) ProcessedFvImage,
@@ -890,13 +878,11 @@ ProcessCapsuleImage (
       AttemptStatus = LAST_ATTEMPT_STATUS_ERROR_INVALID_FORMAT;
       break;
     }
-	DEBUG ((DEBUG_INFO, "ProcessCapsuleImage12\n"));
 
     //
     // Call the dispatcher to dispatch any drivers from the produced firmware volume
     //
     gDS->Dispatch ();
-	 DEBUG ((DEBUG_INFO, "ProcessCapsuleImage13\n"));
     //
     // On to the next FV in the capsule
     //
@@ -908,10 +894,8 @@ ProcessCapsuleImage (
   // Update corresponding ESRT entry LastAttemp Status 
   //
   StatusEsrt = gBS->LocateProtocol(&gEsrtManagementProtocolGuid, NULL, (VOID **)&EsrtManagement);
-   DEBUG ((DEBUG_INFO, "ProcessCapsuleImage14\n"));
   if (!EFI_ERROR(StatusEsrt)) {
     StatusEsrt = EsrtManagement->GetEsrtEntry(&CapsuleHeader->CapsuleGuid, &EsrtEntry);
-	 DEBUG ((DEBUG_INFO, "ProcessCapsuleImage15\n"));
     if (!EFI_ERROR(StatusEsrt)){
       //
       // Update version can't be get from FV, set LastAttemptVersion to zero after a failed update
@@ -919,10 +903,8 @@ ProcessCapsuleImage (
       if (AttemptStatus != LAST_ATTEMPT_STATUS_SUCCESS) {
         EsrtEntry.LastAttemptVersion = 0;
       }
-	   DEBUG ((DEBUG_INFO, "ProcessCapsuleImage16\n"));
       EsrtEntry.LastAttemptStatus = AttemptStatus;
       EsrtManagement->UpdateEsrtEntry(&EsrtEntry);
-	   DEBUG ((DEBUG_INFO, "ProcessCapsuleImage17\n"));
     }
   }
 
@@ -930,8 +912,6 @@ ProcessCapsuleImage (
   // Indicate to sync Esrt on next boot
   //
   PcdSetBool(PcdEsrtSyncFmp, TRUE);
-  DEBUG ((DEBUG_INFO, "ProcessCapsuleImage18\n"));
-
   return Status;
 }
 
