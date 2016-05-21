@@ -1,6 +1,6 @@
 /*++
 
-  Copyright (c) 2004  - 2014, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004  - 2016, Intel Corporation. All rights reserved.<BR>
                                                                                    
   This program and the accompanying materials are licensed and made available under
   the terms and conditions of the BSD License that accompanies this distribution.  
@@ -210,6 +210,16 @@ typedef struct {
   ACPI_HID_DEVICE_PATH      Keyboard;
   EFI_DEVICE_PATH_PROTOCOL  End;
 } PLATFORM_ISA_KEYBOARD_DEVICE_PATH;
+
+//
+// Serial IO Device Path definition
+//
+typedef struct {
+  VENDOR_DEVICE_PATH        VendorDevicePath;
+  UART_DEVICE_PATH          UartDevicePath;
+  VENDOR_DEVICE_PATH        TerminalType;  
+  EFI_DEVICE_PATH_PROTOCOL  EndDevicePath;
+} SERIAL_IO_DEVICE_PATH;
 
 typedef struct {
   VENDOR_DEVICE_PATH             VendorDevicePath;

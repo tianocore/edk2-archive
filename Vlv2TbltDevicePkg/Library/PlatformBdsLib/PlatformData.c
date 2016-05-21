@@ -1,6 +1,6 @@
 /** @file
 
-  Copyright (c) 2004  - 2014, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004  - 2016, Intel Corporation. All rights reserved.<BR>
                                                                                    
   This program and the accompanying materials are licensed and made available under
   the terms and conditions of the BSD License that accompanies this distribution.  
@@ -83,7 +83,46 @@ PLATFORM_ISA_SERIAL_DEVICE_PATH gIsaSerialDevicePath = {
   gEndEntire
 };
 
-
+//
+// Serial IO device path
+//
+SERIAL_IO_DEVICE_PATH mSerialIoDevicePath = {
+  {
+    {
+      HARDWARE_DEVICE_PATH,
+      HW_VENDOR_DP,
+      {
+        (UINT8) (sizeof (VENDOR_DEVICE_PATH)),
+        (UINT8) ((sizeof (VENDOR_DEVICE_PATH)) >> 8)
+      }
+    },
+    { 0x865a5a9b, 0xb85d, 0x474c, { 0x84, 0x55, 0x65, 0xd1, 0xbe, 0x84, 0x4b, 0xe2 } }
+  },
+  {
+    {
+      MESSAGING_DEVICE_PATH,
+      MSG_UART_DP,
+      {
+        (UINT8) (sizeof (UART_DEVICE_PATH)),
+        (UINT8) ((sizeof (UART_DEVICE_PATH)) >> 8)
+      }
+    },
+    0,
+    0,  // default BaudRate
+    0,  // default DataBits
+    0,  // default Parity
+    0,  // default StopBits
+  },
+  gPcAnsiTerminal,
+  {
+    END_DEVICE_PATH_TYPE,
+    END_ENTIRE_DEVICE_PATH_SUBTYPE,
+    {
+      END_DEVICE_PATH_LENGTH,
+      0
+    }
+  }
+};
 //
 // Platform specific Button Array device path
 //
@@ -123,6 +162,7 @@ USB_CLASS_FORMAT_DEVICE_PATH gUsbClassKeyboardDevicePath = {
 //
 BDS_CONSOLE_CONNECT_ENTRY gPlatformConsole [] = {
   {(EFI_DEVICE_PATH_PROTOCOL*)&gIsaSerialDevicePath, CONSOLE_ALL},
+  {(EFI_DEVICE_PATH_PROTOCOL*)&mSerialIoDevicePath, CONSOLE_ALL},
   {(EFI_DEVICE_PATH_PROTOCOL*)&gHiiVendorDevicePath0, CONSOLE_IN},
   {(EFI_DEVICE_PATH_PROTOCOL*)&gIsaKeyboardDevicePath, CONSOLE_IN},
   {(EFI_DEVICE_PATH_PROTOCOL*)&gUsbClassKeyboardDevicePath, CONSOLE_IN},
@@ -241,6 +281,7 @@ EFI_DEVICE_PATH_PROTOCOL* gUserAuthenticationDevice[] = {
 BDS_CONSOLE_CONNECT_ENTRY gPlatformSimpleConsole [] = {
   {(EFI_DEVICE_PATH_PROTOCOL*)&gOnChipPciVgaDevicePath, CONSOLE_OUT},
   {(EFI_DEVICE_PATH_PROTOCOL*)&gIsaSerialDevicePath, CONSOLE_ALL},
+  {(EFI_DEVICE_PATH_PROTOCOL*)&mSerialIoDevicePath, CONSOLE_ALL},
   {(EFI_DEVICE_PATH_PROTOCOL*)&gHiiVendorDevicePath0, CONSOLE_IN},
   {(EFI_DEVICE_PATH_PROTOCOL*)&gUsbClassKeyboardDevicePath, CONSOLE_IN},
   {NULL, 0}
