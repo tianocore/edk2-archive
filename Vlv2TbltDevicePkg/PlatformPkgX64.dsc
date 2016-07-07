@@ -887,6 +887,8 @@ gEfiMdeModulePkgTokenSpaceGuid.PcdSystemRebootAfterCapsuleProcessFlag|0x0001
   gEfiSecurityPkgTokenSpaceGuid.PcdTpmScrtmPolicy|1
 !endif
 
+  gPlatformModuleTokenSpaceGuid.PcdRtcPowerFailure|FALSE
+
 [PcdsDynamicExDefault.common.DEFAULT]
   gEfiVLVTokenSpaceGuid.PcdTCSmbaIoBaseAddress|0x1040
   gEfiVLVTokenSpaceGuid.PcdEmmcManufacturerId|0
@@ -969,6 +971,8 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
       <PcdsFixedAtBuild>
         gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2E
   !endif
+   <LibraryClasses>
+      PcdLib|MdePkg/Library/PeiPcdLib/PeiPcdLib.inf
   }
 !endif
 
@@ -1338,6 +1342,8 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
   $(PLATFORM_PACKAGE)/PlatformInfoDxe/PlatformInfoDxe.inf
   $(PLATFORM_PACKAGE)/PlatformCpuInfoDxe/PlatformCpuInfoDxe.inf
   $(PLATFORM_PACKAGE)/PlatformDxe/PlatformDxe.inf
+  $(PLATFORM_PACKAGE)/PlatformRtcRuntimeDxe/PlatformRtcRuntimeDxe.inf
+  
 
   $(PLATFORM_PACKAGE)/PciPlatform/PciPlatform.inf
   $(PLATFORM_PACKAGE)/SaveMemoryConfig/SaveMemoryConfig.inf

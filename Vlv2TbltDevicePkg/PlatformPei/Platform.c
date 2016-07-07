@@ -1,6 +1,6 @@
 /** @file
 
-  Copyright (c) 2004  - 2014, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004  - 2016, Intel Corporation. All rights reserved.<BR>
                                                                                    
   This program and the accompanying materials are licensed and made available under
   the terms and conditions of the BSD License that accompanies this distribution.  
@@ -30,6 +30,7 @@ Module Name:
 #include <Guid/Vlv2Variable.h>
 #include <Ppi/fTPMPolicy.h>
 #include <Library/PchPlatformLib.h>
+#include <Library/PcdLib.h>
 
 //
 // Start::Alpine Valley platform
@@ -474,6 +475,10 @@ RtcPowerFailureHandler (
     // BIOS clears this bit by writing a '0' to it.
     //
     if (DataUint16 & B_PCH_PMC_GEN_PMCON_RTC_PWR_STS) {
+      //
+      // Rtc Power failure occurs, save RtcPowerFailure Flag.
+      //
+      PcdSetBool(PcdRtcPowerFailure, TRUE);
       //
       // Set to invalid date in order to reset the time to
       // BIOS build time later in the boot (SBRUN.c file).

@@ -1,6 +1,6 @@
 /** @file
 
-  Copyright (c) 2004  - 2015, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004  - 2016, Intel Corporation. All rights reserved.<BR>
                                                                                    
 
   This program and the accompanying materials are licensed and made available under
@@ -996,12 +996,13 @@ InitializePlatform (
                   );
 
   //
-  // Adjust RTC deafult time to be BIOS-built time.
+  // This callback function adjusts RTC time to a value which was set by user in UEFI Shell or Setup browaser and which 
+  // was also saved in UEFI variable. If no UEFI variable "SystemRtcTime" found, just set RTC time to BIOS built time.
   //
   Status = gBS->CreateEvent (
                     EVT_NOTIFY_SIGNAL,
                     TPL_CALLBACK,
-                    AdjustDefaultRtcTimeCallback,
+                    AdjustRtcTimeCallback,
                     NULL,
                     &RtcEvent
                     );

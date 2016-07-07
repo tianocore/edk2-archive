@@ -342,6 +342,7 @@ INF RuleOverride = BINARY $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET
 INF MdeModulePkg/Universal/FaultTolerantWritePei/FaultTolerantWritePei.inf
 INF MdeModulePkg/Universal/Variable/Pei/VariablePei.inf
 
+INF MdeModulePkg/Universal/PCD/Pei/Pcd.inf
 INF $(PLATFORM_PACKAGE)/PlatformPei/PlatformPei.inf
 
 !if $(MINNOW2_FSP_BUILD) == FALSE
@@ -373,7 +374,6 @@ INF RuleOverride = BINARY $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET
 INF RuleOverride = BINARY $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/MemoryInit.inf
 !endif
 
-INF MdeModulePkg/Universal/PCD/Pei/Pcd.inf
 
 [FV.FVMAIN]
 BlockSize          = $(FLASH_BLOCK_SIZE)
@@ -525,6 +525,7 @@ INF $(PLATFORM_PACKAGE)/PlatformSmm/PlatformSmm.inf
 INF $(PLATFORM_PACKAGE)/PlatformInfoDxe/PlatformInfoDxe.inf
 INF $(PLATFORM_PACKAGE)/PlatformCpuInfoDxe/PlatformCpuInfoDxe.inf
 INF $(PLATFORM_PACKAGE)/PlatformDxe/PlatformDxe.inf
+INF $(PLATFORM_PACKAGE)/PlatformRtcRuntimeDxe/PlatformRtcRuntimeDxe.inf
 INF $(PLATFORM_PACKAGE)/PciPlatform/PciPlatform.inf
 INF $(PLATFORM_PACKAGE)/SaveMemoryConfig/SaveMemoryConfig.inf
 INF RuleOverride = BINARY $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/$(DXE_ARCHITECTURE)/PlatformCpuPolicy.inf

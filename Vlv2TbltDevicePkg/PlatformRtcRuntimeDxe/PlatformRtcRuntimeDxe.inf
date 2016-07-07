@@ -1,0 +1,60 @@
+## @file
+# Platform RTC SetTime driver.
+#
+# This driver provides Platform SetTime services to Runtime Service Table.
+#
+# Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformRtc
+  MODULE_UNI_FILE                = PlatformRtc.uni
+  FILE_GUID                      = 3C060B94-7E09-4c42-8DF4-7B0037FE8D33
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InitializePlatformRtc
+
+
+[Sources]
+  PlatformRtc.c
+  PlatformRtc.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  PcAtChipsetPkg/PcAtChipsetPkg.dec
+  Vlv2TbltDevicePkg/PlatformPkg.dec
+
+[LibraryClasses]
+  UefiRuntimeServicesTableLib
+  UefiRuntimeLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  TimerLib
+  UefiLib
+  DebugLib
+  BaseLib
+  PcdLib
+  ReportStatusCodeLib
+
+[Guids]
+  gSystemRtcTimeVariableGuid
+
+[Protocols]
+
+[Depex]
+  gEfiRealTimeClockArchProtocolGuid
+
+[Pcd]
+  gPcAtChipsetPkgTokenSpaceGuid.PcdMinimalValidYear             ## CONSUMES
+
+[UserExtensions.TianoCore."ExtraFiles"]
+  PlatformRtcExtra.uni

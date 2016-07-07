@@ -1,7 +1,7 @@
 /** @file
   Adjust Default System Time.
   
-  Copyright (c) 2015, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
                                                                                    
   This program and the accompanying materials are licensed and made available under
   the terms and conditions of the BSD License that accompanies this distribution.  
@@ -27,6 +27,8 @@
 
 #define RTC_ADDRESS_REGISTER     0x70
 #define RTC_DATA_REGISTER        0x71
+
+extern EFI_GUID gSystemRtcTimeVariableGuid;
 
 
  
@@ -91,86 +93,118 @@ CheckRtcTimeFields (
 **/
 VOID
 EFIAPI
-AdjustDefaultRtcTimeCallback (
+AdjustRtcTimeCallback (
   IN EFI_EVENT        Event,
   IN VOID             *Context
   )
 {
   EFI_STATUS      Status;
   EFI_TIME        EfiTime;
+  EFI_TIME        RtcTime;
   UINT8           Century;
   CHAR16          BiosVersion[60];    
-  CHAR16          BiosReleaseTime[20];    
-  //
-  // Get BIOS built time from Bios-ID. 
-  //
-  
-  SetMem(BiosVersion, sizeof(BiosVersion), 0);
-  SetMem(mBiosReleaseDate, sizeof(mBiosReleaseDate), 0);
-  SetMem(BiosReleaseTime, sizeof(BiosReleaseTime), 0);
+  CHAR16          BiosReleaseTime[20];
+  UINTN           DataSize;
+
+  if (PcdGetBool(PcdRtcPowerFailure)) {
+    //
+    // If Rtc Power failure occured, get the valid RTC time from UEFI variable, 
+    // which was saved by UEFI SetTime servie when user set system time in UEFI Shell
+    // or Setup browser.
+    //
     
-  Status = GetBiosVersionDateTime (BiosVersion, mBiosReleaseDate, BiosReleaseTime);
-  ASSERT_EFI_ERROR(Status);
-  if (EFI_ERROR (Status)) {
-    return; 
-  }
+    PcdSetBool(PcdRtcPowerFailure, FALSE);
+
+    DataSize = sizeof (EFI_TIME);
+    Status = gRT->GetVariable(
+                    L"SystemRtcTime",
+                    &gSystemRtcTimeVariableGuid,
+                    NULL,
+                    &DataSize,
+                    &RtcTime
+                    );
+    if (!EFI_ERROR(Status)) {
+      DEBUG ((EFI_D_INFO, "Day:%d Month:%d Year:%d \n", (UINT32)RtcTime.Day, (UINT32)RtcTime.Month, (UINT32)RtcTime.Year));
+      DEBUG ((EFI_D_INFO, "Second:%d Minute:%d Hour:%d \n", (UINT32)RtcTime.Second, (UINT32)RtcTime.Minute, (UINT32)RtcTime.Hour));
+      Status = gRT->SetTime (&RtcTime);
+      //
+      // Set the RTC century in case that UEFI SetTime sevice does not set this register.
+      //
+      Century    = DecimalToBcd8 ((UINT8) (RtcTime.Year / 100));
+      IoWrite8 (RTC_ADDRESS_REGISTER, (UINT8) (RTC_ADDRESS_CENTURY | (UINT8) (IoRead8 (PCAT_RTC_ADDRESS_REGISTER) & 0x80)));
+      IoWrite8 (RTC_DATA_REGISTER, Century);
+
+    } else {
+      //
+      // Get BIOS built time from Bios-ID. 
+      //
+
+      SetMem(BiosVersion, sizeof(BiosVersion), 0);
+      SetMem(mBiosReleaseDate, sizeof(mBiosReleaseDate), 0);
+      SetMem(BiosReleaseTime, sizeof(BiosReleaseTime), 0);
   
-  //
-  // Get current RTC time.
-  // 
-  Status = gRT->GetTime (&EfiTime, NULL);
- 
-  //
-  // Validate RTC time fields
-  //
-  Status = CheckRtcTimeFields (&EfiTime);
+      Status = GetBiosVersionDateTime (BiosVersion, mBiosReleaseDate, BiosReleaseTime);
+      ASSERT_EFI_ERROR(Status);
+      if (EFI_ERROR (Status)) {
+        return; 
+      }
+
+      //
+      // Get current RTC time.
+      // 
+      Status = gRT->GetTime (&EfiTime, NULL);
+
+      //
+      // Validate RTC time fields
+      //
+      Status = CheckRtcTimeFields (&EfiTime);
+
+      if (EFI_ERROR (Status)) {
+        //
+        // Date such as Dec 28th of 2015
+        //
+        // Month
+        // BiosReleaseDate[0] = '1';
+        // BiosReleaseDate[1] = '2';
+        //
+        // Day
+        // BiosReleaseDate[3] = '2';
+        // BiosReleaseDate[4] = '8';
+        //  
+        //
+        // Year
+        //
+        // BiosReleaseDate[6] = '2';
+        // BiosReleaseDate[7] = '0';
+        // BiosReleaseDate[8] = '1'
+        // BiosReleaseDate[9] = '5';
   
-  if (EFI_ERROR (Status)) {
-    //
-    // Date such as Dec 28th of 2015
-    //
-    // Month
-    // BiosReleaseDate[0] = '1';
-    // BiosReleaseDate[1] = '2';
-    //
-    // Day
-    // BiosReleaseDate[3] = '2';
-    // BiosReleaseDate[4] = '8';
-    //  
-    //
-    // Year
-    //
-    // BiosReleaseDate[6] = '2';
-    // BiosReleaseDate[7] = '0';
-    // BiosReleaseDate[8] = '1'
-    // BiosReleaseDate[9] = '5';
-    
-    EfiTime.Second = RTC_INIT_SECOND;
-    EfiTime.Minute = RTC_INIT_MINUTE;
-    EfiTime.Hour   = RTC_INIT_HOUR;
-    EfiTime.Day    = (UINT8)(CharToUint(mBiosReleaseDate[3])*10 + CharToUint(mBiosReleaseDate[4]));
-    EfiTime.Month  = (UINT8)(CharToUint(mBiosReleaseDate[0])*10 + CharToUint(mBiosReleaseDate[1]));
-    EfiTime.Year   = (UINT16)(CharToUint(mBiosReleaseDate[8])*10 + CharToUint(mBiosReleaseDate[9]) + 2000);
-    EfiTime.Nanosecond  = 0;
-    EfiTime.TimeZone = EFI_UNSPECIFIED_TIMEZONE;
-    EfiTime.Daylight = 1; 
+        EfiTime.Second = RTC_INIT_SECOND;
+        EfiTime.Minute = RTC_INIT_MINUTE;
+        EfiTime.Hour   = RTC_INIT_HOUR;
+        EfiTime.Day    = (UINT8)(CharToUint(mBiosReleaseDate[3])*10 + CharToUint(mBiosReleaseDate[4]));
+        EfiTime.Month  = (UINT8)(CharToUint(mBiosReleaseDate[0])*10 + CharToUint(mBiosReleaseDate[1]));
+        EfiTime.Year   = (UINT16)(CharToUint(mBiosReleaseDate[8])*10 + CharToUint(mBiosReleaseDate[9]) + 2000);
+        EfiTime.Nanosecond  = 0;
+        EfiTime.TimeZone = EFI_UNSPECIFIED_TIMEZONE;
+        EfiTime.Daylight = 1; 
 
-    DEBUG ((EFI_D_INFO, "Day:%d Month:%d Year:%d \n", (UINT32)EfiTime.Day, (UINT32)EfiTime.Month, (UINT32)EfiTime.Year));
+        DEBUG ((EFI_D_INFO, "Day:%d Month:%d Year:%d \n", (UINT32)EfiTime.Day, (UINT32)EfiTime.Month, (UINT32)EfiTime.Year));
 
-    //
-    // Reset time value according to new RTC configuration
-    //
-    Status = gRT->SetTime (&EfiTime);
-    ASSERT_EFI_ERROR(Status);
+        //
+        // Reset time value according to new RTC configuration
+        //
+        Status = gRT->SetTime (&EfiTime);
+        ASSERT_EFI_ERROR(Status);
 
-    //
-    // Set the RTC century in case that UEFI SetTime sevice does not set this register.
-    //
-    Century    = DecimalToBcd8 ((UINT8) (EfiTime.Year / 100));
-    IoWrite8 (RTC_ADDRESS_REGISTER, (UINT8) (RTC_ADDRESS_CENTURY | (UINT8) (IoRead8 (PCAT_RTC_ADDRESS_REGISTER) & 0x80)));
-    IoWrite8 (RTC_DATA_REGISTER, Century);
-
+        //
+        // Set the RTC century in case that UEFI SetTime sevice does not set this register.
+        //
+        Century    = DecimalToBcd8 ((UINT8) (EfiTime.Year / 100));
+        IoWrite8 (RTC_ADDRESS_REGISTER, (UINT8) (RTC_ADDRESS_CENTURY | (UINT8) (IoRead8 (PCAT_RTC_ADDRESS_REGISTER) & 0x80)));
+        IoWrite8 (RTC_DATA_REGISTER, Century);
+      }
+    }
   }
-
-  return;
+   return;
 }
