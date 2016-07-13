@@ -26,6 +26,7 @@ EFI_SET_TIME mOriginalSetTime;
 
 **/
 EFI_STATUS
+EFIAPI
 PlatformRtcSetTime (
   IN EFI_TIME                *Time
   )
