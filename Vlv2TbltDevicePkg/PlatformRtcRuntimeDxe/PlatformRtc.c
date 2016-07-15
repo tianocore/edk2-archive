@@ -63,8 +63,8 @@ PlatformRtcSetTime (
                   );
       ASSERT(Status == EFI_SUCCESS);
     } else {
-        if (~(((RtcTime.Year == RtcTime2.Year) && (RtcTime.Month == RtcTime2.Month) && (RtcTime.Day == RtcTime2.Day)) &&
-            ((RtcTime.Hour == RtcTime2.Hour) && (RtcTime.Minute == RtcTime2.Minute) && (RtcTime.Second == RtcTime2.Second)))) {
+        if (!((RtcTime.Year == RtcTime2.Year) && (RtcTime.Month == RtcTime2.Month) && (RtcTime.Day == RtcTime2.Day) &&
+            (RtcTime.Hour == RtcTime2.Hour) && (RtcTime.Minute == RtcTime2.Minute) && (RtcTime.Second == RtcTime2.Second))) {
           //
           // If the time to be set is the same as the saved RTC time, we do not need save the RTC time again.
           //
