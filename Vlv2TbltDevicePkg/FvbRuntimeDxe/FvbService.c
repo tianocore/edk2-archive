@@ -356,11 +356,8 @@ FvbWriteBlock (
   EFI_FVB_ATTRIBUTES_2                    Attributes;
   UINTN                                   LbaAddress;
   UINTN                                   LbaLength;
-  EFI_FW_VOL_INSTANCE                     *FwhInstance;
   EFI_STATUS                              Status;
   EFI_STATUS                              Status1;
-
-  FwhInstance = GetFvbInstance (Instance);
 
   if ( (NumBytes == NULL) || (Buffer == NULL)) {
     return (EFI_INVALID_PARAMETER);
@@ -436,14 +433,8 @@ FvbEraseBlock (
 {
   EFI_FVB_ATTRIBUTES_2                    Attributes;
   UINTN                                   LbaAddress;
-  EFI_FW_VOL_INSTANCE                     *FwhInstance;
   UINTN                                   LbaLength;
   EFI_STATUS                              Status;
-
-  //
-  // Find the right instance of the FVB private data.
-  //
-  FwhInstance = GetFvbInstance (Instance);
 
   //
   // Check if the FV is write enabled.
@@ -1016,7 +1007,6 @@ FvbInitialize (
   UINTN                                 TmpHeaderLength;
   UINTN                                 Idx;
   UINT32                                MaxLbaSize;
-  BOOLEAN                               FvHeaderValid;
   EFI_BOOT_MODE                         BootMode;
   UINT32                                PlatformFvBaseAddress[3];
   UINT32                                PlatformFvBaseAddressCount;
@@ -1072,7 +1062,6 @@ FvbInitialize (
     FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) BaseAddress;
 
     if (!IsFvHeaderValid (BaseAddress, FwVolHeader)) {
-      FvHeaderValid = FALSE;
       //
       // If not valid, get FvbInfo from the information carried in
       // FVB driver.
