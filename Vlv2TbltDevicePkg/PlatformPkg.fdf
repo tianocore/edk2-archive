@@ -696,6 +696,13 @@ FILE FREEFORM = 878AC2CC-5343-46F2-B563-51F89DAF56BA {
     SECTION PE32 = Vlv2MiscBinariesPkg/UNDI/RtkUndiDxe/$(DXE_ARCHITECTURE)/RtkUndiDxe.efi
     SECTION UI = "UNDI"
   }
+  # 32-bit E7006X3.EFI UNDI driver is not available.
+  !if $(DXE_ARCHITECTURE) == X64
+  FILE DRIVER = 0270D660-E7E2-4C6B-94B1-16B7FCD49351 {
+    SECTION PE32 = Vlv2MiscBinariesPkg/UNDI/I211PcieUndiDxe/$(DXE_ARCHITECTURE)/E7006X3.EFI
+    SECTION UI = "UNDI"
+  }
+  !endif
   INF  MdeModulePkg/Universal/Network/SnpDxe/SnpDxe.inf
   INF  MdeModulePkg/Universal/Network/DpcDxe/DpcDxe.inf
   INF  MdeModulePkg/Universal/Network/MnpDxe/MnpDxe.inf
