@@ -1,15 +1,15 @@
 /*++
 
-Copyright (c) 2009 - 2014, Intel Corporation. All rights reserved.<BR>
-                                                                                   
+Copyright (c) 2009 - 2016, Intel Corporation. All rights reserved.<BR>
+
   This program and the accompanying materials are licensed and made available under
-  the terms and conditions of the BSD License that accompanies this distribution.  
-  The full text of the license may be found at                                     
-  http://opensource.org/licenses/bsd-license.php.                                  
-                                                                                   
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,            
-  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.    
-                                                                                   
+  the terms and conditions of the BSD License that accompanies this distribution.
+  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php.
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
 
 
 Module Name:
@@ -34,6 +34,90 @@ Abstract:
 
 
 extern EFI_PLATFORM_INFO_HOB *mPlatformInfo;
+static EFI_SMBIOS_HANDLE     mSmbiosHandleType1;
+
+
+EFI_STATUS
+EFIAPI
+UpdateSmbiosManuCallback (
+  IN EFI_EVENT  Event,
+  IN VOID       *Context
+  )
+{
+  EFI_STATUS            Status;
+  EFI_HANDLE            *Handles;
+  UINTN                 BufferSize;
+  CHAR16                *MacStr;
+  EFI_SMBIOS_PROTOCOL   *Smbios;
+  UINTN                 SerialNumberOffset;
+  CHAR8                 AsciiData[SMBIOS_STRING_MAX_LENGTH];
+
+  gBS->CloseEvent (Event);    // Unload this event.
+
+  DEBUG ((EFI_D_INFO, "Executing UpdateSmbiosManuCallback.\n"));
+
+  //
+  //Get handle infomation
+  //
+  BufferSize = 0;
+  Handles = NULL;
+  Status = gBS->LocateHandle (
+                  ByProtocol,
+                  &gEfiSimpleNetworkProtocolGuid,
+                  NULL,
+                  &BufferSize,
+                  Handles
+                  );
+
+  if (Status == EFI_BUFFER_TOO_SMALL) {
+    Handles = AllocateZeroPool(BufferSize);
+    if (Handles == NULL) {
+    return (EFI_OUT_OF_RESOURCES);
+    }
+    Status = gBS->LocateHandle(
+                    ByProtocol,
+                    &gEfiSimpleNetworkProtocolGuid,
+                    NULL,
+                    &BufferSize,
+                    Handles
+                    );
+  }
+
+  //
+  //Get the MAC string
+  //
+  Status = NetLibGetMacString (
+             *Handles,
+             NULL,
+             &MacStr
+             );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  ZeroMem (AsciiData, SMBIOS_STRING_MAX_LENGTH);
+  UnicodeStrToAsciiStr (MacStr, AsciiData);
+
+  Status = gBS->LocateProtocol (
+                  &gEfiSmbiosProtocolGuid,
+                  NULL,
+                  (VOID *) &Smbios
+                  );
+  ASSERT_EFI_ERROR (Status);
+
+  SerialNumberOffset = 4;
+  Status = Smbios->UpdateString (
+                     Smbios,
+                     &mSmbiosHandleType1,
+                     &SerialNumberOffset,
+                     AsciiData
+                     );
+  if (EFI_ERROR (Status)) {
+    ASSERT_EFI_ERROR (Status);
+    return Status;
+  }
+  return EFI_SUCCESS;
+}
 
 
 /**
@@ -46,12 +130,7 @@ extern EFI_PLATFORM_INFO_HOB *mPlatformInfo;
   @retval None
 
 **/
-EFI_STATUS
-EFIAPI
-AddSmbiosManuCallback (
-  IN EFI_EVENT  Event,
-  IN VOID       *Context
-  )
+MISC_SMBIOS_TABLE_FUNCTION(MiscSystemManufacturer)
 {
 
   CHAR8                             *OptionalStrStart;
@@ -60,41 +139,38 @@ AddSmbiosManuCallback (
   UINTN                             PdNameStrLen;
   UINTN                             SerialNumStrLen;
   UINTN                             SkuNumberStrLen;
-  UINTN				                FamilyNameStrLen;
+  UINTN                        FamilyNameStrLen;
   EFI_STATUS                        Status;
   EFI_STRING                        Manufacturer;
   EFI_STRING                        ProductName;
   EFI_STRING                        Version;
   EFI_STRING                        SerialNumber;
   EFI_STRING                        SkuNumber;
-  EFI_STRING			            FamilyName;
+  EFI_STRING                  FamilyName;
   STRING_REF                        TokenToGet;
   EFI_SMBIOS_HANDLE                 SmbiosHandle;
   SMBIOS_TABLE_TYPE1                *SmbiosRecord;
   EFI_MISC_SYSTEM_MANUFACTURER      *ForType1InputData;
-  EFI_SMBIOS_PROTOCOL               *Smbios;
   CHAR16                            Buffer[40];
-  
-  CHAR16                            *MacStr; 
-  EFI_HANDLE                        *Handles;
-  UINTN                             BufferSize;
+  CHAR16                            *MacStr;
   CHAR16                            PlatformNameBuffer[40];
+  VOID                              *UpdateSmbiosManuCallbackNotifyReg;
+  EFI_EVENT                         UpdateSmbiosManuCallbackEvent;
+  static BOOLEAN                    CallbackIsInstalledT1 = FALSE;
 
-  ForType1InputData = (EFI_MISC_SYSTEM_MANUFACTURER *)Context;
-
+  ForType1InputData = (EFI_MISC_SYSTEM_MANUFACTURER *)RecordData;
   //
   // First check for invalid parameters.
   //
-  if (Context == NULL || mPlatformInfo == NULL) {
+  if (RecordData == NULL || mPlatformInfo == NULL) {
+    DEBUG ((EFI_D_INFO, "MISC_SMBIOS_TABLE_FUNCTION error.\n"));
     return EFI_INVALID_PARAMETER;
   }
 
-  Status = gBS->LocateProtocol (&gEfiSmbiosProtocolGuid, NULL, (VOID *) &Smbios);
-  ASSERT_EFI_ERROR (Status);
-
-
   if (BOARD_ID_MINNOW2_TURBOT == mPlatformInfo->BoardId) {
+    //
     // Detect the board is Turbot board platform
+    //
     UnicodeSPrint (PlatformNameBuffer, sizeof (PlatformNameBuffer),L"%s",L"Minnowboard Turbot ");
   } else {
     UnicodeSPrint (PlatformNameBuffer, sizeof (PlatformNameBuffer),L"%s",L"Minnowboard Max ");
@@ -190,45 +266,8 @@ AddSmbiosManuCallback (
     return EFI_UNSUPPORTED;
   }
 
-  //
-  //Get handle infomation
-  //
-  BufferSize = 0;
-  Handles = NULL;
-  Status = gBS->LocateHandle (
-                  ByProtocol, 
-                  &gEfiSimpleNetworkProtocolGuid,
-                  NULL,
-                  &BufferSize,
-                  Handles
-                  );
-
-  if (Status == EFI_BUFFER_TOO_SMALL) {
-  	Handles = AllocateZeroPool(BufferSize);
-  	if (Handles == NULL) {
-  		return (EFI_OUT_OF_RESOURCES);
-  	}
-  	Status = gBS->LocateHandle(
-  	                ByProtocol,
-  	                &gEfiSimpleNetworkProtocolGuid,
-  	                NULL,
-  	                &BufferSize,
-  	                Handles
-  	                );
- }
- 	                
-  //
-  //Get the MAC string
-  //
-  Status = NetLibGetMacString (
-             *Handles,
-             NULL,
-             &MacStr
-             );
-  if (EFI_ERROR (Status)) {	
-    return Status;
-  }
-  SerialNumber = MacStr; 
+  MacStr = L"00000000";
+  SerialNumber = MacStr;
   SerialNumStrLen = StrLen(SerialNumber);
   if (SerialNumStrLen > SMBIOS_STRING_MAX_LENGTH) {
     return EFI_UNSUPPORTED;
@@ -313,58 +352,37 @@ AddSmbiosManuCallback (
                       (EFI_SMBIOS_TABLE_HEADER *) SmbiosRecord
                       );
   FreePool(SmbiosRecord);
-  return Status;
-}
-
-/**
-  This function makes boot time changes to the contents of the
-  MiscSystemManufacturer (Type 1).
-
-  @param  RecordData                 Pointer to copy of RecordData from the Data Table.
-
-  @retval EFI_SUCCESS                All parameters were valid.
-  @retval EFI_UNSUPPORTED            Unexpected RecordType value.
-  @retval EFI_INVALID_PARAMETER      Invalid parameter was found.
-
-**/
-MISC_SMBIOS_TABLE_FUNCTION(MiscSystemManufacturer)
-{
-  EFI_STATUS                    Status;
-  static BOOLEAN                CallbackIsInstalledManu = FALSE;
-  VOID                           *AddSmbiosManuCallbackNotifyReg;
-  EFI_EVENT                      AddSmbiosManuCallbackEvent;
-
-
-  if (CallbackIsInstalledManu == FALSE) {
-    CallbackIsInstalledManu = TRUE;        	// Prevent more than 1 callback.
-    DEBUG ((EFI_D_INFO, "Create Smbios Manu callback.\n"));
 
   //
-  // gEfiDxeSmmReadyToLockProtocolGuid is ready
+  // gEfiSimpleNetworkProtocolGuid is ready
   //
-  Status = gBS->CreateEvent (
-                  EVT_NOTIFY_SIGNAL,
-                  TPL_CALLBACK,
-                  (EFI_EVENT_NOTIFY)AddSmbiosManuCallback,
-                  RecordData,
-                  &AddSmbiosManuCallbackEvent
-                  );
+  if (CallbackIsInstalledT1 == FALSE) {
+    CallbackIsInstalledT1 = TRUE;          // Prevent more than 1 callback.
+    DEBUG ((EFI_D_INFO, "Create Smbios Type1 callback.\n"));
 
-  ASSERT_EFI_ERROR (Status);
-  if (EFI_ERROR (Status)) {
+    mSmbiosHandleType1 = SmbiosHandle;
+    Status = gBS->CreateEvent (
+                    EVT_NOTIFY_SIGNAL,
+                    TPL_CALLBACK,
+                    (EFI_EVENT_NOTIFY)UpdateSmbiosManuCallback,
+                    RecordData,
+                    &UpdateSmbiosManuCallbackEvent
+                    );
+
+    ASSERT_EFI_ERROR (Status);
+    if (EFI_ERROR (Status)) {
+      return Status;
+
+    }
+
+    Status = gBS->RegisterProtocolNotify (
+                    &gEfiSimpleNetworkProtocolGuid,
+                    UpdateSmbiosManuCallbackEvent,
+                    &UpdateSmbiosManuCallbackNotifyReg
+                    );
     return Status;
-
-  }
-
-  Status = gBS->RegisterProtocolNotify (
-                  &gEfiDxeSmmReadyToLockProtocolGuid,
-                  AddSmbiosManuCallbackEvent,
-                  &AddSmbiosManuCallbackNotifyReg
-                  );
-
-  return Status;
   }
 
   return EFI_SUCCESS;
-
 }
+

@@ -1,15 +1,15 @@
 /*++
 
-Copyright (c) 2009 - 2014, Intel Corporation. All rights reserved.<BR>
-                                                                                   
+Copyright (c) 2009 - 2016, Intel Corporation. All rights reserved.<BR>
+
   This program and the accompanying materials are licensed and made available under
-  the terms and conditions of the BSD License that accompanies this distribution.  
-  The full text of the license may be found at                                     
-  http://opensource.org/licenses/bsd-license.php.                                  
-                                                                                   
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,            
-  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.    
-                                                                                   
+  the terms and conditions of the BSD License that accompanies this distribution.
+  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php.
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
 
 
 Module Name:
@@ -31,8 +31,91 @@ Abstract:
 #include <Uefi/UefiBaseType.h>
 #include <Guid/PlatformInfo.h>
 
-
 extern EFI_PLATFORM_INFO_HOB *mPlatformInfo;
+static EFI_SMBIOS_HANDLE     mSmbiosHandleType2;
+
+EFI_STATUS
+EFIAPI
+UpdateBaseBoardManuCallback (
+  IN EFI_EVENT  Event,
+  IN VOID       *Context
+  )
+{
+  EFI_STATUS            Status;
+  EFI_HANDLE            *Handles;
+  UINTN                 BufferSize;
+  CHAR16                *MacStr;
+  EFI_SMBIOS_PROTOCOL   *Smbios;
+  UINTN                 SerialNumberOffset;
+  CHAR8                 AsciiData[SMBIOS_STRING_MAX_LENGTH];
+
+  gBS->CloseEvent (Event);    // Unload this event.
+
+  DEBUG ((EFI_D_INFO, "Executing UpdateBaseBoardManuCallback.\n"));
+
+  //
+  //Get handle infomation
+  //
+  BufferSize = 0;
+  Handles = NULL;
+  Status = gBS->LocateHandle (
+                  ByProtocol,
+                  &gEfiSimpleNetworkProtocolGuid,
+                  NULL,
+                  &BufferSize,
+                  Handles
+                  );
+
+  if (Status == EFI_BUFFER_TOO_SMALL) {
+    Handles = AllocateZeroPool(BufferSize);
+    if (Handles == NULL) {
+      return (EFI_OUT_OF_RESOURCES);
+    }
+    Status = gBS->LocateHandle(
+                    ByProtocol,
+                    &gEfiSimpleNetworkProtocolGuid,
+                    NULL,
+                    &BufferSize,
+                    Handles
+                    );
+  }
+
+  //
+  //Get the MAC string
+  //
+  Status = NetLibGetMacString (
+             *Handles,
+             NULL,
+             &MacStr
+             );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  ZeroMem (AsciiData, SMBIOS_STRING_MAX_LENGTH);
+  UnicodeStrToAsciiStr (MacStr, AsciiData);
+
+  Status = gBS->LocateProtocol (
+                  &gEfiSmbiosProtocolGuid,
+                  NULL,
+                  (VOID *) &Smbios
+                  );
+  ASSERT_EFI_ERROR (Status);
+
+  SerialNumberOffset = 4;
+  Status = Smbios->UpdateString (
+                     Smbios,
+                     &mSmbiosHandleType2,
+                     &SerialNumberOffset,
+                     AsciiData
+                     );
+  if (EFI_ERROR (Status)) {
+    ASSERT_EFI_ERROR (Status);
+    return Status;
+  }
+  return EFI_SUCCESS;
+}
+
 
 /**
   This function makes boot time changes to the contents of the
@@ -47,29 +130,29 @@ extern EFI_PLATFORM_INFO_HOB *mPlatformInfo;
 **/
 MISC_SMBIOS_TABLE_FUNCTION(MiscBaseBoardManufacturer)
 {
-  CHAR8                           *OptionalStrStart;
-  UINTN                           ManuStrLen;
-  UINTN                           ProductStrLen;
-  UINTN                           VerStrLen;
-  UINTN                           AssertTagStrLen;
-  UINTN                           SerialNumStrLen;
-  UINTN                           ChassisStrLen;
-  EFI_STATUS                      Status;
-  EFI_STRING                      Manufacturer;
-  EFI_STRING                      Product;
-  EFI_STRING                      Version;
-  EFI_STRING                      SerialNumber;
-  EFI_STRING                      AssertTag;
-  EFI_STRING                      Chassis;
-  STRING_REF                      TokenToGet;
-  EFI_SMBIOS_HANDLE               SmbiosHandle;
-  SMBIOS_TABLE_TYPE2              *SmbiosRecord;
+  CHAR8                              *OptionalStrStart;
+  UINTN                              ManuStrLen;
+  UINTN                              ProductStrLen;
+  UINTN                              VerStrLen;
+  UINTN                              AssertTagStrLen;
+  UINTN                              SerialNumStrLen;
+  UINTN                              ChassisStrLen;
+  EFI_STATUS                         Status;
+  EFI_STRING                         Manufacturer;
+  EFI_STRING                         Product;
+  EFI_STRING                         Version;
+  EFI_STRING                         SerialNumber;
+  EFI_STRING                         AssertTag;
+  EFI_STRING                         Chassis;
+  STRING_REF                         TokenToGet;
+  EFI_SMBIOS_HANDLE                  SmbiosHandle;
+  SMBIOS_TABLE_TYPE2                 *SmbiosRecord;
   EFI_MISC_BASE_BOARD_MANUFACTURER   *ForType2InputData;
-
-  CHAR16                          *MacStr; 
-  EFI_HANDLE                      *Handles;
-  UINTN                           BufferSize;
-  CHAR16                          Buffer[40];
+  VOID                               *UpdateBaseBoardManuCallbackNotifyReg;
+  EFI_EVENT                          UpdateBaseBoardManuCallbackEvent;
+  CHAR16                             *MacStr;
+  CHAR16                             Buffer[40];
+  static BOOLEAN                     CallbackIsInstalledT2 = FALSE;
 
   ForType2InputData = (EFI_MISC_BASE_BOARD_MANUFACTURER *)RecordData;
 
@@ -107,52 +190,15 @@ MISC_SMBIOS_TABLE_FUNCTION(MiscBaseBoardManufacturer)
   if (VerStrLen > SMBIOS_STRING_MAX_LENGTH) {
     return EFI_UNSUPPORTED;
   }
-              
-  //
-  //Get handle infomation
-  //
-  BufferSize = 0;
-  Handles = NULL;
-  Status = gBS->LocateHandle (
-                  ByProtocol, 
-                  &gEfiSimpleNetworkProtocolGuid,
-                  NULL,
-                  &BufferSize,
-                  Handles
-                  );
 
-  if (Status == EFI_BUFFER_TOO_SMALL) {
-  	Handles = AllocateZeroPool(BufferSize);
-  	if (Handles == NULL) {
-  		return (EFI_OUT_OF_RESOURCES);
-  	}
-  	Status = gBS->LocateHandle(
-  	                ByProtocol,
-  	                &gEfiSimpleNetworkProtocolGuid,
-  	                NULL,
-  	                &BufferSize,
-  	                Handles
-  	                );
- }
- 	                
-  //
-  //Get the MAC string
-  //
-  Status = NetLibGetMacString (
-             *Handles,
-             NULL,
-             &MacStr
-             );
-  if (EFI_ERROR (Status)) {	
-    return Status;
-  }
-  SerialNumber = MacStr;    
+  MacStr = L"00000000";
+  SerialNumber = MacStr;
   SerialNumStrLen = StrLen(SerialNumber);
   if (SerialNumStrLen > SMBIOS_STRING_MAX_LENGTH) {
     return EFI_UNSUPPORTED;
   }
-  DEBUG ((EFI_D_ERROR, "MAC Address: %S\n", MacStr)); 
-  
+  DEBUG ((EFI_D_ERROR, "MAC Address: %S\n", MacStr));
+
   TokenToGet = STRING_TOKEN (STR_MISC_BASE_BOARD_ASSET_TAG);
   AssertTag = SmbiosMiscGetString (TokenToGet);
   AssertTagStrLen = StrLen(AssertTag);
@@ -240,5 +286,37 @@ MISC_SMBIOS_TABLE_FUNCTION(MiscBaseBoardManufacturer)
                       );
 
   FreePool(SmbiosRecord);
-  return Status;
+
+  //
+  // gEfiSimpleNetworkProtocolGuid is ready
+  //
+  if (CallbackIsInstalledT2 == FALSE) {
+    CallbackIsInstalledT2 = TRUE;          // Prevent more than 1 callback.
+    DEBUG ((EFI_D_INFO, "Create Smbios T2 callback.\n"));
+
+    mSmbiosHandleType2 = SmbiosHandle;
+    Status = gBS->CreateEvent (
+                    EVT_NOTIFY_SIGNAL,
+                    TPL_CALLBACK,
+                    (EFI_EVENT_NOTIFY)UpdateBaseBoardManuCallback,
+                    RecordData,
+                    &UpdateBaseBoardManuCallbackEvent
+                    );
+
+    ASSERT_EFI_ERROR (Status);
+    if (EFI_ERROR (Status)) {
+      return Status;
+
+    }
+
+    Status = gBS->RegisterProtocolNotify (
+                    &gEfiSimpleNetworkProtocolGuid,
+                    UpdateBaseBoardManuCallbackEvent,
+                    &UpdateBaseBoardManuCallbackNotifyReg
+                    );
+
+    return Status;
+  }
+  return EFI_SUCCESS;
 }
+
