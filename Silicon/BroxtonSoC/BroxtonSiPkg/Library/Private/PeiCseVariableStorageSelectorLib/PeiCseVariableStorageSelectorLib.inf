@@ -1,0 +1,47 @@
+## @file
+#  PEI CSE Variable Storage Selector Library.
+#
+#  Determines which CSE resources to consume in PEI.
+#  Example: HECI1 or HECI2.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PeiCseVariableStorageSelectorLib
+  FILE_GUID                      = 58A49C3F-A0EE-4DFD-A68A-7770675F6A6A
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = CseVariableStorageSelectorLib
+
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  PeiCseVariableStorageSelectorLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  CseVariableStorageLib
+  DebugLib
+
+[Guids]
+  gEfiMemoryConfigVariableGuid
+  gEfiSetupVariableGuid
