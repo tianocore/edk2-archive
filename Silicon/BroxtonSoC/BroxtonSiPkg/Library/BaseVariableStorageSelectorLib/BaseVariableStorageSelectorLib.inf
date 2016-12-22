@@ -1,0 +1,44 @@
+## @file
+#  Variable Storage Selector Library.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BaseVariableStorageSelectorLib
+  FILE_GUID                      = 68F4E42C-93E2-4881-AF08-46F56E5983E0
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = VariableStorageSelectorLib
+
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  BaseVariableStorageSelectorLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  PcdLib
+
+[Guids]
+  gCseVariableStoragePpiInstanceGuid
+  gSpiVariableStoragePpiInstanceGuid
+  gCseVariableStorageProtocolInstanceGuid
+  gSpiVariableStorageProtocolInstanceGuid
+

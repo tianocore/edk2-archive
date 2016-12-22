@@ -1,0 +1,55 @@
+## @file
+#  DXE CSE Variable Storage Selector Library.
+#
+#  Determines which CSE resources to consume in DXE.
+#  Example: HECI1 or HECI2.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DxeCseVariableStorageSelectorLib
+  FILE_GUID                      = 722C417A-AC90-4A90-B183-82926A2EBD34
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = CseVariableStorageSelectorLib|DXE_DRIVER DXE_SMM_DRIVER DXE_RUNTIME_DRIVER UEFI_APPLICATION
+  CONSTRUCTOR                    = CseVariableStorageLibInit
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  CseVariableStorageSelectorLib.c
+  DxeCseVariableStorageSelectorLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Protocols]
+  gEfiHeciSmmRuntimeProtocolGuid
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  CseVariableStorageLib
+  DebugLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+
+[Guids]
+  gEfiEndOfDxeEventGroupGuid
+  gEfiEventVirtualAddressChangeGuid
+  gEfiMemoryConfigVariableGuid
+  gEfiSetupVariableGuid

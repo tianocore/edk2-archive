@@ -1,0 +1,59 @@
+## @file
+#  CSE Variable Storage Library
+#
+#  Provides access to CSE-managed NVM for variable storage.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BaseCseVariableStorageLib
+  FILE_GUID                      = 929FB413-A173-46CD-ABA1-F45699C8AC69
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = CseVariableStorageLib
+
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  BaseCseVariableStorageLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  CseVariableStorageSelectorLib
+  DebugLib
+  HeciMsgLib
+  HobLib
+  MemoryAllocationLib
+  PcdLib
+  PrintLib
+  VariableNvmStorageLib
+
+[Guids]
+  gCsePreMemoryIndexFileDataHobGuid    ## CONSUMES      ## GUID
+  gCsePrimaryIndexFileDataHobGuid      ## CONSUMES      ## GUID
+  gEfiAuthenticatedVariableGuid        ## CONSUMES      ## GUID
+
+
+[Pcd]
+  gSiPkgTokenSpaceGuid.PcdEnableCseMrcTrainingDataVariables  ## CONSUMES
+  gSiPkgTokenSpaceGuid.PcdPrimaryCseNvmStoreIndexFileName    ## CONSUMES
