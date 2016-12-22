@@ -1,0 +1,52 @@
+## @file
+#  Module describe the entire platform configuration.
+#
+#  The DEC files are used by the EDK II utilities that parse EDK II
+#  DSC and EDK II INF files to generate AutoGen.c and AutoGen.h files
+#  for the EDK II build infrastructure.
+#
+#  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = BxtSocPrivate
+  PACKAGE_GUID                   = DD6CB7A8-32F8-4170-8267-942093A5E5F6
+  PACKAGE_VERSION                = 0.1
+
+[Includes.common]
+  Include/Private
+  Cpu/Include/Private
+  SouthCluster
+  SampleCode/MdeModulePkg/Include
+
+[Guids]
+  #
+  # SouthCluster
+  #
+  gScPolicyHobGuid                  = { 0xc2ad1a7f, 0xd9df, 0x4638, { 0x8d, 0xac, 0x1, 0x59, 0x96, 0xc8, 0x88, 0x57 } }
+  gScDeviceTableHobGuid             = { 0xb3e123d0, 0x7a1e, 0x4db4, { 0xaf, 0x66, 0xbe, 0xd4, 0x1e, 0x9c, 0x66, 0x38 } }
+  gScPmcFunctionDisableResetHobGuid = { 0x7701aa8f, 0x27eb, 0x4562, { 0x8c, 0x59, 0x47, 0x31, 0xca, 0xa2, 0x4e, 0x7c } }
+  #
+  # CPU
+  #
+  gCpuStatusCodeDataTypeExceptionHandlerGuid = { 0x3BC2BD12, 0xAD2E, 0x11D5, { 0x87, 0xDD, 0x00, 0x06, 0x29, 0x45, 0xC3, 0xB9 }}
+  gPeiAcpiCpuDataGuid                        = { 0x7682bbef, 0xb0b6, 0x4939, { 0xae, 0x66, 0x1b, 0x3d, 0xf2, 0xf6, 0xaa, 0xf3 }}
+
+[Ppis]
+
+[Protocols]
+  #
+  # PCH
+  #
+  gScPcieIoTrapProtocolGuid = { 0xd66a1cf, 0x79ad, 0x494b, { 0x97, 0x8b, 0xb2, 0x59, 0x81, 0x68, 0x93, 0x34 } }
+
