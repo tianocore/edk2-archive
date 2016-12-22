@@ -1,0 +1,59 @@
+## @file
+#  Component information file for CPU S3 module.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                             = 0x00010017
+  BASE_NAME                               = PeiCpuS3Lib
+  FILE_GUID                               = 6351F303-B76A-44F9-9171-026BDDCA8654
+  VERSION_STRING                          = 1.0
+  MODULE_TYPE                             = PEIM
+  LIBRARY_CLASS                           = CpuS3Lib
+
+[LibraryClasses]
+  CpuPlatformLib
+  DebugLib
+  BaseLib
+  PeiServicesLib
+  BaseMemoryLib
+  SynchronizationLib
+  HobLib
+  ReportStatusCodeLib
+  MemoryAllocationLib
+  IoLib
+  TimerLib
+  CpuCommonLib
+  PostCodeLib
+  MpServiceLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Sources]
+  CpuS3Lib.c
+
+[Sources.IA32]
+  Ia32/MpFuncs.S | GCC
+  Ia32/MpFuncs.asm | MSFT
+
+[Ppis]
+  gSiCpuPolicyPpiGuid                   ## CONSUMES
+  gPeiSmmAccessPpiGuid                  ## CONSUMES
+  gEfiEndOfPeiSignalPpiGuid             ## NOTIFY
+
+[Guids]
+  gSmramCpuDataHeaderGuid               ## UNDEFINED
+  gPeiAcpiCpuDataGuid                   ## UNDEFINED
