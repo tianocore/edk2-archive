@@ -1,0 +1,65 @@
+## @file
+#  Component information file for CPU module.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                      = 0x00010017
+  BASE_NAME                        = PeiMpServiceLib
+  FILE_GUID                        = 59E4C67A-59A8-4DEA-9072-F9CDB6CA3E2C
+  VERSION_STRING                   = 1.0
+  MODULE_TYPE                      = PEIM
+  LIBRARY_CLASS                    = MpServiceLib
+
+[BuildOptions]
+################################################################################
+#
+# Package Dependency Section - list of Package files that are required for
+#                              this module.
+#
+################################################################################
+
+
+[LibraryClasses]
+  HobLib
+  CpuPlatformLib
+  DebugLib
+  BaseLib
+  PeiServicesLib
+  BaseMemoryLib
+  SynchronizationLib
+  ReportStatusCodeLib
+  MemoryAllocationLib
+  TimerLib
+  PostCodeLib
+  MtrrLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+
+[Sources]
+  MtrrSync.c
+  Microcode.c
+  MpService.c
+  Ia32/MpFuncs.asm|MSFT
+  Ia32/MpFuncs.nasm|GCC
+
+[Ppis]
+  gEfiEndOfPeiSignalPpiGuid          ## NOTIFY
+
+[Guids]
+  gCpuInitDataHobGuid                ## UNDEFINED
+  gMicroCodepointerGuid              ## UNDEFINED

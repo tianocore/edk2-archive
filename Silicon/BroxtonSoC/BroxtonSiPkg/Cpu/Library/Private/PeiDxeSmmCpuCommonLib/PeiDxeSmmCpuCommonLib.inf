@@ -1,0 +1,44 @@
+## @file
+#  CPU Common Lib.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                         = 0x00010017
+  BASE_NAME                           = PeiDxeSmmCpuCommonLib
+  FILE_GUID                           = B4E0E3E8-DCE9-46FE-9670-03FDD2F08D6C
+  VERSION_STRING                      = 1.0
+  MODULE_TYPE                         = BASE
+  LIBRARY_CLASS                       = CpuCommonLib
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  IoLib
+  PcdLib
+  PciLib
+  CpuLib
+  TimerLib
+  SynchronizationLib
+  TimerLib
+  CpuPlatformLib
+  PostCodeLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Sources]
+  CpuCommonLib.c

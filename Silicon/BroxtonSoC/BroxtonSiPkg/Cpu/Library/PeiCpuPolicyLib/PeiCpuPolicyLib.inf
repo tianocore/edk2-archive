@@ -1,0 +1,51 @@
+## @file
+#  PeiCpuPolicyLib library.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                       = 0x00010017
+  BASE_NAME                         = PeiCpuPolicyLib
+  FILE_GUID                         = 5baafc8f-25c6-4d19-b141-585757509372
+  VERSION_STRING                    = 1.0
+  MODULE_TYPE                       = PEIM
+  LIBRARY_CLASS                     = CpuPolicyLib
+
+[LibraryClasses]
+  DebugLib
+  IoLib
+  PeiServicesLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  ConfigBlockLib
+  CpuPlatformLib
+  PostCodeLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Sources]
+  PeiCpuPolicyLib.c
+  PeiCpuPolicyLibrary.h
+  CpuPrintPolicy.c
+
+[Ppis]
+  gSiCpuPolicyPpiGuid          ## CONSUMES
+  gBiosGuardConfigGuid         ## CONSUMES
+  gCpuConfigPreMemGuid         ## CONSUMES
+  gCpuConfigGuid               ## CONSUMES
+  gPowerMgmtConfigGuid         ## CONSUMES
+  gSoftwareGuardConfigGuid     ## CONSUMES
+  gCpuOverclockingConfigGuid   ## CONSUMES
