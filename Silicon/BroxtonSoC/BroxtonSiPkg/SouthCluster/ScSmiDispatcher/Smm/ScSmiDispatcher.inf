@@ -1,0 +1,85 @@
+## @file
+#  Sc Smi Dispatcher driver.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScSmiDispatcher
+  FILE_GUID                      = 6BE18C9C-BF61-499e-88EC-5CD57430460C
+  MODULE_TYPE                    = DXE_SMM_DRIVER
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x0001000A
+  ENTRY_POINT                    = InitializeScSmmDispatcher
+
+[sources.common]
+  ScSmm.h
+  ScSmmCore.c
+  ScSmmHelpers.h
+  ScSmmHelpers.c
+  ScxSmmHelpers.h
+  ScxSmmHelpers.c
+  ScSmmUsb.c
+  ScSmmGpi.c
+  ScSmmPowerButton.c
+  ScSmmSw.c
+  ScSmmSx.c
+  ScSmmIchn.c
+  ScSmmPeriodicTimer.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  IoLib
+  DebugLib
+  PcdLib
+  BaseLib
+  BaseMemoryLib
+  DevicePathLib
+  ScPlatformLib
+  SmmServicesTableLib
+  ReportStatusCodeLib
+  PerformanceLib
+  DxeServicesTableLib
+  GpioLib
+  SteppingLib
+
+[Protocols]
+  gEfiPciRootBridgeIoProtocolGuid           #CONSUMES
+  gEfiSmmGpiDispatch2ProtocolGuid           #PRODUCES
+  gEfiSmmSxDispatch2ProtocolGuid            #PRODUCES
+  gEfiSmmSwDispatch2ProtocolGuid            #PRODUCES
+  gEfiSmmIchnDispatchProtocolGuid           #PRODUCES
+  gEfiSmmUsbDispatch2ProtocolGuid           #PRODUCES
+  gEfiSmmIchnDispatchExProtocolGuid         #PRODUCES
+  gEfiSmmPowerButtonDispatch2ProtocolGuid   #PRODUCES
+  gEfiSmmPeriodicTimerDispatch2ProtocolGuid #PRODUCES
+  gEfiSmmBase2ProtocolGuid                  #CONSUMES
+  gEfiSmmCpuProtocolGuid                    #CONSUMES
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress  ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress   ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress         ## SOMETIMES_CONSUMES
+
+[Depex]
+  gEfiSmmCpuProtocolGuid AND
+  gEfiSmmBase2ProtocolGuid AND
+  gEfiPciRootBridgeIoProtocolGuid
+
+[BuildOptions]
+  *_*_X64_CC_FLAGS  = -D X64_BUILD_SUPPORT = 1
