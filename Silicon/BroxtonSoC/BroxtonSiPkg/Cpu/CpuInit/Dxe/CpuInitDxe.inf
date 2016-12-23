@@ -1,0 +1,90 @@
+## @file
+#  MP Cpu module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                      = 0x00010017
+  BASE_NAME                        = CpuInitDxe
+  FILE_GUID                        = FC73690C-8D4A-4F8C-B7F5-BA241F316E28
+  VERSION_STRING                   = 1.0
+  MODULE_TYPE                      = DXE_DRIVER
+  ENTRY_POINT                      = InitializeCpu
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  ReportStatusCodeLib
+  DxeServicesTableLib
+  SynchronizationLib
+  HobLib
+  TimerLib
+  CpuCommonLib
+  ConfigBlockLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Sources]
+  CpuInitDxe.c
+  CpuInitDxe.h
+  Exception.h
+  MemoryAttribute.c
+  MemoryAttribute.h
+  MpCommon.c
+  MpCommon.h
+  MpService.c
+  MpService.h
+  MtrrSync.c
+
+[sources.ia32]
+  Ia32/CpuAsm.asm
+  Ia32/MpProc.asm
+  Ia32/MchkInitAsm.asm
+  Ia32/MPFuncs32.asm
+  Ia32/MpCommon32.asm
+  Ia32/MemoryOperation.c
+  Ia32/Exception.c
+  Ia32/MpCpu.c
+
+[Sources.X64]
+  x64/cpu.asm|MSFT
+  x64/MpFuncs.asm|MSFT
+  x64/cpu.S|GCC
+  x64/MpFuncs.S|GCC
+  x64/MemoryOperation.c
+  x64/Exception.c
+  x64/MpCpu.c
+  x64/ProcessorDef.h
+  x64/VirtualMemory.h
+
+[Protocols]
+  gEfiMetronomeArchProtocolGuid                 ## CONSUMES
+  gEfiCpuArchProtocolGuid                       ## PRODUCES
+  gEfiMpServiceProtocolGuid                     ## PRODUCES
+  gEfiSmmControl2ProtocolGuid                   ## CONSUMES
+  gCpuInfoProtocolGuid                          ## PRODUCES
+  gEfiLegacyBiosProtocolGuid                    ## CONSUMES
+  gCpuGlobalNvsAreaProtocolGuid                 ## PRODUCES
+
+[Guids]
+  gSmramCpuDataHeaderGuid                       ## UNDEFINED
+  gHtBistHobGuid                                ## UNDEFINED
+  gEfiEndOfDxeEventGroupGuid                    ## UNDEFINED
+  gCpuInitDataHobGuid                           ## UNDEFINED
+  gCpuStatusCodeDataTypeExceptionHandlerGuid    ## UNDEFINED
+
+[Depex]
+  gEfiMetronomeArchProtocolGuid
+
