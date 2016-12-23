@@ -1,0 +1,132 @@
+// /** @file
+//  CPU Setup formset.
+//
+//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+form formid = CPU_CONFIGURATION_FORM_ID,
+
+  title    = STRING_TOKEN(STR_CPU_CONFIGURATION_TITLE);
+
+  //
+  // Title on CPU Configuration Page
+  //
+
+  subtitle text = STRING_TOKEN(STR_CPU_CONFIGURATION_TITLE);
+
+  oneof varid     = Setup.EnableProcHot,
+    prompt      = STRING_TOKEN(STR_PROC_HOT_ENABLE),
+    help        = STRING_TOKEN(STR_PROC_HOT_ENABLE_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags =MANUFACTURING | DEFAULT  | RESET_REQUIRED;
+  endoneof;
+  
+  oneof varid     = Setup.ProcessorVmxEnable,
+    prompt      = STRING_TOKEN(STR_VTX2_PROMPT),
+    help        = STRING_TOKEN(STR_VTX2_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags =MANUFACTURING | DEFAULT  | RESET_REQUIRED;
+  endoneof;
+
+  grayoutif ideqval Setup.IpuEn == 1;
+  oneof varid     = Setup.VTdEnable,
+    prompt      = STRING_TOKEN(STR_VTD_PROMPT),
+    help        = STRING_TOKEN(STR_VTD_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT  | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+  endoneof;
+  endif;
+  
+  oneof varid     = Setup.EnableTm,
+    prompt      = STRING_TOKEN(STR_TM1_PROMPT),
+    help        = STRING_TOKEN(STR_TM1_PROMPT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid     = Setup.EnableDigitalThermalSensor,
+    prompt      = STRING_TOKEN(STR_DTS_PROMPT),
+    help        = STRING_TOKEN(STR_DTS_PROMPT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof varid  = Setup.ActiveProcessorCores,
+    prompt = STRING_TOKEN(STR_ACTIVE_PROCESSOR_CORES_PROMPT),
+    help = STRING_TOKEN(STR_ACTIVE_PROCESSOR_CORES_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;    
+  endoneof;
+  
+  grayoutif TRUE;
+    oneof varid   = Setup.Core0,
+      prompt      = STRING_TOKEN(STR_ACTIVE_CORE0_DISABLE_PROMPT),
+      help        = STRING_TOKEN(STR_ACTIVE_CORE0_DISABLE_PROMPT_HELP),
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    endoneof;
+  endif;
+  
+  suppressif ideqval Setup.ActiveProcessorCores == 0 OR ideqval Setup.NumOfProcessors == 2;
+  oneof varid   = Setup.Core1,
+    prompt      = STRING_TOKEN(STR_ACTIVE_CORE1_DISABLE_PROMPT),
+    help        = STRING_TOKEN(STR_ACTIVE_CORE1_DISABLE_PROMPT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;
+  endif;
+  
+  suppressif ideqval Setup.ActiveProcessorCores == 0;
+  oneof varid   = Setup.Core2,
+    prompt      = STRING_TOKEN(STR_ACTIVE_CORE2_DISABLE_PROMPT),
+    help        = STRING_TOKEN(STR_ACTIVE_CORE2_DISABLE_PROMPT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;  
+  endif;
+  
+  suppressif ideqval Setup.ActiveProcessorCores == 0 OR ideqval Setup.NumOfProcessors == 2;
+  oneof varid   = Setup.Core3,
+    prompt      = STRING_TOKEN(STR_ACTIVE_CORE3_DISABLE_PROMPT),
+    help        = STRING_TOKEN(STR_ACTIVE_CORE3_DISABLE_PROMPT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;  
+  endif;
+
+  text
+    help   = STRING_TOKEN(STR_PROCESSOR_HT_MODE_HELP),
+    text   = STRING_TOKEN(STR_PROCESSOR_HT_MODE),
+    text   = STRING_TOKEN(STR_CAPABILITY_NOT_SUPPORT),
+    flags  = 0,
+    key    = 0;
+
+  oneof varid   = Setup.MonitorMwaitEnable,
+    prompt      = STRING_TOKEN(STR_MONITOR_MWAIT_PROMPT),
+    help        = STRING_TOKEN(STR_MONITOR_MWAIT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_AUTO), value = 2, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;  
+
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+
+  //
+  // Jump to  CPU Power Management Form
+  //
+  goto CPU_PWR_CONFIGURATION_FORM_ID,
+    prompt = STRING_TOKEN(STR_CPU_POWERMNG_TITLE),
+    help   = STRING_TOKEN(STR_CPU_POWERMNG_HELP);
+
+endform;
+
+#include "CpuPower.vfi"

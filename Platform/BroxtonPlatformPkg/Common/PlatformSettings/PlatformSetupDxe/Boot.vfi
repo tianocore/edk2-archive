@@ -1,0 +1,96 @@
+// /** @file
+//  Boot Setup formset.
+//
+//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+form formid = BOOT_CONFIGURATION_FORM_ID,
+
+  title  = STRING_TOKEN(STR_BOOT_CONFIGURATION_TITLE);
+
+  suppressif TRUE;
+    oneof varid  = Setup.PlatformSettingEn,
+      prompt   = STRING_TOKEN(STR_PLAT_DEFAULT_PROMPT),
+      help     = STRING_TOKEN(STR_PLAT_DEFAULT_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value=0, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value=1, flags=0 | RESET_REQUIRED;
+    endoneof;
+  endif;
+
+  oneof varid  = Setup.FastBoot,
+    prompt   = STRING_TOKEN(STR_FAST_BOOT_PROMPT),
+    help     = STRING_TOKEN(STR_FAST_BOOT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value=0, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value=1, flags=0 | RESET_REQUIRED;
+  endoneof;
+
+  suppressif ideqval SETUP_DATA.FastBoot == 0;
+  oneof varid   = Setup.ConInBehavior,
+    prompt      = STRING_TOKEN(STR_FAST_BOOT_CONSOLE_BHVR),
+    help        = STRING_TOKEN(STR_FAST_BOOT_CONIN_BHVR_HELP),
+    option text = STRING_TOKEN(STR_PS2_CONSOLE), value = 0, flags = DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_LASTCONSOLE), value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_WINDOWS_CONSOLE), value = 2, flags = RESET_REQUIRED;
+  endoneof;
+  endif; // suppressif
+
+  oneof varid  = Setup.SecureBoot,
+    prompt   = STRING_TOKEN(STR_SECURITY_BOOT_PROMPT),
+    help     = STRING_TOKEN(STR_SECURITY_BOOT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value=0, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value=1, flags=0 | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid  = Setup.QuietBoot,
+    prompt   = STRING_TOKEN(STR_QUIETBOOT_PROMPT),
+    help     = STRING_TOKEN(STR_QUIETBOOT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value=0, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value=1, flags=0 | RESET_REQUIRED;
+  endoneof;
+
+  oneof   varid   = Setup.LogBootTime,
+      prompt      = STRING_TOKEN(STR_LOG_BOOT_TIME_PROMPT),
+      help        = STRING_TOKEN(STR_LOG_BOOT_TIME_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = 0 | RESET_REQUIRED;
+  endoneof;
+  
+  suppressif ideqval Setup.LogBootTime == 0x00;
+    text
+      help   = STRING_TOKEN(STR_NULL_STRING),
+      text   = STRING_TOKEN(STR_LOG_BOOT_TIME_RECORD),
+      text   = STRING_TOKEN(STR_LOG_BOOT_TIME_VALUE),
+      flags  = 0,
+      key    = 0;
+  endif;
+
+  oneof varid = Setup.EfiNetworkSupport,
+    prompt   = STRING_TOKEN(STR_EFI_NETWORK_CONTROL),
+    help     = STRING_TOKEN(STR_EFI_NETWORK_CONTROL_HELP),
+    option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid  = Setup.RTEn,
+      prompt   = STRING_TOKEN(STR_RT_IDI_AGENT_PROMPT),
+      help     = STRING_TOKEN(STR_RT_IDI_AGENT_HELP),
+      flags    = INTERACTIVE,
+      option text = STRING_TOKEN(STR_RT_IDI_AGENT_DISABLE), value=0, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_RT_IDI_AGENT_DID1), value=2, flags=0 | RESET_REQUIRED;
+  endoneof;
+
+endform;
+
+
+
+

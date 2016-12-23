@@ -1,0 +1,69 @@
+// /** @file
+//  DPTF Setup formset.
+//
+//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+form formid = DPTF_POLICY_FORM_ID,
+
+  title  = STRING_TOKEN(STR_DPTF_POLICY_TITLE);
+
+
+  subtitle text = STRING_TOKEN(STR_DPTF_POLICY_TITLE);
+
+  oneof varid    = SETUP_DATA.EnableActivePolicy,
+    prompt      = STRING_TOKEN(STR_ACTIVE_POLICY_DPTF_PROMPT),
+    help        = STRING_TOKEN(STR_ACTIVE_POLICY_DPTF_HELP),
+    option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = SETUP_DATA.EnablePassivePolicy,
+    prompt      = STRING_TOKEN(STR_PASSIVE_POLICY_DPTF_PROMPT),
+    help        = STRING_TOKEN(STR_PASSIVE_POLICY_DPTF_HELP),
+    option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_PASSIVE_POLICY_10_DPTF_HELP),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_PASSIVE_POLICY_20_DPTF_HELP),  value = 2, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  suppressif ideqval SETUP_DATA.EnablePassivePolicy == 0;
+    oneof varid     = SETUP_DATA.TrtRevision,
+      prompt      = STRING_TOKEN(STR_TRT_REVISION_OBJECTS),
+      help        = STRING_TOKEN(STR_TRT_REVISION_OBJECTS_HELP),
+      option text = STRING_TOKEN(STR_TRT_TRADITIONAL),value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_TRT_PRIORITY), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+  endif;
+
+  oneof varid    = SETUP_DATA.EnableCriticalPolicy,
+    prompt      = STRING_TOKEN(STR_CRITICAL_POLICY_DPTF_PROMPT),
+    help        = STRING_TOKEN(STR_CRITICAL_POLICY_DPTF_HELP),
+    option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = SETUP_DATA.EnablePowerBossPolicy,
+    prompt      = STRING_TOKEN(STR_POWER_BOSS_POLICY_DPTF_PROMPT),
+    help        = STRING_TOKEN(STR_POWER_BOSS_POLICY_DPTF_HELP),
+    option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = SETUP_DATA.EnableVSPolicy,
+    prompt      = STRING_TOKEN(STR_VS_POLICY_DPTF_PROMPT),
+    help        = STRING_TOKEN(STR_VS_POLICY_DPTF_HELP),
+    option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+  endoneof;
+
+endform;

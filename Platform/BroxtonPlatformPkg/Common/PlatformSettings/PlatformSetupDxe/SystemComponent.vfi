@@ -1,0 +1,127 @@
+// /** @file
+//  System Component Setup formset.
+//
+//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+form formid = SYSTEM_COMPONENT_FORM_ID,
+
+  title  = STRING_TOKEN(STR_SYSTEM_COMPONENT_TITLE);
+
+  oneof   varid   = Setup.CRIDSettings,
+    prompt      = STRING_TOKEN(STR_CRID_PROMPT),
+    help        = STRING_TOKEN(STR_CRID_SETTING_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CRID_0_STRING),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CRID_1_STRING),  value = 2, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CRID_2_STRING),  value = 3, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof   varid   = Setup.PmicEnable,
+    prompt      = STRING_TOKEN(STR_PMIC_ACPI_OBJECT_PROMPT),
+    help        = STRING_TOKEN(STR_PMIC_ACPI_OBJECT_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT  | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+  endoneof; 
+
+  oneof   varid   = Setup.PnpSettings,
+    prompt      = STRING_TOKEN(STR_PNP_SETTING_PROMPT),
+    help        = STRING_TOKEN(STR_PNP_SETTING_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+#if (PNP_DEBUG == 1) 
+    option text = STRING_TOKEN(STR_PNP_POWER_STRING),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_PNP_PERFORMANCE_STRING),  value = 2, flags = RESET_REQUIRED;
+#endif
+    option text = STRING_TOKEN(STR_PNP_POWER_PERFORMANCE_STRING), value = 3, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid   = Setup.ResetSelect,
+    prompt      = STRING_TOKEN(STR_RESET_SELECT),
+    help        = STRING_TOKEN(STR_RESET_SELECT_HELP),
+    option text = STRING_TOKEN(STR_WARM_RESET), value = 0x6, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_COLD_RESET), value = 0xE, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  // Embedded Power Instrumentation
+  oneof varid   = Setup.EPIEnable,
+    prompt      = STRING_TOKEN(STR_EPI_ENABLE_PROMPT),
+    help        = STRING_TOKEN(STR_EPI_ENABLE_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof varid   = Setup.TypeCEnable,
+    prompt      = STRING_TOKEN(STR_TYPEC_ENABLE_PROMPT),
+    help        = STRING_TOKEN(STR_TYPEC_ENABLE_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_AUTO),    value = 2, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;
+
+//SSC
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+  subtitle text = STRING_TOKEN(STR_SSC_SETTING_SUBTITLE);
+
+  oneof   varid   = Setup.DDRSSCEnable,
+    prompt      = STRING_TOKEN(STR_DDR_SSC_ENABLE_PROMPT),
+    help        = STRING_TOKEN(STR_DDR_SSC_ENABLE_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;
+
+  suppressif ideqval Setup.DDRSSCEnable == 0;
+    oneof   varid   = Setup.DDRSSCSelection,
+      prompt      = STRING_TOKEN(STR_DDR_SSC_SELECTION_TABLE_PROMPT),
+      help        = STRING_TOKEN(STR_DDR_SSC_SELECTION_TABLE_HELP),
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_0),    value = 0,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M01),  value = 1,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M02),  value = 2,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M03),  value = 3,  flags = RESET_REQUIRED; 
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M04),  value = 4,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M05),  value = 5,  flags = RESET_REQUIRED | DEFAULT | MANUFACTURING;
+    endoneof;
+  endif;
+  
+  oneof   varid   = Setup.DDRCLKBending,
+    prompt      = STRING_TOKEN(STR_DDR_CLK_BENDING_SELECTION_TABLE_PROMPT),
+    help        = STRING_TOKEN(STR_DDR_CLK_BENDING_SELECTION_TABLE_HELP),
+    option text = STRING_TOKEN(STR_CLK_BENDING_SELECTION_TABLE_13),  value = 0,  flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CLK_BENDING_SELECTION_TABLE_06),  value = 1,  flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CLK_BENDING_SELECTION_TABLE_0),   value = 2,  flags = RESET_REQUIRED | DEFAULT | MANUFACTURING;
+    option text = STRING_TOKEN(STR_CLK_BENDING_SELECTION_TABLE_M09), value = 3,  flags = RESET_REQUIRED; 
+  endoneof;
+  
+  oneof   varid   = Setup.HSSIOSSCEnable,
+    prompt      = STRING_TOKEN(STR_HSSIO_SSC_ENABLE_PROMPT),
+    help        = STRING_TOKEN(STR_HSSIO_SSC_ENABLE_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+  endoneof;
+
+  suppressif ideqval Setup.HSSIOSSCEnable == 0;
+    oneof   varid   = Setup.HSSIOSSCSelection,
+      prompt      = STRING_TOKEN(STR_HSSIO_SSC_SELECTION_TABLE_PROMPT),
+      help        = STRING_TOKEN(STR_HSSIO_SSC_SELECTION_TABLE_HELP),
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_0),    value = 0,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M01),  value = 1,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M02),  value = 2,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M03),  value = 3,  flags = RESET_REQUIRED; 
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M04),  value = 4,  flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_SSC_SELECTION_TABLE_M05),  value = 5,  flags = RESET_REQUIRED | DEFAULT | MANUFACTURING;
+    endoneof;
+  endif;
+  
+endform;
+
+
+
