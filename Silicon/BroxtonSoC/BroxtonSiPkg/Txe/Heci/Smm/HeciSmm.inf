@@ -1,0 +1,59 @@
+## @file
+#  HECI SMM driver Module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = HeciSmm
+  FILE_GUID                      = C4491F51-66B9-4590-95E4-E2B4AD777703
+  MODULE_TYPE                    = DXE_SMM_DRIVER
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x0001000A
+  ENTRY_POINT                    = HeciSmmInitialize
+
+[Sources]
+  HeciSmm.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  CryptoPkg/CryptoPkg.dec
+
+[LibraryClasses]
+  SeCLib
+  UefiBootServicesTableLib
+  DebugLib
+  PciLib
+  BaseLib
+  DxeServicesTableLib
+  MemoryAllocationLib
+  S3BootScriptLib
+  UefiDriverEntryPoint
+  HeciMsgLib
+  PerformanceLib
+  BaseCryptLib
+
+[Protocols]
+  gEfiHeciProtocolGuid            ## PRODUCES
+  gEfiHeciSmmProtocolGuid         ## PRODUCES
+  gEfiSmmEndOfDxeProtocolGuid     ## PRODUCES
+  gEfiSmmSwDispatch2ProtocolGuid
+  gEfiHeci2PmProtocolGuid         ## PRODUCES
+
+[Guids]
+  gEfiCseEndofPostGuid
+  gEfiCseEndofServicesGuid
+
+[Depex]
+  TRUE
