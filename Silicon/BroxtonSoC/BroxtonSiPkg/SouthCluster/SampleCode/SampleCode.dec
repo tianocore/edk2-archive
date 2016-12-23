@@ -1,0 +1,31 @@
+## @file
+#  Module describe the entire platform configuration.
+#
+#  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = SampleCode
+  PACKAGE_GUID                   = 7200a805-b9f9-4d37-8bb6-7ea74c9c7f8d
+  PACKAGE_VERSION                = 0.1
+
+[Includes]
+  Include
+
+[Protocols]
+
+[Ppis]
+  gPeiUsbControllerPpiGuid = {0x3bc1f6de, 0x693e, 0x4547, {0xa3, 0x0, 0x21, 0x82, 0x3c, 0xa4, 0x20, 0xb2}}
+
+[Guids]
+
