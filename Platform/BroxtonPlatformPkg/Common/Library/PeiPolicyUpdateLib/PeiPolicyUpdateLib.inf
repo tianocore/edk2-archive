@@ -1,0 +1,93 @@
+## @file
+#  Module Infomation file for PEI PeiPolicyUpdateLib Library.
+#
+#  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                            = 0x00010017
+  BASE_NAME                              = PeiPolicyUpdateLib
+  FILE_GUID                              = D8E9897A-5B25-4f90-A8FA-93131D2FA6A1
+  VERSION_STRING                         = 1.0
+  MODULE_TYPE                            = PEIM
+  LIBRARY_CLASS                          = PeiPolicyUpdateLib|PEIM PEI_CORE SEC
+
+[Sources]
+  PeiScPolicyUpdate.c
+  PeiCpuPolicyUpdatePreMem.c
+  PeiCpuPolicyUpdate.c
+  PeiSiPolicyUpdate.c
+  HdaVerbTables.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  ConfigBlockLib
+  PcdLib
+  PeiScPolicyLib
+  PeiServicesLib
+  SteppingLib
+  ScPlatformLib
+  MmPciLib
+
+[Ppis]
+  gEfiPeiReadOnlyVariable2PpiGuid ## CONSUMES
+  gScPolicyPpiGuid
+  gSaMiscConfigGuid
+  gGraphicsConfigGuid
+  gIpuConfigGuid
+  gScSpiPpiGuid
+
+[Guids]
+  gEfiSetupVariableGuid
+  gEfiPlatformInfoGuid
+  gPlatformEmmcHs400TuningInfoGuid
+  gVbtInfoGuid
+  gEfiBootMediaHobGuid
+  gScGeneralConfigGuid
+  gPcieRpConfigGuid
+  gSataConfigGuid
+  gHpetConfigGuid
+  gUsbConfigGuid
+  gIoApicConfigGuid
+  gHdAudioConfigGuid
+  gPmConfigGuid
+  gLockDownConfigGuid
+  gLpssConfigGuid
+  gFdoModeEnabledHobGuid
+  gScsConfigGuid
+  gVtdConfigGuid
+  gIshConfigGuid
+  gFlashProtectionConfigGuid
+  gDciConfigGuid
+  gInterruptConfigGuid
+
+[Pcd.common]
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+
+[FixedPcd]
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashIbbRegionMappedBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashIbbRegionSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbRegionMappedBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbRegionSize
+

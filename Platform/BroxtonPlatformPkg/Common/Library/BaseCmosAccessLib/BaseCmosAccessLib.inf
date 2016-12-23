@@ -1,0 +1,37 @@
+## @file
+#  Library producing CMOS access functionality.
+#
+#  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = BaseCmosAccessLib
+  FILE_GUID                      = B7F6BC23-C59F-4e06-9F60-85356D88B404
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = BASE
+  LIBRARY_CLASS                  = CmosAccessLib
+
+[LibraryClasses]
+  BaseLib
+  IoLib
+  DebugLib
+  BasePlatformCmosLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Sources]
+  BaseCmosAccessLib.c
+  BaseCmosAccessLib.h

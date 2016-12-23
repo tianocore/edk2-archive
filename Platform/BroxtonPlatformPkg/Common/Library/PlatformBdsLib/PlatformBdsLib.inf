@@ -1,0 +1,142 @@
+## @file
+#  Component name for module PlatformBdsLib.
+#
+#  Copyright (c) 2008 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformBdsLib
+  FILE_GUID                      = A6BC385D-59E5-4b77-87D7-200ABAA83C15
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PlatformBootManagerLib|DXE_DRIVER
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x0002000A
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 EBC
+#
+
+[Sources]
+  BdsPlatform.c
+  BdsPlatform.h
+  PlatformData.c
+  OsipUtil.c
+  EfiBootStub.c
+
+[Sources.IA32]
+  Ia32/JumpToVector.Asm
+  Ia32/JumpToVector.S
+  Ia32/StartKernel.Asm
+  Ia32/StartKernel.S
+
+[Packages]
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  ShellPkg/ShellPkg.dec
+  CryptoPkg/CryptoPkg.dec
+  SecurityPkg/SecurityPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  BaseMemoryLib
+  DebugLib
+  PcdLib
+  GenericBdsLib
+  DevicePathLib
+  UefiLib
+  HobLib
+  PciLib
+  PrintLib
+  BaseCryptLib
+  FileHandleLib
+  DxeServicesLib
+  CpuPlatformLib
+  CustomizedDisplayLib
+  Tcg2PhysicalPresenceLib
+  TcgPhysicalPresenceLib
+  UefiBootManagerLib
+  TimerLib
+
+[Protocols]
+  gEfiFirmwareVolume2ProtocolGuid
+  gEfiSimpleNetworkProtocolGuid
+  gEfiLoadFileProtocolGuid
+  gEfiPciIoProtocolGuid
+  gEfiSmmAccess2ProtocolGuid
+  gEfiDxeSmmReadyToLockProtocolGuid
+  gEfiUserManagerProtocolGuid
+  gEfiDeferredImageLoadProtocolGuid
+  gEfiAcpiS3SaveProtocolGuid
+  gEfiSeCOperationProtocolGuid                  ## PROTOCOL CONSUMES
+  gEfiSpiProtocolGuid                           ## PROTOCOL CONSUMES
+  gEfiBlockIoProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+  gExitPmAuthProtocolGuid
+  gEfiTdtOperationProtocolGuid
+  gEfiGlobalNvsAreaProtocolGuid
+  gEfiUsbKeyboardConnectGuid
+  gEfiMmioDeviceProtocolGuid
+  gEfiI2cMasterProtocolGuid
+  gEfiI2cHostProtocolGuid
+  gExitPmAuthProtocolGuid
+  gEfiDiskInfoProtocolGuid
+
+[Guids]
+  gEfiEndOfDxeEventGroupGuid
+  gEfiMemoryTypeInformationGuid
+  gEfiSetupVariableGuid
+  gEfiCapsuleVendorGuid
+  gEfiGlobalVariableGuid
+  gEfiNormalSetupGuid
+  gEfiPartTypeSystemPartGuid
+  gEfiAcpi20TableGuid
+  gEfiAcpi10TableGuid
+  gEfiTpmDeviceInstanceTpm12Guid
+  gEfiTpmDeviceInstanceTpm20DtpmGuid
+  gTpmDeviceInstanceTpm20PttPtpGuid
+  gUndiDriverImageGuid
+  gSetupEnterGuid
+  gEfiPhysicalPresenceGuid
+
+[Pcd]
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBRBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMBase
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdShellFile
+  gPlatformModuleTokenSpaceGuid.PcdIFWISigBaseAddress
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBootState
+  gPlatformModuleTokenSpaceGuid.PcdConnectUSBKeyboardonWaitForKeyStroke
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdBdsDispatchAdditionalOprom
+  gEfiSecurityPkgTokenSpaceGuid.PcdTpmInstanceGuid
+

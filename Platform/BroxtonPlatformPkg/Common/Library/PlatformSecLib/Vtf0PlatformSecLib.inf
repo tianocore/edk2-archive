@@ -1,0 +1,85 @@
+## @file
+#  Library functions for Platform Sec hook library.
+#
+#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+################################################################################
+#
+# Defines Section - statements that will be processed to create a Makefile.
+#
+################################################################################
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformSecLib
+  FILE_GUID                      = BA5CD127-1960-4fa0-B024-BA8EF79B5209
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PlatformSecLib
+  CONSTRUCTOR                    = PlatformSecLibConstructor
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32
+#
+
+################################################################################
+#
+# Sources Section - list of files that are required for the build to succeed.
+#
+################################################################################
+
+[Sources]
+  PlatformSecLib.c
+  PlatformSecLib.h
+
+[Sources.IA32]
+  Ia32/SecEntry.asm
+  Ia32/SecEntry.S
+
+################################################################################
+#
+# Package Dependency Section - list of Package files that are required for
+#                              this module.
+#
+################################################################################
+
+[Packages]
+  MdePkg/MdePkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  PerformanceLib
+  LocalApicLib
+  CmosAccessLib
+  DebugLib
+
+[Pcd.common]
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize
+  gPlatformModuleTokenSpaceGuid.PcdTemporaryRamBase
+  gPlatformModuleTokenSpaceGuid.PcdTemporaryRamSize
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashMicroCodeAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashMicroCode2Address
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLSize
+
+[BuildOptions]
+  MSFT:*_*_IA32_PP_FLAGS                 =  /FIPlatformSecLib.h
+  INTEL:*_*_IA32_PP_FLAGS                = /FIPlatformSecLib.h
+

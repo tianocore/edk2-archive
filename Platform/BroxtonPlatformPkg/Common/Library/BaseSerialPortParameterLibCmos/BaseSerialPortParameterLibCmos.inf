@@ -1,0 +1,38 @@
+## @file
+#  Get and/or set serial Port baud rate.
+#
+#  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = BaseSerialPortParameterLibCmos
+  FILE_GUID                      = D9C952F8-87FD-4e0b-ADC7-95AD85B9B795
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = BASE
+  LIBRARY_CLASS                  = SerialPortParameterLib
+
+[LibraryClasses]
+  BaseLib
+  CmosAccessLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Pcd]
+  gClientCommonModuleTokenSpaceGuid.PcdSerialBaudRateCmosIndex
+  gClientCommonModuleTokenSpaceGuid.PcdStatusCodeFlagsCmosIndex
+
+[Sources]
+  BaseSerialPortParameterLibCmos.c
+

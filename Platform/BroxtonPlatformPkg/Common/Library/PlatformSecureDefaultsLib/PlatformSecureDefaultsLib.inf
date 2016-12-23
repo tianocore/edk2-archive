@@ -1,0 +1,69 @@
+## @file
+#  NULL PlatformFvbLib library instance.
+#  This library handles hooks for the EMU Variable FVB driver.
+#
+#  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformSecureDefaultsLib
+  FILE_GUID                      = 402B0508-781A-4016-A1D7-9740FFE001A0
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PlatformSecureDefaultsLib | DXE_DRIVER DXE_RUNTIME_DRIVER
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  PlatformSecureDefaultsLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  SecurityPkg/SecurityPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  DxeServicesTableLib
+  UefiBootServicesTableLib
+  DevicePathLib
+  BaseMemoryLib
+  BaseLib
+  IoLib
+  TimerLib
+  MemoryAllocationLib
+  PcdLib
+
+[Protocols]
+  gEfiFirmwareVolume2ProtocolGuid
+
+[Guids]
+  gEfiGlobalVariableGuid                        ## PRODUCES ## Variable Guid
+  gEfiSetupVariableGuid
+  gEfiVariableGuid
+  gEfiImageSecurityDatabaseGuid
+  gEfiCertX509Guid
+  gEfiCertPkcs7Guid
+  gEfiCustomModeEnableGuid
+
+[Depex]
+  TRUE
+

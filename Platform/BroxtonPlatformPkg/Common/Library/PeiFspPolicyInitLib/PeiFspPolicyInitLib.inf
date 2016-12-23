@@ -1,0 +1,99 @@
+## @file
+#  Library functions for Fsp Policy Initialization Library.
+#
+#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+################################################################################
+#
+# Defines Section - statements that will be processed to create a Makefile.
+#
+################################################################################
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PeiFspPolicyInitLib
+  FILE_GUID                      = 2CB87D67-D1A4-4CD3-8CD7-91A1FA1DF6E0
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = FspPolicyInitLib
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32
+#
+
+################################################################################
+#
+# Sources Section - list of files that are required for the build to succeed.
+#
+################################################################################
+
+[Sources]
+  PeiFspPolicyInitLibPreMem.c
+  PeiFspSiPolicyInitLib.c
+  PeiFspScPolicyInitLib.c
+  PeiFspCpuPolicyInitLib.c
+  PeiFspSaPolicyInitLib.c
+
+################################################################################
+#
+# Package Dependency Section - list of Package files that are required for
+#                              this module.
+#
+################################################################################
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonFspPkg/BroxtonFspPkg.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  IoLib
+  PeiServicesLib
+  SmbusLib
+  MmPciLib
+  ConfigBlockLib
+  PeiPolicyInitLib
+  ScPlatformLib
+
+[Pcd]
+
+[Guids]
+  gEfiSetupVariableGuid
+  gPeiDefaultVbtGuid
+  gVbtMipiAuoGuid
+  gVbtMipiSharpGuid
+  gVbtMipiJdiGuid
+  gVbtEdpTypeCGuid
+  gEfiPlatformInfoGuid
+  gPeiLogoGuid
+
+[Pcd.common]
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+
+[Ppis]
+  gSiPolicyPpiGuid                 ## CONSUMES
+  gScPolicyPpiGuid
+  gSiCpuPolicyPpiGuid              ## CONSUMES
+  gSiSaPolicyPpiGuid               ## CONSUMES
+  gSaMiscConfigGuid
+  gEfiPeiReadOnlyVariable2PpiGuid  ## CONSUMES
+  gMemoryConfigGuid
+
