@@ -1,0 +1,318 @@
+## @file
+#  Platform Package.
+#
+#  This package provides platform specific modules.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = PlatformPkg
+  PACKAGE_GUID                   = C04320E4-1F50-409A-A32A-5E0589192FA2
+  PACKAGE_VERSION                = 0.1
+
+[Includes]
+  Common/Include
+  Common/Include/Library
+  Common/SampleCode/IntelFsp2WrapperPkg/Include
+  Common
+
+[LibraryClasses]
+
+[Guids]
+  gEfiPlatformBootModeGuid                = { 0xce845704, 0x1683, 0x4d38, { 0xa4, 0xf9, 0x7d, 0x0b, 0x50, 0x77, 0x57, 0x93 } }
+  gPlatformModuleTokenSpaceGuid           = { 0x69d13bf0, 0xaf91, 0x4d96, { 0xaa, 0x9f, 0x21, 0x84, 0xc5, 0xce, 0x3b, 0xc0 } }
+  gMinnowModuleTokenSpaceGuid             = { 0xAA4B1C87, 0x33E3, 0x4127, { 0x81, 0x62, 0xDC, 0x63, 0xF6, 0xF6, 0x05, 0x46 } }
+  gEfiSerialPortTokenSpaceGuid            = { 0x5fad2389, 0x2bc7, 0x4bd2, { 0x83, 0xd3, 0x42, 0x9f, 0xb6, 0xae, 0xa3, 0x3f } }
+  gEfiIchTokenSpaceGuid                   = { 0xe38c11e3, 0x968f, 0x47b8, { 0xac, 0xef, 0xac, 0xc0, 0x69, 0x3d, 0xb9, 0xff } }
+  gEfiPlatformCpuInfoGuid                 = { 0xbb9c7ab7, 0xb8d9, 0x4bf3, { 0x9c, 0x29, 0x9b, 0xf3, 0x41, 0xe2, 0x17, 0xbc } }
+  gEfiBiosIdGuid                          = { 0xC3E36D09, 0x8294, 0x4b97, { 0xA8, 0x57, 0xD5, 0x28, 0x8F, 0xE3, 0x3E, 0x28 } }
+  gEfiBoardFeaturesGuid                   = { 0x94b9e8ae, 0x8877, 0x479a, { 0x98, 0x42, 0xf5, 0x97, 0x4b, 0x82, 0xce, 0xd3 } }
+  gItkDataVarGuid                         = { 0x3812723d, 0x7e48, 0x4e29, { 0xbc, 0x27, 0xf5, 0xa3, 0x9a, 0xc9, 0x4e, 0xf1 } }
+  gDmiDataGuid                            = { 0x70e56c5e, 0x280c, 0x44b0, { 0xa4, 0x97, 0x09, 0x68, 0x1a, 0xbc, 0x37, 0x5e } }
+  gIdccDataHubGuid                        = { 0x788e1d9f, 0x1eab, 0x47d2, { 0xa2, 0xf3, 0x78, 0xca, 0xe8, 0x7d, 0x60, 0x12 } }
+  gEfiPlatformInfoGuid                    = { 0x1e2acc41, 0xe26a, 0x483d, { 0xaf, 0xc7, 0xa0, 0x56, 0xc3, 0x4e, 0x08, 0x7b } }
+  gEfiBoardSelectGuid                     = { 0x114ba15a, 0x6189, 0x180d, { 0xbf, 0xc0, 0x20, 0x53, 0xb3, 0x48, 0x09, 0x49 } }
+  gMfgModeVariableGuid                    = { 0xEF14FD78, 0x0793, 0x4e2b, { 0xAC, 0x6D, 0x06, 0x28, 0x47, 0xE0, 0x17, 0x91 } }
+  gEfiAcpiTableStorageGuid                = { 0x7e374e25, 0x8e01, 0x4fee, { 0x87, 0xf2, 0x39, 0x0c, 0x23, 0xc6, 0x06, 0xcd } }
+  gACPIOSFRMfgStringVariableGuid          = { 0x72234213, 0x0fd7, 0x48a1, { 0xa5, 0x9f, 0xb4, 0x1b, 0xc1, 0x07, 0xfb, 0xcd } }
+  gSLP20EncryptedOEMPublicKeyVariableGuid = { 0x6d9bf711, 0xa90d, 0x42f9, { 0xa3, 0xfb, 0xdd, 0x08, 0xb6, 0xe8, 0x90, 0x37 } }
+  gSLP20MarkerVariableGuid                = { 0xec2a6c28, 0x2286, 0x44ed, { 0x91, 0x6b, 0x24, 0x3a, 0xb5, 0x25, 0x35, 0x46 } }
+  gSLP20OEMPublicKeyVariableGuid          = { 0x0a4d622d, 0x01f4, 0x4974, { 0xb3, 0xf5, 0x2b, 0xfe, 0x98, 0x88, 0xef, 0x92 } }
+  gACPIOSFRRefDataBlockVariableGuid       = { 0x72234213, 0x0fd7, 0x48a1, { 0xa5, 0x9f, 0xb4, 0x1b, 0xc1, 0x07, 0xfb, 0xcd } }
+  gACPIOSFRModelStringVariableGuid        = { 0x72234213, 0x0fd7, 0x48a1, { 0xa5, 0x9f, 0xb4, 0x1b, 0xc1, 0x07, 0xfb, 0xcd } }
+  gEfiPciLanInfoGuid                      = { 0x0d9a1427, 0xe02a, 0x437d, { 0x92, 0x6b, 0xaa, 0x52, 0x1f, 0xd7, 0x22, 0xba } }
+  gEfiNormalSetupGuid                     = { 0xec87d643, 0xeba4, 0x4bb5, { 0xa1, 0xe5, 0x3f, 0x3e, 0x36, 0xb2, 0x0d, 0xa9 } }
+  gEfiAttemptUSBFirstGuid                 = { 0x77FA9ABD, 0x0359, 0x4D32, { 0xBD, 0x60, 0x28, 0xF4, 0xE7, 0x8F, 0x78, 0x4B } }
+  gVbtMipiAuoGuid                         = { 0xDBADD769, 0xE86A, 0x4819, { 0x81, 0x20, 0xE9, 0x91, 0x79, 0x2C, 0x0B, 0xC1 } }
+  gVbtMipiSharpGuid                       = { 0xC7DCFF6F, 0x6F2A, 0x4DC1, { 0x91, 0xC6, 0xDF, 0x0B, 0xAF, 0xDB, 0xDA, 0x46 } }
+  gVbtMipiJdiGuid                         = { 0xB850A139, 0xBABB, 0x4D91, { 0x9F, 0x27, 0x72, 0xD2, 0xEF, 0x01, 0xBF, 0x3A } }
+  gVbtEdpTypeCGuid                        = { 0x21E70404, 0xDF72, 0x4122, { 0xB0, 0x30, 0x28, 0x13, 0x06, 0xEB, 0x7B, 0xE3 } }
+  gPeiDefaultVbtGuid                      = { 0xE08CA6D5, 0x8D02, 0x43ae, { 0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33 } }
+  gPeiLogoGuid                            = { 0x7BB28B99, 0x61BB, 0x11d5, { 0x9A, 0x5D, 0x00, 0x90, 0x27, 0x3F, 0xC1, 0x4D } }
+  gPlatformEmmcHs400TuningInfoGuid        = { 0xb0ae3e81, 0xc6b0, 0x4d35, { 0xad, 0x51, 0x91, 0x17, 0xe0, 0x65, 0x1e, 0xa3 } }
+  gEfiTraceHubDebugLibIa32Guid            = { 0x23a3e7ba, 0x75d1, 0x4cb9, { 0x9c, 0x8f, 0x56, 0xfa, 0x4e, 0x48, 0xd9, 0x9e } }
+  gEfiTraceHubDebugLibX64Guid             = { 0x8f7e1a3a, 0x9657, 0x44f0, { 0xb9, 0xe6, 0x4e, 0xf7, 0x4b, 0x22, 0xd5, 0x43 } }
+  gPlatformAOSDnXEventGuid                = { 0x5e84f15a, 0xea7f, 0x47fe, { 0x84, 0x44, 0x5f, 0xeb, 0x2c, 0xf4, 0x12, 0x9f } }
+  gEfiCrashDumpMemoryMapGuid              = { 0xcbe2a6f1, 0x778e, 0x4422, { 0x93, 0x71, 0xab, 0xf4, 0x90, 0x91, 0x63, 0xf5 } }
+  gUpdatedPdtExistGuid                    = { 0x7c2b32c9, 0x312f, 0x40e5, { 0xa7, 0x45, 0x8a, 0x76, 0xce, 0xa1, 0x29, 0xbb } }
+  gUpdatedArbExistGuid                    = { 0xdf38ec32, 0xff7d, 0x46a7, { 0xb1, 0x27, 0xb5, 0xf6, 0x84, 0x30, 0xd7, 0xbe } }
+  gEfiBootStateGuid                       = { 0x60b5e939, 0x0fcf, 0x4227, { 0xba, 0x83, 0x6b, 0xbe, 0xd4, 0x5b, 0xc0, 0xe3 } }
+  gIFWIVersionHobGuid                     = { 0xc498f432, 0xb8b7, 0x44bf, { 0x86, 0xd3, 0x7b, 0x36, 0xf2, 0xec, 0x13, 0x90 } }
+  gEfiSmmBaseThunkCommunicationGuid       = { 0x6568a3d6, 0x015f, 0x4b4a, { 0x9c, 0x89, 0x1d, 0x14, 0x63, 0x14, 0x13, 0x0a } }
+  gTpmDeviceInstanceTpm20PttPtpGuid       = { 0x93d66f66, 0x55da, 0x4f03, { 0x9b, 0x5f, 0x32, 0xcf, 0x9e, 0x54, 0x3b, 0x3a } }
+  gEfiFwDisplayCapsuleGuid                = { 0x3b8c8162, 0x188c, 0x46a4, { 0xae, 0xc9, 0xbe, 0x43, 0xf1, 0xd6, 0x56, 0x97 } }
+  gEfiSystemFirmwareGuid                  = { 0x86aafa19, 0xbe02, 0x4a21, { 0xaa, 0x8d, 0x5c, 0x12, 0x7b, 0x63, 0x5e, 0x8b } }
+  gEfiDFUVerGuid                          = { 0x0dc73aed, 0xcbf6, 0x4a25, { 0xa6, 0x8d, 0x59, 0xc8, 0x0f, 0x44, 0xc7, 0xc3 } }
+  gEfiEsrtTableGuid                       = { 0xb122a263, 0x3661, 0x4f68, { 0x99, 0x29, 0x78, 0xf8, 0xb0, 0xd6, 0x21, 0x80 } }
+  gEfiCapsuleCrashLogVarGuid              = { 0xf3ff1468, 0x04ba, 0x4966, { 0x9f, 0xb2, 0xe4, 0xa7, 0x90, 0x05, 0x46, 0x50 } }
+  gEfiCapsuleCrashGuid                    = { 0x0e1d2972, 0x65af, 0x4ac1, { 0xbf, 0xa3, 0xce, 0xf4, 0xab, 0x0c, 0x38, 0xfe } }
+  gEfiDeviceFirmwareGuid                  = { 0x9a5c9a15, 0xb821, 0x469a, { 0x8b, 0x7b, 0xe9, 0x66, 0xd4, 0x6c, 0xe1, 0xfe } }
+  gEfiBiosCapsuleFromAfuGuid              = { 0xcd193840, 0x2881, 0x9567, { 0x39, 0x28, 0x38, 0xc5, 0x97, 0x53, 0x49, 0x77 } }
+  gPlatformSsdtImageGuid                  = { 0x8041f38b, 0xa34, 0x49d7,  { 0xa9, 0x05, 0x03, 0xae, 0xef, 0x48, 0x26, 0xf7 } }
+  gObbyFirmwareFileSystemFvGuid           = { 0xb723eff4, 0xee4a, 0x40bd, { 0xbd, 0x7b, 0x22, 0x27, 0x2e, 0x36, 0xb3, 0xe7 } }
+  gFspSFirmwareFileSystemFvGuid           = { 0x1B5C27FE, 0xF01C, 0x4fbc, { 0xAE, 0xAE, 0x34, 0x1B, 0x2E, 0x99, 0x2A, 0x17 } }
+  gIbbrFirmwareFileSystemFvGuid           = { 0xB73FE497, 0xB92E, 0x416e, { 0x83, 0x26, 0x45, 0xAD, 0x0D, 0x27, 0x00, 0x92 } }
+
+  #
+  # For FSP Wrapper
+  #
+  gFspTempRamExitGuid                     = { 0x204c3d37, 0xd83f, 0x49ab, { 0x88, 0x3f, 0x9b, 0x5d, 0x6c, 0x64, 0x77, 0x62 } }
+  gUndiDriverImageGuid                    = { 0x2E561D56, 0x4863, 0x44F7, { 0x96, 0x0D, 0xEF, 0x2D, 0x7F, 0x2D, 0x35, 0xBB } }
+
+  gClientSiliconPkgTokenSpaceGuid    =  {0xddf913cf, 0x8c2e, 0x449d, {0x8f, 0x6b, 0xd6, 0x44, 0xd2, 0xb6, 0x22, 0xf6}}
+  gSmbiosFirmwareVersionInfoHobGuid  =  {0x947c974a, 0xc5aa, 0x48a2, {0xa4, 0x77, 0x1a, 0x4c, 0x9f, 0x52, 0xe7, 0x82}}
+  gSmbiosProcessorInfoHobGuid        =  {0xe6d73d92, 0xff56, 0x4146, {0xaf, 0xac, 0x1c, 0x18, 0x81, 0x7d, 0x68, 0x71}}
+  gSmbiosCacheInfoHobGuid            =  {0xd805b74e, 0x1460, 0x4755, {0xbb, 0x36, 0x1e, 0x8c, 0x8a, 0xd6, 0x78, 0xd7}}
+
+  gClientCommonModuleTokenSpaceGuid           = { 0x6239f660, 0x54dc, 0x4cf2, { 0xb2, 0x07, 0x45, 0xdb, 0x9c, 0x4d, 0x22, 0xeb }}
+  gFastBootExceptionInfoHobGuid               = { 0x4ed88276, 0xd4df, 0x4d03, { 0x86, 0x61, 0x29, 0x58, 0x01, 0xb2, 0xda, 0x58 }}
+  gFastBootFunctionEnabledHobGuid             = { 0x019fb1ca, 0xd411, 0x4948, { 0xb7, 0x3c, 0x4c, 0x05, 0x4a, 0xba, 0x9e, 0x8e }}
+  gPeiFirmwarePerformanceGuid                 = { 0x55765e8f, 0x021a, 0x41f9, { 0x93, 0x2d, 0x4c, 0x49, 0xc5, 0xb7, 0xef, 0x5d }}
+  gRamDebugTokenSpaceGuid                     = { 0x93adad6a, 0x60d1, 0x47f7, { 0xab, 0xdb, 0x20, 0x32, 0xf4, 0xa8, 0x8e, 0xa6 }}
+  gSystemConfigGuid                           = { 0x0bb533de, 0xc8d9, 0x4e21, { 0x93, 0x42, 0xc4, 0x9c, 0x05, 0xb5, 0xe7, 0x89 }}
+  gSetupEnterGuid                             = { 0x71202EEE, 0x5F53, 0x40d9, { 0xAB, 0x3D, 0x9E, 0x0C, 0x26, 0xD9, 0x66, 0x57 }}
+  gHiiExportDatabaseGuid                      = { 0x1b838190, 0x4625, 0x4ead, { 0xab, 0xc9, 0xcd, 0x5e, 0x6a, 0xf1, 0x8f, 0xe0 }}
+
+  gEfiHtBistHobGuid              = { 0xBE644001, 0xE7D4, 0x48B1, { 0xB0, 0x96, 0x8B, 0xA0, 0x47, 0xBC, 0x7A, 0xE7 }}
+
+[Ppis]
+  gDebugServicePpiGuid                    = { 0xb781df4c, 0xdc36, 0x4230, { 0xb5, 0x6d, 0xa0, 0x1,  0xb6, 0x8c, 0x15, 0xc7 } }
+  gPeiMfgMemoryTestPpiGuid                = { 0xab294a92, 0xeaf5, 0x4cf3, { 0xab, 0x2b, 0x2d, 0x4b, 0xed, 0x4d, 0xb6, 0x3d } }
+  gBoardPreMemInitPpiGuid                 = { 0x202bd97a, 0x3255, 0x4277, { 0x89, 0x8f, 0xa0, 0x3c, 0x6a, 0x63, 0x64, 0x1  } }
+  gBoardPreMemInitDoneGuid                = { 0x74dbd885, 0xa9ab, 0x4502, { 0xbb, 0x9a, 0xa6, 0x70, 0xb5, 0xec, 0x96, 0x66 } }
+  gBoardPostMemInitStartGuid              = { 0xcecd3556, 0x24f1, 0x478f, { 0x94, 0x78, 0xe5, 0xcf, 0x2b, 0x62, 0x5e, 0xb  } }
+  gBoardPostMemInitDoneGuid               = { 0xa2f2192f, 0xb51e, 0x492d, { 0xb6, 0x8, 0xad, 0x7d, 0xa0, 0x5, 0xb6, 0x99   } }
+  gPeiCachePpiGuid               = { 0xC153205A, 0xE898, 0x4C24, { 0x86, 0x89, 0xA4, 0xB4, 0xBC, 0xC5, 0xC8, 0xA2 }}
+
+[Protocols]
+  gEfiUsbFnIoProtocolGuid                 = { 0x32d2963a, 0xfe5d, 0x4f30, { 0xb6, 0x33, 0x6e, 0x5d, 0xc5, 0x58, 0x03, 0xcc } }
+  gEfiUsbDeviceModeProtocolGuid           = { 0xC9923F7E, 0x1746, 0x4802, { 0x86, 0x2e, 0x01, 0x1c, 0x2c, 0x2d, 0x9d, 0x86 } }
+#
+# @TODO: Moved from EdkCompatibilityPkg.dec to here, need to verify.
+#
+  gEfiSmmBaseHelperReadyProtocolGuid      = { 0x910dca07, 0x1f94, 0x4ee7, { 0xaf, 0x2f, 0xff, 0x72, 0xf3, 0x15, 0x43, 0x53 } }
+  gEfiDpsdRSA1024AndSHA256SignatureVerificationProtocolGuid = { 0x045b6f49, 0x9102, 0x4590, { 0xa0, 0xa5, 0x35, 0x31, 0x1b, 0x0a, 0xef, 0xc3 } }
+  gEfiPlatformCpuProtocolGuid             = { 0xbd26cdc9, 0xa092, 0x462a, { 0x87, 0x7a, 0x5a, 0xb6, 0xad, 0xce, 0x48, 0x12 } }
+  gEnhancedSpeedstepProtocolGuid          = { 0x91a1ddcf, 0x5374, 0x4939, { 0x89, 0x51, 0xd7, 0x29, 0x3f, 0x1a, 0x78, 0x6f } }
+  gEfiPlatformIdeInitProtocolGuid         = { 0x377c66a3, 0x8fe7, 0x4ee8, { 0x85, 0xb8, 0xf1, 0xa2, 0x82, 0x56, 0x9e, 0x3b } }
+  gEfiWatchdogTimerDriverProtocolGuid     = { 0xd5b06d16, 0x2ea1, 0x4def, { 0x98, 0xd0, 0xa0, 0x5d, 0x40, 0x72, 0x84, 0x17 } }
+  gEfiUsbLegacyPlatformProtocolGuid       = { 0x13f40f6e, 0x50c1, 0x4b73, { 0xb1, 0xe2, 0x6e, 0x72, 0xd2, 0x1c, 0xb0, 0x4a } }
+  gEfiLpcWpc83627PolicyProtocolGuid       = { 0xd3ecc567, 0x9fd5, 0x44c1, { 0x86, 0xcf, 0x5d, 0xa7, 0xa2, 0x4f, 0x4b, 0x5d } }
+  gEfiCk505ClockPlatformInfoGuid          = { 0x3c485ea4, 0x449a, 0x46ce, { 0xbb, 0x08, 0x2a, 0x33, 0x6e, 0xa9, 0x6b, 0x4e } }
+  gEfiSmbiosSlotPopulationGuid            = { 0xef7bf7d6, 0xf8ff, 0x4a76, { 0x82, 0x47, 0xc0, 0xd0, 0xd1, 0xcc, 0x49, 0xc0 } }
+  gUsbPolicyGuid                          = { 0xf617b358, 0x12cf, 0x414a, { 0xa0, 0x69, 0x60, 0x67, 0x7b, 0xda, 0x13, 0xb4 } }
+  gEfiLpcWpce791PolicyProtocolGuid        = { 0xab2bee2f, 0xc1a6, 0x4399, { 0x85, 0x3d, 0xc0, 0x7c, 0x77, 0x4f, 0xfd, 0x0d } }
+  gEfiTpmMpDriverProtocolGuid             = { 0xde161cfe, 0x1e60, 0x42a1, { 0x8c, 0xc3, 0xee, 0x7e, 0xf0, 0x73, 0x52, 0x12 } }
+  gPlatformGOPPolicyGuid                  = { 0xec2e931b, 0x3281, 0x48a5, { 0x81, 0x07, 0xdf, 0x8a, 0x8b, 0xed, 0x3c, 0x5d } }
+  gEfiI2cBusProtocolGuid                  = { 0x9fa1b225, 0x3346, 0x461b, { 0xa0, 0x69, 0xed, 0x01, 0xb6, 0x73, 0xd2, 0x40 } }
+  gDxePlatformPolicyProtocolGuid          = { 0x4b0165a9, 0x61d6, 0x4e23, { 0xa0, 0xb5, 0x3e, 0xc7, 0x9c, 0x2e, 0x30, 0xd5 } }
+  gEfiDFUResultGuid                       = { 0x14a7c46f, 0xbc02, 0x4047, { 0x9f, 0x18, 0xa5, 0xd7, 0x25, 0xd8, 0xbd, 0x19 } }
+  gEfiUsbKeyboardConnectGuid              = { 0xad9c4381, 0x1ede, 0x430c, { 0x8d, 0x42, 0x23, 0x76, 0x7c, 0x46, 0x5d, 0x52 } }
+  gEfiTdtOperationProtocolGuid            = { 0xfd301ba4, 0x5e62, 0x4679, { 0xa0, 0x6f, 0xe0, 0x9a, 0xab, 0xdd, 0x2a, 0x91 } }
+  gEfiSpiProtocolGuid                     = { 0x1156efc6, 0xea32, 0x4396, { 0xb5, 0xd5, 0x26, 0x93, 0x2e, 0x83, 0xc3, 0x13 } }
+  gEfiSeCOperationProtocolGuid            = { 0x704ebea2, 0x5ee6, 0x4898, { 0x96, 0x59, 0x01, 0x8b, 0x74, 0xb4, 0x47, 0x89 } }
+  gEfiPssVerificationProtocolGuid         = { 0x6fbb9473, 0xcb45, 0x4b0f, { 0x85, 0xac, 0x29, 0xbe, 0xa7, 0x86, 0xad, 0x80 } }
+  gEfiTcoResetProtocolGuid                = { 0xa6a79162, 0xe325, 0x4c30, { 0xbc, 0xc3, 0x59, 0x37, 0x30, 0x64, 0xef, 0xb3 } }
+  gEfiEcAccessProtocolGuid                = { 0x70eeecbe, 0x727a, 0x4244, { 0x90, 0x4c, 0xdb, 0x6b, 0xf0, 0x05, 0x53, 0x92 } }
+  gPlatformConfigChangeProtocolGuid       = {0xf429c00a, 0x9640, 0x46b3, {0x95, 0x44, 0xf8, 0xf8, 0x6a, 0x28, 0xf3, 0x0f}}
+
+  gSmmThunkProtocolGuid                       = { 0x2a82fce6, 0x8bb6, 0x413e, { 0xb9, 0xeb, 0x45, 0xdf, 0xc0, 0x52, 0x2d, 0xf3 }}
+  gEfiTrEEPlatformProtocolGuid                = { 0x77ef4b99, 0x1186, 0x48ab, { 0x9d, 0x0b, 0x0b, 0x78, 0x12, 0xe5, 0xe6, 0xab }}
+  gLegacyUsbProtocolGuid                      = { 0x2ad8e2d2, 0x2e91, 0x4cd1, { 0x95, 0xf5, 0xe7, 0x8f, 0xe5, 0xeb, 0xe3, 0x16 }}
+
+[PcdsDynamic,PcdsDynamicEx]   # 0x00000000
+  gMinnowModuleTokenSpaceGuid.PcdMinnowBoardDetectionRun|FALSE|BOOLEAN|0x00000001
+  gMinnowModuleTokenSpaceGuid.PcdMinnowBoardDetected|FALSE|BOOLEAN|0x00000002
+  gPlatformModuleTokenSpaceGuid.PcdScsiChunk|0x0|UINT32|0x80000002
+  gPlatformModuleTokenSpaceGuid.PcdUfsHcBar|0x0|UINT32|0x80000003
+  gPlatformModuleTokenSpaceGuid.PcdUfsInitStall|0x0|UINT32|0x80000004
+  gPlatformModuleTokenSpaceGuid.PcdIfwiZid|0xFFFFFFFF|UINT32|0x8000000c
+  gPlatformModuleTokenSpaceGuid.PcdBiosSetupLoaded|FALSE|BOOLEAN|0x80000009
+  ## This PCD defines minimum length(in bytes) of the system preboot TCG event log area(LAML).
+  #  For PC Client Implementation spec up to and including 1.2 the minimum log size is 64KB.
+  # @Prompt Minimum length(in bytes) of the system preboot TCG event log area(LAML).
+  gEfiSecurityPkgTokenSpaceGuid.PcdTcgLogAreaMinLen|0x10000|UINT32|0x8000000d
+
+  ## This PCD defines length(in bytes) of the TCG2 Final event log area.
+  # @Prompt Length(in bytes) of the TCG2 Final event log area.
+  gEfiSecurityPkgTokenSpaceGuid.PcdTcg2FinalLogAreaLen|0x8000|UINT32|0x8000000e
+
+  gPlatformModuleTokenSpaceGuid.PcdDnxFastboot|FALSE|BOOLEAN|0x8000000b
+  gPlatformModuleTokenSpaceGuid.PcdConnectUSBKeyboardonWaitForKeyStroke|FALSE|BOOLEAN|0x80000005
+  gPlatformModuleTokenSpaceGuid.PcdBoardPostMemInitFunc|0|UINT64|0x80000006
+  gPlatformModuleTokenSpaceGuid.PcdBoardId|0|UINT8|0x80000007
+  gPlatformModuleTokenSpaceGuid.PcdFabId|0|UINT8|0x80000008
+  gPlatformModuleTokenSpaceGuid.PcdUpdateFspmUpdFunc|0|UINT64|0x80000010
+  gPlatformModuleTokenSpaceGuid.PcdDramCreatePolicyDefaultsFunc|0|UINT64|0x80000011
+  gPlatformModuleTokenSpaceGuid.PcdGetBoardNameFunc|0|UINT64|0x80000012
+  
+  ## MemoryCheck value for checking memory before boot OS.
+  ## To save the boot performance, the default MemoryCheck is set to 0.
+  gClientCommonModuleTokenSpaceGuid.PcdPlatformMemoryCheck|0|UINT8|0x40000005
+  gClientCommonModuleTokenSpaceGuid.PcdHiiDataExport|FALSE|BOOLEAN|0x00000036
+  ## The PCD is used to specify whether or not send HierarchyChangeAuth command for Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyChangeAuthPlatform|TRUE|BOOLEAN|0x00010020
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlPlatform|FALSE|BOOLEAN|0x00010024
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Endorsement Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlEndorsement|TRUE|BOOLEAN|0x00010025
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Storage Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlOwner|TRUE|BOOLEAN|0x00010026
+  ## The PCD is used to specify if TrEEPlatform module support TXT provision.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2TxtProvisionSupport|FALSE|BOOLEAN|0x00010027
+  ## The PCD is used to specify whether or not send ChangeEPS command to reprovision Endorsement Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2ChangeEps|FALSE|BOOLEAN|0x00010021
+  ## The PCD is used to specify whether or not send ChangePPS command to reprovision Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2ChangePps|FALSE|BOOLEAN|0x00010022
+  ## The PCD is used to specify whether or not send Clear command to reprovision Storage Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2Clear|FALSE|BOOLEAN|0x00010023
+  ## The PCD is used to specify whether or not Tpm command will wait for Response to come back.
+  gClientCommonModuleTokenSpaceGuid.PcdTpmSkipResponseWait|FALSE|BOOLEAN|0x00010028
+
+[PcdsFeatureFlag]   # 0x10000000
+  ## This PCD specifies whether StatusCode is reported via ISA Serial port.
+  gEfiSerialPortTokenSpaceGuid.PcdStatusCodeUseIsaSerial|TRUE|BOOLEAN|0x00000020
+
+  ## This PCD specifies whether StatusCode is reported via USB Serial port.
+  gEfiSerialPortTokenSpaceGuid.PcdStatusCodeUseUsbSerial|TRUE|BOOLEAN|0x00000021
+
+  ## This PCD specifies whether StatusCode is reported via RAM.
+  gEfiSerialPortTokenSpaceGuid.PcdStatusCodeUseRam|FALSE|BOOLEAN|0x00000022
+  gPlatformModuleTokenSpaceGuid.PcdPs2MouseEnable             |FALSE|BOOLEAN|0xF0000001
+  gPlatformModuleTokenSpaceGuid.PcdDeprecatedFunctionRemove    |TRUE|BOOLEAN|0xF0000002
+  gPlatformModuleTokenSpaceGuid.PcdStatusCodeUseSerialPortPlatform|FALSE|BOOLEAN|0x00000033
+  gPlatformModuleTokenSpaceGuid.PcdStatusCodeUseBeep|TRUE|BOOLEAN|0x00000032
+  gPlatformModuleTokenSpaceGuid.PcdBdsDispatchAdditionalOprom|TRUE|BOOLEAN|0x00000024
+  gPlatformModuleTokenSpaceGuid.PcdVibratorFeature|TRUE|BOOLEAN|0x00000036
+  gPlatformModuleTokenSpaceGuid.PcdStatusCodeUsePostCode|TRUE|BOOLEAN|0x00000031
+
+  ## This PCD specifies whether unregister Serial Port StatusCode Handler
+  gPlatformModuleTokenSpaceGuid.PcdStatusCodeUnregisterSerialPort|TRUE|BOOLEAN|0x00000035
+
+[PcdsFixedAtBuild]   # 0x20000000
+  gPlatformModuleTokenSpaceGuid.PcdFlashBaseAddress|0xFFD00000|UINT32|0x2000001B
+  gPlatformModuleTokenSpaceGuid.PcdFlashSize|0x00300000|UINT32|0x2000001C
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBBase |0xFF800000|UINT32|0x20000001
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBSize |0x00500000|UINT32|0x20000002
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBXBase|0xFF800000|UINT32|0x20000009
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBXSize|0x00500000|UINT32|0x2000000A
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBYBase|0xFF800000|UINT32|0x2000001E
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBYSize|0x00500000|UINT32|0x2000001F
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaBaseAddress|0xFF800000|UINT32|0x10000001
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize|0x00800000|UINT32|0x10000002
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBRBase|0xFFFA0000|UINT32|0x20000013
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBRSize|0x00040000|UINT32|0x20000014
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMBase|0xFFF80000|UINT32|0x20000004
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMSize|0x00080000|UINT32|0x20000005
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLBase|0xFFFFF000|UINT32|0x20000006
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLSize|0x00001000|UINT32|0x20000003
+  gPlatformModuleTokenSpaceGuid.PcdFlashNvStorageBase|0xFFF60000|UINT32|0x20000007
+  gPlatformModuleTokenSpaceGuid.PcdFlashNvStorageSize|0x00010000|UINT32|0x20000008
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbPayloadMappedBase|0xFFC82040|UINT32|0x2000000B
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbPayloadSize|0x002DA000|UINT32|0x2000000C
+  gPlatformModuleTokenSpaceGuid.PcdFlashIbbRegionMappedBase|0xFF980000|UINT32|0x2000000D
+  gPlatformModuleTokenSpaceGuid.PcdFlashIbbRegionSize|0x0007A000|UINT32|0x2000000E
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbRegionMappedBase|0xFFC82000|UINT32|0x2000000F
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbRegionSize|0x002DB000|UINT32|0x20000010
+  gClientCommonModuleTokenSpaceGuid.PcdMaxConsoleDeviceNum|0x05|UINT8|0x10000007
+  gMinnowModuleTokenSpaceGuid.PcdDefaultFabId|0x03|UINT8|0x20000001
+  gEfiIchTokenSpaceGuid.PcdPeiIchEhciControllerMemoryBaseAddress|0xFD000000|UINT32|0x30000019
+  gPlatformModuleTokenSpaceGuid.PcdPBTNDisableInterval|0x01F4|UINT32|0x2000001A
+  gPlatformModuleTokenSpaceGuid.PcdFlashMicroCodeAddress |0x0|UINT32|0x20000015
+  gPlatformModuleTokenSpaceGuid.PcdFlashMicroCode2Address|0x0|UINT32|0x20000017
+  gPlatformModuleTokenSpaceGuid.PcdIFWISigBaseAddress|0x0F00|UINT32|0x20000019
+
+  gClientSiliconPkgTokenSpaceGuid.PcdClientSiliconVersionMajor|00|UINT8|0x00000001
+  gClientSiliconPkgTokenSpaceGuid.PcdClientSiliconVersionMinor|02|UINT8|0x00000002
+  gClientSiliconPkgTokenSpaceGuid.PcdClientSiliconVersionRevision|00|UINT8|0x00000003
+  gClientSiliconPkgTokenSpaceGuid.PcdClientSiliconVersionBuild|00|UINT8|0x00000004
+
+  ## This PCD sepcifies the start index in CMOS, it will occupy 4 bytes space.
+  gClientCommonModuleTokenSpaceGuid.PcdSerialBaudRateCmosIndex|0x43|UINT8|0x10000002
+
+  gClientCommonModuleTokenSpaceGuid.PcdStatusCodeFlagsCmosIndex|0x5E|UINT8|0x0000002D
+
+  ## MemoryCheck value for checking memory before boot OS.
+  ## To save the boot performance, the default MemoryCheck is set to 0.
+  gClientCommonModuleTokenSpaceGuid.PcdPlatformMemoryCheck|0|UINT8|0x40000005
+
+  ## The PCD is used to specify whether or not send HierarchyChangeAuth command for Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyChangeAuthPlatform|TRUE|BOOLEAN|0x00010020
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlPlatform|FALSE|BOOLEAN|0x00010024
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Endorsement Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlEndorsement|TRUE|BOOLEAN|0x00010025
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Storage Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlOwner|TRUE|BOOLEAN|0x00010026
+  ## The PCD is used to specify if TrEEPlatform module support TXT provision.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2TxtProvisionSupport|FALSE|BOOLEAN|0x00010027
+
+  ##
+  ## SMBIOS defaults
+  ##
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultMaxSpeed|0x0|UINT16|0x00000306
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultSocketDesignation|"U3E1"|VOID*|0x00000307
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultSerialNumber|"To Be Filled By O.E.M."|VOID*|0x00000308
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultAssetTag|"To Be Filled By O.E.M."|VOID*|0x00000309
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultPartNumber|"To Be Filled By O.E.M."|VOID*|0x0000030A
+
+[PcdsPatchableInModule]
+
+  ## MemoryCheck value for checking memory before boot OS.
+  ## To save the boot performance, the default MemoryCheck is set to 0.
+  gClientCommonModuleTokenSpaceGuid.PcdPlatformMemoryCheck|0|UINT8|0x40000005
+  ## The PCD is used to specify whether or not send HierarchyChangeAuth command for Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyChangeAuthPlatform|TRUE|BOOLEAN|0x00010020
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Platform Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlPlatform|FALSE|BOOLEAN|0x00010024
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Endorsement Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlEndorsement|TRUE|BOOLEAN|0x00010025
+  ## The PCD is used to specify send HierarchyControl command to enable or disable Storage Hierarchy.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2HierarchyControlOwner|TRUE|BOOLEAN|0x00010026
+  ## The PCD is used to specify if TrEEPlatform module support TXT provision.
+  gClientCommonModuleTokenSpaceGuid.PcdTpm2TxtProvisionSupport|FALSE|BOOLEAN|0x00010027
+
+[PcdsFixedAtBuild, PcdsPatchableInModule]
+  # @Prompt Temporary RAM base address.
+  gPlatformModuleTokenSpaceGuid.PcdTemporaryRamBase|0xfef00000|UINT32|0x10001001
+  ## Specifies the temporary RAM size in bytes.
+  # @Prompt Temporary RAM size.
+  gPlatformModuleTokenSpaceGuid.PcdTemporaryRamSize|0x2000|UINT32|0x10001002
+    # @Prompt Stack size in the temporary RAM.
+  gPlatformModuleTokenSpaceGuid.PcdPeiTemporaryRamStackSize|0|UINT32|0x10001003
+
+[PcdsFixedAtBuild]
+  ## Specifies maximum number of PPIs provided by SecCore.
+  # @Prompt Maximum number of PPIs provided by SecCore.
+  gPlatformModuleTokenSpaceGuid.PcdSecCoreMaxPpiSupported|0x6|UINT32|0x10001010
