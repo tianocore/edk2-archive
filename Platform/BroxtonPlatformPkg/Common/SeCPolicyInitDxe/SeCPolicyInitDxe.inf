@@ -1,0 +1,57 @@
+## @file
+#  Implement platform SeC policy.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SeCPolicyInitDxe
+  FILE_GUID                      = 17D09362-326C-4920-A50C-76F8A116A093
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SeCPlatformPolicyEntryPoint
+
+[Sources]
+  SeCPolicyInitDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  BaseLib
+  PciLib
+  IoLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  SeCLib
+  UefiLib
+
+[Protocols]
+  gDxePlatformSeCPolicyGuid
+  gEfiSeCOperationProtocolGuid
+  gEfiHeciProtocolGuid
+
+[Guids]
+  gEfiPlatformInfoGuid
+  gEfiNormalSetupGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+
+[Depex]
+  TRUE
+
