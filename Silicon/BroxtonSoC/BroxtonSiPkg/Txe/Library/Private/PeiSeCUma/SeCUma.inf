@@ -1,0 +1,63 @@
+## @file
+#  SeCUma library.
+#
+#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION          = 0x00010005
+  BASE_NAME            = SeCUma
+  FILE_GUID            = b6a2aff3-767c-5658-c37a-d1c82ef76543
+  VERSION_STRING       = 1.0
+  MODULE_TYPE          = PEIM
+  LIBRARY_CLASS        = SeCUmaLib
+
+[Sources.common]
+  SeCUma.c
+  SeCUma.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  PciLib
+  PerformanceLib
+  IoLib
+  PeimEntryPoint
+  TimerLib
+  HeciInitLib
+  HeciMsgLib
+  SideBandLib
+  HobLib
+  PcdLib
+  MmPciLib
+
+[Ppis]
+  gSeCUmaPpiGuid                ## NOTIFY
+  gCseUfsSelectPpiGuid          ## SOMETIMES_PRODUCES
+  gCseEmmcSelectPpiGuid         ## SOMETIMES_PRODUCES
+  gCseSpiSelectPpiGuid          ## SOMETIMES_PRODUCES
+  gEfiEndOfPeiSignalPpiGuid
+
+[Guids]
+  gEfiBootMediaHobGuid          ## UNDEFINED
+  gEfiIfwiDnxRequestHobGuid     ## UNDEFINED
+  gFdoModeEnabledHobGuid
+
+[Pcd]
+ gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress     ## SOMETIMES_CONSUMES
+
+[Depex]
+  TRUE

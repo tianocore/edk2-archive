@@ -1,0 +1,38 @@
+## @file
+#  PEI/DXE SEC Chipset Lib.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                                  = 0x00010005
+  BASE_NAME                                    = PeiDxeSeCChipsetLib
+  FILE_GUID                                    = 66F0B027-7479-4BC1-BF95-4D51E5954583
+  VERSION_STRING                               = 1.0
+  MODULE_TYPE                                  = BASE
+  LIBRARY_CLASS                                = SeCChipsetLib
+
+[LibraryClasses]
+  BaseLib
+  PciLib
+  IoLib
+  DebugLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[Pcd]
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress                ## CONSUMES
+
+[Sources]
+  PeiDxeSeCChipsetLib.c

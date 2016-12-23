@@ -1,0 +1,40 @@
+## @file
+#  Implementation for Heci Message functionality Module.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                = 0x00010005
+  BASE_NAME                  = SmmHeciMsgLib
+  FILE_GUID                  = D4346F95-3498-461D-A6F6-5D45501B4EC6
+  MODULE_TYPE                = DXE_SMM_DRIVER
+  VERSION_STRING             = 1.0
+  PI_SPECIFICATION_VERSION   = 0x0001000A
+  LIBRARY_CLASS              = SmmHeciMsgLib
+  CONSTRUCTOR                = HeciMsgLibSmmConstructor
+
+[Sources]
+  SmmHeciMsgLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[Protocols]
+  gEfiSmmEndOfDxeProtocolGuid
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  HeciMsgLib
+  UefiBootServicesTableLib

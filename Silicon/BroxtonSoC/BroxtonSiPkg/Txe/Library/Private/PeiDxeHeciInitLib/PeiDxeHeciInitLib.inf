@@ -1,0 +1,53 @@
+## @file
+#  Heci init library.
+#
+#  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION          = 0x00010005
+  BASE_NAME            = PeiDxeHeciInitLib
+  FILE_GUID            = E1EFE2E8-FFAF-44e3-A99F-ABAFDDEF9C7B
+  MODULE_TYPE          = BASE
+  VERSION_STRING       = 1.0
+  LIBRARY_CLASS        = HeciInitLib
+  CONSTRUCTOR          = HeciInitLibConstructor
+
+[Sources]
+  HeciCore.c
+  HeciCore.h
+  HeciHpet.c
+  HeciHpet.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  MemoryAllocationLib
+  BaseMemoryLib
+  PciLib
+  BaseLib
+  MmPciLib
+  Heci2PowerManagementLib
+  HobLib
+  DebugLib
+  PcdLib
+
+[Pcd]
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress    ## SOMETIMES_CONSUMES
+
+[Guids]
+  gEfiHeciMbpDataHobGuid                        ## UNDEFINED
+  gFdoModeEnabledHobGuid
+
+[Protocols]
