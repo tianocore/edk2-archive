@@ -1,0 +1,58 @@
+## @file
+#  Platform PEI Debug Driver module.
+#
+#  Copyright (c) 2013 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                   = 0x00010017
+  BASE_NAME                     = PeiDebugInstance
+  FILE_GUID                     = bda39d3a-451b-4350-8266-81ab10fa0526
+  VERSION_STRING                = 1.0
+  MODULE_TYPE                   = PEIM
+  ENTRY_POINT                   = PeiDebugInstanceEntry
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES          = IA32 X64 IPF EBC
+#
+
+[LibraryClasses]
+  PeimEntryPoint
+  PcdLib
+  ReportStatusCodeLib
+  BaseMemoryLib
+  BaseLib
+  DebugPrintErrorLevelLib
+  PeiServicesLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdDebugClearMemoryValue
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask
+
+[Sources]
+  PlatformDebugPei.c
+
+[Ppis]
+  gDebugServicePpiGuid ## PRODUCES
+
+[Guids]
+  gEfiStatusCodeDataTypeDebugGuid ## CONSUMES
+
+[Depex]
+  TRUE
