@@ -1,0 +1,44 @@
+## @file
+#  Dxe SA policy library.
+#
+#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                           = 0x00010017
+  BASE_NAME                             = DxeSaPolicyLib
+  FILE_GUID                             = B402A3A4-4B82-410E-B79C-5914880A05E7
+  VERSION_STRING                        = 1.0
+  MODULE_TYPE                           = BASE
+  LIBRARY_CLASS                         = DxeSaPolicyLib
+
+[Sources]
+  DxeSaPolicyLib.c
+  DxeSaPolicyLibrary.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  UefiRuntimeServicesTableLib
+  UefiBootServicesTableLib
+  PciLib
+  DebugLib
+  PostCodeLib
+  ConfigBlockLib
+
+[Protocols]
+  gSaPolicyProtocolGuid              ## PRODUCES
+  gIgdPanelConfigGuid
+  gSaDxeMiscConfigGuid
