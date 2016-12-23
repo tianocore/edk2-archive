@@ -1,0 +1,130 @@
+## @file
+#  Component description file for PlatformInit module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformInit
+  FILE_GUID                      = 0A5EA2E1-BE0B-44a0-A775-F429C9A018A0
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = PlatformInitEntryPoint
+
+[Sources]
+  BootMode.c
+  PlatformScInitPeim.c
+  MemoryPeim.c
+  PlatformInit.c
+  PlatformInit.h
+  PowerFailureHandle.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  SecurityPkg/SecurityPkg.dec
+
+[LibraryClasses]
+  PeimEntryPoint
+  DebugLib
+  HobLib
+  IoLib
+  PcdLib
+  ReportStatusCodeLib
+  PciExpressLib
+  PeiScPolicyLib
+  SteppingLib
+  SideBandLib
+  ConfigBlockLib
+  PeiSaPolicyLib
+  PeiPolicyUpdateLib
+  PeiPolicyInitLib
+  CpuPolicyLib
+  TimerLib
+  ScPlatformLib
+  CpuS3Lib
+  SeCUmaLib
+
+[Ppis]
+  gEfiPeiStallPpiGuid
+  gEfiPeiMemoryDiscoveredPpiGuid
+  gEfiPeiReadOnlyVariable2PpiGuid
+  gEfiPeiResetPpiGuid
+  gEfiEndOfPeiSignalPpiGuid
+  gPeiCapsulePpiGuid
+  gEfiPeiBootInRecoveryModePpiGuid
+  gEfiPeiRecoveryModulePpiGuid
+  gEfiPeiDeviceRecoveryModulePpiGuid
+  gPeiCachePpiGuid
+  gEfiPeiMasterBootModePpiGuid
+  gEfiPeiSmbusPpiGuid
+  gEfiPeiSmbus2PpiGuid
+  gScPolicyPpiGuid
+  gEfiPeiVirtualBlockIoPpiGuid
+  gSiSaPolicyPpiGuid
+  gDramPolicyPpiGuid
+  gBiosGuardConfigGuid
+  gCpuConfigGuid
+  gCpuOverclockingConfigGuid
+  gPowerMgmtConfigGuid
+  gSiPolicyPpiGuid
+
+[Guids]
+  gEfiSetupVariableGuid
+  gEfiPlatformInfoGuid
+  gEfiPlatformBootModeGuid
+  gEfiPlatformCpuInfoGuid
+  gEfiGlobalVariableGuid
+  gRecoveryOnFatFloppyDiskGuid
+  gRecoveryOnFatUsbDiskGuid
+  gRecoveryOnFatIdeDiskGuid
+  gRecoveryOnDataCdGuid
+  gMfgModeVariableGuid
+  gEfiNormalSetupGuid
+  gEfiMemoryTypeInformationGuid
+  gVbtInfoGuid
+  gPcieRpConfigGuid
+  gSataConfigGuid
+
+[Pcd]
+  gPlatformModuleTokenSpaceGuid.PcdFlashBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBXBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBXSize
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gEfiIchTokenSpaceGuid.PcdPeiIchEhciControllerMemoryBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdScsiChunk
+  gPlatformModuleTokenSpaceGuid.PcdUfsInitStall
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdPmcIpc1BaseAddress0
+  gEfiBxtTokenSpaceGuid.PcdPmcIpc1BaseAddress1
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdPmcSsramBaseAddress0
+  gEfiBxtTokenSpaceGuid.PcdPmcSsramBaseAddress1
+  gEfiBxtTokenSpaceGuid.PcdVtdGfxBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdTcoBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdVibratorFeature
+  gEfiSecurityPkgTokenSpaceGuid.PcdTpmInstanceGuid       ## CONSUMES
+  gPlatformModuleTokenSpaceGuid.PcdBoardPostMemInitFunc
+
+[Depex]
+  gDramPolicyPpiGuid
+
