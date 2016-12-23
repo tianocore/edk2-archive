@@ -1,0 +1,57 @@
+## @file
+#  HECI Smm Runtime Dxe driver Module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION          = 0x00010005
+  BASE_NAME            = HeciSmmRuntimeDxe
+  FILE_GUID            = 97B53FD2-A84C-4469-803F-A16D13AF1479
+  VERSION_STRING       = 1.0
+  MODULE_TYPE          = DXE_RUNTIME_DRIVER
+  ENTRY_POINT          = HeciSmmRuntimeDxeInitialize
+
+[Sources]
+  HeciSmmRuntimeDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  SeCLib
+  UefiBootServicesTableLib
+  DebugLib
+  PciLib
+  BaseLib
+  DxeServicesTableLib
+  MemoryAllocationLib
+  S3BootScriptLib
+  UefiDriverEntryPoint
+  HeciMsgLib
+  UefiRuntimeLib
+  SideBandLib
+
+[Protocols]
+  gEfiHeciSmmRuntimeProtocolGuid    ## PRODUCES
+  gEfiHeciSmmProtocolGuid           ## PRODUCES
+  gEfiSmmCommunicationProtocolGuid  ## CONSUMES
+
+[Guids]
+  gEfiEventVirtualAddressChangeGuid ## UNDEFINED
+  gEfiCseEndofPostGuid
+  gEfiCseEndofServicesGuid
+  gEfiEndOfDxeEventGroupGuid
+
+[Depex]
+  TRUE
