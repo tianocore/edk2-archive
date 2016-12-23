@@ -1,0 +1,66 @@
+## @file
+#  Component description file for Dptf module.
+#
+#  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Dptf
+  FILE_GUID                      = 1D000AE9-756B-4937-B736-1F3D96A5A8F0
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = DptfDriverEntry
+
+[Sources.common]
+  Dptf.c
+  Dptf.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  UefiLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  S3BootScriptLib
+  BaseLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  UefiDriverEntryPoint
+  DebugLib
+  DevicePathLib
+  IoLib
+  PcdLib
+  ScPlatformLib
+  MmPciLib
+  SteppingLib
+
+[Protocols]
+  gEfiAcpiSupportProtocolGuid   # CONSUMED
+  gEfiGlobalNvsAreaProtocolGuid # CONSUMED
+
+[Guids]
+  gEfiSetupVariableGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+
+[Depex]
+  gEfiVariableArchProtocolGuid        AND
+  gEfiVariableWriteArchProtocolGuid   AND
+  gEfiAcpiSupportProtocolGuid
