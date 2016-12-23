@@ -1,0 +1,46 @@
+## @file
+#  Component information file for the ACPI tables.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = AcpiTables
+  FILE_GUID                      = 7E374E25-8E01-4FEE-87F2-390C23C606CD
+  MODULE_TYPE                    = USER_DEFINED
+  VERSION_STRING                 = 1.0
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+[sources.common]
+  DSDT.ASL
+  Facs/Facs.aslc
+  Facp/Facp.aslc
+  Madt/Madt30.aslc
+  Mcfg/Mcfg.aslc
+  Hpet/Hpet.aslc
+  Dmar/Dmar.aslc
+  Dmar/Dmar.h
+  Lpit/Lpit.aslc
+  Lpit/Lpit.h
+  SsdtRtd3/RvpRtd3.asl
+  DBG2/DBG2.aslc
+  DBGP/DBGP.aslc
+  DptfAcpiTable/Dptf.asl
+  UsbTypeC/UsbTypeC.asl
+  Wsmt/Wsmt.act
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
