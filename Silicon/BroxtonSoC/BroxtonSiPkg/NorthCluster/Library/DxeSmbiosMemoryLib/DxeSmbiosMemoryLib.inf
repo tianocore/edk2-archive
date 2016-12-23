@@ -1,0 +1,58 @@
+## @file
+#  SmbiosMemory Driver module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[defines]
+  INF_VERSION                              = 0x00010005
+  BASE_NAME                                = DxeSmbiosMemoryLib
+  FILE_GUID                                = 66BDCD3F-8520-4958-AF30-617E7384DDE2
+  VERSION_STRING                           = 1.0
+  MODULE_TYPE                              = DXE_DRIVER
+  LIBRARY_CLASS                            = SmbiosMemoryLib
+
+[Sources]
+  SmbiosMemory.h
+  DxeSmbiosMemoryLib.c
+  SmbiosType16.c
+  SmbiosType17.c
+  SmbiosType19.c
+  SmbiosType17Strings.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  BaseLib
+  DebugLib
+  PrintLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  IoLib
+  HiiLib
+
+[Guids]
+  gEfiMemorySubClassGuid          ## UNDEFINED
+
+[Protocols]
+  gEfiDataHubProtocolGuid         ## CONSUMES
+  gEfiHiiDatabaseProtocolGuid     ## CONSUMES
+  gEfiHiiStringProtocolGuid       ## CONSUMES
+  gMemInfoProtocolGuid
+
+[Depex]
+  gEfiDataHubProtocolGuid         AND
+  gEfiHiiDatabaseProtocolGuid     AND
+  gMemInfoProtocolGuid
