@@ -1,0 +1,41 @@
+## @file
+#  PttHciDevice DXE Library.
+#  This is a library that contains functions for sending TPM commands to and
+#  recieving responses from PTT.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                            = 0x00010017
+  BASE_NAME                              = PeiDxePttPtpLib
+  FILE_GUID                              = 88a08e5c-ed53-4235-afb9-35e0e873c6ca
+  VERSION_STRING                         = 1.0
+  MODULE_TYPE                            = BASE
+  LIBRARY_CLASS                          = PttPtpLib
+
+[LibraryClasses]
+  PciLib
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  IoLib
+  TimerLib
+  PerformanceLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  SecurityPkg/SecurityPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[Sources]
+  PeiDxePttPtpLib.c
