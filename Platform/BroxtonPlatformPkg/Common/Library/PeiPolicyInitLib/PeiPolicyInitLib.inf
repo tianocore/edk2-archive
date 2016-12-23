@@ -1,0 +1,55 @@
+## @file
+#  Component description file for PeiPolicyInit library.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                      = 0x00010017
+  BASE_NAME                        = PeiPolicyInit
+  FILE_GUID                        = BB1CBA6F-ABB3-445d-801F-2C584C1197D3
+  VERSION_STRING                   = 1.0
+  MODULE_TYPE                      = PEIM
+  LIBRARY_CLASS                    = PeiPolicyInitLib
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  DebugPrintErrorLevelLib
+  HobLib
+  PeiServicesLib
+  PeiPolicyUpdateLib
+  PeiSaPolicyLib
+  ConfigBlockLib
+  SteppingLib
+  CpuPolicyLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Sources]
+  PeiPolicyInitPreMem.c
+  PeiPolicyInit.c
+  PeiPolicyInit.h
+  PeiCpuPolicyInit.c
+  PeiCpuPolicyInit.h
+  PeiSaPolicyInit.c
+  PeiSaPolicyInit.h
+  PeiSiPolicyInit.c
+  PeiSiPolicyInit.h
+
+[Ppis]
+  gSiSaPolicyPpiGuid
+  gScPcieDeviceTablePpiGuid
+

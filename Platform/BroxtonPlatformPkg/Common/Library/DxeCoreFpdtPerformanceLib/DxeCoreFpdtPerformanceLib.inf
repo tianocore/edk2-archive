@@ -1,0 +1,70 @@
+## @file
+#  Performance library instance mainly for DxeCore usage.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = DxeCoreFpdtPerformanceLib
+  FILE_GUID                      = F7D43893-7E45-4F6A-8D09-D8071F3CC4BC
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = DXE_CORE
+  LIBRARY_CLASS                  = PerformanceLib|DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER UEFI_APPLICATION UEFI_DRIVER
+  CONSTRUCTOR                    = DxeCoreFpdtPerformanceLibConstructor
+#
+# The following information is for reference only and not required by the build tools.
+#
+# VALID_ARCHITECTURES = IA32 X64 IPF EBC
+#
+
+[LibraryClasses]
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseMemoryLib
+  DebugLib
+  BaseLib
+  PcdLib
+  TimerLib
+  HobLib
+  PrintLib
+  ReportStatusCodeLib
+  LocalApicLib
+  UefiLib
+  DxeServicesLib
+  PeCoffGetEntryPointLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask  ## CONSUMES
+
+[Sources]
+  DxeCoreFpdtPerformanceLib.c
+
+[Protocols]
+  gEfiDevicePathToTextProtocolGuid              ## SOMETIMES_CONSUMES
+  gEfiLoadedImageProtocolGuid                   ## SOMETIMES_CONSUMES
+  gEfiDriverBindingProtocolGuid                 ## SOMETIMES_CONSUMES
+  gEfiComponentName2ProtocolGuid                ## SOMETIMES_CONSUMES
+
+[Guids]
+  gEfiFirmwarePerformanceGuid                   ## SOMETIMES_PRODUCES # StatusCode Data
+  gPeiFirmwarePerformanceGuid                   ## SOMETIMES_CONSUMES ## HOB
+  gPerformanceExProtocolGuid                    ## SOMETIMES_PRODUCES # Install Protocol Interfaces
+  gZeroGuid                                     ## SOMETIMES_CONSUMES ## GUID
+  gEfiEndOfDxeEventGroupGuid                    ## SOMETIMES_CONSUMES ## Event
+

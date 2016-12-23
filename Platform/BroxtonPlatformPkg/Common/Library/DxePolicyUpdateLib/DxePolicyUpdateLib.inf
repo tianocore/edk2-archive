@@ -1,0 +1,48 @@
+## @file
+#  Module Infomation file for DxePolicyUpdateLib Library.
+#
+#  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                             = 0x00010017
+  BASE_NAME                               = DxePolicyUpdateLib
+  FILE_GUID                               = D8E9897A-5B25-4f90-A8FA-93131D2FA6A1
+  VERSION_STRING                          = 1.0
+  MODULE_TYPE                             = BASE
+  LIBRARY_CLASS                           = DxePolicyUpdateLib
+
+[LibraryClasses]
+  DebugLib
+  BaseLib
+  ConfigBlockLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[Sources]
+  DxeSaPolicyUpdate.c
+
+[Protocols]
+  gPlatformGOPPolicyGuid
+  gIgdPanelConfigGuid
+  gSaDxeMiscConfigGuid
+
+[Guids]
+  gEfiGlobalVariableGuid
+  gEfiNormalSetupGuid
+  gVbtInfoGuid

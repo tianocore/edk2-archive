@@ -1,0 +1,55 @@
+## @file
+#  Smbios Processor Information Driver which produces Smbios type 4 and 7 tables.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = DxeSmbiosProcessorLib
+  FILE_GUID                      = 5F59B483-73A4-4507-AC11-A1D26EFA187B
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = DXE_DRIVER
+  LIBRARY_CLASS                  = DxeSmbiosProcessorLib
+
+[LibraryClasses]
+  DebugLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  BaseLib
+  HobLib
+  UefiLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Sources]
+  DxeSmbiosProcessorLib.c
+
+[Guids]
+  gSmbiosProcessorInfoHobGuid       ## CONSUMES
+  gSmbiosCacheInfoHobGuid           ## CONSUMES
+
+[Protocols]
+  gEfiSmbiosProtocolGuid            ## CONSUMES
+
+[Pcd]
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultMaxSpeed
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultSocketDesignation
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultSerialNumber
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultAssetTag
+  gClientCommonModuleTokenSpaceGuid.PcdSmbiosDefaultPartNumber
+
+[Depex]
+  gEfiSmbiosProtocolGuid
+

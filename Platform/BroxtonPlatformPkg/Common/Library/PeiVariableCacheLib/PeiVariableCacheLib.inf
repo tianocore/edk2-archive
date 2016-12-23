@@ -1,0 +1,48 @@
+## @file
+#  Variable Cache Library information file.
+#
+#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                            = 0x00010017
+  BASE_NAME                              = PeiVariableCacheLib
+  FILE_GUID                              = 76AE6165-CBFD-4BEC-B364-5D09E720CDA6
+  VERSION_STRING                         = 1.0
+  MODULE_TYPE                            = PEIM
+  LIBRARY_CLASS                          = PeiVariableCacheLib|PEIM PEI_CORE SEC
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  HobLib
+  PcdLib
+  VariableNvmStorageLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[Sources]
+  PeiVariableCacheLib.c
+
+[Guids]
+  gEfiMemoryConfigVariableGuid
+  gEfiVariableGuid
+  gPeiVariableCacheHobGuid
+  gPreMemoryVariableLocationHobGuid
+
+[Pcd]
+  gSiPkgTokenSpaceGuid.PcdVariableCacheMaximumSize
+
