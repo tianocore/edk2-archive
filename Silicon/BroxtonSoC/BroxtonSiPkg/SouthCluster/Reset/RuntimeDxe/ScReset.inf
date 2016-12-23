@@ -1,0 +1,57 @@
+## @file
+#  Sc Reset driver.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScReset
+  FILE_GUID                      = F5883FC5-F8EE-4e44-B386-6021FB320C9B
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InitializeScReset
+
+[sources.common]
+  ScReset.c
+  ScReset.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  IoLib
+  DebugLib
+  UefiRuntimeLib
+  PcdLib
+  HobLib
+  ConfigBlockLib
+
+[Guids]
+  gEfiEventVirtualAddressChangeGuid ## UNDEFINED
+  gScPolicyHobGuid                  ## UNDEFINED
+  gScGeneralConfigGuid
+
+[Protocols]
+  gEfiResetArchProtocolGuid         ## PRODUCES
+  gEfiExtendedResetProtocolGuid     ## PRODUCES
+
+[Pcd]
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress    ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress          ## SOMETIMES_CONSUMES
+
+[Depex]
+  TRUE
