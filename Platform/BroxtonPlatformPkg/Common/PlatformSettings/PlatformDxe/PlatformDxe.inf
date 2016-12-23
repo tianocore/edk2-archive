@@ -1,0 +1,138 @@
+## @file
+#  Component description file for platform DXE driver
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DxePlatform
+  FILE_GUID                      = 947558B9-64EB-4764-9F74-5EDBEA0C7481
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x0001000A
+  ENTRY_POINT                    = InitializePlatform
+
+[Sources.Common]
+  ClockControl.c
+  SiPolicy.c
+  Platform.c
+  IchRegTable.c
+  IdePlatformPolicy.c
+  SioPlatformPolicy.c
+  SaPlatformPolicy.c
+  PciDevice.c
+  IchTcoReset.c
+  SensorVar.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  SecurityPkg/SecurityPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiRuntimeServicesTableLib
+  PlatformSecureDefaultsLib
+  DxeServicesTableLib
+  DebugLib
+  HiiLib
+  PrintLib
+  UefiLib
+  S3BootScriptLib
+  ReportStatusCodeLib
+  EfiRegTableLib
+  BiosIdLib
+  PcdLib
+  SideBandLib
+  DxePolicyUpdateLib
+  DxeSaPolicyLib
+  ConfigBlockLib
+  GpioLib
+  BasePlatformCmosLib
+
+[Guids]
+  gEfiBiosIdGuid
+  gEfiPlatformBootModeGuid
+  gEfiBoardFeaturesGuid
+  gItkDataVarGuid
+  gDmiDataGuid
+  gIdccDataHubGuid
+  gEfiPciLanInfoGuid
+  gEfiNormalSetupGuid
+  gEfiGlobalVariableGuid
+  gEfiEventExitBootServicesGuid
+  gEfiBxtVariableGuid
+  gMfgModeVariableGuid
+  gEfiSecureBootEnableDisableGuid
+  gEfiBootMediaHobGuid
+  gEfiSetupVariableGuid
+  gEfiEndOfDxeEventGroupGuid                    ## CONSUMES
+  gEfiImageSecurityDatabaseGuid
+  gEfiPlatformInfoGuid
+  gFdoModeEnabledHobGuid                        ## CONSUMES
+
+[Protocols]
+  gDxeSiPolicyProtocolGuid           # PRODUCES
+  gEfiPciRootBridgeIoProtocolGuid    # CONSUMES  ## GUID
+  gEfiVariableArchProtocolGuid
+  gEfiVariableWriteArchProtocolGuid
+  gEfiHiiConfigAccessProtocolGuid
+  gEfiBootScriptSaveProtocolGuid
+  gEfiCpuIo2ProtocolGuid
+  gEfiDevicePathProtocolGuid
+  gEfiDiskInfoProtocolGuid
+  gEfiPs2PolicyProtocolGuid
+  gEfiIsaAcpiProtocolGuid
+  gEfiDataHubProtocolGuid
+  gEfiPciIoProtocolGuid
+  gEfiTpmMpDriverProtocolGuid
+  gEfiLpcWpce791PolicyProtocolGuid
+  gUsbPolicyGuid
+  gSaPolicyProtocolGuid
+  gEfiCk505ClockPlatformInfoGuid
+  gEfiLpcWpc83627PolicyProtocolGuid
+  gEfiUsbLegacyPlatformProtocolGuid
+  gEfiTcoResetProtocolGuid
+  gEfiWatchdogTimerDriverProtocolGuid
+  gEfiPlatformIdeInitProtocolGuid
+  gEfiGlobalNvsAreaProtocolGuid
+  gDxePlatformTdtPolicyGuid
+  gDxePlatformSeCPolicyGuid
+  gEfiSeCOperationProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdPmcSsramBaseAddress0
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdPBTNDisableInterval
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdFastPS2Detection
+
+[Depex]
+  gEfiPciRootBridgeIoProtocolGuid     AND
+  gEfiVariableArchProtocolGuid        AND
+  gEfiVariableWriteArchProtocolGuid   AND
+  gEfiBootScriptSaveProtocolGuid      AND
+  gEfiCpuIo2ProtocolGuid              AND
+  gEfiGlobalNvsAreaProtocolGuid
+
