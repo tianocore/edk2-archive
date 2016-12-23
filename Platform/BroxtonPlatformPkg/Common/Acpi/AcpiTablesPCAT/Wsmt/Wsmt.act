@@ -1,0 +1,82 @@
+/** @file
+  ACPI WSMT table
+
+  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+
+  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution.  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php.
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+**/
+
+#include "WSMT.h"
+
+
+ACPI_WINDOWS_SMM_SECURITY_MITIGATIONS_STRUCTURE Wsmt = {
+  ACPI_WINDOWS_SMM_SECURITY_MITIGATIONS_STRUCTURE_SIGNATURE,
+  sizeof (ACPI_WINDOWS_SMM_SECURITY_MITIGATIONS_STRUCTURE),
+
+  //Revision
+  0x00,
+
+  //Checksum
+  0x00,
+
+  //OEMID
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+
+  //OEMTableID
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+
+  //OEMRevision
+  0x00000000,
+
+  //CreatorID
+  0x00000000,
+
+  //CreatorRevision
+  0x00000000,
+
+  //ProtectionFlags
+  ACPI_WINDOWS_SMM_SECURITY_MITIGATIONS_PROTECTION_FLAGS,
+
+};
+
+
+#ifdef __GNUC__
+VOID*
+ReferenceAcpiTable (
+ VOID
+ )
+{
+ //
+ // Reference the table being generated to prevent the optimizer from removing the
+ // data structure from the exeutable
+ //
+ return (VOID*)&Wsmt;
+}
+#else
+VOID
+main (
+ VOID
+ )
+
+{
+}
+#endif

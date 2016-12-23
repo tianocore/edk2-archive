@@ -1,0 +1,61 @@
+/** @file
+  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+
+  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution.  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php.
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+**/
+
+//
+// Statements that include other files
+//
+#include <Pram.h>
+
+//
+// MCFG Table definition
+//
+EFI_ACPI_PRAM_BASE_ADDRESS_TABLE PRAM = {
+  EFI_ACPI_PRAM_BASE_ADDRESS_TABLE_SIGNATURE,
+  sizeof (EFI_ACPI_PRAM_BASE_ADDRESS_TABLE),
+  EFI_ACPI_PRAM_BASE_ADDRESS_TABLE_REVISION,
+  //
+  // Checksum will be updated at runtime
+  //
+  0x00,
+  //
+  // It is expected that these values will be programmed at runtime
+  //
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+
+  0,
+  EFI_ACPI_OEM_PRAM_REVISION,
+  0,
+  0,
+  //
+  // Beginning of PRAM specific fields
+  //
+  0, //address
+  0, //size
+};
+
+VOID*
+ReferenceAcpiTable (
+  VOID
+  )
+{
+  //
+  // Reference the table being generated to prevent the optimizer from
+  // removing the data structure from the executable
+  //
+  return (VOID*)&PRAM;
+}

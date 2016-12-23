@@ -1,0 +1,57 @@
+/** @file
+  ACPI DBGP table
+
+  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+
+  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution.  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php.
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+**/
+
+//
+// Statements that include other files
+//
+#include "Dbgp.h"
+
+EFI_ACPI_DEBUG_PORT_DESCRIPTION_TABLE Dbgp = {
+  EFI_ACPI_3_0_DEBUG_PORT_TABLE_SIGNATURE,
+  sizeof (EFI_ACPI_DEBUG_PORT_DESCRIPTION_TABLE),
+  EFI_ACPI_DBGP_TABLE_REVISION,
+  0x00,                       // Checksum will be updated at runtime
+  ' ',                        // OEMID 6 BYTES - It is expected that these values will be updated at runtime
+  ' ',                        // OEMID 6 BYTES - It is expected that these values will be updated at runtime
+  ' ',                        // OEMID 6 BYTES - It is expected that these values will be updated at runtime
+  ' ',                        // OEMID 6 BYTES - It is expected that these values will be updated at runtime
+  ' ',                        // OEMID 6 BYTES - It is expected that these values will be updated at runtime
+  ' ',                        // OEMID 6 BYTES - It is expected that these values will be updated at runtime
+  0,                          // OEM TABLE ID 8 BYTES -
+  EFI_ACPI_OEM_DBGP_REVISION, // OEM REVISION
+  0,                          // CREATOR ID
+  0,                          // CREATOR REVISION
+  0,                          // Interfacetype, 0 = full 16550 interface
+  {0},                        // Reserved 3 bytes, must be 0.
+  {
+    0,
+    0x08, // RegisterBitWidth
+    0, // RegisterBitOffset
+    0x00, 
+    0x00
+  }                           // Base address.  Put actual value later.
+};
+
+VOID*
+ReferenceAcpiTable (
+  VOID
+  )
+{
+  //
+  // Reference the table being generated to prevent the optimizer from removing the 
+  // data structure from the exeutable
+  //
+  return (VOID*)&Dbgp;
+}

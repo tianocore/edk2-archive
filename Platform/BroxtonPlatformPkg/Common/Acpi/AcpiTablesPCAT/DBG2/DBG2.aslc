@@ -1,0 +1,77 @@
+/** @file
+  Debug Port Table 2
+
+  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+
+  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution.  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php.
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+**/
+
+#include "AcpiTablePlatform.h"
+#include <Dbg2t.h>
+#include <PiDxe.h>
+
+//
+// Debug Port Table
+//
+EFI_ACPI_DEBUG_PORT_2_TABLE Dbg2 = {
+  {
+    EFI_ACPI_5_0_DEBUG_PORT_2_TABLE_SIGNATURE,
+    sizeof(EFI_ACPI_DEBUG_PORT_2_TABLE),
+    EFI_ACPI_OEM_DBG2_TABLE_REVISION,
+    0,                            // to make sum of entire table == 0
+    EFI_ACPI_OEM_ID,              // OEMID is a 6 bytes long field
+    EFI_ACPI_OEM_TABLE_ID_2,      // OEM table identification(8 bytes long)
+    EFI_ACPI_OEM_REVISION,        // OEM revision
+    EFI_ACPI_CREATOR_ID,          // ASL compiler vendor ID
+    EFI_ACPI_CREATOR_REVISION     // ASL compiler revision number
+  },
+  OFFSET_OF (EFI_ACPI_DEBUG_PORT_2_TABLE, DbgDeviceInfoCom1),
+  NUMBER_DBG_DEVICE_INFO,
+  //
+  // LPSS-UART
+  //
+  {
+    DEBUG_DEVICE_INFORMATION_REVISION,
+    sizeof(DEBUG_DEVICE_INFORMATION),
+    1,            // NumberOfGenericAddressRegisters
+    NAMESPACE_STRING_MAX_LENGTH,
+    OFFSET_OF (DEBUG_DEVICE_INFORMATION, NamespaceString),
+    0,            // OemDataLength
+    0,            // OemDataOffset
+    0x8000,       // PortType - Serial
+    0x0000,       // PortSubtype - 16550 compatible
+    0,            // Reserved
+    OFFSET_OF (DEBUG_DEVICE_INFORMATION, BaseAddressRegister),
+    OFFSET_OF (DEBUG_DEVICE_INFORMATION, AddressSize),
+    {
+      0x00,        // Address_Space_ID = 0 System Memory,  1 System IO
+      0x08,        // Register_Bit_Width = 8 bits
+      0x00,        // Register_Bit_offset
+      0x00,        // Access size
+      0x00000000   // Base address of COM1. NOTE: Updated in AcpiPlatform.
+    },
+    {
+      sizeof (EFI_ACPI_2_0_GENERIC_ADDRESS_STRUCTURE)
+    },
+    ".",
+  }
+};
+
+VOID*
+ReferenceAcpiTable (
+  VOID
+  )
+{
+  //
+  // Reference the table being generated to prevent the optimizer from
+  // removing the data structure from the executable
+  //
+  return (VOID*)&Dbg2;
+}
