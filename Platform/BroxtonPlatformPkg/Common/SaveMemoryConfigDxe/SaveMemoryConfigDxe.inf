@@ -1,0 +1,59 @@
+## @file
+#  Component description for driver that locates the MemoryConfigurationData HOB, which saves the data to NVRAM.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SaveMemoryConfig
+  FILE_GUID                      = E0ECBEC9-B193-4351-A488-36A655F22F9F
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SaveMemoryConfigEntryPoint
+
+[Sources.Common]
+  SaveMemoryConfig.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/NorthCluster/MemoryInit/MemoryInit.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  HobLib
+  DebugLib
+  UefiRuntimeServicesTableLib
+  UefiLib
+  BaseLib
+  HeciMsgLib
+
+[Protocols]
+  gMemInfoProtocolGuid
+
+[Guids]
+  gEfiMemoryConfigDataGuid
+  gEfiMemoryConfigVariableGuid
+  gEfiPlatformInfoGuid
+  gEfiPlatformBootModeGuid
+  gEfiBxtVariableGuid
+  gFspNonVolatileStorageHobGuid  ##CONSUMES
+
+[Depex]
+  gEfiVariableArchProtocolGuid   AND
+  gEfiVariableWriteArchProtocolGuid
+
+[Pcd]
