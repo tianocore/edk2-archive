@@ -1,0 +1,143 @@
+## @file
+#  Component name for module MiscSubclass.
+#
+#  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = MiscSubclass
+  FILE_GUID                      = 4EFFB560-B28B-4e57-9DAD-4344E32EA3BA
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MiscSubclassDriverEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  MiscBaseBoardManufacturer.uni
+  MiscBaseBoardManufacturerData.c
+  MiscBaseBoardManufacturerFunction.c
+  MiscBiosVendor.uni
+  MiscBiosVendorData.c
+  MiscBiosVendorFunction.c
+  MiscBootInformationData.c
+  MiscBootInformationFunction.c
+  MiscChassisManufacturer.uni
+  MiscChassisManufacturerData.c
+  MiscChassisManufacturerFunction.c
+  MiscNumberOfInstallableLanguagesData.c
+  MiscNumberOfInstallableLanguagesFunction.c
+  MiscOemString.uni
+  MiscOemStringData.c
+  MiscOemStringFunction.c
+  MiscOnboardDevice.uni
+  MiscOnboardDeviceData.c
+  MiscOnboardDeviceFunction.c
+  MiscPortInternalConnectorDesignator.uni
+  MiscPortInternalConnectorDesignatorData.c
+  MiscPortInternalConnectorDesignatorFunction.c
+  MiscResetCapabilitiesData.c
+  MiscResetCapabilitiesFunction.c
+  MiscSystemLanguageString.uni
+  MiscSystemLanguageStringData.c
+  MiscSystemLanguageStringFunction.c
+  MiscSystemManufacturer.uni
+  MiscSystemManufacturerData.c
+  MiscSystemManufacturerFunction.c
+  MiscSystemOptionString.uni
+  MiscSystemOptionStringData.c
+  MiscSystemOptionStringFunction.c
+  MiscSystemSlotDesignation.uni
+  MiscSystemSlotDesignationData.c
+  MiscSystemSlotDesignationFunction.c
+  MiscSubclassDriver.h
+  MiscSubclassDriver.uni
+  MiscSubclassDriverDataTable.c
+  MiscSubclassDriverEntryPoint.c
+  CommonHeader.h
+  MiscOemType0x90Function.c
+  MiscOemType0x90Data.c
+  MiscOemType0x90.uni
+  MiscOemType0x94Function.c
+  MiscOemType0x94Data.c
+  MiscOemType0x94.uni
+  MiscPhysicalArray.uni
+  MiscPhysicalArrayData.c
+  MiscPhysicalArrayFunction.c
+  MiscOemType0x83Function.c
+  MiscOemType0x83Data.c
+
+[Packages]
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  MdePkg/MdePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/NorthCluster/MemoryInit/MemoryInit.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+
+[LibraryClasses]
+  HiiLib
+  DevicePathLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  BaseMemoryLib
+  DebugLib
+  BaseLib
+  MemoryAllocationLib
+  PcdLib
+  UefiLib
+  BiosIdLib
+  PrintLib
+  CpuIA32Lib
+  SteppingLib
+  BaseIpcLib
+  HeciMsgLib
+  DxeSmbiosProcessorLib
+
+[Guids]
+  gEfiProcessorSubClassGuid
+  gEfiCacheSubClassGuid
+  gEfiSetupVariableGuid
+  gEfiPlatformInfoGuid
+  gIFWIVersionHobGuid
+  gEfiHobListGuid
+  gEfiMemoryConfigDataGuid
+  gIFWIVersionHobGuid
+  gEfiPlatformInfoGuid
+  gFspNonVolatileStorageHobGuid  ##CONSUMES
+
+[Protocols]
+  gEfiSmbiosProtocolGuid                        # PROTOCOL ALWAYS_CONSUMED
+  gEfiSeCOperationProtocolGuid                  # PROTOCOL ALWAYS_CONSUMED
+  gEfiDxeSmmReadyToLockProtocolGuid             # PROTOCOL ALWAYS_CONSUMED
+  gEfiDataHubProtocolGuid
+  gEfiMpServiceProtocolGuid
+  gMemInfoProtocolGuid
+  gCpuInfoProtocolGuid
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareReleaseDateString
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang
+  gEfiBxtTokenSpaceGuid.PcdEmmcManufacturerId
+  gEfiBxtTokenSpaceGuid.PcdProductSerialNumber
+
+[Depex]
+ gEfiSmbiosProtocolGuid     AND
+ gMemInfoProtocolGuid       AND
+ gEfiMpServiceProtocolGuid
