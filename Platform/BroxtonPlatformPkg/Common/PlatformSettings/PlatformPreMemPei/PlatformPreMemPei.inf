@@ -1,0 +1,185 @@
+## @file
+#  This is the Platform PEIM to initialize whole platform on PEI phase.
+#
+#  This PEIM includes 3 parts, pre-memory initialization, MRC
+#  wrapper and post memory initialization.
+#
+#  On pre-memory, the following actions are performed:
+#   1. Initialize System Agent.
+#   2. Detect boot mode.
+#   3. Detect video adapter to determine whether we need pre allocated memory.
+#
+#  After that, MRC wrapper calls MRC to initialize memory and install a PPI
+#  notify to do post memory initialization. MRC wrapper performance following actions:
+#   1. Install EFI Memory.
+#   2. Capsule coalesce if capsule boot mode.
+#   3. Create HOB of system memory.
+#
+#  Note: MRC supports 3 kinds of chipsets including Lakeport, Glenwood and Mukilteo,
+#   so please don't define MACRO MUKILTEO_SUPPORT on Lakeport here.
+#
+#  On post-memory, the following actions are performed:
+#   1. TC initialization after MRC.
+#   2. SIO initialization.
+#   3. Install ResetSystem and FinvFv PPI, relocate Stall to memory on
+#      recovery boot mode.
+#   4. Set MTRR for PEI
+#   5. Create FV HOB and Flash HOB
+#   6. Install RecoveryModule and AtaController PPI if on recovery boot mode.
+#
+#  This PEIM does not have any register access directly, it depends on
+#  IntelTCLib, TCAccess libraries to access Chipset registers.
+#
+#   1. Platform.c - Provide main flow and entry point of PEIM.
+#   2. MemoryCallback.c - Includes a memory call back function notified when
+#      MRC is done.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformInitPreMem
+  FILE_GUID                      = 9618C0DC-50A4-496c-994F-7241F282ED01
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = PlatformInitPreMemEntryPoint
+
+[Sources]
+  PlatformInitPreMem.c
+  PlatformInitPreMem.h
+  Stall.c
+  Smip.c
+  BootMode.c
+  BoardGpiosPreMem.c
+  FvCallback.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  SecurityPkg/SecurityPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  BroxtonPlatformPkg/Common/SampleCode/IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+  IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  BroxtonFspPkg/BroxtonFspPkg.dec
+
+[LibraryClasses]
+  PeimEntryPoint
+  PeiServicesLib
+  DebugLib
+  HobLib
+  IoLib
+  PcdLib
+  MtrrLib
+  PerformanceLib
+  MonoStatusCodeLib
+  SeCUmaLib
+  BaseIpcLib
+  PeiSiPolicyInit
+  PeiPlatformConfigUpdateLib
+  GpioLib
+  CpuPolicyLib
+  HeciMsgLib
+  ScPlatformLib
+  SteppingLib
+  TimerLib
+  PeiPolicyInitLib
+  PeiVariableCacheLib
+  FspWrapperApiLib
+
+[Guids]
+  gEfiSetupVariableGuid
+  gEfiPlatformInfoGuid
+  gEfiPlatformBootModeGuid
+  gEfiPlatformCpuInfoGuid
+  gEfiGlobalVariableGuid
+  gMfgModeVariableGuid
+  gEfiNormalSetupGuid
+  gEfiSystemNvDataFvGuid
+  gIFWIVersionHobGuid
+  gEfiBootMediaHobGuid
+  gUfsBootLunIdHobGuid
+  gMicroCodepointerGuid
+  gUfsPhyOverrideHobGuid
+  gEfiAcpiVariableCompatiblityGuid
+  gObbyFirmwareFileSystemFvGuid
+  gFspSFirmwareFileSystemFvGuid
+  gIbbrFirmwareFileSystemFvGuid
+  gEfiFirmwarePerformanceGuid
+  gEfiAuthenticatedVariableGuid
+  gFspTempRamExitGuid
+
+[Ppis]
+  gEfiPeiStallPpiGuid
+  gEfiPeiMemoryDiscoveredPpiGuid
+  gEfiPeiReadOnlyVariable2PpiGuid
+  gPeiCapsulePpiGuid
+  gEfiPeiBootInRecoveryModePpiGuid
+  gPeiCachePpiGuid
+  gPeiMfgMemoryTestPpiGuid
+  gEfiPeiVirtualBlockIoPpiGuid
+  gEfiTemporaryRamSupportPpiGuid
+  gDramPolicyPpiGuid
+  gCpuConfigGuid
+  gBiosReservedMemoryPolicyPpiGuid
+  gPowerMgmtConfigGuid
+  gSiSaPreMemPolicyPpiGuid
+
+[Pcd]
+  gPlatformModuleTokenSpaceGuid.PcdFlashBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBXBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBXSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBRBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBRSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBMSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashNvStorageBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashNvStorageSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBYBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashFvOBBYSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbPayloadMappedBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbPayloadSize
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdIafwPlatformInfo              ## PRODUCES
+  gEfiBxtTokenSpaceGuid.PcdPmcSsramBaseAddress0          ## CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcSsramBaseAddress1          ## CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPlatformIdRegisterOffset      ## CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress               ## CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdIfwiZid
+  gSiPkgTokenSpaceGuid.PcdForceVolatileVariable          ## PRODUCES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFspsBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdBoardId
+  gPlatformModuleTokenSpaceGuid.PcdFabId
+  gPlatformModuleTokenSpaceGuid.PcdDramCreatePolicyDefaultsFunc
+
+[FeaturePcd]
+  gEfiSerialPortTokenSpaceGuid.PcdStatusCodeUseRam
+
+[Depex]
+  TRUE
+
