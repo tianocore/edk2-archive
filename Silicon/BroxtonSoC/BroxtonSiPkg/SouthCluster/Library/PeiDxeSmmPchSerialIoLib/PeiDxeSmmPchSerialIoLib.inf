@@ -1,0 +1,41 @@
+## @file
+#  Library for Pch Serial Io.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION       = 0x00010017
+  BASE_NAME         = PeiDxeSmmPchSerialIoLib
+  FILE_GUID         = 613A22A2-5736-40f8-909B-DF10EA389C72
+  VERSION_STRING    = 1.0
+  MODULE_TYPE       = BASE
+  LIBRARY_CLASS     = PchSerialIoLib
+
+[Sources]
+  PeiDxeSmmPchSerialIoLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  IoLib
+  DebugLib
+  MmPciLib
+  ScPlatformLib
+
+[BuildOptions]
+  *_*_IA32_ASM_FLAGS = /w /Od /GL-
+  *_*_IA32_CC_FLAGS = /w /Od /GL-
+  *_*_X64_CC_FLAGS = /w /Od /GL-

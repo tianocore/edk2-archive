@@ -1,0 +1,77 @@
+## @file
+#  Library for the PeiScPolicy.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION          = 0x00010005
+  BASE_NAME            = PeiScPolicyLib
+  FILE_GUID            = BB1AC992-B2CA-4744-84B7-915C185576C5
+  MODULE_TYPE          = PEIM
+  VERSION_STRING       = 1.0
+  LIBRARY_CLASS        = PeiScPolicyLib
+
+[Sources]
+  PeiScPolicyLib.c
+  PeiScPreMemPolicyLib.c
+  PeiScPolicyLibrary.h
+  ScPrintPolicy.c
+  ScPrintPolicyPreMem.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  IoLib
+  PeiServicesLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  ScPlatformLib
+  ConfigBlockLib
+  PcdLib
+
+[Guids]
+  gLpcPreMemConfigGuid       ## CONSUMES
+  gPcieRpPreMemConfigGuid    ## CONSUMES
+  gScGeneralConfigGuid       ## CONSUMES
+  gPcieRpConfigGuid          ## CONSUMES
+  gSataConfigGuid            ## CONSUMES
+  gHpetConfigGuid
+  gSmbusConfigGuid
+  gUsbConfigGuid
+  gIoApicConfigGuid
+  gHdAudioConfigGuid
+  gGmmConfigGuid
+  gPmConfigGuid
+  gLockDownConfigGuid
+  gSerialIrqConfigGuid
+  gLpssConfigGuid
+  gScsConfigGuid
+  gVtdConfigGuid
+  gIshConfigGuid
+  gFlashProtectionConfigGuid
+  gDciConfigGuid
+  gP2sbConfigGuid
+  gInterruptConfigGuid
+
+[Ppis]
+  gScPolicyPpiGuid         ## PRODUCES
+  gScPreMemPolicyPpiGuid   ## PRODUCES
+
+[Pcd]
+  gSiPkgTokenSpaceGuid.PcdSmbusBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress

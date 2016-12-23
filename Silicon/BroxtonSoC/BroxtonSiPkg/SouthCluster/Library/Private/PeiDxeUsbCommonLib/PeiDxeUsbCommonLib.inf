@@ -1,0 +1,53 @@
+## @file
+#  USB common lib.
+#
+#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PeiDxeUsbCommonLib
+  FILE_GUID                      = 7A06ED7D-8E15-40a4-8539-22E86992DBE1
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = UsbCommonLib | PEIM DXE_DRIVER
+
+[Sources]
+  UsbCommonLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  S3BootScriptLib                      # Link this S3BootScriptLib to a NULL library for PEI usage.
+  BaseLib
+  IoLib
+  DebugLib
+  TimerLib
+  MmPciLib
+  SteppingLib
+  TimerLib
+  ConfigBlockLib
+  ScPlatformLib
+
+[Guids]
+  gUsbConfigGuid
+  gSiPolicyHobGuid
+
+[Ppis]
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress  ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress   ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress         ## SOMETIMES_CONSUMES
