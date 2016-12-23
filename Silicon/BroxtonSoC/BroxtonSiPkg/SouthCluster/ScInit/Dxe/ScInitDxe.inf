@@ -1,0 +1,104 @@
+## @file
+#  SC Initialization driver
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScInitDxe
+  FILE_GUID                      = 149A6B53-FAFA-44F9-8BAF-F50C68A05236
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = ScInitEntryPoint
+
+[Sources]
+  ScInit.h
+  ScInit.c
+  ScHda.c
+  ScLpss.c
+  ScIsh.c
+  ScPmc.c
+  ScIosf.c
+  ScSata.c
+  ScXdci.c
+  ScAcpi.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  DxeServicesTableLib
+  MemoryAllocationLib
+  UefiDriverEntryPoint
+  DebugLib
+  PcdLib
+  IoLib
+  ScPlatformLib
+  UefiLib
+  S3BootScriptLib
+  ScAslUpdateLib
+  SteppingLib
+  MmPciLib
+  HobLib
+  TimerLib
+  ScHdaLib
+  SideBandLib
+  SteppingLib
+  UsbCommonLib
+  DxeVtdLib
+  GpioLib
+  ConfigBlockLib
+  HeciMsgLib
+
+[Protocols]
+  gEfiInfoProtocolGuid                            ## PRODUCES
+  gExitPmAuthProtocolGuid                         ## PRODUCES
+  gEfiAcpiTableProtocolGuid                       ## CONSUMES
+  gEfiGlobalNvsAreaProtocolGuid                   ## CONSUMES
+  gEfiPciIoProtocolGuid                           ## CONSUMES
+  gEfiPciEnumerationCompleteProtocolGuid          ## CONSUMES
+
+[Guids]
+  gScPolicyHobGuid            ## UNDEFINED
+  gEfiAcpiTableGuid           ## UNDEFINED
+  gSiPolicyHobGuid
+  gPcieRpConfigGuid
+  gSataConfigGuid
+  gHdAudioConfigGuid
+  gLockDownConfigGuid
+  gLpssConfigGuid
+  gFlashProtectionConfigGuid
+  gFdoModeEnabledHobGuid
+  gScPmcFunctionDisableResetHobGuid
+  gP2sbConfigGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress  ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress   ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress         ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashAreaBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdFlashIbbRegionMappedBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashIbbRegionSize
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbRegionMappedBase
+  gPlatformModuleTokenSpaceGuid.PcdFlashObbRegionSize
+
+[Depex]
+  gEfiSmmControl2ProtocolGuid
+
