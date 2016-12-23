@@ -1,0 +1,78 @@
+## @file
+#  SA Initialization driver.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SaInitDxe
+  FILE_GUID                      = DC90D1E2-556A-45CF-B3EF-9DE451807A17
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SaInitEntryPoint
+
+[Sources]
+  SaInit.h
+  SaInit.c
+  IgdOpRegion.h
+  IgdOpRegion.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  DebugLib
+  PcdLib
+  UefiBootServicesTableLib
+  S3BootScriptLib
+  DxeServicesTableLib
+  MmPciLib
+  HobLib
+  SteppingLib
+  MemoryAllocationLib
+  ConfigBlockLib
+
+[Guids]
+  gVbtInfoGuid                           ## UNDEFINED
+  gSaSsdtAcpiTableStorageGuid
+  gSaDataHobGuid
+  gEfiEndOfDxeEventGroupGuid
+  gHgAcpiTableStorageGuid
+
+[Protocols]
+  gSaPolicyProtocolGuid                 ## CONSUMES
+  gEfiLegacyRegion2ProtocolGuid         ## PRODUCES
+  gIgdOpRegionProtocolGuid              ## PRODUCES
+  gEfiGlobalNvsAreaProtocolGuid         ## CONSUMES
+  gEfiPciIoProtocolGuid                 ## CONSUMES
+  gEfiCpuIo2ProtocolGuid                ## CONSUMES
+  gEfiFirmwareVolume2ProtocolGuid
+  gEfiAcpiTableProtocolGuid
+  gIgdPanelConfigGuid
+  gSaDxeMiscConfigGuid
+
+[Depex]
+  gSaPolicyProtocolGuid                  AND
+  gEfiPciRootBridgeIoProtocolGuid        AND
+  gEfiCpuIo2ProtocolGuid                 AND
+  gEfiDataHubProtocolGuid                AND
+  gEfiGlobalNvsAreaProtocolGuid          AND
+  gEfiFirmwareVolume2ProtocolGuid        AND
+  gEfiHiiDatabaseProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress     ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress      ## SOMETIMES_CONSUMES
