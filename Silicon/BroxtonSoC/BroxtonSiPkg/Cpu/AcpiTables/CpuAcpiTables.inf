@@ -1,0 +1,35 @@
+## @file
+#  CPU Power Management ACPI Tables Module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                       = 0x00010017
+  BASE_NAME                         = CpuAcpiTables
+  FILE_GUID                         = C38FB0E2-0C43-49c9-B544-9B17AA4DCBA3
+  MODULE_TYPE                       = USER_DEFINED
+  VERSION_STRING                    = 1.0
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Sources]
+  CpuSsdt/Cpu0Cst.asl
+  CpuSsdt/Cpu0Ist.asl
+  CpuSsdt/Cpu0Tst.asl
+  CpuSsdt/ApCst.asl
+  CpuSsdt/ApIst.asl
+  CpuSsdt/ApTst.asl
+  CpuSsdt/CpuSsdt.asl
