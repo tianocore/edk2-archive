@@ -1,0 +1,59 @@
+## @file
+#  MMC Host module
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = MmcHost
+  FILE_GUID                      = D86DB3C5-57FE-44CF-A82A-74C4AD5B1C2E
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MmcHostDriverEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources.common]
+  ComponentName.c
+  MmcHostDriver.h
+  MmcHostDriver.c
+  MmcHostController.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  DebugLib
+  UefiBootServicesTableLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  UefiLib
+  DevicePathLib
+  IoLib
+  PcdLib
+  HobLib
+
+[Protocols]
+  gEfiPciIoProtocolGuid      ## CONSUMES
+  gEfiMmcHostIoProtocolGuid  ## BY_START
+
+[Guids]
+  gEfiBootMediaHobGuid       ## UNDEFINED
+
+[Pcd]
