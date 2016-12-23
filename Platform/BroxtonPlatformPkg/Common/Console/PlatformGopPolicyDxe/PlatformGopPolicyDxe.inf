@@ -1,0 +1,66 @@
+## @file
+#  Platform GOP Driver Policy Module.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformGOPPolicy
+  FILE_GUID                      = 9737D7CA-D869-45e5-A5EF-75D9438688DE
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = PlatformGOPPolicyEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32
+#
+
+[Sources.common]
+  PlatformGopPolicy.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  UefiDriverEntryPoint
+  UefiRuntimeServicesTableLib
+  IoLib
+  HobLib
+
+[Guids]
+  gEfiSetupVariableGuid
+  gVbtInfoGuid
+  gPeiDefaultVbtGuid
+  gVbtMipiAuoGuid
+  gVbtMipiSharpGuid
+  gVbtMipiJdiGuid
+  gVbtEdpTypeCGuid
+  gEfiPlatformInfoGuid
+
+[Protocols]
+  gEfiCpuIo2ProtocolGuid
+  gEfiFirmwareVolume2ProtocolGuid
+  gPlatformGOPPolicyGuid
+
+[Pcd]
+
+[Depex]
+  gEfiCpuIo2ProtocolGuid        AND
+  gEfiVariableArchProtocolGuid
