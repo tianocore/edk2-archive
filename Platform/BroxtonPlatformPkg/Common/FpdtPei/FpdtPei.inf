@@ -1,0 +1,63 @@
+## @file
+#  This module collects FPDT boot records on S3 Resume boot path.
+#  And, updates the boot records into basic boot performance table.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = FpdtPei
+  FILE_GUID                      = C4BBBAE3-F891-4d4a-90EE-0F05D932C151
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = PEIM
+  ENTRY_POINT                    = FpdtPeiEntryPoint
+#
+# The following information is for reference only and not required by the build tools.
+#
+# VALID_ARCHITECTURES = IA32 X64 IPF EBC
+#
+
+[LibraryClasses]
+  PcdLib
+  BaseMemoryLib
+  PeiServicesLib
+  HobLib
+  PeimEntryPoint
+  DebugLib
+  TimerLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[FeaturePcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwarePerformanceDataTableS3Support
+
+[Sources]
+  FpdtPei.c
+
+[Ppis]
+  gEfiEndOfPeiSignalPpiGuid                     ## NOTIFY
+  gEfiPeiReadOnlyVariable2PpiGuid               ## SOMETIMES_CONSUMES
+
+[Guids]
+  gEfiFirmwarePerformanceGuid                   ## SOMETIMES_CONSUMES ## Variable:L"FirmwareBootPerformance"
+  gPeiFirmwarePerformanceGuid                   ## SOMETIMES_CONSUMES ## HOB
+  gEfiSetupVariableGuid                         ## SOMETIMES_CONSUMES
+
+[Depex]
+  gEfiPeiMasterBootModePpiGuid  AND
+  gEfiPeiReadOnlyVariable2PpiGuid
+
