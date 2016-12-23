@@ -1,0 +1,63 @@
+## @file
+#  Component description file for PowerManagementSmm driver.
+#
+#  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                                  = 0x00010017
+  BASE_NAME                                    = PowerMgmtSmm
+  FILE_GUID                                    = 8F0B5301-C79B-44f1-8FD3-26D73E316700
+  VERSION_STRING                               = 1.0
+  MODULE_TYPE                                  = DXE_SMM_DRIVER
+  PI_SPECIFICATION_VERSION                     = 1.10
+  ENTRY_POINT                                  = PowerMgmtSmmEntryPoint
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  HobLib
+  DebugLib
+  TimerLib
+  BaseMemoryLib
+  CpuPlatformLib
+  SmmServicesTableLib
+  AslUpdateLib
+  MmPciLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Sources]
+  PowerMgmtSmm.h
+  PowerMgmtSmm.c
+  PowerMgmtS3.c
+  PowerMgmtDts.h
+  PowerMgmtDts.c
+  PowerMgmtDtsLib.h
+
+[Protocols]
+  gEfiSmmSxDispatch2ProtocolGuid                     ## CONSUMES
+  gEfiSmmIoTrapDispatch2ProtocolGuid                 ## CONSUMES
+  gEfiSmmSwDispatch2ProtocolGuid                     ## CONSUMES
+  gCpuGlobalNvsAreaProtocolGuid                      ## CONSUMES
+
+[Pcd]
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress   ## SOMETIMES_CONSUMES
+
+[Guids]
+  gCpuInitDataHobGuid                                ## UNDEFINED
+
+[Depex]
+  gEfiSmmControl2ProtocolGuid       AND
+  gPowerMgmtInitDoneProtocolGuid
