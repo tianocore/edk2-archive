@@ -1,0 +1,58 @@
+## @file
+#  ScBiosWriteProtect driver.
+#
+#  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScBiosWriteProtect
+  FILE_GUID                      = B8B8B609-0B6C-4b8c-A731-DE03A6C3F3DC
+  MODULE_TYPE                    = DXE_SMM_DRIVER
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x0001000A
+  ENTRY_POINT                    = InstallScBiosWriteProtect
+
+[sources]
+  ScBiosWriteProtect.h
+  ScBiosWriteProtect.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  IoLib
+  UefiDriverEntryPoint
+  HobLib
+  SmmServicesTableLib
+  MmPciLib
+  ConfigBlockLib
+
+[Guids]
+  gScPolicyHobGuid
+  gLockDownConfigGuid
+
+[Protocols]
+  gEfiSmmIchnDispatchProtocolGuid ## SOMETIMES_CONSUMES
+  gEfiSmmSwDispatch2ProtocolGuid  ## SOMETIMES_CONSUMES
+
+[Depex]
+  gEfiSmmBase2ProtocolGuid              AND
+  gEfiSmmIchnDispatchProtocolGuid       AND
+  gEfiSmmSwDispatch2ProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress ## SOMETIMES_CONSUMES
