@@ -1,0 +1,325 @@
+// /** @file
+//  UnCore Setup formset.
+//
+//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+form formid = UNCORE_FORM_ID,
+  title    = STRING_TOKEN(STR_UNCORE_CONFIGURATION_TITLE);
+
+  subtitle text = STRING_TOKEN(STR_GOP_TITLE);
+
+  oneof varid    = Setup.GOPEnable,
+    prompt   = STRING_TOKEN(STR_GOP_VBIOS_SWITCH),
+    help     = STRING_TOKEN(STR_GOP_VBIOS_SWITCH_HELP),
+    option text = STRING_TOKEN(STR_ENABLE), value =1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof   varid   = Setup.PeiGraphicsPeimInit,
+    prompt  = STRING_TOKEN(STR_PEI_DISPLAY),
+    help    = STRING_TOKEN(STR_PEI_DISPLAY_HELP),
+    option text = STRING_TOKEN (STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN (STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof varid  = Setup.GOPBrightnessLevel,
+    prompt = STRING_TOKEN(STR_GOP_BRIGHTNESS_LEVEL),
+    help   = STRING_TOKEN(STR_GOP_BRIGHTNESS_LEVEL_HELP),
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_20), value =2, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_40), value =3, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_60), value =4, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_80), value =5, flags = DEFAULT | MANUFACTURING| RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_100), value =6, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_120), value =7, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_140), value =8, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_160), value =9, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_180), value =10, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_200), value =11, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_220), value =12, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_240), value =13, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_GOP_BRIGHT_255), value =14, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = Setup.VbtSelect,
+    prompt   = STRING_TOKEN(STR_VBT_SELECT_PROMPT),
+    help     = STRING_TOKEN(STR_VBT_SELECT_HELP),
+    option text = STRING_TOKEN(STR_VBT_EDP), value = 0, flags = DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VBT_MIPI_AUO), value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VBT_MIPI_SHARP), value = 2, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VBT_MIPI_JDI), value = 3, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VBT_LSPCON), value = 4, flags = RESET_REQUIRED;
+  endoneof;
+
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+  subtitle text = STRING_TOKEN(STR_IGD_TITLE);
+
+  oneof varid  = Setup.Igd,
+    prompt   = STRING_TOKEN (STR_IGD_PROMPT),
+    help     = STRING_TOKEN (STR_IGD_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value=0, flags= RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value=1, flags= DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = Setup.PrimaryVideoAdaptor,
+    prompt   = STRING_TOKEN(STR_PRIMARY_DISPLAY),
+    help     = STRING_TOKEN(STR_PRIMARY_DISPLAY_HELP),
+    option text = STRING_TOKEN(STR_IGD_STRING), value = 0, flags = DEFAULT | MANUFACTURING |RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_PCI_STRING),  value = 2, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_HG_STRING) ,  value = 4, flags = RESET_REQUIRED;
+  endoneof;
+
+  suppressif NOT ideqval SETUP_DATA.PrimaryVideoAdaptor == 4;
+    numeric varid = SETUP_DATA.DelayAfterPwrEn,
+      prompt      = STRING_TOKEN (STR_HG_DELAY_AFTR_PWR_EN),
+      help        = STRING_TOKEN (STR_HG_DELAY_AFTR_PWR_EN_HELP),
+      minimum     = 0,
+      maximum     = 1000,
+      step        = 0,    // Stepping of 0 equates to a manual entering of a value, otherwise it will auto-increment with a left/right arrow
+      default     = 300,
+    endnumeric;
+  endif;
+
+  suppressif NOT ideqval SETUP_DATA.PrimaryVideoAdaptor == 4;
+    numeric varid = SETUP_DATA.DelayAfterHoldReset,
+      prompt      = STRING_TOKEN (STR_HG_DELAY_AFTR_HLD_RST),
+      help        = STRING_TOKEN (STR_HG_DELAY_AFTR_HLD_RST_HELP),
+      minimum     = 0,
+      maximum     = 1000,
+      step        = 0,    // Stepping of 0 equates to a manual entering of a value, otherwise it will auto-increment with a left/right arrow
+      default     = 100,
+    endnumeric;
+  endif;
+
+  oneof varid = Setup.EnableRenderStandby,
+   prompt   = STRING_TOKEN(STR_VIDEO_RS2_PROMPT),
+   help     = STRING_TOKEN(STR_VIDEO_RS2_HELP),
+   option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+   option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = Setup.GTTSize,
+    prompt   = STRING_TOKEN(STR_GTT_SIZE),
+    help     = STRING_TOKEN(STR_GTT_SIZE_HELP),
+    option text = STRING_TOKEN(GTT_SIZE_2MB), value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(GTT_SIZE_4MB), value = 2, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(GTT_SIZE_8MB), value = 3, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  oneof varid    = Setup.IgdApertureSize,
+    prompt   = STRING_TOKEN(STR_APERTURE_SIZE),
+    help     = STRING_TOKEN(STR_APERTURE_SIZE_HELP),
+    option text = STRING_TOKEN(APERTURE_SIZE_128MB), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(APERTURE_SIZE_256MB), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(APERTURE_SIZE_512MB), value = 3, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof varid   = Setup.IgdDvmt50PreAlloc,
+    prompt  = STRING_TOKEN(STR_DVMT50_PRE_ALLOC),
+    help    = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_HELP),
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_64M), value = 2, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_96M), value = 3, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_128M), value = 4, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_160M), value = 5, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_192M), value = 6, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_224M), value = 7, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_256M), value = 8, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_288M), value = 9, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_320M), value = 10, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_352M), value = 11, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_384M), value = 12, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_416M), value = 13, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_448M), value = 14, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_480M), value = 15, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_PRE_ALLOC_512M), value = 16, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof   varid   = Setup.IgdDvmt50TotalAlloc,
+    prompt  = STRING_TOKEN(STR_DVMT50_DVMT ),
+    help    = STRING_TOKEN(STR_DVMT50_DVMT_HELP),
+    option text = STRING_TOKEN(STR_DVMT50_ALLOC_128), value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_ALLOC_256), value = 2, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DVMT50_ALLOC_MAX), value = 3, flags = RESET_REQUIRED;
+  endoneof;
+
+  oneof   varid   = SETUP_DATA.CdClock,
+    prompt  = STRING_TOKEN(STR_CD_CLOCK),
+    help    = STRING_TOKEN(STR_CD_CLOCK_HELP),
+    option text = STRING_TOKEN(STR_CD_CLOCK_144), value= 0, flags= RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CD_CLOCK_288), value= 1, flags= RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CD_CLOCK_384), value= 2, flags= RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CD_CLOCK_576), value= 3, flags= RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_CD_CLOCK_624), value= 4, flags= DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  //
+  //Gt Config
+  //
+  oneof   varid = Setup.PmSupport,
+    prompt      = STRING_TOKEN(STR_PM_SUPPORT),
+    help        = STRING_TOKEN(STR_PM_SUPPORT_HELP),
+    option text = STRING_TOKEN(STR_ENABLE), value=1, flags= DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value=0, flags= RESET_REQUIRED;
+  endoneof;
+
+  //
+  //Gt Config - PAVP
+  //
+  oneof   varid   = Setup.PavpEnable,
+    prompt        = STRING_TOKEN(STR_PAVP_ENABLE),
+    help          = STRING_TOKEN(STR_PAVP_ENABLE_HELP),
+    option text   = STRING_TOKEN(STR_ENABLE), value=1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text   = STRING_TOKEN(STR_DISABLE), value=0, flags = RESET_REQUIRED;
+  endoneof;
+
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+
+  subtitle text = STRING_TOKEN(STR_IGD_LCD_CONTROL);
+
+  oneof varid    = Setup.IgdLcdIBia,
+    prompt   = STRING_TOKEN(STR_VIDEO_LCD_IBIA),
+    help     = STRING_TOKEN(STR_VIDEO_LCD_IBIAHLP),
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAA), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAD), value = 1, flags = 0| RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAL1), value = 2, flags = 0| RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAL2), value = 3, flags = 0| RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAL3), value = 4, flags = 0| RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAL4), value = 5, flags = 0| RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IBIAL5), value = 6, flags = 0| RESET_REQUIRED;
+  endoneof;
+
+  oneof varid  = Setup.AlsEnable,
+    prompt   = STRING_TOKEN (STR_ACPI_ALS_ENABLE),
+    help     = STRING_TOKEN (STR_ACPI_ALS_ENABLE_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value=0, flags= 0 | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value=1, flags= DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+
+  oneof   varid   = Setup.IgdFlatPanel,
+    prompt      = STRING_TOKEN(STR_IGD_FLAT_PANEL_PROMPT),
+    help        = STRING_TOKEN(STR_NULL_STRING),
+    option text = STRING_TOKEN(STR_AUTOMATIC), value=0x00, flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_640X480), value=0x01, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_800X600), value=0x02, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_1024X768), value=0x03, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_1280X1024), value=0x04, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_1366X768), value=0x05, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_1680X1050), value=0x06, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_1920X1200), value=0x07, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_1280X800), value=0x08, flags=RESET_REQUIRED;
+  endoneof;
+
+  oneof   varid   = Setup.BootDisplayDevice,
+    prompt      = STRING_TOKEN(STR_BOOT_DISPLAY_DEVICE_PROMPT),
+    help        = STRING_TOKEN(STR_BOOT_DISPLAY_DEVICE_HELP),
+    option text = STRING_TOKEN(STR_AUTOMATIC), value=0x00, flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VGAPORT), value=0x01, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_HDMIPORTB), value=0x02, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DPPORTB), value=0x03, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DPPORTC), value=0x04, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_EDPPORTC), value=0x05, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DSIPORTA), value=0x06, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DSIPORTC), value=0x07, flags=RESET_REQUIRED;
+
+  endoneof;
+
+  //
+  //Panel Scaling
+  //
+  oneof   varid   = Setup.PanelScaling,
+    prompt      = STRING_TOKEN(STR_PANEL_SCALING_PROMPT),
+    help        = STRING_TOKEN(STR_PANEL_SCALING_HELP),
+    option text = STRING_TOKEN(STR_AUTOMATIC), value=0x00, flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_PANEL_SCALING_STRETCH), value=0x01, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_PANEL_SCALING_CENTER), value=0x02, flags=RESET_REQUIRED;
+  endoneof;
+
+  //
+  //GMCH BLC Control
+  //
+  oneof   varid   = Setup.IgdLcdIGmchBlc,
+    prompt      = STRING_TOKEN(STR_VIDEO_LCD_IGMCHBLC_PROMPT),
+    help        = STRING_TOKEN(STR_VIDEO_LCD_IGMCHBLC_HELP),
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IGMCHBLC1), value=0x00, flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IGMCHBLC2), value=0x01, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IGMCHBLC3), value=0x02, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_VIDEO_LCD_IGMCHBLC4), value=0x03, flags=RESET_REQUIRED;
+  endoneof;
+
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+
+  //
+  //Memory Configuration
+  //
+  subtitle text = STRING_TOKEN(STR_MEMORY_CONFIGURATION_TITLE);
+
+  oneof varid  = Setup.ScramblerSupport,
+    prompt   = STRING_TOKEN (STR_MEMORY_SCRAMBLER_PROMPT),
+    help     = STRING_TOKEN (STR_MEMORY_SCRAMBLER_HELP),
+    option text = STRING_TOKEN (STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN (STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+  endoneof;
+
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+  //
+  //IPU Configuration
+  //
+  subtitle text = STRING_TOKEN(STR_IPU_CONFIGURATION_TITLE);
+
+  oneof varid   = Setup.IpuEn,
+    questionid  = 0x1002,
+    prompt      = STRING_TOKEN(STR_IPU_ENABLED),
+    help        = STRING_TOKEN(STR_IPU_ENABLED_HELP),
+    flags       = INTERACTIVE,
+    option text = STRING_TOKEN(STR_DISABLE),      value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),       value = 1, flags = DEFAULT | RESET_REQUIRED;
+  endoneof;
+
+  suppressif ideqval Setup.IpuEn == 0;
+    oneof varid   = Setup.IpuAcpiMode,
+      prompt      = STRING_TOKEN (STR_IPU_ACPI_PROMPT),
+      help        = STRING_TOKEN (STR_IPU_ACPI_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IPU_ACPI_IGFX),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IPU_ACPI_NOIGFX),  value = 2, flags = RESET_REQUIRED;
+    endoneof;
+
+    oneof varid = Setup.WorldCameraSel,
+      prompt      = STRING_TOKEN(STR_WORLDCAMERA_SELECTION_PROMPT),
+      help        = STRING_TOKEN(STR_WORLDCAMERA_SELECTION_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IMX214), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IMX135), value = 2, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    endoneof;
+
+    oneof varid = Setup.UserCameraSel,
+      prompt      = STRING_TOKEN(STR_USERCAMERA_SELECTION_PROMPT),
+      help        = STRING_TOKEN(STR_USERCAMERA_SELECTION_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_OV2740), value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    endoneof;
+    
+    // Rotation
+    oneof varid   = Setup.CameraRotationAngle,
+      prompt      = STRING_TOKEN(STR_CAM_DEGREE),
+      help        = STRING_TOKEN(STR_CAM_DEGREE_HELP),
+      option text = STRING_TOKEN(STR_CAM_DEGREE_0), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_CAM_DEGREE_90), value = 2, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_CAM_DEGREE_180), value = 4, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_CAM_DEGREE_270), value = 6, flags = RESET_REQUIRED;
+    endoneof;
+
+  endif;
+
+endform;

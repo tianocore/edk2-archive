@@ -1,0 +1,819 @@
+// /** @file
+//  Thermal Setup formset.
+//
+//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+form formid = THERMAL_FORM_ID,
+
+  title  = STRING_TOKEN(STR_THERMAL_TITLE);
+
+  subtitle text = STRING_TOKEN(STR_THERMAL_CONFIGURATION_HELP);
+
+    oneof varid    = Setup.AutoThermalReporting,
+      prompt      = STRING_TOKEN(STR_THERMAL_REPORTING_PROMPT),
+      help        = STRING_TOKEN(STR_THERMAL_REPORTING_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags =  RESET_REQUIRED;
+    endoneof;
+
+  suppressif ideqval Setup.EnableDptf == 0x1 OR ideqval Setup.AutoThermalReporting == 0x1;
+    oneof   varid   = Setup.CriticalThermalTripPoint,
+      prompt      = STRING_TOKEN(STR_ACPI_CRITICAL_THERMAL_TRIP_POINT),
+      help        = STRING_TOKEN(STR_ACPI_CRITICAL_THERMAL_TRIP_POINT_HELP),
+      option text = STRING_TOKEN (STR_POR), value = 100, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN (STR_15_C), value = 15, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_23_C), value = 23, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_31_C), value = 31, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_39_C), value = 39, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_47_C), value = 47, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_55_C), value = 55, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_63_C), value = 63, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_71_C), value = 71, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_79_C), value = 79, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_87_C), value = 87, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_95_C), value = 95, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_103_C), value = 103, flags=0 | RESET_REQUIRED; 
+    endoneof; 
+
+    oneof   varid   = Setup.PassiveThermalTripPoint,
+      prompt      = STRING_TOKEN (STR_ACPI_PASSIVE_THERMAL_TRIP_POINT),
+      help        = STRING_TOKEN (STR_ACPI_PASSIVE_THERMAL_TRIP_POINT_HELP),
+      option text = STRING_TOKEN (STR_95_C), value = 95, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN (STR_DISABLE), value = 127, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_15_C), value = 15, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_23_C), value = 23, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_31_C), value = 31, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_39_C), value = 39, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_47_C), value = 47, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_55_C), value = 55, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_63_C), value = 63, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_71_C), value = 71, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_79_C), value = 79, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_87_C), value = 87, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_103_C), value = 103, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_111_C), value = 111, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_119_C), value = 119, flags=0 | RESET_REQUIRED; 
+    endoneof;
+
+    oneof   varid   = Setup.ActiveTripPoint,
+      prompt      = STRING_TOKEN(STR_ACPI_ACTIVE_THERMAL_TRIP_POINT),
+      help        = STRING_TOKEN(STR_ACPI_ACTIVE_THERMAL_TRIP_POINT_HELP),
+      option text = STRING_TOKEN (STR_15_C), value = 15, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_23_C), value = 23, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_31_C), value = 31, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_39_C), value = 39, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_47_C), value = 47, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_55_C), value = 55, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_60_C), value = 60, flags=DEFAULT | MANUFACTURING | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_63_C), value = 63, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_71_C), value = 71, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_79_C), value = 79, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_87_C), value = 87, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_95_C), value = 95, flags=0 | RESET_REQUIRED; 
+      option text = STRING_TOKEN (STR_103_C), value = 103, flags=0 | RESET_REQUIRED; 
+    endoneof; 
+
+    suppressif TRUE;
+      numeric varid = Setup.PassiveTc1Value,
+        prompt  = STRING_TOKEN (STR_ACPI_PASSIVE_TC1_VALUE),
+        help    = STRING_TOKEN (STR_ACPI_PASSIVE_TC1_VALUE_HELP),
+        flags   = 0 | RESET_REQUIRED,
+        minimum = 1,
+        maximum = 16,
+        step    = 1,
+        default = 1, 
+      endnumeric;
+
+      numeric varid = Setup.PassiveTc2Value,
+        prompt  = STRING_TOKEN (STR_ACPI_PASSIVE_TC2_VALUE),
+        help    = STRING_TOKEN (STR_ACPI_PASSIVE_TC2_VALUE_HELP),
+        flags   = 0 | RESET_REQUIRED,
+        minimum = 1,
+        maximum = 16,
+        step    = 1,
+        default = 5, 
+      endnumeric;
+
+      numeric varid = Setup.PassiveTspValue,
+        prompt  = STRING_TOKEN (STR_ACPI_PASSIVE_TSP_VALUE),
+        help    = STRING_TOKEN (STR_ACPI_PASSIVE_TSP_VALUE_HELP),
+        flags   = 0 | RESET_REQUIRED,
+        minimum = 2,
+        maximum = 32,
+        step    = 2,
+        default = 10, 
+      endnumeric;
+    endif;
+  endif;
+  //
+  // DPTF Configuration 
+  //
+
+  subtitle text = STRING_TOKEN(STR_NULL_STRING);
+
+  subtitle text = STRING_TOKEN(STR_DYNAMIC_PLATFORM_THER_FRAME_PROMPT);
+
+  oneof   varid   = Setup.EnableDptf,
+    prompt      = STRING_TOKEN(STR_DPTF_PROMPT),
+    help        = STRING_TOKEN(STR_DPTF_HELP),
+    option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value=0x01, flags = RESET_REQUIRED;
+  endoneof;
+
+  suppressif ideqval Setup.EnableDptf == 0x0;
+    numeric varid     = Setup.EnableDCFG,
+      prompt   = STRING_TOKEN (STR_DPTF_CONFIG_PROMPT),
+      help     = STRING_TOKEN (STR_DPTF_CONFIG_HELP),
+      flags   = RESET_REQUIRED,
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0,
+    endnumeric;
+
+    oneof   varid   = Setup.DptfProcessor,
+      prompt      = STRING_TOKEN(STR_PROCESSOR_DPTF_PROMPT),
+      help        = STRING_TOKEN(STR_PROCESSOR_DPTF_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value=0x01, flags = DEFAULT | MANUFACTURING |RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval Setup.DptfProcessor == 0x0;
+      numeric varid     = Setup.DptfProcActiveTemperature,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 90,
+      endnumeric;
+
+      numeric varid     = Setup.DptfProcPassiveTemperature,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 100,
+      endnumeric;
+
+        numeric varid     = SETUP_DATA.DptfProcCriticalTemperatureS3,
+          prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+          help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+          flags   = RESET_REQUIRED,
+          minimum = 0,
+          maximum = 127,
+          step    = 1,
+          default = 110,
+        endnumeric;
+
+        numeric varid     = SETUP_DATA.DptfProcHotThermalTripPoint,
+          prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+          help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+          flags   = RESET_REQUIRED,
+          minimum = 0,
+          maximum = 127,
+          step    = 1,
+          default = 110,
+        endnumeric;
+
+      numeric varid     = Setup.DptfProcCriticalTemperature,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 105,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.ThermalSamplingPeriodTCPU,
+        prompt   = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD),
+        help     = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 100,
+        step    = 1,
+        default = 0,
+      endnumeric;
+    endif;
+
+    oneof   varid   = Setup.DptfDisplayDevice,
+      prompt      = STRING_TOKEN(STR_DPTF_DISPLAY_PROMPT),
+      help        = STRING_TOKEN(STR_DPTF_DISPLAY_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    oneof varid    = Setup.DptfFanDevice,
+      prompt      = STRING_TOKEN(STR_FAN_DPTF_PROMPT),
+      help        = STRING_TOKEN(STR_FAN_DPTF_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    oneof varid    = Setup.EnableSen1Participant,
+      prompt      = STRING_TOKEN(STR_SEN1_DEVICE_PROMPT),
+      help        = STRING_TOKEN(STR_PROC_MEMORY_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval Setup.EnableSen1Participant == 0;
+      numeric varid     = Setup.ActiveThermalTripPointSen1,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid     = Setup.PassiveThermalTripPointSen1,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 65,
+      endnumeric;
+
+        numeric varid     = SETUP_DATA.CriticalThermalTripPointSen1S3,
+          prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+          help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+          flags   = RESET_REQUIRED,
+          minimum = 0,
+          maximum = 127,
+          step    = 1,
+          default = 70,
+        endnumeric;
+
+        numeric varid     = SETUP_DATA.HotThermalTripPointSen1,
+          prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+          help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+          flags   = RESET_REQUIRED,
+          minimum = 0,
+          maximum = 127,
+          step    = 1,
+          default = 75,
+        endnumeric;
+
+      numeric varid     = Setup.CriticalThermalTripPointSen1,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 80,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.SensorSamplingPeriodSen1,
+        prompt   = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD),
+        help     = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 100,
+        step    = 1,
+        default = 10,
+      endnumeric;
+    endif;
+
+    oneof   varid   = Setup.DptfChargerDevice,
+      prompt      = STRING_TOKEN(STR_DPTF_CHARGER_PROMPT),
+      help        = STRING_TOKEN(STR_DPTF_CHARGER_HELP),
+      option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value=0x01, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    oneof varid     = SETUP_DATA.EnablePowerParticipant,
+      prompt      = STRING_TOKEN(STR_POWER_DEVICE),
+      help        = STRING_TOKEN(STR_POWER_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnablePowerParticipant == 0;
+      numeric varid     = SETUP_DATA.PowerParticipantPollingRate,
+        prompt      = STRING_TOKEN(STR_DPTF_PPPR),
+        help        = STRING_TOKEN(STR_DPTF_PPPR_HELP),
+        flags   = RESET_REQUIRED,
+        minimum = 0,
+        maximum = 1000,
+        step    = 1,
+        default = 0,
+      endnumeric;
+    endif;
+    
+    //
+    // Gen Participants 1 to 4 
+    //
+
+    oneof varid     = SETUP_DATA.EnableGen1Participant,
+      prompt      = STRING_TOKEN(STR_GEN1_DEVICE),
+      help        = STRING_TOKEN(STR_GEN1_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableGen1Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointGen1,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointGen1,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 65,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen1S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointGen1,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 75,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen1,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 80,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.ThermistorSamplingPeriodGen1,
+        prompt   = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD),
+        help     = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD_HELP),
+        minimum = 0,
+        maximum = 100,
+        step    = 1,
+        default = 10,
+      endnumeric;
+    endif; // end of Gen1 Participant
+
+    oneof varid     = SETUP_DATA.EnableGen2Participant,
+      prompt      = STRING_TOKEN(STR_GEN2_DEVICE),
+      help        = STRING_TOKEN(STR_GEN2_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableGen2Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointGen2,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointGen2,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 65,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen2S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointGen2,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 75,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen2,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 80,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.ThermistorSamplingPeriodGen2,
+        prompt   = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD),
+        help     = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD_HELP),
+        minimum = 0,
+        maximum = 100,
+        step    = 1,
+        default = 10,
+      endnumeric;
+      endif;  //end of Gen2 Participant
+
+    oneof varid     = SETUP_DATA.EnableGen3Participant,
+      prompt      = STRING_TOKEN(STR_GEN3_DEVICE),
+      help        = STRING_TOKEN(STR_GEN3_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableGen3Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointGen3,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointGen3,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 65,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen3S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointGen3,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 75,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 80,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.ThermistorSamplingPeriodGen3,
+        prompt   = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD),
+        help     = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD_HELP),
+        minimum = 0,
+        maximum = 100,
+        step    = 1,
+        default = 10,
+      endnumeric;
+    endif; //end of Gen3 Participant
+
+    oneof varid     = SETUP_DATA.EnableGen4Participant,
+      prompt      = STRING_TOKEN(STR_GEN4_DEVICE),
+      help        = STRING_TOKEN(STR_GEN4_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableGen4Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointGen4,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointGen4,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 65,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen4S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointGen4,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 75,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointGen4,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 80,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.ThermistorSamplingPeriodGen4,
+        prompt   = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD),
+        help     = STRING_TOKEN (STR_DPTF_SAMPLING_PERIOD_HELP),
+        minimum = 0,
+        maximum = 100,
+        step    = 1,
+        default = 10,
+      endnumeric;
+    endif; // end of Gen4 Participant
+
+    //
+    // OEM Design Variables 0 to 5
+    //
+
+    numeric varid    = SETUP_DATA.OemDesignVariable0,
+      prompt   = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_0),
+      help     = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_HELP),
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0, 
+    endnumeric;
+
+    numeric varid    = SETUP_DATA.OemDesignVariable1,
+      prompt   = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_1),
+      help     = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_HELP),
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0, 
+    endnumeric;
+
+    numeric varid    = SETUP_DATA.OemDesignVariable2,
+      prompt   = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_2),
+      help     = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_HELP),
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0, 
+    endnumeric;
+
+    numeric varid    = SETUP_DATA.OemDesignVariable3,
+      prompt   = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_3),
+      help     = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_HELP),
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0, 
+    endnumeric;
+
+    numeric varid    = SETUP_DATA.OemDesignVariable4,
+      prompt   = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_4),
+      help     = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_HELP),
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0, 
+    endnumeric;
+
+    numeric varid    = SETUP_DATA.OemDesignVariable5,
+      prompt   = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_5),
+      help     = STRING_TOKEN (STR_DPTF_OEM_DESIGN_VARIABLE_HELP),
+      minimum = 0,
+      maximum = 255,
+      step    = 1,
+      default = 0, 
+    endnumeric;
+
+    //
+    // Virtual Sensors
+    //
+    oneof varid     = SETUP_DATA.EnableVS1Participant,
+      prompt      = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE1),
+      help        = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableVS1Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointVS1,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 40,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointVS1,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointVS1S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 90,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointVS1,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 95,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointVS1,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 105,
+      endnumeric;
+    endif; // end of Vir1 Participant
+
+    oneof varid     = SETUP_DATA.EnableVS2Participant,
+      prompt      = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE2),
+      help        = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableVS2Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointVS2,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 40,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointVS2,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointVS2S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 90,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointVS2,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 95,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointVS2,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 105,
+      endnumeric;
+    endif; // end of Vir2 Participant
+
+    oneof varid     = SETUP_DATA.EnableVS3Participant,
+      prompt      = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE3),
+      help        = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE_HELP),
+      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+    endoneof;
+
+    suppressif ideqval SETUP_DATA.EnableVS3Participant == 0;
+      numeric varid     = SETUP_DATA.ActiveThermalTripPointVS3,
+        prompt      = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT),
+        help        = STRING_TOKEN(STR_DPTF_ACTIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 40,
+        maximum = 127,
+        step    = 1,
+        default = 60,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.PassiveThermalTripPointVS3,
+        prompt   = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_PASSIVE_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 70,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointVS3S3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_S3_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 90,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.HotThermalTripPointVS3,
+        prompt   = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_HOT_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 95,
+      endnumeric;
+
+      numeric varid    = SETUP_DATA.CriticalThermalTripPointVS3,
+        prompt   = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT),
+        help     = STRING_TOKEN (STR_DPTF_CRITICAL_THERMAL_TRIP_POINT_HELP),
+        minimum = 0,
+        maximum = 127,
+        step    = 1,
+        default = 105,
+      endnumeric;
+    endif; // end of Vir3 Participant
+
+    
+    subtitle text = STRING_TOKEN(STR_NULL_STRING);
+
+    //
+    // Jump to  DPTF Policy Form
+    //
+    goto DPTF_POLICY_FORM_ID,
+      prompt = STRING_TOKEN(STR_DPTF_POLICY_TITLE),
+      help   = STRING_TOKEN(STR_DPTF_POLICY_HELP);
+    //
+    //
+    //
+
+  endif; // supress if EnableDPTF
+
+endform;
+
+#include "DptfPolicy.vfi"

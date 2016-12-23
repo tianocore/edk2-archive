@@ -1,0 +1,121 @@
+// /** @file
+//
+//  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+#include "Configuration.h"
+#include "PlatformSetupDxeStrDefs.h"
+#include "Guid/SetupVariable.h"
+
+
+formset
+  guid     = SYSTEM_CONFIGURATION_GUID,
+  title    = STRING_TOKEN(STR_SYSTEM_SETUP_TITLE),
+  help     = STRING_TOKEN(STR_SYSTEM_SETUP_HELP),
+  class    = 1,
+  subclass = 0,
+
+
+  varstore SYSTEM_CONFIGURATION, name = Setup, guid = SYSTEM_CONFIGURATION_GUID;
+  form formid = ROOT_FORM_ID,
+    title    = STRING_TOKEN(STR_SYSTEM_SETUP_TITLE);
+
+    //
+    // Jump to  1)Main Form 
+    //
+    goto ROOT_MAIN_FORM_ID,
+      prompt = STRING_TOKEN(STR_MAIN_TITLE),
+      help   = STRING_TOKEN(STR_MAIN_HELP);
+
+    //
+    // Jump to  2)CPU Configuration Form 
+    //
+    goto CPU_CONFIGURATION_FORM_ID,
+      prompt = STRING_TOKEN(STR_CPU_CONFIGURATION_TITLE),
+      help   = STRING_TOKEN(STR_CPU_CONFIGURATION_HELP);
+
+    //
+    // Jump to  3)Uncore Configuration Form 
+    //
+    goto UNCORE_FORM_ID,
+      prompt = STRING_TOKEN(STR_UNCORE_CONFIGURATION_TITLE),
+      help   = STRING_TOKEN(STR_UNCORE_CONFIGURATION_HELP);
+
+    //
+    // Jump to  4)South Cluster  Configuration Form
+    //
+    goto SOUTH_CLUSTER_FORM_ID,
+      prompt = STRING_TOKEN(STR_SOUTH_CLUSTER_TITLE),
+      help   = STRING_TOKEN(STR_SOUTH_CLUSTER_HELP);
+
+    // Jump to  5)Boot Form
+    //
+    goto BOOT_CONFIGURATION_FORM_ID,
+      prompt = STRING_TOKEN(STR_BOOT_CONFIGURATION_TITLE),
+      help   = STRING_TOKEN(STR_BOOT_CONFIGURATION_HELP); 
+
+    //
+    // Jump to  6)Security Configuration Form
+    //
+    goto SECURITY_CONFIGURATION_FORM_ID,
+      prompt = STRING_TOKEN(STR_SECURITY_CONFIGURATION_TITLE),
+      help   = STRING_TOKEN(STR_SECURITY_CONFIGURATION_HELP);
+
+    //
+    // Jump to  7)Thermal Form
+    //
+    goto THERMAL_FORM_ID,
+      prompt = STRING_TOKEN(STR_THERMAL_TITLE),
+      help   = STRING_TOKEN(STR_THERMAL_HELP); 
+
+    //
+    // Jump to 8) System Component Form
+    goto SYSTEM_COMPONENT_FORM_ID,
+      prompt = STRING_TOKEN(STR_SYSTEM_COMPONENT_TITLE),
+      help   = STRING_TOKEN(STR_SYSTEM_COMPONENT_HELP); 
+
+    //
+    // Jump to  10)Debug Configuration Form 
+    //
+    goto DEBUG_CONFIGURATION_FORM_ID,
+      prompt = STRING_TOKEN(STR_DEBUG_CONFIGURATION_TITLE),
+      help   = STRING_TOKEN(STR_DEBUG_CONFIGURATION_HELP);       
+      
+    //
+    // Jump to  11)ACPI Configuration Form 
+    //
+    goto ACPI_SETUP_FORM_ID,
+      prompt = STRING_TOKEN(STR_ACPI_SETUP_TITLE),
+      help   = STRING_TOKEN(STR_ACPI_SETUP_HELP); 
+      
+    //
+    // Jump to  12)RTD3 Configuration Form 
+    //
+    goto RTD3_FORM_ID,
+      prompt = STRING_TOKEN(STR_RTD3_FORM),
+      help   = STRING_TOKEN(STR_RTD3_FORM_HELP);      
+
+  endform;
+
+  #include "Main.vfi"
+  #include "Cpu.vfi"
+  #include "UnCore.vfi"
+  #include "SouthClusterConfig.vfi"
+  #include "Boot.vfi"
+  #include "Security.vfi"
+  #include "Thermal.vfi"
+  #include "SystemComponent.vfi"
+  #include "DebugConfig.vfi"
+  #include "AcpiSetup.Vfi"
+  #include "RTD3.Vfi"
+
+endformset;

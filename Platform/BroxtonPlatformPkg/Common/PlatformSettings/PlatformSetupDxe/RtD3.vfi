@@ -1,0 +1,201 @@
+// /** @file
+//  RtD3 Setup formset.
+//
+//  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+//
+//  This program and the accompanying materials
+//  are licensed and made available under the terms and conditions of the BSD License
+//  which accompanies this distribution.  The full text of the license may be found at
+//  http://opensource.org/licenses/bsd-license.php.
+//
+//  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// **/
+
+
+  form formid = RTD3_FORM_ID,
+
+    title = STRING_TOKEN(STR_RTD3_FORM_TITLE);
+    
+    oneof varid     = Setup.Rtd3Support,
+              prompt      = STRING_TOKEN(STR_RTD3),
+              help        = STRING_TOKEN(STR_RTD3_HELP),
+              option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+              option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+    endoneof;
+    
+    suppressif ideqval Setup.Rtd3Support == 0x0;
+    
+      oneof varid   = Setup.ConsolidatedPR,
+          prompt      = STRING_TOKEN(STR_CONSOLIDATED_POWER_RESOURCE_PROMPT),
+          help        = STRING_TOKEN(STR_CONSOLIDATED_POWER_RESOURCE_PROMPT_HELP),
+          option text = STRING_TOKEN(STR_DISABLED),	value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED),	value = 1, flags = RESET_REQUIRED;
+        endoneof;
+      
+
+       numeric varid     = Setup.VRStaggeringDelay,
+          prompt      = STRING_TOKEN(STR_VR_STAGGERING_DELAY),
+          help        = STRING_TOKEN(STR_VR_STAGGERING_DELAY_HELP),
+          minimum = 0,
+          maximum = 100,
+          step    = 16 ,
+          default = 16,
+        endnumeric;
+
+       numeric varid     = Setup.VRRampUpDelay,
+          prompt      = STRING_TOKEN(STR_VR_RAMP_DELAY),
+          help        = STRING_TOKEN(STR_VR_RAMP_DELAY_HELP),
+          minimum = 0,
+          maximum = 100,
+          step    = 16 ,
+          default = 16, 
+        endnumeric;
+
+       numeric varid     = Setup.Rtd3P0dl,
+          prompt      = STRING_TOKEN(STR_PEP0),
+          help        = STRING_TOKEN(STR_PEP0_HELP),
+          minimum = 0,
+          maximum = 100,
+
+          step    = 16 ,
+          default = 100, 
+        endnumeric;
+
+       numeric varid     = Setup.Rtd3P3dl,
+          prompt      = STRING_TOKEN(STR_PEP3),
+          help        = STRING_TOKEN(STR_PEP3_HELP),
+          minimum = 0,
+          maximum = 10,
+          step    = 1 ,
+          default = 10, 
+        endnumeric;
+
+      //
+      // Do not allow changing Azalia/ADSP delay for DVT2 or older rev
+      // Delay is hard coded to 500ms (in AcpiPlatform.c) to workaround HW issue
+      //
+        numeric varid     = Setup.RTD3AudioDelay,
+          prompt      = STRING_TOKEN(STR_AUDIO_DELAY),
+          help        = STRING_TOKEN(STR_AUDIO_DELAY_HELP),
+          minimum = 0,
+          maximum = 1000,
+          step    = 16 ,
+          default = 200,
+        endnumeric;
+
+      numeric varid  = Setup.RTD3I2C0ControllerPS0Delay,
+          prompt     = STRING_TOKEN(STR_I2C0_CONTROLLER_PS0_DELAY),
+          help       = STRING_TOKEN(STR_I2C0_CONTROLLER_PS0_DELAY_HELP),
+          minimum    = 0,
+          maximum    = 1000,
+          step       = 16,
+          default    = 0,
+      endnumeric;
+
+      numeric varid     = Setup.RTD3SensorHub,
+         prompt      = STRING_TOKEN(STR_SENSORHUB),
+         help        = STRING_TOKEN(STR_SENSORHUB_HELP),
+         minimum = 0,
+         maximum = 1000,
+         step    = 16 ,
+         default = 68,
+      endnumeric;
+
+      numeric varid  = Setup.RTD3I2C1ControllerPS0Delay,
+          prompt     = STRING_TOKEN(STR_I2C1_CONTROLLER_PS0_DELAY),
+          help       = STRING_TOKEN(STR_I2C1_CONTROLLER_PS0_DELAY_HELP),
+          minimum    = 0,
+          maximum    = 1000,
+          step       = 16,
+          default    = 0,
+      endnumeric;
+
+      numeric varid     = Setup.RTD3TouchPadDelay,
+         prompt      = STRING_TOKEN(STR_TOUCHPAD),
+         help        = STRING_TOKEN(STR_TOUCHPAD_HELP),
+         minimum = 0,
+         maximum = 1000,
+         step    = 16 ,
+         default = 68,
+      endnumeric;
+
+      numeric varid  = Setup.RTD3TouchPanelDelay,
+         prompt      = STRING_TOKEN(STR_TOUCHPANEL),
+         help        = STRING_TOKEN(STR_TOUCHPANEL_HELP),
+         minimum = 0,
+         maximum = 1000,
+         step    = 16 ,
+         default = 68,
+      endnumeric;
+   
+      oneof varid     = Setup.PstateCapping,
+          prompt      = STRING_TOKEN(STR_RTD3_PSTATE_CAPPING),
+          help        = STRING_TOKEN(STR_RTD3_PSTATE_CAPPING_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3UsbPt1,
+          prompt      = STRING_TOKEN(STR_RTD3_USB_PORT1),
+          help        = STRING_TOKEN(STR_RTD3_USB_PORT_HELP),
+          option text = STRING_TOKEN(STR_HIGHSPEED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_SUPERSPEED), value = 2, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3UsbPt2,
+          prompt      = STRING_TOKEN(STR_RTD3_USB_PORT2),
+          help        = STRING_TOKEN(STR_RTD3_USB_PORT_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_HIGHSPEED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_SUPERSPEED), value = 2, flags = RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3I2C0SensorHub,
+          prompt      = STRING_TOKEN(STR_RTD3_I2C0_SENSOR),
+          help        = STRING_TOKEN(STR_RTD3_I2C0_SENSOR_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3ZPODD,
+          prompt      = STRING_TOKEN(STR_RTD3_ZPODD),
+          help        = STRING_TOKEN(STR_RTD3_ZPODD_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3Camera,
+          prompt      = STRING_TOKEN(STR_RTD3_CAMERA),
+          help        = STRING_TOKEN(STR_RTD3_CAMERA_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3SataPort1,
+          prompt      = STRING_TOKEN(STR_RTD3_SATAPORT1),
+          help        = STRING_TOKEN(STR_RTD3_SATAPORT_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3SataPort2,
+          prompt      = STRING_TOKEN(STR_RTD3_SATAPORT2),
+          help        = STRING_TOKEN(STR_RTD3_SATAPORT_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      endoneof;
+
+      oneof varid     = Setup.RTD3SataPort3,
+          prompt      = STRING_TOKEN(STR_RTD3_SATAPORT3),
+          help        = STRING_TOKEN(STR_RTD3_SATAPORT_HELP),
+          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_MINICARD15), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_MINICARD33), value = 2, flags = RESET_REQUIRED;
+      endoneof;
+
+    endif; // Rtd3Support
+    
+  endform; //RTD3

@@ -1,0 +1,157 @@
+## @file
+#  This driver produces UEFI PLATFORM_DRIVER_OVERRIDE_PROTOCOL if this protocol doesn't exist.
+#  It doesn't install again if this protocol exists.
+#  It only implements one interface GetDriver of PLATFORM_DRIVER_OVERRIDE_PROTOCOL protocol
+#  and doesn't support other two interfaces GetDriverPath, DriverLoaded.
+#
+#  This driver also offers an UI interface in device manager to let user configure
+#  platform override protocol to override the default algorithm for matching
+#  drivers to controllers.
+#
+#  The main flow:
+#  1. It dynamically locate all controller device path.
+#  2. It dynamically locate all drivers which support binding protocol.
+#  3. It export and dynamically update two menu to let user select the
+#     mapping between drivers to controllers.
+#  4. It save all the mapping info in NV variables for the following boot,
+#     which will be consumed by GetDriver API of the produced the platform override protocol.
+#
+#  Copyright (c) 2007 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PlatformSetupDxe
+  FILE_GUID                      = C1A69A12-8653-4fde-A215-48FCD95288C3
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = PlatformSetupDxeInit
+  UNLOAD_IMAGE                   = PlatformSetupDxeUnload
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources]
+  VfrStrings.uni
+  FwVersionStrings.uni
+  Vfr.vfr
+  Main.vfi
+  Boot.vfi
+  Cpu.vfi
+  CpuPower.vfi
+  PlatformSetupDxe.c
+  SetupInfoRecords.c
+  PlatformSetupDxe.h
+  Security.vfi
+  SouthClusterConfig.vfi
+  Thermal.vfi
+  DptfPolicy.vfi
+  SetupFunctions.c
+  UnCore.vfi
+  SystemComponent.vfi
+  DebugConfig.vfi
+  UqiList.uni
+  AcpiSetup.vfi
+  RtD3.vfi
+
+[Packages]
+  BroxtonPlatformPkg/PlatformPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  SecurityPkg/SecurityPkg.dec
+  BroxtonSiPkg/NorthCluster/MemoryInit/MemoryInit.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  UefiLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  HiiLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  DevicePathLib
+  DxeServicesTableLib
+  UefiRuntimeServicesTableLib
+  PrintLib
+  BiosIdLib
+  CpuIA32Lib
+  IoLib
+  PlatformSecureDefaultsLib
+  BaseIpcLib
+  HeciMsgLib
+  SteppingLib
+  SeCLib
+
+[Guids]
+  gEfiIfrTianoGuid                              ## CONSUMES ## Guid
+  gEfiProcessorSubClassGuid
+  gEfiMiscSubClassGuid
+  gEfiCacheSubClassGuid
+  gEfiMemorySubClassGuid
+  gEfiSetupVariableGuid
+  gEfiPlatformInfoGuid
+  gEfiNormalSetupGuid
+  gEfiSecureBootEnableDisableGuid
+  gIFWIVersionHobGuid
+  gEfiMemoryConfigDataGuid
+  gEfiHobListGuid
+  gSystemConfigGuid
+  gFspNonVolatileStorageHobGuid  ##CONSUMES
+  gPlatformModuleTokenSpaceGuid
+
+[Protocols]
+  gEfiComponentName2ProtocolGuid                ## SOMETIMES_CONSUMED (Get Driver Name if ComponentName2Protocol exists)
+  gEfiComponentNameProtocolGuid                 ## SOMETIMES_CONSUMED (Get Driver Name if ComponentNameProtocol exists and ComponentName2Protocol doesn't exist)
+  gEfiFirmwareVolume2ProtocolGuid               ## SOMETIMES_CONSUMED (Get Driver Name from EFI UI section if ComponentName2Protocol and ComponentNameProtocol don't exist)
+  gEfiPciIoProtocolGuid                         ## SOMETIMES_CONSUMED (Find the PCI device if PciIo protocol is installed)
+  gEfiPciRootBridgeIoProtocolGuid
+  gEfiBusSpecificDriverOverrideProtocolGuid     ## SOMETIMES_CONSUMED (Check whether the PCI device contains one or more efi drivers in its option rom by this protocol)
+  gEfiDriverBindingProtocolGuid                 ## SOMETIMES_CONSUMED
+  gEfiLoadedImageProtocolGuid                   ## SOMETIMES_CONSUMED
+  gEfiLoadedImageDevicePathProtocolGuid         ## SOMETIMES_CONSUMED (Show the drivers in the second page that support DriverBindingProtocol, LoadedImageProtocol and LoadedImageDevicePathProtocol)
+  gEfiDevicePathProtocolGuid                    ## SOMETIMES_CONSUMED (Show the controller device in the first page that support DevicePathProtocol)
+  gEfiFormBrowser2ProtocolGuid                  ## CONSUMED
+  gEfiHiiConfigRoutingProtocolGuid              ## CONSUMED
+  gEfiHiiConfigAccessProtocolGuid               ## PRODUCED
+  gEfiDevicePathToTextProtocolGuid              ## CONSUMED
+  gEfiDataHubProtocolGuid
+  gEfiLegacyBiosProtocolGuid
+  gEfiSimpleNetworkProtocolGuid
+  gEfiDiskInfoProtocolGuid                      ## CONSUMED
+  gEfiMpServiceProtocolGuid
+  gDxePlatformPolicyProtocolGuid
+  gEfiSeCOperationProtocolGuid
+  gEfiTcg2ProtocolGuid
+  gEfiI2cBusProtocolGuid
+  gCpuInfoProtocolGuid
+  gEfiDxeSmmReadyToLockProtocolGuid
+  gEfiVariableArchProtocolGuid
+
+[Pcd.common]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+
+[Pcd]
+  gPlatformModuleTokenSpaceGuid.PcdIfwiZid
+  gPlatformModuleTokenSpaceGuid.PcdGetBoardNameFunc
+
+[Depex]
+  gEfiFormBrowser2ProtocolGuid       AND
+  gEfiHiiConfigRoutingProtocolGuid   AND
+  gEfiVariableArchProtocolGuid
+
