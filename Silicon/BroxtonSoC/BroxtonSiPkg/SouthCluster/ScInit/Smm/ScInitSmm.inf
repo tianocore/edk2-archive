@@ -1,0 +1,81 @@
+## @file
+#  PchInitSmm driver.
+#
+#  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScInitSmm
+  FILE_GUID                      = D7B10D4E-67E6-4C74-83E9-F9AF0ACC33CC
+  MODULE_TYPE                    = DXE_SMM_DRIVER
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x0001000A
+  ENTRY_POINT                    = ScInitSmmEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
+
+[Sources]
+  ScInitSmm.c
+  ScPcieSmm.c
+  ScInitSmm.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  DxeServicesTableLib
+  IoLib
+  DebugLib
+  BaseLib
+  BaseMemoryLib
+  S3BootScriptLib
+  PeiDxeSmmScPciExpressHelpersLib
+  SmmServicesTableLib
+  MmPciLib
+  HobLib
+  ReportStatusCodeLib
+  DevicePathLib
+  ScPlatformLib
+  TimerLib
+  ConfigBlockLib
+
+[Guids]
+  gSiPolicyHobGuid ## UNDEFINED
+  gScDeviceTableHobGuid ## UNDEFINED
+  gScPolicyHobGuid ## UNDEFINED
+  gPcieRpConfigGuid
+
+[Protocols]
+  gEfiSmmSwDispatch2ProtocolGuid       ## CONSUMES
+  gEfiSmmSxDispatch2ProtocolGuid       ## CONSUMES
+  gScSmmIoTrapControlGuid              ## CONSUMES
+  gEfiSmmCpuProtocolGuid               ## CONSUMES
+  gScNvsAreaProtocolGuid               ## CONSUMES
+  gScPcieSmiDispatchProtocolGuid       ## CONSUMES
+
+[Depex]
+  gEfiSmmBase2ProtocolGuid AND
+  gEfiSmmSwDispatch2ProtocolGuid AND
+  gEfiSmmSxDispatch2ProtocolGuid AND
+  gEfiSmmCpuProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress ## SOMETIMES_CONSUMES
