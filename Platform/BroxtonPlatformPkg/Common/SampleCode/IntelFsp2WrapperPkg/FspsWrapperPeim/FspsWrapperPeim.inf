@@ -1,0 +1,105 @@
+## @file
+#  FSP-S wrapper PEI Module
+#
+#  This PEIM initialize FSP.
+#  This will be invoked only once. It will call FspMemoryInit API,
+#  register TemporaryRamDonePpi to call TempRamExit API, and register MemoryDiscoveredPpi
+#  notify to call FspSiliconInit API.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = FspsWrapperPeim
+  FILE_GUID                      = 0D244DF9-6CE3-4133-A1CF-53200AB663AC
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = PEIM
+  ENTRY_POINT                    = FspsWrapperPeimEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32
+#
+
+[LibraryClasses]
+  PeimEntryPoint
+  PeiServicesLib
+  PeiServicesTablePointerLib
+  BaseLib
+  BaseMemoryLib
+  TimerLib
+  DebugLib
+  HobLib
+  MemoryAllocationLib
+  FspWrapperPlatformLib
+  FspWrapperHobProcessLib
+  DebugAgentLib
+  UefiCpuLib
+  PeCoffGetEntryPointLib
+  PeCoffExtraActionLib
+  PerformanceLib
+  FspWrapperApiLib
+  FspWrapperApiTestLib
+  FspCommonLib
+  FspPolicyInitLib
+  FspPlatformSecLib
+  FspWrapperPlatformResetLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  BroxtonPlatformPkg/Common/SampleCode/IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonFspPkg/BroxtonFspPkg.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+
+[Ppis]
+  gTopOfTemporaryRamPpiGuid             ## PRODUCES
+  gFspSiliconInitDonePpiGuid            ## PRODUCES
+  gEfiEndOfPeiSignalPpiGuid             ## PRODUCES
+  gEfiTemporaryRamDonePpiGuid           ## PRODUCES
+  gEfiPeiMemoryDiscoveredPpiGuid        ## PRODUCES
+  gEfiPeiMasterBootModePpiGuid
+
+[FixedPcd]
+  gIntelFsp2WrapperTokenSpaceGuid.PcdSecCoreMaxPpiSupported         ## CONSUMES
+
+[Pcd]
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFspsBaseAddress                ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdPeiTemporaryRamStackSize       ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspBase                 ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvSecondFspBase           ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspSize                 ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFspsBaseAddress                ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
+  gIntelFsp2PkgTokenSpaceGuid.PcdFspAreaSize
+
+[Guids]
+  gFspHobGuid                           ## CONSUMES ## HOB
+  gFspApiPerformanceGuid                ## CONSUMES ## GUID
+  gEfiPlatformInfoGuid
+  gEfiSystemNvDataFvGuid
+  gFspNonVolatileStorageHobGuid         ## CONSUMES
+
+[Sources]
+  FspsWrapperPeim.c
+  ..\FspInitPei\SecMain.c
+  ..\FspInitPei\SecMain.h
+  ..\FspInitPei\FindPeiCore.c
+
+[Depex]
+  TRUE
+

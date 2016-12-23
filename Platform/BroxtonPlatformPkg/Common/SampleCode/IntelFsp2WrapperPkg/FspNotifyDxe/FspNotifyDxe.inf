@@ -1,0 +1,76 @@
+## @file
+#  FSP DXE Module
+#
+#  This driver will register two callbacks to call fsp's notifies.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = FspNotifyDxe
+  FILE_GUID                      = AD61999A-507E-47E6-BA28-79CC609FA1A4
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = FspDxeEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
+
+[Sources]
+  FspNotifyDxe.c
+  LoadBelow4G.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/Common/SampleCode/IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonFspPkg/BroxtonFspPkg.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+  IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  DebugLib
+  BaseMemoryLib
+  UefiLib
+  FspWrapperApiLib
+  FspWrapperPlatformResetLib
+  PeCoffLib
+  CacheMaintenanceLib
+  DxeServicesLib
+  PerformanceLib
+  HobLib
+  ReportStatusCodeLib
+
+[Protocols]
+  gEfiPciEnumerationCompleteProtocolGuid            ## CONSUMES
+  gAddPerfRecordProtocolGuid                        ## CONSUMES
+
+[Guids]
+  gEfiEventExitBootServicesGuid ## CONSUMES
+  gFspApiPerformanceGuid        ## CONSUMES
+  gFspHobGuid                   ## CONSUMES
+  gFspPerformanceDataGuid       ## CONSUMES
+
+[Pcd]
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspBase       ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvSecondFspBase ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspSize       ## CONSUMES
+  gIntelFsp2WrapperTokenSpaceGuid.PcdFspsBaseAddress      ## CONSUMES
+
+[Depex]
+  TRUE
