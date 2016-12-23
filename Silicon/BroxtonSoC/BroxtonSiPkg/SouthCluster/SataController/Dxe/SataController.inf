@@ -1,0 +1,48 @@
+## @file
+#  Sata Controller driver
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION          = 0x00010005
+  BASE_NAME            = SataController
+  FILE_GUID            = BB65942B-521F-4ec3-BAF9-A92540CF60D2
+  MODULE_TYPE          = UEFI_DRIVER
+  VERSION_STRING       = 1.0
+  ENTRY_POINT          = InitializeSataControllerDriver
+
+[Sources]
+  SataController.h
+  SataController.c
+  SataControllerName.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  DebugLib
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  UefiLib
+  IoLib
+
+[Protocols]
+  gEfiIdeControllerInitProtocolGuid ## PRODUCES
+  gEfiDevicePathProtocolGuid ## CONSUMES
+  gEfiPciIoProtocolGuid ## CONSUMES
+
+[Guids]
+  gSataControllerDriverGuid ## UNDEFINED
