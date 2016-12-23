@@ -1,0 +1,77 @@
+## @file
+#  Board detected module for Intel(R) Atom(TM) x5 Processor Series.
+#  It will detect the board ID.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = MinnowBoard3InitPostMem
+  FILE_GUID                      = 52E5C88D-9FAD-49EC-B710-2F1DA12BA290
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = PEIM
+  CONSTRUCTOR                    = MinnowBoard3InitConstructor
+
+[Sources]
+  BoardInit.c
+  BoardInit.h
+  BoardInitMiscs.c
+  BoardInitMiscs.h
+  PlatformInfoHob.c
+  BoardGpios.c
+  BoardGpios.h
+
+[LibraryClasses]
+  PeiServicesLib
+  PcdLib
+  DebugLib
+  HeciMsgLib
+  HobLib
+  IoLib
+  SteppingLib
+  GpioLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  SecurityPkg/SecurityPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gEfiSecurityPkgTokenSpaceGuid.PcdTpmInstanceGuid
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdBoardPostMemInitFunc
+  gPlatformModuleTokenSpaceGuid.PcdBoardId
+  gPlatformModuleTokenSpaceGuid.PcdFabId
+
+[Guids]
+  gEfiPlatformInfoGuid
+  gEfiAuthenticatedVariableGuid
+  gEfiVariableGuid
+  gPeiVariableCacheHobGuid
+  gEfiTpmDeviceSelectedGuid
+  gEfiTpmDeviceInstanceNoneGuid
+  gEfiTpmDeviceInstanceTpm12Guid
+  gEfiTpmDeviceInstanceTpm20DtpmGuid
+  gTpmDeviceInstanceTpm20PttPtpGuid
+
+[Ppis]
+  gBoardPostMemInitStartGuid
+  gBoardPostMemInitDoneGuid
+  gEfiPeiReadOnlyVariable2PpiGuid
+  gSeCfTPMPolicyPpiGuid
+
