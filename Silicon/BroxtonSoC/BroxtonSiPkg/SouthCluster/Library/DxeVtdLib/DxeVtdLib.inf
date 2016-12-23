@@ -1,0 +1,62 @@
+## @file
+#  Library for Intel VT-d.
+#
+#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DxeVtdLib
+  FILE_GUID                      = A5525CF4-88CD-4c7b-8C9F-4E3343CED768
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = DxeVtdLib
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources.common]
+  DxeVtdLib.c
+
+[Guids]
+  gVtdConfigGuid
+  gScPolicyHobGuid
+
+[Protocols]
+  gEfiAcpiSupportProtocolGuid     ## CONSUMES
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  DebugLib
+  IoLib
+  BaseLib
+  PcdLib
+  UefiLib
+  HobLib
+  ScPlatformLib
+  MmPciLib
+  BaseMemoryLib
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  SteppingLib
+  ConfigBlockLib
+
+[Pcd]
+  gEfiBxtTokenSpaceGuid.PcdVtdGfxBaseAddress        ## ALWAYS_CONSUMES
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress ## SOMETIMES_CONSUMES

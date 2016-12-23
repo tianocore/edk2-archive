@@ -1,0 +1,46 @@
+## @file
+#  Library for ScPlatform.
+#
+#  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScPlatformLib
+  FILE_GUID                      = 32F89CBC-305D-4bdd-8B2C-9C65592E66AC
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = ScPlatformLib
+
+[sources.common]
+  ScPlatformLibrary.h
+  ScPlatformLibrary.c
+  ScCycleDecoding.c
+  ScSbiAccess.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  PciLib
+  PcdLib
+  IoLib
+  DebugLib
+  SideBandLib
+  MmPciLib
+  SteppingLib
+
+[Pcd]
+  gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress   ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress         ## SOMETIMES_CONSUMES

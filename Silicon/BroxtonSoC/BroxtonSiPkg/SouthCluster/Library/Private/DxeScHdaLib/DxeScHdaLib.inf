@@ -1,0 +1,46 @@
+## @file
+#  Component information file for SC HD Audio Library.
+#
+#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                        = 0x00010017
+  BASE_NAME                          = DxeScHdaLib
+  FILE_GUID                          = DA915B7F-EE08-4C1D-B3D0-DE7C52AB155A
+  VERSION_STRING                     = 1.0
+  MODULE_TYPE                        = BASE
+  LIBRARY_CLASS                      = ScHdaLib
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  ScPlatformLib
+  SteppingLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId            ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemTableId       ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision      ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorId        ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorRevision  ## CONSUMES
+
+[Sources]
+  ScHdaLib.c
+  ScHdaEndpoints.c
