@@ -405,15 +405,15 @@ copy /y/b %BUILD_PATH%\FV\FvOBBY.fv  %Storage_Folder% >nul
 if /i "%FSP_WRAPPER%" == "TRUE" (
   if %Stepping%==B (
     pushd  %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin
-    python %WORKSPACE%\IntelFsp2Pkg\Tools\SplitFspBin.py rebase -f ApolloLakeFsp.fd -c m -b 0xFEF65000 -o .\ -n FSP.fd
-    python %WORKSPACE%\IntelFsp2Pkg\Tools\SplitFspBin.py split -f FSP.fd -o .\ -n FSP.Fv
+    python %WORKSPACE%\Core\IntelFsp2Pkg\Tools\SplitFspBin.py rebase -f ApolloLakeFsp.fd -c m -b 0xFEF65000 -o .\ -n FSP.fd
+    python %WORKSPACE%\Core\IntelFsp2Pkg\Tools\SplitFspBin.py split -f FSP.fd -o .\ -n FSP.Fv
     popd
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin\FSP_T.Fv %Storage_Folder%\FSP_T.Fv
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin\FSP_M.Fv %Storage_Folder%\FSP_M.Fv
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin\FSP_S.Fv %Storage_Folder%\FSP_S.Fv
   ) else (
     pushd  %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP
-    python %WORKSPACE%\IntelFsp2Pkg\Tools\SplitFspBin.py split -f FSP.fd -o .\ -n FSP.Fv
+    python %WORKSPACE%\Core\IntelFsp2Pkg\Tools\SplitFspBin.py split -f FSP.fd -o .\ -n FSP.Fv
     popd
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP\FSP_T.Fv %Storage_Folder%\FSP_T.Fv
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP\FSP_M.Fv %Storage_Folder%\FSP_M.Fv
