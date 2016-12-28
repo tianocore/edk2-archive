@@ -659,7 +659,7 @@ APRIORI DXE {
   #
 !if $(NETWORK_ENABLE) == TRUE
   FILE DRIVER = 22DE1691-D65D-456a-993E-A253DD1F308C {
-    SECTION PE32 = BroxtonPlatformPkg/Common/Binaries/UNDI/I210PcieUndiDxe/E7006X3.EFI
+    SECTION PE32 = BroxtonPlatformPkg/Common/Binaries/UNDI/I210PcieUndiDxe/E7320X3.EFI
     SECTION UI = "UNDI"
   }
   INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
