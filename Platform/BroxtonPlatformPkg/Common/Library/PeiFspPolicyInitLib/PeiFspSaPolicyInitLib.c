@@ -1,7 +1,7 @@
 /** @file
   Implementation of Fsp SA Policy Initialization.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -15,7 +15,6 @@
 
 #include <PeiFspPolicyInitLib.h>
 #include <Ppi/ReadOnlyVariable2.h>
-#include <Ppi/SaPolicy.h>
 #include <Ppi/SaMiscConfig.h>
 #include <Ppi/MemoryConfig.h>
 #include <Library/IoLib.h>
@@ -188,8 +187,6 @@ PeiFspSaPolicyInit (
   )
 {
   EFI_STATUS                       Status;
-  SA_MISC_CONFIG                   *MiscConfig;
-  SI_SA_POLICY_PPI                 *SiSaPolicyPpi;
   VOID                             *Buffer;
   UINT32                           Size;
   EFI_GUID                         PeiLogoGuid = gPeiLogoGuid;
@@ -199,20 +196,7 @@ PeiFspSaPolicyInit (
   UINTN                            VariableSize = 0;
   EFI_BOOT_MODE                    BootMode;
 
-  //
-  // Locate SiSaPolicyPpi
-  //
-  SiSaPolicyPpi = NULL;
-  MiscConfig = NULL;
-  Status = PeiServicesLocatePpi(
-             &gSiSaPolicyPpiGuid,
-             0,
-             NULL,
-             (VOID **) &SiSaPolicyPpi
-             );
-  if (EFI_ERROR (Status) == FALSE) {
-    Status = GetConfigBlock ((VOID *) SiSaPolicyPpi, &gSaMiscConfigGuid, (VOID *) &MiscConfig);
-  }
+
 
   Status = PeiServicesGetBootMode (&BootMode);
 

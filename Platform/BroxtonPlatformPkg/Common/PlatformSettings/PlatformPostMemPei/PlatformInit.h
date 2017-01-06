@@ -1,7 +1,7 @@
 /** @file
   Platform Early Stage header file.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -49,7 +49,6 @@
 #include <Ppi/ReadOnlyVariable2.h>
 #include <Ppi/RecoveryModule.h>
 #include <Ppi/Reset.h>
-#include <Ppi/SaPolicy.h>
 #include <Ppi/Smbus.h>
 #include <Ppi/Stall.h>
 #include <Ppi/CpuPolicy.h>
@@ -57,7 +56,6 @@
 #include <Ppi/BoardInitSignalling.h>
 #include <Library/PeiPolicyInitLib.h>
 #include <Library/PeiCpuPolicyUpdateLib.h>
-#include <Library/PeiSaPolicyLib.h>
 #include <Library/SideBandLib.h>
 #include <Library/DebugLib.h>
 #include <Library/TimerLib.h>

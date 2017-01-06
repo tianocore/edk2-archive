@@ -1,7 +1,7 @@
 /** @file
   Header file for the PolicyInitPei PEIM.
 
-  Copyright (c) 2013 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2013 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -19,7 +19,6 @@
 #include <PiPei.h>
 #include <Library/DebugLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include "PeiSaPolicyInit.h"
 #include "PeiSiPolicyInit.h"
 #include "PeiCpuPolicyInit.h"
 
