@@ -1,7 +1,7 @@
 /** @file
   The header file of Platform PEIM.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -70,12 +70,6 @@ EFIAPI
 SeCUmaEntry (
   IN       EFI_PEI_FILE_HANDLE       FileHandle,
   IN CONST EFI_PEI_SERVICES          **PeiServices
-  );
-
-EFI_STATUS
-EFIAPI
-UpdateSaPreMemPolicy (
-  IN OUT SA_PRE_MEM_CONFIG   *SaPreMemConfig
   );
 
 EFI_STATUS

@@ -1,7 +1,7 @@
 ## @file
 #  Component description file for the Broxton RC PEI libraries.
 #
-#  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -36,10 +36,6 @@
   MpServiceLib|$(PLATFORM_SI_PACKAGE)/Cpu/Library/Private/PeiMpServiceLib/PeiMpServiceLib.inf
   CpuS3Lib|$(PLATFORM_SI_PACKAGE)/Cpu/Library/Private/PeiCpuS3Lib/PeiCpuS3Lib.inf
 
-#
-# NC
-#
-  PeiSaPolicyLib|$(PLATFORM_SI_PACKAGE)/NorthCluster/Library/PeiSaPolicyLib/PeiSaPolicyLib.inf
 
 #
 # TXE

@@ -1,7 +1,7 @@
 /** @file
   Source code file for Platform Init Pre-Memory PEI module.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -32,8 +32,6 @@
 #include <Ppi/SiPolicyPpi.h>
 #include <Ppi/BiosReservedMemory.h>
 #include <Ppi/DramPolicyPpi.h>
-#include <Ppi/SaPolicy.h>
-#include <Ppi/ScPolicyPreMem.h>
 #include <Ppi/BoardInitSignalling.h>
 #include <Guid/Capsule.h>
 #include <Guid/FirmwareFileSystem2.h>
@@ -65,7 +63,6 @@
 #include <Library/PeiPolicyInitLib.h>
 #include <Library/PeiScPolicyLib.h>
 #include <Library/PeiSiPolicyUpdateLib.h>
-#include <Library/PeiSaPolicyLib.h>
 #include "Smip.h"
 #include "Stall.h"
 #include "FvCallback.h"
@@ -285,59 +282,6 @@ CopyMemSse4 (
     add     esp, 040h // stack cleanup
   }
   // End of Bulk Load loop
-}
-
-
-/**
-  This function get SA setup config in PEI.
-
-  @param[in, out]  SaPreMemConfig      Pointer to SA Pre Mem Config Block
-
-  @retval          EFI_SUCCESS         The operation completed successfully.
-  @retval          EFI_DEVICE_ERROR    Memory test failed. It's not safe to use this range of memory.
-
-**/
-EFI_STATUS
-EFIAPI
-UpdateSaPreMemPolicy (
-  IN OUT SA_PRE_MEM_CONFIG   *SaPreMemConfig
-  )
-{
-  EFI_STATUS                         Status;
-  UINTN                              VariableSize = 0;
-  EFI_PEI_READ_ONLY_VARIABLE2_PPI    *VariableServices;
-  SYSTEM_CONFIGURATION               SystemConfiguration;
-
-  Status = PeiServicesLocatePpi (&gEfiPeiReadOnlyVariable2PpiGuid, 0, NULL, (VOID **) &VariableServices);
-  if (EFI_ERROR (Status)) {
-    ASSERT_EFI_ERROR (Status);
-    return Status;
-  }
-  VariableSize = sizeof (SYSTEM_CONFIGURATION);
-  Status = VariableServices->GetVariable (
-                               VariableServices,
-                               PLATFORM_SETUP_VARIABLE_NAME,
-                               &gEfiSetupVariableGuid,
-                               NULL,
-                               &VariableSize,
-                               &SystemConfiguration
-                               );
-
-  if (Status == EFI_SUCCESS) {
-    SaPreMemConfig->IgdDvmt50PreAlloc = SystemConfiguration.IgdDvmt50PreAlloc;
-    SaPreMemConfig->ApertureSize      = SystemConfiguration.IgdApertureSize;
-    SaPreMemConfig->GttSize           = SystemConfiguration.GTTSize;
-    SaPreMemConfig->InternalGraphics  = SystemConfiguration.Igd;
-    SaPreMemConfig->PrimaryDisplay    = SystemConfiguration.PrimaryVideoAdaptor;
-    if (SystemConfiguration.PrimaryVideoAdaptor == 4) {
-      //
-      // When Primary Display is selected as HG, Display is driven on-board and PrimaryDisplay should be set as 0. (IGD)
-      //
-      SaPreMemConfig->PrimaryDisplay = 0;
-    }
-  }
-
-  return Status;
 }
 
 
@@ -757,53 +701,6 @@ PeiScPreMemPolicyInit (
 }
 
 
-/**
-  This function performs SA PreMem Policy initialization.
-
-  @retval     EFI_SUCCESS            The PPI is installed and initialized.
-  @retval     EFI ERRORS             The PPI is not successfully installed.
-  @retval     EFI_OUT_OF_RESOURCES   Do not have enough resources to initialize the driver
-
-**/
-EFI_STATUS
-EFIAPI
-PeiSaPreMemPolicyInit (
-  VOID
-  )
-{
-  EFI_STATUS             Status;
-  SI_SA_POLICY_PPI       *SaPolicyPpi;
-  SA_PRE_MEM_CONFIG      *SaPreMemConfig = NULL;
-
-  //
-  // Call SaCreatePreMemConfigBlocks to initialize SA Policy structure
-  // and get all Intel default policy settings.
-  //
-  Status = SaCreatePreMemConfigBlocks (&SaPolicyPpi);
-  ASSERT_EFI_ERROR (Status);
-
-  //
-  // Update and override all platform related and customized settings below.
-  //
-  Status = GetConfigBlock ((VOID *) SaPolicyPpi, &gSaPreMemConfigGuid, (VOID *) &SaPreMemConfig);
-  ASSERT_EFI_ERROR (Status);
-
-  //
-  // Update SA Pre-mem policies with setup values
-  //
-  UpdateSaPreMemPolicy (SaPreMemConfig);
-
-  //
-  // Install SaPreMemPolicyPpi.
-  // While installed, RC assumes the Policy is ready and finalized. So please
-  // update and override any setting before calling this function.
-  //
-  Status = SaInstallPreMemPolicyPpi (SaPolicyPpi);
-  ASSERT_EFI_ERROR (Status);
-
-  return Status;
-}
-
 
 #if (ENBDT_PF_ENABLE == 1)
 //
@@ -1191,9 +1088,6 @@ PlatformInitPreMemEntryPoint (
     // RTC power failure handling
     //
     RtcPowerFailureHandler ();
-
-    Status = PeiSaPreMemPolicyInit();
-    ASSERT_EFI_ERROR (Status);
 
     #if (ENBDT_PF_ENABLE == 1)
     if (GetBxtSeries() == BxtP) {

@@ -1,7 +1,7 @@
 ## @file
 #  Component description file for PeiPolicyInit library.
 #
-#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -28,7 +28,6 @@
   HobLib
   PeiServicesLib
   PeiPolicyUpdateLib
-  PeiSaPolicyLib
   ConfigBlockLib
   SteppingLib
   CpuPolicyLib
@@ -44,12 +43,9 @@
   PeiPolicyInit.h
   PeiCpuPolicyInit.c
   PeiCpuPolicyInit.h
-  PeiSaPolicyInit.c
-  PeiSaPolicyInit.h
   PeiSiPolicyInit.c
   PeiSiPolicyInit.h
 
 [Ppis]
-  gSiSaPolicyPpiGuid
   gScPcieDeviceTablePpiGuid
 

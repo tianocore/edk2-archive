@@ -1,7 +1,7 @@
 /** @file
   Do platform specific PEI stage initializations.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -287,126 +287,20 @@ BXTPolicyInit (
   IN SYSTEM_CONFIGURATION         *SystemConfiguration
   )
 {
-  EFI_STATUS                      Status;
-  SI_SA_POLICY_PPI                *SiSaPolicyPpi;
-  SA_MISC_CONFIG                  *MiscConfig = NULL;
-  GRAPHICS_CONFIG                 *GtConfig = NULL;
-  IPU_CONFIG                      *IpuPolicy = NULL;
-#if (ENBDT_PF_ENABLE == 1)
-  HYBRID_GRAPHICS_CONFIG          *HgConfig = NULL;
-#endif
   VOID*                           Buffer;
   UINT32                          Size;
   EFI_GUID                        PeiLogoGuid        = { 0x7BB28B99, 0x61BB, 0x11D5, 0x9A, 0x5D, 0x00, 0x90, 0x27, 0x3F, 0xC1, 0x4D };
   EFI_GUID                        TianmaVbtGuid      = { 0xE08CA6D5, 0x8D02, 0x43ae, 0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33 };
   VBT_INFO                        VbtInfo;
-  EFI_BOOT_MODE                   BootMode;
+
 
   DEBUG ((DEBUG_INFO, " BXTPolicyInit: SystemAgent PEI Platform Policy Initialization begin \n"));
 
-  Status = CreateConfigBlocks (&SiSaPolicyPpi);
-  DEBUG ((DEBUG_INFO, "SiSaPolicyPpi->TableHeader.NumberOfBlocks = 0x%x\n ", SiSaPolicyPpi->TableHeader.NumberOfBlocks ));
-  ASSERT_EFI_ERROR (Status);
-
-
-  Status = GetConfigBlock ((VOID *) SiSaPolicyPpi, &gSaMiscConfigGuid , (VOID *) &MiscConfig);
-  ASSERT_EFI_ERROR (Status);
-
-  Status = GetConfigBlock ((VOID *) SiSaPolicyPpi, &gGraphicsConfigGuid, (VOID *) &GtConfig);
-  ASSERT_EFI_ERROR (Status);
-
-  Status = GetConfigBlock ((VOID *) SiSaPolicyPpi, &gIpuConfigGuid, (VOID *) &IpuPolicy);
-  ASSERT_EFI_ERROR (Status);
-
-#if (ENBDT_PF_ENABLE == 1)
-  Status = GetConfigBlock((VOID *) SiSaPolicyPpi, &gHybridGraphicsConfigGuid, (VOID *) &HgConfig);
-  ASSERT_EFI_ERROR(Status);
-#endif
-
-  if (!EFI_ERROR (Status)) {
-    //
-    // Get the Platform Configuration from SetupData
-    //
-    GtConfig->GttMmAdr = GTTMM_BASE_ADDRESS;
-    GtConfig->GmAdr = GMADR_BASE_ADDRESS;
-    GtConfig->PeiGraphicsPeimInit = SystemConfiguration->PeiGraphicsPeimInit;
-    GtConfig->PmSupport = SystemConfiguration->PmSupport;
-    GtConfig->EnableRenderStandby = SystemConfiguration->EnableRenderStandby;
-    GtConfig->CdClock = SystemConfiguration->CdClock;
-    GtConfig->PavpEnable = SystemConfiguration->PavpEnable;
-
-    GtConfig->ForceWake = 0;
-    GtConfig->PavpLock = 1;
-    GtConfig->GraphicsFreqModify = 0;
-    GtConfig->GraphicsFreqReq = 0;
-    GtConfig->GraphicsVideoFreq = 0;
-    GtConfig->PmLock = 1;
-    GtConfig->DopClockGating = 1;
-    GtConfig->UnsolicitedAttackOverride = 0;
-    GtConfig->WOPCMSupport = 1;
-    GtConfig->WOPCMSize = 0;
-    GtConfig->PowerGating = 0;
-    GtConfig->UnitLevelClockGating = 1;
-
-    MiscConfig->FastBoot = 1;
-    MiscConfig->DynSR = 1;
-    IpuPolicy->SaIpuEnable = SystemConfiguration->IpuEn;
-    IpuPolicy->IpuAcpiMode = SystemConfiguration->IpuAcpiMode;
-    IpuPolicy->IpuMmAdr = IPUMM_BASE_ADDRESS;
-
-#if (ENBDT_PF_ENABLE == 1)
-    //
-    // In Hybrid Gfx mode PCIe needs to be always enabled
-    // and IGFX must be set as Primary Display.
-    //
-     if (SystemConfiguration->PrimaryVideoAdaptor == 4) {
-       HgConfig->HgEnabled     = 1;
-       HgConfig->HgSubSystemId = 0x2112;
-     } else {
-       HgConfig->HgEnabled     = 0;
-       HgConfig->HgSubSystemId = 0x2212;
-    }
-
-     HgConfig->HgDelayAfterPwrEn     = SystemConfiguration->DelayAfterPwrEn;
-     HgConfig->HgDelayAfterHoldReset = SystemConfiguration->DelayAfterHoldReset;
-    //
-    // Configure below based on the OEM platfrom design
-    // Hybrid Graphics Enabled - 0= Disabled, 1=Enabled
-    //
-    if (HgConfig->HgEnabled == 1) {
-      //
-      // dGPU HLD RST GPIO assigned
-      //
-      HgConfig->HgDgpuHoldRst.CommunityOffset   = (((UINT32) GPIO_MMIO_OFFSET_W) << 16);
-      HgConfig->HgDgpuHoldRst.PinOffset         = 0x05B0;
-      HgConfig->HgDgpuHoldRst.Active            = 0;
-      //
-      // dGPU PWR Enable GPIO assigned
-      //
-      HgConfig->HgDgpuPwrEnable.CommunityOffset  = (((UINT32) GPIO_MMIO_OFFSET_N) << 16);
-      HgConfig->HgDgpuPwrEnable.PinOffset        = 0x0598;
-      HgConfig->HgDgpuPwrEnable.Active           = 1;
-
-      HgConfig->RootPortDev = PCI_DEVICE_NUMBER_SC_PCIE_DEVICE_2;
-      HgConfig->RootPortFun = PCI_FUNCTION_NUMBER_PCIE_ROOT_PORT_3;
-
-      DEBUG ((DEBUG_INFO, "HG::Hybrid Graphics Policy updated\n"));
-    }
-#endif
-  }
-
-  Status = (*PeiServices)->GetBootMode ((CONST EFI_PEI_SERVICES **) PeiServices, &BootMode);
-  ASSERT_EFI_ERROR (Status);
 
   PeiGetSectionFromFv (PeiLogoGuid, &Buffer, &Size);
   if (Buffer == NULL) {
     DEBUG (( DEBUG_ERROR, "Could not locate PeiLogo"));
   }
-  GtConfig->LogoPtr           = Buffer;
-  GtConfig->LogoSize          = Size;
-  DEBUG ((DEBUG_INFO, "LogoPtr from PeiGetSectionFromFv is 0x%x\n", Buffer));
-  DEBUG ((DEBUG_INFO, "LogoSize from PeiGetSectionFromFv is 0x%x\n", Size));
-  DEBUG ((DEBUG_INFO, "SystemConfiguration->PanelSel = 0x%x\n", SystemConfiguration->PanelSel));
 
   //
   // May need a different VBT depending on PanelSel
@@ -417,11 +311,6 @@ BXTPolicyInit (
     DEBUG (( DEBUG_ERROR, "Could not locate VBT"));
   }
 
-  if (BootMode == BOOT_ON_S3_RESUME) {
-    GtConfig->GraphicsConfigPtr = NULL;
-  } else {
-    GtConfig->GraphicsConfigPtr = Buffer;
-  }
 
   //
   // Build the VBT data into HOB for DXE GOP
@@ -437,16 +326,7 @@ BXTPolicyInit (
     sizeof (VbtInfo)
     );
 
-  //
-  // Install SiSaPolicyPpi.
-  // While installed, RC assumes the Policy is ready and finalized. So please
-  // update and override any setting before calling this function.
-  //
-  Status = SiSaInstallPolicyPpi (SiSaPolicyPpi);
-  ASSERT_EFI_ERROR (Status);
-
   DEBUG ((DEBUG_INFO, " SystemAgent PEI Platform Policy Initialization Done \n"));
-  ASSERT_EFI_ERROR (Status);
 
   return EFI_SUCCESS;
 }
