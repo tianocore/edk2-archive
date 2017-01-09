@@ -1,7 +1,7 @@
 ## @file
 #  Platform Components Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -325,7 +325,7 @@
      NetworkPkg/Mtftp6Dxe/Mtftp6Dxe.inf
   !endif
   !if $(NETWORK_IP6_ENABLE) == TRUE
-     NetworkPkg/UefiPxeBcDxe/UefiPxeBcDxe.inf
+     $(PLATFORM_PACKAGE_COMMON)/SampleCode/NetworkPkg/UefiPxeBcDxe/UefiPxeBcDxe.inf
   !else
      MdeModulePkg/Universal/Network/UefiPxeBcDxe/UefiPxeBcDxe.inf {
        <LibraryClasses>
