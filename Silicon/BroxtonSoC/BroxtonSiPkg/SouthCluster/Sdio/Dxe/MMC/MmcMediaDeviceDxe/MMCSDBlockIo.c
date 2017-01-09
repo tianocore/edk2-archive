@@ -1,7 +1,7 @@
 /** @file
   Block I/O protocol for MMC/SD device.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -585,7 +585,8 @@ MMCSDBlockIoInit (
   GP_CHUNK_SIZE = 0;
   if (((ExtCsd->PARTITIONING_SUPPORT & BIT0) == BIT0) &&
       ((ExtCsd->PARTITION_SETTING_COMPLETED & BIT0) == BIT0)) {
-    GP_CHUNK_SIZE = MultU64x32 (ExtCsd->HC_WP_GRP_SIZE * ExtCsd->HC_ERASE_GRP_SIZE, SIZE_512KB);
+    GP_CHUNK_SIZE = MultU64x32 (ExtCsd->HC_WP_GRP_SIZE, ExtCsd->HC_ERASE_GRP_SIZE);
+    GP_CHUNK_SIZE = MultU64x32 (GP_CHUNK_SIZE, SIZE_512KB);
   }
 
   for (Loop = 0; Loop < MAX_NUMBER_OF_PARTITIONS; Partition++, Loop++) {
