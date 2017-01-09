@@ -19,7 +19,6 @@
 #include <PiPei.h>
 #include <Library/DebugLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include "PeiSiPolicyInit.h"
 #include "PeiCpuPolicyInit.h"
 
 #endif

@@ -43,8 +43,6 @@
   PeiPolicyInit.h
   PeiCpuPolicyInit.c
   PeiCpuPolicyInit.h
-  PeiSiPolicyInit.c
-  PeiSiPolicyInit.h
 
 [Ppis]
   gScPcieDeviceTablePpiGuid

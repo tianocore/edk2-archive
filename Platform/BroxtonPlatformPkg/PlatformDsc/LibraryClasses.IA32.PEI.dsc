@@ -21,9 +21,7 @@
   #
   # Common
   #
-  PeiSiPolicyInit|$(PLATFORM_SI_PACKAGE)/Library/PeiSiPolicyLib/PeiSiPolicyLib.inf
   PeiPlatformConfigUpdateLib|$(PLATFORM_PACKAGE_COMMON)/Library/PeiPlatformConfigUpdateLib/PeiPlatformConfigUpdateLib.inf
-  SiPolicyLib|$(PLATFORM_SI_PACKAGE)/Library/PeiSiPolicyLib/PeiSiPolicyLib.inf
 
 
   #

@@ -90,7 +90,6 @@
   MonoStatusCodeLib
   SeCUmaLib
   BaseIpcLib
-  PeiSiPolicyInit
   PeiPlatformConfigUpdateLib
   GpioLib
   CpuPolicyLib
