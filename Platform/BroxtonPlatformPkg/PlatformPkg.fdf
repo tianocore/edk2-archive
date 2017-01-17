@@ -447,6 +447,9 @@ APRIORI DXE {
   INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcMediaDeviceDxe/MmcMediaDeviceDxe.inf
 !endif
 
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdControllerDxe/SdControllerDxe.inf
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdMediaDeviceDxe/SdMediaDeviceDxe.inf
+    
   INF IntelFrameworkModulePkg/Universal/Acpi/AcpiS3SaveDxe/AcpiS3SaveDxe.inf
 
   #
