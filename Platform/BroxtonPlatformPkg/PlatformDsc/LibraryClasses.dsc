@@ -1,7 +1,7 @@
 ## @file
 #  Library classes Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -241,6 +241,8 @@
    SmmCpuPlatformHookLib|UefiCpuPkg/Library/SmmCpuPlatformHookLibNull/SmmCpuPlatformHookLibNull.inf
 
    BasePlatformCmosLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformCmosLib/PlatformCmosLib.inf
+
+   PmicLib|$(PLATFORM_PACKAGE_COMMON)/Library/PmicLib/PmicLibNull.inf
 
    #
    # Reference code Libraries

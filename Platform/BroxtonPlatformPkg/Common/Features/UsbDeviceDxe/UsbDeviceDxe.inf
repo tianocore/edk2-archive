@@ -1,0 +1,74 @@
+## @file
+#
+#  Copyright (c) 2008 - 2017, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = UsbDeviceDxe
+  FILE_GUID                      = 42CF2D4A-78B4-4B80-80F9-96A83A630D70
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UsbDeviceDxeEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
+
+[Sources.common]
+  UsbDeviceDxe.c
+  UsbFuncIo.c
+  UsbIoNode.c
+  ComponentName.c
+  UsbDeviceMode.c
+  XdciDevice.c
+  XdciDWC.c
+  XdciTable.c
+  XdciUtility.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  DevicePathLib
+  MemoryAllocationLib
+  TimerLib
+  PcdLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+  PmicLib
+
+[Protocols]
+  gEfiUsbDeviceModeProtocolGuid
+  gEfiUsbFnIoProtocolGuid
+  gEfiPciIoProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+
+[Guids]
+  gEfiEventExitBootServicesGuid
+
+#[BuildOptions]
+#  MSFT:*_*_*_CC_FLAGS = /D SUPPORT_SUPER_SPEED
+#  GCC:*_*_*_CC_FLAGS = -DSUPPORT_SUPER_SPEED
+
+[Depex]
+  TRUE
+
