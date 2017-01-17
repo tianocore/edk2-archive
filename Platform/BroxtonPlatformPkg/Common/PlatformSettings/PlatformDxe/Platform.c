@@ -641,6 +641,50 @@ InitPlatformResolution (
   PcdSet32S (PcdVideoVerticalResolution, PanelResolution[mSystemConfiguration.IgdFlatPanel].VerticalResolution);
 }
 
+VOID 
+OverrideSdCardPresence (
+  VOID
+  )
+{
+  UINT32 PciP2sbBar0RegOffset;
+  UINT32 P2sbMmioBar;
+  UINT32 Gpio177PadConfigDW0RegAdd;
+  UINT32 Gpio177RxState;
+
+  PciP2sbBar0RegOffset = (UINT32) MmPciAddress (
+                                    0,
+                                    DEFAULT_PCI_BUS_NUMBER_SC,
+                                    PCI_DEVICE_NUMBER_P2SB,
+                                    PCI_FUNCTION_NUMBER_P2SB,
+                                    R_P2SB_BASE
+                                    );
+  //
+  // Read back P2SB MMIO BAR Base Addr
+  //
+  P2sbMmioBar = MmioRead32 (PciP2sbBar0RegOffset);
+  if (P2sbMmioBar == 0xFFFFFFFF) {
+    //
+    // P2SB has been hidden, read it from Pcd
+    //
+    P2sbMmioBar = PcdGet32 (PcdP2SBBaseAddress);
+  } else {
+    P2sbMmioBar &= B_P2SB_BAR_BA;
+  }
+  
+  Gpio177PadConfigDW0RegAdd = P2SB_MMIO_ADDR (P2sbMmioBar, SOUTHWEST, 0x5D0);
+  Gpio177RxState = MmioRead32(Gpio177PadConfigDW0RegAdd) & BIT1;
+  DEBUG ((DEBUG_INFO, "Gpio177PadConfigDW0RegAdd: 0x%X\n", Gpio177PadConfigDW0RegAdd));
+  DEBUG ((DEBUG_INFO, "Gpio177RxState: 0x%X\n", Gpio177RxState));
+
+  if (Gpio177RxState == 0x00) {
+    SideBandAndThenOr32 (
+      0xD6,
+      0x0600 + 0x08,
+      0xFFFFFFFF,
+      BIT5
+      );
+  };
+}
 
 /**
   This is the standard EFI driver point for the Driver. This
@@ -872,6 +916,9 @@ InitializePlatform (
                   &EfiExitBootServicesEvent
                   );
 
+  
+  OverrideSdCardPresence(); 
+        
   return EFI_SUCCESS;
 }
 

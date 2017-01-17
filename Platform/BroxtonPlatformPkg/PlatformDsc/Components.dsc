@@ -353,6 +353,10 @@
   $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcHostDxe/MmcHostDxe.inf
 
   $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcMediaDeviceDxe/MmcMediaDeviceDxe.inf
+  
+  $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdControllerDxe/SdControllerDxe.inf
+  $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdMediaDeviceDxe/SdMediaDeviceDxe.inf
+    
 
   !if $(ACPI50_ENABLE) == TRUE
     MdeModulePkg/Universal/SmmCommunicationBufferDxe/SmmCommunicationBufferDxe.inf
