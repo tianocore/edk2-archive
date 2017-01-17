@@ -17,7 +17,7 @@
   - Registers / bits of new devices introduced in a SC generation will be just named
     as "_SC_" without <generation_name> inserted.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -563,6 +563,14 @@
 #define B_XDCI_POW_PG_CONF_D3HEN        BIT18   ///< D3-Hot Enable
 #define B_XDCI_POW_PG_CONF_DEVIDLEN     BIT17   ///< DEVIDLE Enable
 
+
+#define R_OTG_BAR0                      0x10  ///< BAR 0
+#define B_OTG_BAR0_BA                   0xFFE00000 ///< Base Address
+#define V_OTG_BAR0_SIZE                 0x200000
+#define N_OTG_BAR0_ALIGNMENT            21
+#define B_OTG_BAR0_PREF                 BIT3  ///< Prefetchable
+#define B_OTG_BAR0_ADDRNG               (BIT2 | BIT1) ///< Address Range
+#define B_OTG_BAR0_SPTYP                BIT0  ///< Space Type (Memory)
 #define R_OTG_GEN_INPUT_REGRW           0xC0
 #define B_OTG_GEN_INPUT_REGRW_CPSU3     (BIT11 | BIT10) ///< Current Power State u3pmu
 #define B_OTG_GEN_INPUT_REGRW_CPSU2     (BIT9 | BIT8) ///< Current Power State u2pmu

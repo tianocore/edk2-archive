@@ -709,6 +709,8 @@ APRIORI DXE {
     SECTION PE32 = ShellBinPkg/UefiShell/$(IA32_X64_LC)/Shell.efi
   }
 
+  INF $(PLATFORM_PACKAGE_COMMON)/Features/UsbDeviceDxe/UsbDeviceDxe.inf  
+
   #
   # USB TypeC
   #

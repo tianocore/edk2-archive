@@ -460,6 +460,8 @@
   #
   PcAtChipsetPkg/8259InterruptControllerDxe/8259.inf
 
+  $(PLATFORM_PACKAGE_COMMON)/Features/UsbDeviceDxe/UsbDeviceDxe.inf
+  
   #
   # USB TypeC
   #
