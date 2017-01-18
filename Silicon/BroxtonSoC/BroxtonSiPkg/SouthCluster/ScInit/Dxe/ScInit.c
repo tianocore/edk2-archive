@@ -1,7 +1,7 @@
 /** @file
   This is the driver that initializes the Intel SC devices
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -110,6 +110,16 @@ ScOnPciEnumComplete (
   }
   gBS->CloseEvent (Event);
 
+  //
+  // Restore P2SB and GPIO controlers's Base Address to original value which is overridden by PCI BUS driver.
+  // P2SB will be switched to ACPI mode at exit boot service, so it's resource must be allocated from ACPI_MMIO_BASE_ADDRESS 
+  // region, to avoid resource conflict with PCI resource used by PCI_HOST.asl. 
+  //
+  MmioWrite32 (
+    MmPciAddress (0, DEFAULT_PCI_BUS_NUMBER_SC, PCI_DEVICE_NUMBER_P2SB, PCI_FUNCTION_NUMBER_P2SB, R_P2SB_BASE),
+    (UINT32) ((PcdGet32 (PcdP2SBBaseAddress)))
+    );
+   
   //
   // Get SC PMC fuction disable reset HOB.
   //
