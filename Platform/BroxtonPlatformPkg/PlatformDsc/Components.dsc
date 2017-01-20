@@ -185,6 +185,7 @@
 
 !if $(FTPM_ENABLE) == TRUE
   SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.inf
+  SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.inf
 
   SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.inf {
     <LibraryClasses>

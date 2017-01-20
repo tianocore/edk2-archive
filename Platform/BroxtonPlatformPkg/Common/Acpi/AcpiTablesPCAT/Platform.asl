@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -19,7 +19,6 @@ External(PDC1)
 External(PDC2)
 External(PDC3)
 External(\_PR.CPU0._PPC, IntObj)
-External(\_SB.PCI0.LPCB.TPM.PTS, MethodObj)
 Name(ECUP, 1)  // EC State indicator: 1- Normal Mode 0- Low Power Mode
 Mutex(EHLD, 0) // EC Hold indicator: 0- No one accessing the EC Power State 1- Someone else is accessing the EC Power State
 
@@ -153,10 +152,12 @@ Method(_PTS,1)
   //clear GPE0_STS
   Store(Ones, G0S)
 
-  //
-  // Call TPM PTS method
-  //
-  \_SB.TPM.PTS (Arg0)
+  If (CondRefOf(\_SB.TPM.PTS)) {
+    //
+    // Call TPM PTS method
+    //
+    \_SB.TPM.PTS (Arg0)
+  }
 
   //
   // Set GPIO_116 (SOC_CODEC_IRQ) 20k pull-down for device I2S audio codec INT343A before enter S3/S4

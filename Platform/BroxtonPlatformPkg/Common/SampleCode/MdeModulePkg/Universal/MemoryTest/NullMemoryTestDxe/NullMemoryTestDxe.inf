@@ -2,7 +2,7 @@
 #  This driver installs Generic Memory Test Protocol which does not perform real memory test.
 #  Also clears memory when the MemoryOverwriteRequest bit is set.
 #
-#  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -36,7 +36,7 @@
 [Packages]
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
-  BroxtonPlatformPkg/PlatformPkg.dec # required for CMOSMap.h
+  BroxtonPlatformPkg/PlatformPkg.dec
 
 [LibraryClasses]
   MemoryAllocationLib
