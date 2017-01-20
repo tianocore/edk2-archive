@@ -2,7 +2,7 @@
   Implementation of Generic Memory Test Protocol which does not perform real memory test.
   Also clears memory when the MemoryOverwriteRequest bit is set.
 
-  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -19,7 +19,6 @@
 #include <Library/UefiLib.h>
 #include <Library/IoLib.h>
 #include <Guid/MemoryOverwriteControl.h>
-#include <CMOSMap.h>
 
 UINT64                            mTestedSystemMemory = 0;
 UINT64                            mTotalSystemMemory  = 0;
@@ -151,19 +150,12 @@ BOOLEAN
 IsMemoryOverwriteRequested (
   )
 {
-  BOOLEAN bRetValue = 0;
-  EFI_STATUS Status;
-  UINT64 MemoryOverwriteReq = 0;
-  UINTN  VariableSize;
-  UINT8  CmosRegValue;
+  BOOLEAN     bRetValue = 0;
+  EFI_STATUS  Status;
+  UINT64      MemoryOverwriteReq = 0;
+  UINTN       VariableSize;
 
-  DEBUG((EFI_D_INFO, "+IsMemoryOverwriteRequested\n"));
-
-  //
-  // Read the CMOS Register EFI_CMOS_CLEAN_RESET
-  //
-  IoWrite8(CmosIo_72, EFI_CMOS_CLEAN_RESET);
-  CmosRegValue = IoRead8(CmosIo_73);
+  DEBUG ((EFI_D_INFO, "IsMemoryOverwriteRequested\n"));
 
   //
   // Get the MOR variable
@@ -187,25 +179,18 @@ IsMemoryOverwriteRequested (
                       &MemoryOverwriteReq
                       );
     } else {
+      MemoryOverwriteReq = 0;
       DEBUG ((EFI_D_ERROR, "IsMemoryOverwriteRequested: Failed to Get MOR Variable - Status = %r\n", Status));
     }
     goto Exit;
   }
-
-  DEBUG ((EFI_D_INFO, "IsMemoryOverwriteRequested: MOR Control Value = %02x, CmosRegValue = %02x\n", MemoryOverwriteReq, CmosRegValue));
-
-  if ((MOR_CLEAR_MEMORY_VALUE(MemoryOverwriteReq)) &&
-    (((CmosRegValue != B_MAGIC_CLEAN_RESET_VALUE) && (MOR_DISABLE_AUTO_DETECT_VALUE(MemoryOverwriteReq) == 0)) ||
-    (MOR_DISABLE_AUTO_DETECT_VALUE(MemoryOverwriteReq) == 1))
-    )
-  {
-    DEBUG((EFI_D_INFO, "IsMemoryOverwriteRequested: Un-controlled Reset detected and hence requesting the Memory Clear\n"));
+   if (MOR_CLEAR_MEMORY_VALUE (MemoryOverwriteReq)) {
+    DEBUG ((EFI_D_INFO, "IsMemoryOverwriteRequested: Un-controlled Reset detected and hence requesting the Memory Clear\n"));
     bRetValue = 1;
   }
 
 Exit:
-  IoWrite8(CmosIo_73, B_MAGIC_INIT_VALUE); // Initialize to a known value
-  DEBUG((EFI_D_INFO, "-IsMemoryOverwriteRequested: bRetValue = %d\n", bRetValue));
+  DEBUG ((EFI_D_INFO, "IsMemoryOverwriteRequested: bRetValue = %d\n", bRetValue));
   return bRetValue;
 }
 
@@ -219,16 +204,15 @@ HandleMorRequest (
   //
   // Check if there is a need for memory overwrite.
   //
-  bCleanMemory = IsMemoryOverwriteRequested();
+  bCleanMemory = IsMemoryOverwriteRequested ();
 
   //
   // Clear memory if OS requested a memory overwrite operation.
   // This is being done for the memory used by OS => Stolen memory is not cleared as OS cannot store keys in UEFI Stolen memory
   //
-  if (bCleanMemory)
-  {
-    DEBUG((EFI_D_INFO, "Clearing the memory per MOR request.\n"));
-    ClearAvailableSystemMemory();
+  if (bCleanMemory) {
+    DEBUG ((EFI_D_INFO, "Clearing the memory per MOR request.\n"));
+    ClearAvailableSystemMemory ();
   }
 
   return;
@@ -308,17 +292,17 @@ InitializeMemoryTest (
       // For those reserved memory that have not been tested, simply promote to system memory.
       //
       gDS->RemoveMemorySpace (
-            MemorySpaceMap[Index].BaseAddress,
-            MemorySpaceMap[Index].Length
-            );
+             MemorySpaceMap[Index].BaseAddress,
+             MemorySpaceMap[Index].Length
+             );
 
       gDS->AddMemorySpace (
-            EfiGcdMemoryTypeSystemMemory,
-            MemorySpaceMap[Index].BaseAddress,
-            MemorySpaceMap[Index].Length,
-            MemorySpaceMap[Index].Capabilities &~
-            (EFI_MEMORY_PRESENT | EFI_MEMORY_INITIALIZED | EFI_MEMORY_TESTED | EFI_MEMORY_RUNTIME)
-            );
+             EfiGcdMemoryTypeSystemMemory,
+             MemorySpaceMap[Index].BaseAddress,
+             MemorySpaceMap[Index].Length,
+             MemorySpaceMap[Index].Capabilities &~
+             (EFI_MEMORY_PRESENT | EFI_MEMORY_INITIALIZED | EFI_MEMORY_TESTED | EFI_MEMORY_RUNTIME)
+             );
 
       mTestedSystemMemory += MemorySpaceMap[Index].Length;
       mTotalSystemMemory += MemorySpaceMap[Index].Length;
@@ -425,11 +409,11 @@ GenCompatibleRangeTest (
   gDS->RemoveMemorySpace (StartAddress, Length);
 
   gDS->AddMemorySpace (
-        EfiGcdMemoryTypeSystemMemory,
-        StartAddress,
-        Length,
-        Descriptor.Capabilities &~(EFI_MEMORY_PRESENT | EFI_MEMORY_INITIALIZED | EFI_MEMORY_TESTED | EFI_MEMORY_RUNTIME)
-        );
+         EfiGcdMemoryTypeSystemMemory,
+         StartAddress,
+         Length,
+         Descriptor.Capabilities &~(EFI_MEMORY_PRESENT | EFI_MEMORY_INITIALIZED | EFI_MEMORY_TESTED | EFI_MEMORY_RUNTIME)
+         );
 
   return EFI_SUCCESS;
 }

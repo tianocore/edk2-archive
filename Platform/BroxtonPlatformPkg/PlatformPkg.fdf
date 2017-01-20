@@ -533,6 +533,7 @@ APRIORI DXE {
 
 !if $(FTPM_ENABLE) == TRUE
   INF SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.inf
+  INF SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.inf
   INF RuleOverride = DRIVER_ACPITABLE $(PLATFORM_PACKAGE_COMMON)/SampleCode/SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.inf
 !endif
 
