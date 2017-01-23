@@ -1,7 +1,7 @@
 /** @file
   This file does Multiplatform initialization.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -14,6 +14,7 @@
 **/
 
 #include "BoardInitMiscs.h"
+#include "MmrcData.h"
 
 UPDATE_FSPM_UPD_FUNC mLhUpdateFspmUpdPtr = LhUpdateFspmUpd;
 DRAM_CREATE_POLICY_DEFAULTS_FUNC   mLhDramCreatePolicyDefaultsPtr = LhDramCreatePolicyDefaults;
@@ -29,6 +30,9 @@ LhUpdateFspmUpd (
   EFI_PLATFORM_INFO_HOB          *PlatformInfo = NULL;
   DRAM_POLICY_PPI                *DramPolicy;
   EFI_STATUS                     Status;
+  MRC_NV_DATA_FRAME              *MrcNvData;
+  MRC_PARAMS_SAVE_RESTORE        *MrcParamsHob;
+  BOOT_VARIABLE_NV_DATA          *BootVariableNvDataHob;
 
   Status = (*PeiServices)->LocatePpi (
                              PeiServices,
@@ -64,11 +68,20 @@ LhUpdateFspmUpd (
     FspUpdRgn->FspmConfig.InterleavedMode                   = DramPolicy->InterleavedMode;
     FspUpdRgn->FspmConfig.MinRefRate2xEnable                = DramPolicy->MinRefRate2xEnabled;
     FspUpdRgn->FspmConfig.DualRankSupportEnable             = DramPolicy->DualRankSupportEnabled;
-    FspUpdRgn->FspmArchUpd.NvsBufferPtr                     = (VOID *)(UINT32)DramPolicy->MrcTrainingDataPtr;
-    FspUpdRgn->FspmConfig.MrcBootDataPtr                    = (VOID *)(UINT32)DramPolicy->MrcBootDataPtr;
 
     CopyMem (&(FspUpdRgn->FspmConfig.Ch0_RankEnable), &DramPolicy->ChDrp, sizeof (DramPolicy->ChDrp));
     CopyMem (&(FspUpdRgn->FspmConfig.Ch0_Bit_swizzling), &DramPolicy->ChSwizzle, sizeof (DramPolicy->ChSwizzle));
+
+    if (((VOID *)(UINT32)DramPolicy->MrcTrainingDataPtr != 0) &&
+        ((VOID *)(UINT32)DramPolicy->MrcBootDataPtr     != 0)) {
+      MrcNvData = (MRC_NV_DATA_FRAME *) AllocateZeroPool (sizeof (MRC_NV_DATA_FRAME));
+      MrcParamsHob = (MRC_PARAMS_SAVE_RESTORE*)((UINT32)DramPolicy->MrcTrainingDataPtr);
+      BootVariableNvDataHob = (BOOT_VARIABLE_NV_DATA*)((UINT32)DramPolicy->MrcBootDataPtr);
+      CopyMem(&(MrcNvData->MrcParamsSaveRestore), MrcParamsHob, sizeof (MRC_PARAMS_SAVE_RESTORE));
+      CopyMem(&(MrcNvData->BootVariableNvData), BootVariableNvDataHob, sizeof (BOOT_VARIABLE_NV_DATA));
+      FspUpdRgn->FspmArchUpd.NvsBufferPtr = (VOID *)(UINT32)MrcNvData;
+    }
+
   }
   //
   // override RankEnable settings for Minnow

@@ -1,7 +1,7 @@
 /** @file
   Internal and external data structures, Macros, and enumerations.
 
-  Copyright (c) 2005 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2005 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -12,7 +12,6 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
-
 #ifndef _MMRCDATA_H_
 #define _MMRCDATA_H_
 
@@ -28,12 +27,10 @@
 #else
 #define UINTX UINT32
 #endif
-
 typedef UINT32           MMRC_STATUS;
-
-//
-// MRC version description.
-//
+///
+/// MRC version description.
+///
 typedef union {
   struct{
     UINT8      Major;             ///< Major version number
@@ -53,6 +50,60 @@ typedef union {
   UINT16     Data16[2];
   UINT8      Data8[4];
 } MrcVersion;
+
+typedef union {
+  UINT8      Data;
+  struct {
+    //
+    // Rank Select Interleaving Enable.  See Address Mapping section for full description.
+    //     0 - Rank Select Interleaving disabled
+    //     1 - Rank Select Interleaving enabled
+    //
+    // Bits[0:0]
+    //
+    UINT8    RankSelectInterleavingEnable : 1;
+    //
+    // Bank Address Hashing Enable.  See Address Mapping section for full description.
+    //     0 - Bank Address Hashing disabled
+    //     1 - Bank Address Hashing enabled
+    //
+    // Bits[1:1]
+    //
+    UINT8    BankAddressHashingEnable : 1;
+    //
+    // CH1 CLK Disable. Disables the CH1 CLK PHY Signal when set to 1. This is used
+    // on board designs where the CH1 CLK is not routed and left floating or stubbed out.
+    //     0 = CH1 CLK is enabled
+    //     1 = CH1 CLK is disabled
+    //
+    // Bits[2:2]
+    //
+    UINT8    Ch1ClkDisable : 1;
+    //
+    // Reserved
+    //
+    // Bits[3]
+    //
+    UINT8    Reserved : 1;
+    //
+    // Specifies the address mapping to be used.
+    //       00b - 1KB,
+    //       01b - 2KB,
+    //       10b - 4KB,
+    //       11b - Reserved
+    //
+    // Bits[5:4]
+    //
+    UINT8    AddressMapping : 2;
+    //
+    // Reserved
+    //
+    // Bits[7:6]
+    //
+    UINT8    Reserved0 : 2;
+  } Bits;
+} CHANNEL_OPTION;
+
 
 #ifndef ABSOLUTE
 #define ABSOLUTE                      1
@@ -106,6 +157,9 @@ typedef enum {
 #define BIT31                 0x80000000
 #endif
 
+
+#pragma pack(1)
+
 typedef enum  {
   Pfct =  0,
   PfctT,
@@ -134,7 +188,6 @@ typedef struct {
 /**
   Final training values stored on a per blueprint level. Needs to be per blueprint
   in case of a system with more than 1 level of memory per channel.
-
 **/
 typedef struct {
   UINT16    Values[MAX_BLUEPRINTS][MAX_NUM_ALGOS][MAX_RANKS][MAX_STROBES];
@@ -214,6 +267,7 @@ typedef struct {
   UINT8                     OdtHigh;
   UINT16                    LP4_MR0VALUE;
   UINT16                    LP4_MR4VALUE;
+  CHANNEL_OPTION            ChOption;
 } CHANNEL;
 
 typedef struct {
@@ -244,7 +298,6 @@ typedef struct {
   BOOT_VARIABLE_NV_DATA   BootVariableNvData;
 } MRC_NV_DATA_FRAME;
 
-#pragma pack()
 #pragma pack(pop)
 #endif
 
