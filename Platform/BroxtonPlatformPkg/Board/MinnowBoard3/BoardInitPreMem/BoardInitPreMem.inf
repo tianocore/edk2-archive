@@ -2,7 +2,7 @@
 #  Board detected module for Intel(R) Atom(TM) x5 Processor Series.
 #  It will detect the board ID.
 #
-#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -39,6 +39,7 @@
   IntelFsp2Pkg/IntelFsp2Pkg.dec
   BroxtonPlatformPkg/Common/SampleCode/IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
   IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  Silicon\BroxtonSoC\BroxtonSiPkg\NorthCluster\MemoryInit\MemoryInit.dec
 
 [Pcd]
   gPlatformModuleTokenSpaceGuid.PcdBoardId
