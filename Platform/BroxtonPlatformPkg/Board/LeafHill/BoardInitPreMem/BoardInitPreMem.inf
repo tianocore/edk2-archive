@@ -39,7 +39,6 @@
   IntelFsp2Pkg/IntelFsp2Pkg.dec
   BroxtonPlatformPkg/Common/SampleCode/IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
   IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
-  Silicon\BroxtonSoC\BroxtonSiPkg\NorthCluster\MemoryInit\MemoryInit.dec
 
 [Pcd]
   gPlatformModuleTokenSpaceGuid.PcdBoardId

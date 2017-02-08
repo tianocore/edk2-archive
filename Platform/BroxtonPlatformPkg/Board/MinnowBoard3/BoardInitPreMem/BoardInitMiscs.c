@@ -14,7 +14,6 @@
 **/
 
 #include "BoardInitMiscs.h"
-#include "MmrcData.h"
 
 UPDATE_FSPM_UPD_FUNC mMb3UpdateFspmUpdPtr = Mb3UpdateFspmUpd;
 DRAM_CREATE_POLICY_DEFAULTS_FUNC   mMb3DramCreatePolicyDefaultsPtr = Mb3DramCreatePolicyDefaults;
@@ -30,9 +29,6 @@ Mb3UpdateFspmUpd (
   EFI_PLATFORM_INFO_HOB          *PlatformInfo = NULL;
   DRAM_POLICY_PPI                *DramPolicy;
   EFI_STATUS                     Status;
-  MRC_NV_DATA_FRAME              *MrcNvData;
-  MRC_PARAMS_SAVE_RESTORE        *MrcParamsHob;
-  BOOT_VARIABLE_NV_DATA          *BootVariableNvDataHob;
 
   Status = (*PeiServices)->LocatePpi (
                              PeiServices,
@@ -68,20 +64,11 @@ Mb3UpdateFspmUpd (
     FspUpdRgn->FspmConfig.InterleavedMode                   = DramPolicy->InterleavedMode;
     FspUpdRgn->FspmConfig.MinRefRate2xEnable                = DramPolicy->MinRefRate2xEnabled;
     FspUpdRgn->FspmConfig.DualRankSupportEnable             = DramPolicy->DualRankSupportEnabled;
+    FspUpdRgn->FspmArchUpd.NvsBufferPtr                     = (VOID *)(UINT32)DramPolicy->MrcTrainingDataPtr;
+    FspUpdRgn->FspmConfig.MrcBootDataPtr                    = (VOID *)(UINT32)DramPolicy->MrcBootDataPtr;
 
     CopyMem (&(FspUpdRgn->FspmConfig.Ch0_RankEnable), &DramPolicy->ChDrp, sizeof(DramPolicy->ChDrp));
     CopyMem (&(FspUpdRgn->FspmConfig.Ch0_Bit_swizzling), &DramPolicy->ChSwizzle, sizeof (DramPolicy->ChSwizzle));
-
-    if (((VOID *)(UINT32)DramPolicy->MrcTrainingDataPtr != 0) &&
-        ((VOID *)(UINT32)DramPolicy->MrcBootDataPtr     != 0)) {
-      MrcNvData = (MRC_NV_DATA_FRAME *) AllocateZeroPool (sizeof (MRC_NV_DATA_FRAME));
-      MrcParamsHob = (MRC_PARAMS_SAVE_RESTORE*)((UINT32)DramPolicy->MrcTrainingDataPtr);
-      BootVariableNvDataHob = (BOOT_VARIABLE_NV_DATA*)((UINT32)DramPolicy->MrcBootDataPtr);
-      CopyMem(&(MrcNvData->MrcParamsSaveRestore), MrcParamsHob, sizeof (MRC_PARAMS_SAVE_RESTORE));
-      CopyMem(&(MrcNvData->BootVariableNvData), BootVariableNvDataHob, sizeof (BOOT_VARIABLE_NV_DATA));
-      FspUpdRgn->FspmArchUpd.NvsBufferPtr = (VOID *)(UINT32)MrcNvData;
-    }
-
   }
   //
   // override RankEnable settings for Minnow
