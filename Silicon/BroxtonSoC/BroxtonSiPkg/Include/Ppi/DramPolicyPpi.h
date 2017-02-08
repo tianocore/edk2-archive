@@ -1,9 +1,8 @@
-
 /** @file
   Dram Policy PPI is used for specifying platform
   related Intel silicon information and policy setting.
 
-  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -57,12 +56,10 @@ typedef struct {
   UINT8                 RmtMode;
   UINT8                 RmtCheckRun;
   UINT16                RmtMarginCheckScaleHighThreshold;
-  UINT8                 Reserved1;
   UINT32                MsgLevelMask;
   UINT8                 SpdAddress[DRAM_POLICY_NUMBER_SPD_ADDRESSES];
   UINT8                 ChSwizzle[DRAM_POLICY_NUMBER_CHANNELS][DRAM_POLICY_NUMBER_BITS];
   DRP_DRAM_POLICY       ChDrp[DRAM_POLICY_NUMBER_CHANNELS];
-  UINT8                 Reserved2;
   UINT8                 DebugMsgLevel;
   UINT8                 reserved[13];
 } DRAM_POLICY_PPI;
