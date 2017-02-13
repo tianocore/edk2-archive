@@ -1,7 +1,7 @@
 /** @file
   Implementation of Fsp SC Policy Initialization.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -601,7 +601,7 @@ PeiFspScPolicyInit (
         // Flash Protection Range Register initialization
         //
         for (Index = 0; Index < SC_FLASH_PROTECTED_RANGES; Index++) {
-          FspsUpd->FspsConfig.WriteProtectionEnable[Index]  = TRUE;
+          FspsUpd->FspsConfig.WriteProtectionEnable[Index]  = SystemConfiguration->ScBiosLock == TRUE ? TRUE : FALSE;
           FspsUpd->FspsConfig.ReadProtectionEnable[Index]   = FALSE;
         }
 

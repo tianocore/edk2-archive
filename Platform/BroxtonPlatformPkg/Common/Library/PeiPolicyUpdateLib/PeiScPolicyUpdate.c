@@ -1,7 +1,7 @@
 /** @file
   This file is SampleCode of the library for Intel PCH PEI Policy initialization.
 
-  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -277,13 +277,11 @@ UpdatePeiScPolicy (
   UINT16                          BoardId;
   UINTN                           VariableSize;
   SYSTEM_CONFIGURATION            SystemConfiguration;
-  UINT8                           Index;
   UINT8                           PortIndex;
   UINT32                          SpiHsfsReg;
   UINT32                          SpiFdodReg;
   UINT8                           DevIndex;
   UINT8                           HdaIndex;
-  BOOLEAN                         FlashProtectionEnabled;
   SC_GENERAL_CONFIG               *GeneralConfig;
   SC_SATA_CONFIG                  *SataConfig;
   SC_PCIE_CONFIG                  *PcieConfig;
@@ -729,41 +727,6 @@ UpdatePeiScPolicy (
   }
   PmConfig->PowerButterDebounceMode = SystemConfiguration.PowerButterDebounceMode;
 
-  if ((GetBxtSeries() == BxtP) && (IsSpiBoot ())) {
-    //
-    // Configure Flash Protection Range Registers
-    //
-    FlashProtectionEnabled = SystemConfiguration.FprrEnable == TRUE ? TRUE : FALSE;
-
-    //
-    // Enabling Flash Protection Range Registers
-    // Enable FPRR policy and set up ranges on non-Capsule Update flow with Flash Wear-Out Protection enabled
-    // PrintFlashProtectionConfig() dumps FPRR information during ScPrintPolicyPpi()
-    // FPRR  bit is enabled by default as per Platform policy, except that when system is in recovery mode or FDO is enabled. In this case this will be disabled as part of Firmware Update / Recovery update
-    //
-    if (FlashProtectionEnabled && (FdoEnabledGuidHob == NULL)) {
-      //
-      // Flash Protection Range Register initialization
-      //
-      for (Index = 0; Index < SC_FLASH_PROTECTED_RANGES; Index++) {
-        FlashProtectionConfig->ProtectRange[Index].WriteProtectionEnable  = TRUE;
-        FlashProtectionConfig->ProtectRange[Index].ReadProtectionEnable   = FALSE;
-      }
-
-      DEBUG ((EFI_D_INFO, "IbbOffset = %x , IbbSize = %x\n", FixedPcdGet32 (PcdFlashIbbRegionMappedBase), FixedPcdGet32 (PcdFlashIbbRegionSize)));
-      DEBUG ((EFI_D_INFO, "ObbOffset = %x , ObbSize = %x\n", FixedPcdGet32 (PcdFlashObbRegionMappedBase), FixedPcdGet32 (PcdFlashObbRegionSize)));
-
-      //
-      // Assign FPRR ranges
-      //
-      FlashProtectionConfig->ProtectRange[0].ProtectedRangeBase    = (UINT16) ((FixedPcdGet32 (PcdFlashIbbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress)) >> 12);
-      FlashProtectionConfig->ProtectRange[0].ProtectedRangeLimit   = (UINT16) ((FixedPcdGet32 (PcdFlashIbbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress) + FixedPcdGet32 (PcdFlashIbbRegionSize) - 1) >> 12);
-      FlashProtectionConfig->ProtectRange[1].ProtectedRangeBase    = (UINT16) ((FixedPcdGet32 (PcdFlashObbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress)) >> 12);
-      FlashProtectionConfig->ProtectRange[1].ProtectedRangeLimit   = (UINT16) ((FixedPcdGet32 (PcdFlashObbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress) + FixedPcdGet32 (PcdFlashObbRegionSize) - 1) >> 12);
-    } else {
-      DEBUG ((DEBUG_INFO, " BIOS FPRR is not done  -FDO ASSERT Status "));
-    }
-  }
 
   DciConfig->DciEn         = SystemConfiguration.DciEn;
   DciConfig->DciAutoDetect = SystemConfiguration.DciAutoDetect;
