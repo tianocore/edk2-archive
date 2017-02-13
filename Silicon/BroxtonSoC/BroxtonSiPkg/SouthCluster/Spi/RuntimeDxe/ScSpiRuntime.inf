@@ -1,0 +1,60 @@
+## @file
+#  Component description file for SPI Runtime driver.
+#
+#  Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ScSpiRuntime
+  FILE_GUID                      = C194C6EA-B68C-4981-B64B-9BD271474B20
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InstallScSpi
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 EBC
+
+[Sources]
+  ScSpi.h
+  ScSpi.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonSiPkg/BroxtonSiPrivate.dec
+
+[LibraryClasses]
+  UefiRuntimeServicesTableLib
+  UefiRuntimeLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  DxeServicesTableLib
+  UefiLib
+  DebugLib
+  MemoryAllocationLib
+  IoLib
+  MmPciLib
+  ScSpiCommonLib
+
+[Guids]
+  gEfiEventVirtualAddressChangeGuid ## UNDEFINED
+
+[Protocols]
+  gScSpiProtocolGuid ## PRODUCES
+
+[Depex]
+  gEfiStatusCodeRuntimeProtocolGuid AND
+  TRUE
+
