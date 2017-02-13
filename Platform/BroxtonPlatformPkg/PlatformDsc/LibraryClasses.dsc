@@ -145,6 +145,7 @@
    #
    SmbusLib|$(PLATFORM_PACKAGE_COMMON)/Library/SmbusLib/SmbusLib.inf
    ScAslUpdateLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/SampleCode/Library/AslUpdate/Dxe/ScAslUpdateLib.inf
+   ScSpiCommonLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/BaseScSpiCommonLib/BaseScSpiCommonLib.inf
 
    #
    # Platform
