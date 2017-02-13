@@ -171,6 +171,19 @@
   $(PLATFORM_SI_PACKAGE)/SouthCluster/ScSmiDispatcher/Smm/ScSmiDispatcher.inf
   $(PLATFORM_SI_PACKAGE)/SouthCluster/ScInit/Smm/ScInitSmm.inf
   $(PLATFORM_SI_PACKAGE)/SouthCluster/SampleCode/BiosWriteProtect/Smm/ScBiosWriteProtect.inf
+  $(PLATFORM_SI_PACKAGE)/SouthCluster/Spi/RuntimeDxe/ScSpiRuntime.inf {
+    <PcdsPatchableInModule>
+      gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0xF0000043
+    <PcdsFixedAtBuild>
+      gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x27
+    <LibraryClasses>
+!if $(TARGET) != RELEASE
+      DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+!endif
+    <BuildOptions>
+      ICC:*_*_*_CC_FLAGS = /D MDEPKG_NDEBUG
+      GCC:*_*_*_CC_FLAGS = -D MDEPKG_NDEBUG
+  }
 
   $(PLATFORM_SI_PACKAGE)/NorthCluster/PciHostBridge/Dxe/PciHostBridge.inf
   $(PLATFORM_SI_PACKAGE)/NorthCluster/SaInit/Dxe/SaInit.inf
@@ -466,4 +479,9 @@
   # USB TypeC
   #
   $(PLATFORM_PACKAGE_COMMON)/Acpi/UsbTypeCDxe/UsbTypeCDxe.inf
+  
+  #
+  # Application
+  #
+  $(PLATFORM_PACKAGE_COMMON)/Application/FirmwareUpdate/FirmwareUpdate.inf
 

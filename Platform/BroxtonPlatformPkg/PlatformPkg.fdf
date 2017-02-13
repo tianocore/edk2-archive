@@ -424,6 +424,7 @@ APRIORI DXE {
   INF $(PLATFORM_SI_PACKAGE)/NorthCluster/PciHostBridge/Dxe/PciHostBridge.inf
   INF $(PLATFORM_SI_PACKAGE)/NorthCluster/SaInit/Dxe/SaInit.inf
   INF RuleOverride = ACPITABLE $(PLATFORM_SI_PACKAGE)/NorthCluster/AcpiTables/SaAcpiTables.inf
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Spi/RuntimeDxe/ScSpiRuntime.inf
 
   #
   # EDK II Related Platform codes
