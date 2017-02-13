@@ -624,22 +624,17 @@ ScOnEndOfDxe (
   )
 {
   EFI_STATUS                 Status;
-  UINTN                      Index;
   UINT32                     FuncDisableReg;
-  UINT32                     Data32;
   UINT32                     Data32And;
   UINT32                     Data32Or;
   UINT16                     AcpiBaseAddr;
   UINT32                     PmcBase;
   UINT8                      NumOfDevltrOverride;
-  UINT32                     DlockValue;
   UINTN                      PciLpcRegBase;
   UINTN                      PciSpiRegBase;
-  UINTN                      SpiBar0;
   BXT_SERIES                 BxtSeries;
   UINT8                      Data8;
   SC_LOCK_DOWN_CONFIG        *LockDownConfig;
-  SC_FLASH_PROTECTION_CONFIG *FlashProtectionConfig;
   UINT16                     Data16And;
   UINT16                     Data16Or;
   SI_POLICY_HOB              *SiPolicyHob;
@@ -679,72 +674,6 @@ ScOnEndOfDxe (
     1,
     (VOID *) (UINTN) (PmcBase + R_PMC_PMIR)
     );
-
-  if (BxtSeries == BxtP){
-    SpiBar0 = MmioRead32 (PciSpiRegBase + R_SPI_BASE) & ~(B_SPI_BAR0_MASK);
-    Status = GetConfigBlock ((VOID *) mScPolicy, &gFlashProtectionConfigGuid, (VOID *) &FlashProtectionConfig);
-    ASSERT_EFI_ERROR (Status);
-
-    //
-    // Program the Flash Protection Range Register based on policy
-    //
-    DlockValue = MmioRead32 (SpiBar0 + R_SPI_DLOCK);
-
-    FlashProtectionConfig->ProtectRange[0].ProtectedRangeBase    = (UINT16) ((FixedPcdGet32 (PcdFlashIbbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress)) >> 12);
-    FlashProtectionConfig->ProtectRange[0].ProtectedRangeLimit   = (UINT16) ((FixedPcdGet32 (PcdFlashIbbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress) + FixedPcdGet32 (PcdFlashIbbRegionSize) - 1) >> 12);
-    FlashProtectionConfig->ProtectRange[1].ProtectedRangeBase    = (UINT16) ((FixedPcdGet32 (PcdFlashObbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress)) >> 12);
-    FlashProtectionConfig->ProtectRange[1].ProtectedRangeLimit   = (UINT16) ((FixedPcdGet32 (PcdFlashObbRegionMappedBase) - FixedPcdGet32 (PcdFlashAreaBaseAddress) + FixedPcdGet32 (PcdFlashObbRegionSize) - 1) >> 12);
-
-    for (Index = 0; Index < SC_FLASH_PROTECTED_RANGES; ++Index) {
-      if ((FlashProtectionConfig->ProtectRange[Index].WriteProtectionEnable ||
-           FlashProtectionConfig->ProtectRange[Index].ReadProtectionEnable) != TRUE) {
-        continue;
-      }
-
-      //
-      // Proceed to program the register after ensure it is enabled
-      //
-      Data32 = 0;
-      Data32 |= (FlashProtectionConfig->ProtectRange[Index].WriteProtectionEnable == TRUE) ? B_SPI_PRX_WPE : 0;
-      Data32 |= (FlashProtectionConfig->ProtectRange[Index].ReadProtectionEnable == TRUE) ? B_SPI_PRX_RPE : 0;
-      Data32 |= ((UINT32) FlashProtectionConfig->ProtectRange[Index].ProtectedRangeLimit << N_SPI_PRX_PRL) & B_SPI_PRX_PRL_MASK;
-      Data32 |= ((UINT32) FlashProtectionConfig->ProtectRange[Index].ProtectedRangeBase << N_SPI_PRX_PRB) & B_SPI_PRX_PRB_MASK;
-      DEBUG ((DEBUG_INFO, "Protected range %d: 0x%08x \n", Index, Data32));
-
-      DlockValue |= (UINT32) (B_SPI_DLOCK_PR0LOCKDN << Index);
-      MmioWrite32 ((UINTN) (SpiBar0 + (R_SPI_PR0 + (Index * S_SPI_PRX))), Data32);
-      S3BootScriptSaveMemWrite (
-        S3BootScriptWidthUint32,
-        (UINTN) (SpiBar0 + (R_SPI_PR0 + (Index * S_SPI_PRX))),
-        1,
-        (VOID *) (UINTN) (SpiBar0 + (R_SPI_PR0 + (Index * S_SPI_PRX)))
-        );
-    }
-
-    //
-    // Program DLOCK register
-    //
-    MmioWrite32 ((UINTN) (SpiBar0 + R_SPI_DLOCK), DlockValue);
-    S3BootScriptSaveMemWrite (
-      S3BootScriptWidthUint32,
-      (UINTN) (SpiBar0 + R_SPI_DLOCK),
-      1,
-      (VOID *) (UINTN) (SpiBar0 + R_SPI_DLOCK)
-      );
-
-    //
-    // In SPI controller the BIOS should set the Flash Configuration Lock-Down bit
-    // (SPI_BAR0 + 04[15]) at end of post.  When set to 1, those Flash Program Registers
-    // that are locked down by this FLOCKDN bit cannot be written.
-    //
-    MmioOr32 ((UINTN) (SpiBar0 + R_SPI_HSFS), (UINT32) (B_SPI_HSFS_FLOCKDN));
-    S3BootScriptSaveMemWrite (
-      EfiBootScriptWidthUint32,
-      (UINTN) (SpiBar0 + R_SPI_HSFS),
-      1,
-      (VOID *) (UINTN) (SpiBar0 + R_SPI_HSFS)
-      );
-  }
 
   Status = GetConfigBlock ((VOID *) mScPolicy, &gLockDownConfigGuid, (VOID *) &LockDownConfig);
   ASSERT_EFI_ERROR (Status);
