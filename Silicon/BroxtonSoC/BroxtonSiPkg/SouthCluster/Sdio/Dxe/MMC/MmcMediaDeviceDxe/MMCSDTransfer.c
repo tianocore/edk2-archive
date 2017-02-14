@@ -1,7 +1,7 @@
 /** @file
   SMMC transfer specific functions.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -2268,7 +2268,7 @@ SetEmmcWpOnEvent(
   //
   // Enable the eMMC protection
   //
-  if (TRUE) {
+  if (FALSE) {
     if (!WriteProtectDone) {
       Status = MmcReadExtCsd (CardData);
       if (EFI_ERROR (Status)) {

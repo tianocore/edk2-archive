@@ -1,7 +1,7 @@
 /** @file
   UEFI Driver Entry and Binding support.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -28,6 +28,7 @@ EFI_DRIVER_BINDING_PROTOCOL gMediaDeviceDriverBinding = {
   NULL
 };
 
+EFI_EMMC_CARD_INFO_PROTOCOL *gEfiEmmcCardInfo = NULL;
 
 /**
   Entry point for EFI drivers.
@@ -229,7 +230,7 @@ MediaDeviceDriverBindingStart (
   }
 
 
-  Status = MediaDeviceDriverInstallBlockIo (CardData);
+  Status = MediaDeviceDriverInstallBlockIo (This, CardData);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "MediaDeviceDriverBindingStart: Fail to install gEfiBlockIoProtocolGuid \n"));
     goto Exit;
@@ -246,7 +247,20 @@ MediaDeviceDriverBindingStart (
              );
   if (EFI_ERROR (Status)) {
     Status = EFI_OUT_OF_RESOURCES;
-    MediaDeviceDriverUninstallBlockIo (CardData);
+    for (Loop = 0; Loop < MAX_NUMBER_OF_PARTITIONS; Loop++) {
+      if (!CardData->Partitions[Loop].Present) {
+        continue;
+      }
+      gBS->UninstallMultipleProtocolInterfaces (
+             CardData->Partitions[Loop].Handle,
+             &gEfiBlockIoProtocolGuid,
+             &CardData->Partitions[Loop].BlockIo,
+             &gEfiDevicePathProtocolGuid,
+             CardData->Partitions[Loop].DevPath,
+             NULL
+             );
+    }
+    goto Exit;
   }
   if (EfiEmmcCardInfoRegister != NULL) {
 
@@ -263,9 +277,24 @@ MediaDeviceDriverBindingStart (
                     );
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "MediaDeviceDriverBindingStart: Install eMMC Card info protocol failed\n"));
-    MediaDeviceDriverUninstallBlockIo (CardData);
+      for (Loop = 0; Loop < MAX_NUMBER_OF_PARTITIONS; Loop++) {
+        if (!CardData->Partitions[Loop].Present) {
+          continue;
+        }
+        gBS->UninstallMultipleProtocolInterfaces (
+               CardData->Partitions[Loop].Handle,
+               &gEfiBlockIoProtocolGuid,
+               &CardData->Partitions[Loop].BlockIo,
+               &gEfiDevicePathProtocolGuid,
+               CardData->Partitions[Loop].DevPath,
+               NULL
+               );
+      }
+
       goto Exit;
     }
+
+    gEfiEmmcCardInfo = EfiEmmcCardInfoRegister;
   }
 
   DEBUG ((DEBUG_INFO, "MediaDeviceDriverBindingStart: Started\n"));
@@ -275,7 +304,7 @@ Exit:
     DEBUG ((EFI_D_ERROR, "MediaDeviceDriverBindingStart: End with failure\n"));
     if (CardData != NULL && MmcHostIo != NULL) {
       if (CardData->RawBufferPointer != NULL) {
-        gBS->FreePages ((EFI_PHYSICAL_ADDRESS) CardData->RawBufferPointer, EFI_SIZE_TO_PAGES (MmcHostIo->HostCapability.BoundarySize * 2));
+        gBS->FreePages ((EFI_PHYSICAL_ADDRESS) (UINTN) CardData->RawBufferPointer, EFI_SIZE_TO_PAGES (MmcHostIo->HostCapability.BoundarySize * 2));
       }
       FreePool (CardData);
     }
@@ -314,70 +343,102 @@ MediaDeviceDriverBindingStop (
 {
   EFI_STATUS                Status;
   CARD_DATA                 *CardData;
-  EFI_BLOCK_IO_PROTOCOL     *BlockIo;
+  BOOLEAN                   AllChildrenStopped;
+  UINTN                     Index;
+  UINTN                     Pages = 0;
 
-  //
-  // First find BlockIo Protocol
-  //
-  Status = gBS->OpenProtocol (
-                  Controller,
-                  &gEfiBlockIoProtocolGuid,
-                  (VOID**) &BlockIo,
-                  This->DriverBindingHandle,
-                  Controller,
-                  EFI_OPEN_PROTOCOL_GET_PROTOCOL
-                  );
+  Status = EFI_SUCCESS;
+  CardData = gEfiEmmcCardInfo->CardData;
 
-  if (EFI_ERROR (Status)) {
-    return Status;
-  }
+  if (NumberOfChildren == 0) {
+    Status = gBS->UninstallMultipleProtocolInterfaces (
+                    Controller,
+                    &gEfiEmmcCardInfoProtocolGuid,
+                    gEfiEmmcCardInfo,
+                    NULL
+                    );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((EFI_D_ERROR, "MediaDeviceDriverBindingStop: UNINSTALL gEfiEmmcCardInfoProtocolGuid FAILURE\n"));
+      return Status;
+    }
 
-  gBS->CloseProtocol (
+    FreeUnicodeStringTable (CardData->ControllerNameTable);
+
+    Pages = (2 * (CardData->MmcHostIo->HostCapability.BoundarySize));
+    if (CardData->RawBufferPointer != NULL) {
+      FreePages (CardData->RawBufferPointer, EFI_SIZE_TO_PAGES(Pages));
+    }
+
+    Status = gBS->CloseProtocol (
          Controller,
          &gEfiMmcHostIoProtocolGuid,
          This->DriverBindingHandle,
          Controller
          );
 
-  CardData  = CARD_DATA_FROM_THIS (BlockIo);
+    if (MediaDeviceDriverAllPartitionNotPresent(CardData)) {
+      FreePool (CardData);
+      FreePool (gEfiEmmcCardInfo);
+      gEfiEmmcCardInfo = NULL;
+    }
 
-  //
-  // Uninstall Block I/O protocol from the device handle
-  //
-  Status = MediaDeviceDriverUninstallBlockIo (CardData);
-  if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  if (CardData != NULL) {
-    FreeUnicodeStringTable (CardData->ControllerNameTable);
-    if (CardData->RawBufferPointer != NULL) {
-      FreePool (CardData->RawBufferPointer);
+  AllChildrenStopped = TRUE;
+  for (Index = 0; Index < NumberOfChildren; Index++) {
+    Status = MediaDeviceDriverUninstallBlockIo(This, CardData, ChildHandleBuffer[Index]);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((EFI_D_ERROR, "MediaDeviceDriverBindingStop: UNINSTALL block io FAILURE\n"));
+      AllChildrenStopped = FALSE;
+      break;
     }
-    FreePool (CardData);
   }
 
   return Status;
 }
 
 
+BOOLEAN
+MediaDeviceDriverAllPartitionNotPresent (
+  IN  CARD_DATA    *CardData
+  )
+{
+  BOOLEAN             AllPartitionNotPresent;
+  UINTN               Loop;
+  MMC_PARTITION_DATA  *Partition;
+
+  Partition = CardData->Partitions;
+
+  AllPartitionNotPresent = TRUE;
+
+  for (Loop = 0; Loop < MAX_NUMBER_OF_PARTITIONS; Partition++, Loop++) {
+    if (Partition->Present) {
+      AllPartitionNotPresent = FALSE;
+      break;
+    }
+  }
+
+  return AllPartitionNotPresent;
+}
+
+
 STATIC
 struct {
-  CONTROLLER_DEVICE_PATH    Controller;
+  DEVICE_LOGICAL_UNIT_DEVICE_PATH  LogicalUnit;
   EFI_DEVICE_PATH_PROTOCOL  End;
-} ControllerDevPathTemplate = {
+} EmmcDevPathTemplate = {
   {
     {
-      HARDWARE_DEVICE_PATH,
-      HW_CONTROLLER_DP,
+      MESSAGING_DEVICE_PATH,
+      MSG_DEVICE_LOGICAL_UNIT_DP,
       {
-        sizeof (CONTROLLER_DEVICE_PATH),
+        sizeof (DEVICE_LOGICAL_UNIT_DEVICE_PATH),
         0
       },
     },
     0
   },
-
   {
     END_DEVICE_PATH_TYPE,
     END_ENTIRE_DEVICE_PATH_SUBTYPE,
@@ -392,6 +453,7 @@ struct {
 /**
   MediaDeviceDriverInstallBlockIo
 
+  @param[in]  This                    Pointer to the EFI_DRIVER_BINDING_PROTOCOL.
   @param[in]  CardData                Pointer to CARD_DATA
 
   @retval     EFI_INVALID_PARAMETER
@@ -401,13 +463,15 @@ struct {
 **/
 EFI_STATUS
 MediaDeviceDriverInstallBlockIo (
-  IN  CARD_DATA    *CardData
+  IN  EFI_DRIVER_BINDING_PROTOCOL     *This,
+  IN  CARD_DATA                       *CardData
   )
 {
   EFI_STATUS                Status;
-  UINTN                     Loop;
+  UINT8                     Loop;
   MMC_PARTITION_DATA        *Partition;
   EFI_DEVICE_PATH_PROTOCOL  *MainPath;
+  EFI_MMC_HOST_IO_PROTOCOL  *MmcHostIo = NULL;
 
   Partition = CardData->Partitions;
 
@@ -430,13 +494,12 @@ MediaDeviceDriverInstallBlockIo (
     Partition->Handle = NULL;
     Partition->CardData = CardData;
 
-    ControllerDevPathTemplate.Controller.ControllerNumber = (UINT32) Loop;
+    EmmcDevPathTemplate.LogicalUnit.Lun = Loop;
     Partition->DevPath =
       AppendDevicePath (
         MainPath,
-        (EFI_DEVICE_PATH_PROTOCOL *) &ControllerDevPathTemplate
+        (EFI_DEVICE_PATH_PROTOCOL *) &EmmcDevPathTemplate
         );
-
     if (Partition->DevPath == NULL) {
       Status = EFI_OUT_OF_RESOURCES;
       break;
@@ -460,29 +523,16 @@ MediaDeviceDriverInstallBlockIo (
                     );
 
     //
-    // Handle Boot partitions
+    // Open parent controller by child
     //
-    if (CardData->CardType == MMCCard) {
-      //
-      // skip unbootable partitions display on boot manager
-      //
-      // Loop [0] OS boot partition
-      // Loop [1] BIOS LBP1
-      // Loop [2] BIOS LBP2
-      // Loop [3] GPP1
-      // Loop [4] GPP2
-      // Loop [5] GPP3
-      // Loop [6] GPP4
-      //
-      if (Loop != 0) {
-        Status = gBS->InstallProtocolInterface (
-                        &(Partition->Handle),
-                        &gEfiUnbootablePartitionGuid,
-                        EFI_NATIVE_INTERFACE,
-                        NULL
-                        );
-      }
-    }
+    Status = gBS->OpenProtocol (
+                    CardData->Handle,
+                    &gEfiMmcHostIoProtocolGuid,
+                    (VOID **) &MmcHostIo,
+                    This->DriverBindingHandle,
+                    Partition->Handle,
+                    EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER
+                    );
   }
 
   return Status;
@@ -492,7 +542,9 @@ MediaDeviceDriverInstallBlockIo (
 /**
   MediaDeviceDriverUninstallBlockIo
 
+  @param[in]  This                     Pointer to the EFI_DRIVER_BINDING_PROTOCOL.
   @param[in]  CardData                 Pointer to CARD_DATA
+  @param[in]  Handle                   Handle of Partition
 
   @retval     EFI_INVALID_PARAMETER
   @retval     EFI_UNSUPPORTED
@@ -501,7 +553,9 @@ MediaDeviceDriverInstallBlockIo (
 **/
 EFI_STATUS
 MediaDeviceDriverUninstallBlockIo (
-  IN  CARD_DATA    *CardData
+  IN  EFI_DRIVER_BINDING_PROTOCOL  *This,
+  IN  CARD_DATA                    *CardData,
+  IN  EFI_HANDLE                   Handle
   )
 {
   EFI_STATUS          Status;
@@ -512,17 +566,40 @@ MediaDeviceDriverUninstallBlockIo (
   Status = EFI_SUCCESS;
 
   for (Loop = 0; Loop < MAX_NUMBER_OF_PARTITIONS; Partition++, Loop++) {
-    if (!Partition->Present) {
-      continue;
+    if (!Partition->Present || Partition->Handle != Handle) {
+     continue;
     }
 
-    Status = gBS->UninstallProtocolInterface (
+    //
+    // Close MmcHostIoProtocol by child
+    //
+    Status = gBS->CloseProtocol (
+                    CardData->Handle,
+                    &gEfiMmcHostIoProtocolGuid,
+                    This->DriverBindingHandle,
+                    Partition->Handle
+                    );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((EFI_D_ERROR, "CloseProtocol gEfiMmcHostIoProtocolGuid FAILURE \n"));
+      return Status;
+    }
+
+    Status = gBS->UninstallMultipleProtocolInterfaces (
                     Partition->Handle,
                     &gEfiBlockIoProtocolGuid,
-                    &Partition->BlockIo
+                    &Partition->BlockIo,
+                    &gEfiDevicePathProtocolGuid,
+                    Partition->DevPath,
+                    NULL
                     );
+    Partition->Present = FALSE;
+    DEBUG ((EFI_D_ERROR, "MediaDeviceDriverBindingStop gEfiBlockIoProtocolGuid removed.  %x\n", Status));
+    if (EFI_ERROR (Status)) {
+      DEBUG ((EFI_D_ERROR, "MediaDeviceDriverUninstallBlockIo UNISTALL FAILURE \n"));
+    }
+    return Status;
   }
 
-  return Status;
+  return EFI_INVALID_PARAMETER;
 }
 
