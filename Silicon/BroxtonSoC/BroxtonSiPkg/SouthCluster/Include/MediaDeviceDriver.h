@@ -1,7 +1,7 @@
 /** @file
   Media Device Driver header.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -172,6 +172,7 @@ MediaDeviceDriverEntryPoint (
 /**
   MediaDeviceDriverInstallBlockIo
 
+  @param[in]  This
   @param[in]  CardData
 
   @retval     EFI_STATUS
@@ -179,22 +180,37 @@ MediaDeviceDriverEntryPoint (
 **/
 EFI_STATUS
 MediaDeviceDriverInstallBlockIo (
-  IN  CARD_DATA    *CardData
+  IN  EFI_DRIVER_BINDING_PROTOCOL  *This,
+  IN  CARD_DATA                    *CardData
   );
 
 /**
   MediaDeviceDriverUninstallBlockIo
 
+  @param[in]  This
   @param[in]  CardData
+  @param[in]  Handle
 
   @retval     EFI_STATUS
 
 **/
 EFI_STATUS
 MediaDeviceDriverUninstallBlockIo (
-  IN  CARD_DATA    *CardData
+  IN  EFI_DRIVER_BINDING_PROTOCOL  *This,
+  IN  CARD_DATA                    *CardData,
+  IN  EFI_HANDLE                   Handle
   );
 
+/**
+  MediaDeviceDriverAllPartitionNotPresent
+
+  @param[in]  CardData
+
+**/
+BOOLEAN
+MediaDeviceDriverAllPartitionNotPresent (
+  IN  CARD_DATA    *CardData
+  );
 /**
   MediaDeviceComponentNameGetDriverName
 
