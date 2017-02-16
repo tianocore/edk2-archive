@@ -52,6 +52,25 @@ typedef union {
   UINT8      Data8[4];
 } MrcVersion;
 
+typedef union {
+  UINT8      Data;
+  struct {
+
+    UINT8    RankSelectInterleavingEnable : 1;
+
+    UINT8    BankAddressHashingEnable : 1;
+
+    UINT8    Ch1ClkDisable : 1;
+
+    UINT8    Reserved : 1;
+
+    UINT8    AddressMapping : 2;
+
+    UINT8    Reserved0 : 2;
+  } Bits;
+} CHANNEL_OPTION;
+
+
 #ifndef ABSOLUTE
 #define ABSOLUTE                      1
 #define RELATIVE                      2
@@ -103,6 +122,9 @@ typedef enum {
 #define BIT30                 0x40000000
 #define BIT31                 0x80000000
 #endif
+
+
+#pragma pack(1)
 
 typedef enum  {
   Pfct =  0,
@@ -212,6 +234,7 @@ typedef struct {
   UINT8                     OdtHigh;
   UINT16                    LP4_MR0VALUE;
   UINT16                    LP4_MR4VALUE;
+  CHANNEL_OPTION            ChOption;
 } CHANNEL;
 
 typedef struct {
@@ -242,7 +265,6 @@ typedef struct {
   BOOT_VARIABLE_NV_DATA   BootVariableNvData;
 } MRC_NV_DATA_FRAME;
 
-#pragma pack()
 #pragma pack(pop)
 #endif
 
