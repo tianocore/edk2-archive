@@ -1,7 +1,7 @@
 /** @file
   Platform Initialization Driver.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -641,7 +641,7 @@ InitPlatformResolution (
   PcdSet32S (PcdVideoVerticalResolution, PanelResolution[mSystemConfiguration.IgdFlatPanel].VerticalResolution);
 }
 
-VOID 
+VOID
 OverrideSdCardPresence (
   VOID
   )
@@ -670,7 +670,7 @@ OverrideSdCardPresence (
   } else {
     P2sbMmioBar &= B_P2SB_BAR_BA;
   }
-  
+
   Gpio177PadConfigDW0RegAdd = P2SB_MMIO_ADDR (P2sbMmioBar, SOUTHWEST, 0x5D0);
   Gpio177RxState = MmioRead32(Gpio177PadConfigDW0RegAdd) & BIT1;
   DEBUG ((DEBUG_INFO, "Gpio177PadConfigDW0RegAdd: 0x%X\n", Gpio177PadConfigDW0RegAdd));
@@ -868,11 +868,6 @@ InitializePlatform (
 
   FdoEnabledGuidHob = GetFirstGuidHob (&gFdoModeEnabledHobGuid);
   if (FdoEnabledGuidHob != NULL) {
-    //
-    // Secure boot must be disabled in Flash Descriptor Override (FDO) boot
-    //
-    EnableCustomMode ();
-    DeleteKeys ();
   }
 
 #if (ENBDT_PF_ENABLE == 1) //BXTP
@@ -916,9 +911,9 @@ InitializePlatform (
                   &EfiExitBootServicesEvent
                   );
 
-  
-  OverrideSdCardPresence(); 
-        
+
+  OverrideSdCardPresence();
+
   return EFI_SUCCESS;
 }
 

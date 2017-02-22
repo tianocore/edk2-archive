@@ -450,7 +450,7 @@ APRIORI DXE {
 
   INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdControllerDxe/SdControllerDxe.inf
   INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdMediaDeviceDxe/SdMediaDeviceDxe.inf
-    
+
   INF IntelFrameworkModulePkg/Universal/Acpi/AcpiS3SaveDxe/AcpiS3SaveDxe.inf
 
   #
@@ -573,6 +573,13 @@ APRIORI DXE {
 }
 
   INF $(PLATFORM_PACKAGE_COMMON)/PnpDxe/PnpDxe.inf
+
+  #
+  # Secure Boot
+  #
+!if $(SECURE_BOOT_ENABLE) == TRUE
+  INF SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+!endif
 
   #
   # SMM
@@ -710,7 +717,7 @@ APRIORI DXE {
     SECTION PE32 = ShellBinPkg/UefiShell/$(IA32_X64_LC)/Shell.efi
   }
 
-  INF $(PLATFORM_PACKAGE_COMMON)/Features/UsbDeviceDxe/UsbDeviceDxe.inf  
+  INF $(PLATFORM_PACKAGE_COMMON)/Features/UsbDeviceDxe/UsbDeviceDxe.inf
 
   #
   # USB TypeC

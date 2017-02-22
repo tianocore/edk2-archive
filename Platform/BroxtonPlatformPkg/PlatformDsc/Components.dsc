@@ -234,6 +234,16 @@
 !endif
 
   #
+  # Secure Boot
+  #
+!if $(SECURE_BOOT_ENABLE) == TRUE
+  SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf {
+    <LibraryClasses>
+      PlatformSecureLib|SecurityPkg/Library/PlatformSecureLibNull/PlatformSecureLibNull.inf
+  }
+!endif
+
+  #
   # SMM
   #
   MdeModulePkg/Core/PiSmmCore/PiSmmIpl.inf
@@ -367,10 +377,10 @@
   $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcHostDxe/MmcHostDxe.inf
 
   $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcMediaDeviceDxe/MmcMediaDeviceDxe.inf
-  
+
   $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdControllerDxe/SdControllerDxe.inf
   $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdMediaDeviceDxe/SdMediaDeviceDxe.inf
-    
+
 
   !if $(ACPI50_ENABLE) == TRUE
     MdeModulePkg/Universal/SmmCommunicationBufferDxe/SmmCommunicationBufferDxe.inf
@@ -474,12 +484,12 @@
   PcAtChipsetPkg/8259InterruptControllerDxe/8259.inf
 
   $(PLATFORM_PACKAGE_COMMON)/Features/UsbDeviceDxe/UsbDeviceDxe.inf
-  
+
   #
   # USB TypeC
   #
   $(PLATFORM_PACKAGE_COMMON)/Acpi/UsbTypeCDxe/UsbTypeCDxe.inf
-  
+
   #
   # Application
   #
