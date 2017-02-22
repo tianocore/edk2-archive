@@ -13,7 +13,7 @@
   4. It save all the mapping info in NV variables which will be consumed
      by platform override protocol driver to publish the platform override protocol.
 
-  Copyright (c) 2007 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2007 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -508,43 +508,6 @@ SystemConfigCallback (
         if (Key.UnicodeChar == CHAR_CARRIAGE_RETURN) {
 
         }
-      } else if (KeyValue == 0x1237 /*KEY_CLEAR_KEK_AND_PK*/ ) {
-        //
-        //Delete PK, KEK, DB, DBx
-        //
-        EnableCustomMode ();
-        DeleteKeys ();
-        StrCpyS (StringBuffer1, 200, L"Clear Keys Completed");
-        StrCpyS (StringBuffer2, 200, L"Please Restart System");
-
-        //
-        // Popup a menu to notice user
-        //
-        do {
-          CreatePopUp (EFI_LIGHTGRAY | EFI_BACKGROUND_BLUE, &Key, StringBuffer1, StringBuffer2, NULL);
-        } while ((Key.ScanCode != SCAN_ESC) && (Key.UnicodeChar != CHAR_CARRIAGE_RETURN));
-
-        gRT->ResetSystem (EfiResetCold, EFI_SUCCESS, 0, NULL);
-      } else if (KeyValue == 0x1238 /*KEY_LOAD_DEFAULTS_KEYS*/ ) {
-        //
-        // Enroll PK, KEK, DB and DBx
-        //
-        EnrollKeys ();
-        StrCpyS (StringBuffer1, 200, L"Restore Keys Completed");
-        StrCpyS (StringBuffer2, 200, L"Please Restart System");
-
-        //
-        // Popup a notification menu
-        //
-        do {
-          CreatePopUp(EFI_LIGHTGRAY | EFI_BACKGROUND_BLUE, &Key, StringBuffer1, StringBuffer2, NULL);
-        } while ((Key.ScanCode != SCAN_ESC) && (Key.UnicodeChar != CHAR_CARRIAGE_RETURN));
-
-        //
-        // Reset the system
-        //
-        gRT->ResetSystem (EfiResetCold, EFI_SUCCESS, 0, NULL);
-
       } else if (KeyValue == 0x1239) {
         //
         // Popup a notification menu

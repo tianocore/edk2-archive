@@ -107,39 +107,6 @@ form formid = SECURITY_CONFIGURATION_FORM_ID,
   endif;
   endif;
 
-  subtitle text = STRING_TOKEN(STR_NULL_STRING);
-
-
-    subtitle text = STRING_TOKEN(STR_NULL_STRING);
-
-  oneof	varid	= Setup.SecureBootCustomMode,
-    prompt	  = STRING_TOKEN(STR_SECURE_BOOT_MODE_PROMPT),
-    help		  = STRING_TOKEN(STR_SECURE_BOOT_MODE_HELP),
-    option text = STRING_TOKEN(STR_SB_STANDARD_MODE), value=0x00, flags = DEFAULT | MANUFACTURING;
-    option text = STRING_TOKEN(STR_SB_CUSTOM_MODE), value=0x01, flags = 0;
-  endoneof;
-  oneof   varid   = Setup.UseProductKey,
-    prompt      = STRING_TOKEN(STR_SECURE_BOOT_PRO_KEY_PROMPT),
-    help        = STRING_TOKEN(STR_SECURE_BOOT_PRO_KEY_HELP),
-    option text = STRING_TOKEN(STR_DEV_KEY), value=0x00, flags = DEFAULT |  RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_PRO_KEY), value=0x01, flags = RESET_REQUIRED;
-  endoneof;
-    text
-      help   = STRING_TOKEN(STR_CLEAR_ALL_KEYS_HELP),
-      text   = STRING_TOKEN(STR_CLEAR_ALL_KEYS),
-      text   = STRING_TOKEN(STR_NULL_STRING),
-      flags  = INTERACTIVE,
-      key    = 0x1237; //KEY_CLEAR_KEK_AND_PK;
-
-    text
-      help   = STRING_TOKEN(STR_LOAD_DEFAULTS_KEYS_HELP),
-      text   = STRING_TOKEN(STR_LOAD_DEFAULTS_KEYS),
-      text   = STRING_TOKEN(STR_NULL_STRING),
-      flags  = INTERACTIVE,
-      key    = 0x1238; //KEY_LOAD_DEFAULTS_KEYS;
-
-  subtitle text = STRING_TOKEN(STR_NULL_STRING);
-
   //
   //TPM related
   //
@@ -154,7 +121,7 @@ form formid = SECURITY_CONFIGURATION_FORM_ID,
     option text = STRING_TOKEN(STR_TPM_DTPM_2_0), value = 0x03, flags = RESET_REQUIRED;
   endoneof;
 
-  suppressif NOT ideqval Setup.TPM == 1; 
+  suppressif NOT ideqval Setup.TPM == 1;
     oneof varid  = Setup.TPMSupportedBanks,
       prompt = STRING_TOKEN(STR_TPM2_PCR_ALLOCATE_PROMPT),
       help   = STRING_TOKEN(STR_TPM2_PCR_ALLOCATE_HELP),
@@ -164,6 +131,6 @@ form formid = SECURITY_CONFIGURATION_FORM_ID,
       option text = STRING_TOKEN(STR_TPM2_PCR_ALLOCATE_BOTH), value = TPM2_SUPPORTED_BANK_BOTH, flags = RESET_REQUIRED;
     endoneof;
   endif;
-  
+
 endform;
 

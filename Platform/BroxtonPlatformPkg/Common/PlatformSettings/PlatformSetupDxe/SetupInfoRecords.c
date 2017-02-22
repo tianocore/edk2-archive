@@ -1,7 +1,7 @@
 /** @file
   To retrieve various platform info data for Setup menu.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -47,8 +47,6 @@
 #include "ScAccess.h"
 #include "SetupMode.h"
 
-#define EFI_CUSTOM_MODE_NAME          L"CustomMode"
-extern EFI_GUID gEfiCustomModeEnableGuid;
 
 #define LEFT_JUSTIFY  0x01
 #define PREFIX_SIGN   0x02
@@ -65,7 +63,6 @@ EFI_GUID                        mProcessorProducerGuid;
 EFI_HII_HANDLE                  mHiiHandle;
 SYSTEM_CONFIGURATION            mSystemConfiguration;
 EFI_PLATFORM_INFO_HOB           *mPlatformInfo;
-UINT8                           mUseProductKey = 0;
 
 #define memset SetMem
 
@@ -1720,14 +1717,30 @@ SetupInfo (
 
 VOID
 CheckSystemConfigLoad (
-  SYSTEM_CONFIGURATION *SystemConfigPtr
+  SYSTEM_CONFIGURATION    *SystemConfigPtr
   )
 {
   EFI_STATUS              Status;
   SEC_OPERATION_PROTOCOL  *SeCOp;
   SEC_INFOMATION          SeCInfo;
+  UINT8                   SecureBoot;
+  UINTN                   DataSize;
 
-  mUseProductKey = SystemConfigPtr->UseProductKey;
+  DataSize = sizeof (SecureBoot);
+  Status = gRT->GetVariable (
+                  EFI_SECURE_BOOT_MODE_NAME,
+                  &gEfiGlobalVariableGuid,
+                  NULL,
+                  &DataSize,
+                  &SecureBoot
+                  );
+
+  if (EFI_ERROR (Status)) {
+    SystemConfigPtr->SecureBoot = 0;
+  } else {
+    SystemConfigPtr->SecureBoot = SecureBoot;
+  }
+
   Status = gBS->LocateProtocol (
                   &gEfiSeCOperationProtocolGuid,
                   NULL,
@@ -1787,7 +1800,7 @@ CheckTPMActivePcrBanks (
 
 VOID
 CheckSystemConfigSave (
-  SYSTEM_CONFIGURATION *SystemConfigPtr
+  SYSTEM_CONFIGURATION    *SystemConfigPtr
   )
 {
   EFI_STATUS              Status;
@@ -1795,51 +1808,7 @@ CheckSystemConfigSave (
   SEC_INFOMATION          SeCInfo;
   UINT8                   SecureBootCfg;
   UINTN                   DataSize;
-  UINT8                   CustomMode;
-
-  if (mUseProductKey != SystemConfigPtr->UseProductKey) {
-    EnableCustomMode ();
-    DeleteKeys ();
-    EnrollKeys ();
-  }
-  DataSize = sizeof (CustomMode);
-  Status = gRT->GetVariable (
-                  EFI_CUSTOM_MODE_NAME,
-                  &gEfiCustomModeEnableGuid,
-                  NULL,
-                  &DataSize,
-                  &CustomMode
-                  );
-
-  if (EFI_ERROR (Status)) {
-    DeleteKeys ();
-    EnrollKeys ();
-    DataSize = sizeof (CustomMode);
-    Status = gRT->GetVariable (
-                    EFI_CUSTOM_MODE_NAME,
-                    &gEfiCustomModeEnableGuid,
-                    NULL,
-                    &DataSize,
-                    &CustomMode
-                    );
-  }
-
-  if (CustomMode != SystemConfigPtr->SecureBootCustomMode) {
-    if (CustomMode == 1) {
-      DeleteKeys ();
-      EnrollKeys ();
-      CustomMode = 0;
-    } else {
-      CustomMode = 1;
-      Status = gRT->SetVariable (
-                      EFI_CUSTOM_MODE_NAME,
-                      &gEfiCustomModeEnableGuid,
-                      EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS,
-                      sizeof (UINT8),
-                      &CustomMode
-                      );
-    }
-  }
+  BOOLEAN                 SecureBootNotFound;
 
   Status = gBS->LocateProtocol (
                   &gEfiSeCOperationProtocolGuid,
@@ -1861,6 +1830,8 @@ CheckSystemConfigSave (
   //
   // Secure Boot configuration changes
   //
+  DataSize = sizeof (SecureBootCfg);
+  SecureBootNotFound = FALSE;
   Status = gRT->GetVariable (
                   EFI_SECURE_BOOT_ENABLE_NAME,
                   &gEfiSecureBootEnableDisableGuid,
@@ -1870,12 +1841,22 @@ CheckSystemConfigSave (
                   );
 
   if (EFI_ERROR (Status)) {
-    SecureBootCfg = 0;
+    SecureBootNotFound = TRUE;
+  }
+
+  if (SecureBootNotFound) {
+    Status = gRT->GetVariable (
+                    EFI_SECURE_BOOT_ENABLE_NAME,
+                    &gEfiSecureBootEnableDisableGuid,
+                    NULL,
+                    &DataSize,
+                    &SecureBootCfg
+                    );
+    ASSERT_EFI_ERROR (Status);
   }
 
   if ((SecureBootCfg) != SystemConfigPtr->SecureBoot) {
     SecureBootCfg = !SecureBootCfg;
-
     Status = gRT->SetVariable (
                     EFI_SECURE_BOOT_ENABLE_NAME,
                     &gEfiSecureBootEnableDisableGuid,

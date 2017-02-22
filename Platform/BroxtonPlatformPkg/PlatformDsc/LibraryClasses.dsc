@@ -237,8 +237,6 @@
    !if $(SECURE_BOOT_ENABLE) == TRUE
      BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
    !endif
-
-   PlatformSecureDefaultsLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformSecureDefaultsLib/PlatformSecureDefaultsLib.inf
    SmmCpuPlatformHookLib|UefiCpuPkg/Library/SmmCpuPlatformHookLibNull/SmmCpuPlatformHookLibNull.inf
 
    BasePlatformCmosLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformCmosLib/PlatformCmosLib.inf
