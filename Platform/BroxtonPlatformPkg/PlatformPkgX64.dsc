@@ -99,7 +99,7 @@
   !else
     PerformanceLib|MdeModulePkg/Library/PeiPerformanceLib/PeiPerformanceLib.inf
   !endif
-  TimerLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformTscTimerLib/DxeTscTimerLib.inf
+  TimerLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformTscTimerLib/PeiTscTimerLib.inf
 !endif
 
 [LibraryClasses.IA32.DXE_DRIVER]

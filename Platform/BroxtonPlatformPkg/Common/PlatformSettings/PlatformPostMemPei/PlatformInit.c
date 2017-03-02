@@ -48,15 +48,7 @@ static EFI_PEI_PPI_DESCRIPTOR       mBoardPostMemInitStartPpi[] = {
 };
 
 static EFI_PEI_PPI_DESCRIPTOR       mPpiList[] = {
-  {
-    //
-    // This PPI is hard coded to be installed as SPI boot (vs. eMMC boot)
-    // to trigger  GetFvNotifyCallback()
-    //
-    EFI_PEI_PPI_DESCRIPTOR_PPI,
-    &gCseSpiSelectPpiGuid,
-    NULL
-  },
+
   {
     EFI_PEI_PPI_DESCRIPTOR_PPI,
     &gEfiPeiMasterBootModePpiGuid,

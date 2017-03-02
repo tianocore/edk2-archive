@@ -1,7 +1,7 @@
 /** @file
   Locate and install Firmware Volume Hob's Once there is main memory.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -277,6 +277,7 @@ ParseObbPayload (
   EFI_GUID                         *FvName;
   FSP_INFO_HEADER                  *FspHeader;
   UINT32                           FspSImageBase;
+  VOID                             *Memory;
 
   DEBUG ((EFI_D_INFO, "Parsing and checking OBB Payload\n"));
 
@@ -370,13 +371,20 @@ ParseObbPayload (
       PlatformInfo->FvMain3Base = (UINTN) FvHeader;
       PlatformInfo->FvMain3Length = (UINT32) (FvHeader->FvLength);
     } else if (!CompareGuid(FvName, &gFspSFirmwareFileSystemFvGuid)) {
-      PeiServicesInstallFvInfoPpi (
-        NULL,
-        FvHeader,
-        (UINT32) (FvHeader->FvLength),
-        NULL,
-        NULL
-        );
+      Memory = AllocatePages (EFI_SIZE_TO_PAGES ((UINT32) (FvHeader->FvLength)));
+      if(Memory !=NULL) {
+        CopyMem (Memory, FvHeader, (UINT32) (FvHeader->FvLength));
+        PeiServicesInstallFvInfoPpi (
+          NULL,
+          (VOID *) Memory,
+          (UINT32) (FvHeader->FvLength),
+          NULL,
+          NULL
+          );
+      } else  {
+        ASSERT (FALSE);
+      }
+
     }//if/else S3
 
     FvHeader = (EFI_FIRMWARE_VOLUME_HEADER *) ((UINTN) FvHeader + (UINTN) FvHeader->FvLength);
