@@ -103,8 +103,9 @@ if /i "!Platform_Type!"=="MINN" (
 :: rd /s /q %BIOS_Names%  >>Stitching.log
 
 pushd %BIOS_Names%
-copy /y /b FVIBBM.fv+FSP_M.fv IBBM.Fv
-copy /y /b FSP_S.fv+FVIBBR.fv+FVOBB.Fv+FVOBBX.Fv+FVOBBY.Fv+NvStorage.Fv OBB2.Fv
+copy /y /b FVIBBL.Fv IBBL.Fv
+copy /y /b FVIBBM.fv+FSP_M.fv IBB.Fv
+copy /y /b FSP_S.fv+FVIBBR.fv+FVOBB.Fv+FVOBBX.Fv+FVOBBY.Fv OBB.Fv
 popd
 
 set IFWI_Name=!IFWI_Prefix!_%IFWI_Suffix%
@@ -113,19 +114,21 @@ echo.
 echo ------------------------------------------
 echo.
 echo   Generating SPI Image...
-
-copy /y /b %BIOS_Names%\IBBM.Fv .
-copy /y /b %BIOS_Names%\OBB2.Fv .
+mkdir BIOS_COMPONENTS
+copy /y /b %BIOS_Names%\IBBL.Fv .\BIOS_COMPONENTS
+copy /y /b %BIOS_Names%\IBB.Fv .\BIOS_COMPONENTS
+copy /y /b %BIOS_Names%\OBB.Fv .\BIOS_COMPONENTS
+copy /y /b %BIOS_Names%\NvStorage.Fv .\BIOS_COMPONENTS
 if %Stepping%==B (
   copy /y /b ..\..\Binaries\IFWI\B_Stepping\SpiChunk1.bin .
   copy /y /b ..\..\Binaries\IFWI\B_Stepping\SpiChunk2.bin .
   copy /y /b ..\..\Binaries\IFWI\B_Stepping\SpiChunk3.bin .
-  copy /y /b SpiChunk1.bin+IBBM.Fv+SpiChunk2.bin+OBB2.Fv+SpiChunk3.bin spi_out.bin
+  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
   ) else (
   copy /y /b ..\..\Binaries\IFWI\A_Stepping\SpiChunk1.bin .
   copy /y /b ..\..\Binaries\IFWI\A_Stepping\SpiChunk2.bin .
   copy /y /b ..\..\Binaries\IFWI\A_Stepping\SpiChunk3.bin .
-  copy /y /b SpiChunk1.bin+IBBM.Fv+SpiChunk2.bin+OBB2.Fv+SpiChunk3.bin spi_out.bin
+  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
   )
 
 move /y spi_out.bin %BIOS_ID%.bin  >> Stitching.log

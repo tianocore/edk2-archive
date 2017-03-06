@@ -152,7 +152,7 @@
     DEFINE FSP_IBBL_SIZE                   = 0x2000
     DEFINE BLD_IBBL_SIZE                   = 0x6000
     DEFINE FSP_IBBM_SIZE                   = 0x56000
-    DEFINE BLD_IBBM_SIZE                   = 0x20000
+    DEFINE BLD_IBBM_SIZE                   = 0x1E000
 
     DEFINE CAR_BASE_ADDRESS                = 0xFEF00000  # @PcdTemporaryRamBase
     DEFINE BLD_RAM_DATA_SIZE               = 0x16000     # BOOTLOADER temp memory size
