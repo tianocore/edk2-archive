@@ -1858,7 +1858,7 @@ ShowProgressHotKey (
   while (TimeoutRemain != 0) {
     DEBUG ((EFI_D_INFO, "Showing progress bar...Remaining %d second!\n", TimeoutRemain));
 
-    Status = WaitForSingleEvent (gST->ConIn->WaitForKey, ONE_SECOND);
+    Status = WaitForSingleEvent (gST->ConIn->WaitForKey, ONE_SECOND/10);
     if (Status != EFI_TIMEOUT) {
       break;
     }
@@ -2186,11 +2186,6 @@ PlatformBdsConnectSimpleConsole (
 
       if ((PlatformConsole[Index].ConnectType & CONSOLE_OUT) == CONSOLE_OUT) {
         BdsLibUpdateConsoleVariable (L"ConOut", PlatformConsole[Index].DevicePath, NULL);
-        //
-        // Make sure we have at least one active VGA, and have the right
-        // active VGA in console variable
-        //
-        Status = PlatformBdsForceActiveVga ();
       }
 
       if ((PlatformConsole[Index].ConnectType & STD_ERROR) == STD_ERROR) {
@@ -2200,6 +2195,12 @@ PlatformBdsConnectSimpleConsole (
       Index ++;
     }
   }
+
+  //
+  // Make sure we have at least one active VGA, and have the right
+  // active VGA in console variable
+  //
+  Status = PlatformBdsForceActiveVga ();
 
   //
   // Connect ConIn first to give keyboard time to parse hot key event.
