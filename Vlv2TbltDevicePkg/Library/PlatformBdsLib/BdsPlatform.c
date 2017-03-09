@@ -1,6 +1,6 @@
 /** @file
 
-  Copyright (c) 2004  - 2015, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004  - 2017, Intel Corporation. All rights reserved.<BR>
                                                                                    
   This program and the accompanying materials are licensed and made available under
   the terms and conditions of the BSD License that accompanies this distribution.  
@@ -1891,7 +1891,7 @@ PlatformBdsPolicyBehavior (
     // console directly.
     //
     BdsLibConnectAllDefaultConsoles ();
-    PlatformBdsDiagnostics (IGNORE, TRUE, BaseMemoryTest);
+    PlatformBdsDiagnostics (IGNORE, FALSE, BaseMemoryTest);
 
     //
     // Perform some platform specific connect sequence

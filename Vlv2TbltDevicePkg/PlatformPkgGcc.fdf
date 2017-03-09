@@ -1,7 +1,7 @@
 #/** @file
 # FDF file of Platform.
 #
-# Copyright (c) 2008  - 2016, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 2008  - 2017, Intel Corporation. All rights reserved.<BR>
 #                                                                                  
 # This program and the accompanying materials are licensed and made available under
 # the terms and conditions of the BSD License that accompanies this distribution.  
@@ -357,6 +357,10 @@ APRIORI DXE {
 FILE FREEFORM = C3E36D09-8294-4b97-A857-D5288FE33E28 {
     SECTION RAW = $(OUTPUT_DIRECTORY)/$(TARGET)_$(TOOL_CHAIN_TAG)/$(DXE_ARCHITECTURE)/BiosId.bin
   }
+  
+FILE FREEFORM = PCD(gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile) {
+    SECTION RAW = MdeModulePkg/Logo/Logo.bmp
+  }
 
   #
   # EDK II Related Platform codes
@@ -371,6 +375,7 @@ INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
 !if $(ACPI50_ENABLE) == TRUE
 INF  MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe.inf
 INF  MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableSmm/FirmwarePerformanceSmm.inf
+INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
 !endif
 
 
@@ -1085,6 +1090,11 @@ FV = BiosUpdate
 [Rule.Common.USER_DEFINED.ACPITABLE2]
   FILE FREEFORM = $(NAMED_GUID) {
     RAW ASL   Optional            |.aml
+  }
+
+[Rule.Common.USER_DEFINED.LOGO]
+  FILE FREEFORM = $(NAMED_GUID) {
+    RAW BIN               |.bmp
   }
 
 [Rule.Common.ACPITABLE]
