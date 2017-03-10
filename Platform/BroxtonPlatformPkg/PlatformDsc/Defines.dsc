@@ -1,7 +1,7 @@
 ## @file
 #  Platform Macro Define Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -97,6 +97,7 @@
   DEFINE NVM_VARIABLE_ENABLE = TRUE
   DEFINE USB_DNX_ENABLE = FALSE
   DEFINE SECURE_BOOT_ENABLE = TRUE
+  DEFINE BOOT_GUARD_ENABLE = FALSE
   #
   # Do not use 0x prefix, pass prefix 0x or postfix h through macro for C or ASM
   #

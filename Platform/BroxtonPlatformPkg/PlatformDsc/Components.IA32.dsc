@@ -1,7 +1,7 @@
 ## @file
 #  Platform Components for IA32 Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -81,6 +81,11 @@
       BaseCryptLib|CryptoPkg/Library/BaseCryptLib/PeiCryptLib.inf
       CpuPolicyLib|$(PLATFORM_SI_PACKAGE)/Cpu/Library/PeiCpuPolicyLibPreMem/PeiCpuPolicyLibPreMem.inf
     <BuildOptions>
+      !if $(BOOT_GUARD_ENABLE) == TRUE
+        *_*_IA32_CC_FLAGS = -DBOOT_GUARD_ENABLE=1
+      !else
+        *_*_IA32_CC_FLAGS = -DBOOT_GUARD_ENABLE=0
+      !endif
   !if $(TOOL_CHAIN_TAG) == GCC47
     <PcdsFixedAtBuild>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0

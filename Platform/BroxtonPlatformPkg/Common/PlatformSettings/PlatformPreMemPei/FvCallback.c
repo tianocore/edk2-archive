@@ -25,6 +25,7 @@
 #include <Library/HeciMsgLib.h>
 #include <Guid/FspHeaderFile.h>
 #include <Library/FspWrapperApiLib.h>
+#include <Library/BpdtLib.h>
 #include "FvCallback.h"
 
 #define MAX_DIGEST_SIZE    64
@@ -416,8 +417,54 @@ GetFvNotifyCallback (
 {
   EFI_STATUS                    Status = EFI_SUCCESS;
   EFI_BOOT_MODE                 BootMode;
+  BPDT_PAYLOAD_DATA             *BpdtPayloadPtr;
+  EFI_HOB_GUID_TYPE             *GuidHobPtr;
+  BPDT_HEADER                   *Bp1HdrPtr;
+  BPDT_HEADER                   *Bp2HdrPtr;
 
   PeiServicesGetBootMode (&BootMode);
+
+  //
+  // If the Hob exists, then GetBpdtPayloadAddress() has already been called
+  // one or more times already, So we do not need to re-enter this flow.
+  //
+  GuidHobPtr = GetFirstGuidHob (&gEfiBpdtLibBp2DataGuid);
+  if (GuidHobPtr != NULL) {
+    DEBUG ((EFI_D_INFO, "GetFvNotifyCallback already called. Skipping.\n"));
+    return Status;
+  }
+  
+  //
+  // Locate headers of both Boot partion 1 and 2
+  //
+  GetBootPartitionPointer (BootPart1, (VOID **)&Bp1HdrPtr);
+  GetBootPartitionPointer (BootPart2, (VOID **)&Bp2HdrPtr);
+  DEBUG ((DEBUG_INFO, "Signature BP1 = 0x%x BP2 = 0x%x\n",Bp1HdrPtr->Signature,Bp2HdrPtr->Signature));
+  if (Bp1HdrPtr->Signature != BPDT_SIGN_GREEN || Bp2HdrPtr->Signature != BPDT_SIGN_GREEN) {
+    DEBUG ((DEBUG_INFO, "FW Recovery needed. \n"));
+  }
+
+  //
+  //  Get the OBB payload, shadow it, and check the hash before processing it.
+  //
+  GetBpdtPayloadData (BootPart2, BpdtObb, &BpdtPayloadPtr);
+
+#if (BOOT_GUARD_ENABLE == 1)
+  //
+  // For Normal boot, just verify OBB, since CSE does hash verify of both IBBL and IBB.
+  // IBBL check is done before bringing cores out of reset,
+  // IBB check is done during RBP and indicated by IBB_VERIFICATION_DONE in IBBL
+  //
+
+  if (BootMode != BOOT_ON_S3_RESUME) {
+    Status = LocateAndVerifyHashBpm (HashObb);
+    if (EFI_ERROR (Status)) {
+      DEBUG((EFI_D_ERROR, "Verify OBB failed, Status = %r\n", Status));
+      CpuDeadLoop();
+    }
+  }
+#endif
+
   DEBUG ((EFI_D_INFO, "GetFvNotifyCallback: Processing OBB Payload.\n"));
 
   ParseObbPayload ((UINT8*) PcdGet32 (PcdFlashObbPayloadMappedBase), PcdGet32 (PcdFlashObbPayloadSize), BootMode);
