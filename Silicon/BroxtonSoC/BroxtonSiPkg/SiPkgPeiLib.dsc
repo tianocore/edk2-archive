@@ -21,11 +21,13 @@
 # Common
 #
   CseVariableStorageSelectorLib|$(PLATFORM_SI_PACKAGE)/Library/Private/PeiCseVariableStorageSelectorLib/PeiCseVariableStorageSelectorLib.inf
-
+  BpdtLib|$(PLATFORM_SI_PACKAGE)/Library/BpdtLib/BpdtLib.inf
+  
 #
 # SC
 #
   PeiScPolicyLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/PeiScPolicyLib/PeiScPolicyLib.inf
+  PeiSpiInitLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/PeiSpiInitLib/PeiSpiInitLib.inf
 
 #
 # CPU

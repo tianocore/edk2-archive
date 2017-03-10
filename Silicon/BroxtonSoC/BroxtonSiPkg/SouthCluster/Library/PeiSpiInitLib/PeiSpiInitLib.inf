@@ -1,0 +1,44 @@
+## @file
+#  SC SPI Init Lib PEI Phase.
+#
+#  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PeiSpiInitLib
+  FILE_GUID                      = 91CFD935-551E-439E-B0D6-AE06C3B5E66
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PeiSpiInitLib
+
+[Sources]
+  ScSpi.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[LibraryClasses]
+  S3BootScriptLib
+  BaseLib
+  IoLib
+  DebugLib
+  TimerLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  HobLib
+  PeiServicesLib
+  ScSpiCommonLib
+
+[Ppis]
+  gScSpiPpiGuid                        ## PRODUCES
