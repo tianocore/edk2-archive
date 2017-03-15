@@ -1,6 +1,6 @@
 /** @file
 
-  Copyright (c) 2004  - 2014, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004  - 2017, Intel Corporation. All rights reserved.<BR>
                                                                                    
 
   This program and the accompanying materials are licensed and made available under
@@ -406,7 +406,7 @@ InitPchPlatformPolicy (
   //
   // Enable / disable serial IRQ according to setup value.
   //
-  DxePlatformPchPolicy->SerialIrqConfig->SirqEnable = PCH_DEVICE_ENABLE;
+  DxePlatformPchPolicy->SerialIrqConfig->SirqEnable = PCH_DEVICE_DISABLE;
 
   //
   // Set Serial IRQ Mode Select according to setup value.
