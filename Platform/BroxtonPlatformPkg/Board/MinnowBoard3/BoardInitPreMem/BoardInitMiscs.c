@@ -104,6 +104,10 @@ Mb3UpdateFspmUpd (
     ASSERT (FALSE);
   }
 
+  FspUpdRgn->FspmConfig.Ch0_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch1_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch2_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch3_DramDensity  = 2;
   return EFI_SUCCESS;
 }
 
