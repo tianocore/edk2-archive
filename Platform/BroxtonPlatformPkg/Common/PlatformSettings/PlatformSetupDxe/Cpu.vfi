@@ -1,7 +1,7 @@
 // /** @file
 //  CPU Setup formset.
 //
-//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -64,8 +64,8 @@ form formid = CPU_CONFIGURATION_FORM_ID,
   oneof varid  = Setup.ActiveProcessorCores,
     prompt = STRING_TOKEN(STR_ACTIVE_PROCESSOR_CORES_PROMPT),
     help = STRING_TOKEN(STR_ACTIVE_PROCESSOR_CORES_HELP),
-    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;    
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;    
   endoneof;
   
   grayoutif TRUE;
