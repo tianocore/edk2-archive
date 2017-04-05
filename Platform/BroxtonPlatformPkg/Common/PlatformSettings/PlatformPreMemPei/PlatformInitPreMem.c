@@ -907,6 +907,7 @@ PlatformInitPreMemEntryPoint (
   #endif
   PEI_BOARD_PRE_MEM_INIT_PPI       *BoardPreMemInitPpi;
   UINTN                            Instance;
+  UINT64                           AcpiVariableSetCompatibility;
 
   Status = (*PeiServices)->RegisterForShadow (FileHandle);
 
@@ -1070,25 +1071,25 @@ PlatformInitPreMemEntryPoint (
       ASSERT_EFI_ERROR (Status);
       return Status;
     }
-
-    VariableSize = sizeof (SystemConfiguration);
+ 
+    VariableSize = sizeof (AcpiVariableSetCompatibility);
     Status = VariableServices->GetVariable (
                                  VariableServices,
-                                 PLATFORM_SETUP_VARIABLE_NAME,
-                                 &gEfiSetupVariableGuid,
+                                 ACPI_GLOBAL_VARIABLE,
+                                 &gEfiAcpiVariableCompatiblityGuid,
                                  NULL,
                                  &VariableSize,
-                                 &SystemConfiguration
+                                 &AcpiVariableSetCompatibility
                                  );
 
     AcpiVarHobSize = sizeof (UINT64);
     BuildGuidDataHob (
       &gEfiAcpiVariableCompatiblityGuid,
-      &SystemConfiguration.AcpiVariableSetCompatibility,
+      &AcpiVariableSetCompatibility,
       sizeof (AcpiVarHobSize)
       );
 
-    DEBUG ((DEBUG_INFO, "AcpiVariableAddr : 0x%08x\n", SystemConfiguration.AcpiVariableSetCompatibility));
+    DEBUG ((DEBUG_INFO, "AcpiVariableAddr : 0x%08x\n", AcpiVariableSetCompatibility)); 
 
     PERF_START_EX (NULL, "RstVctr", "IBBL", 1, 0x1000);
     Tick = CarMap->IbblPerfRecord0;

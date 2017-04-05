@@ -1,7 +1,7 @@
 /** @file
   PEI CSE Variable Storage Selector Library.
 
-  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -69,6 +69,12 @@ GetCseVariableStoreFileType (
     // Memory configuration data is preferred to be stored in
     // the MRC training data file.
     //
+    return (CseVariableFileInfo[CseVariableFileTypePreMemoryFile]->FileEnabled ?
+                                                                   CseVariableFileTypePreMemoryFile :
+                                                                   CseVariableFileTypePrimaryIndexFile
+                                                                   );
+} else if ((StrCmp (VariableName, L"AcpiGlobalVariable") == 0) &&
+    CompareGuid (VendorGuid, &gEfiAcpiVariableCompatiblityGuid)) {
     return (CseVariableFileInfo[CseVariableFileTypePreMemoryFile]->FileEnabled ?
                                                                    CseVariableFileTypePreMemoryFile :
                                                                    CseVariableFileTypePrimaryIndexFile
