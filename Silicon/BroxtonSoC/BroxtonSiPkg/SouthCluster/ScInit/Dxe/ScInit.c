@@ -660,6 +660,9 @@ ScOnEndOfDxe (
   gBS->CloseEvent (Event);
 
   BxtSeries = GetBxtSeries ();
+  if (BxtSeries == BxtP) {
+    ConfigureSataDxe (mScPolicy);
+  }
   AcpiBaseAddr   = (UINT16) PcdGet16 (PcdScAcpiIoPortBaseAddress);
   PmcBase        = PMC_BASE_ADDRESS;
   FuncDisableReg = MmioRead32 (PmcBase + R_PMC_FUNC_DIS);
