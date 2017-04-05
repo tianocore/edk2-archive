@@ -596,7 +596,7 @@ InitSeC (
       Status = gRT->SetVariable (
                       L"Setup",
                       &gEfiSetupVariableGuid,
-                      EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+                      EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_RUNTIME_ACCESS,
                       sizeof (SYSTEM_CONFIGURATION),
                       &mSystemConfiguration
                       );
