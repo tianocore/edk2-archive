@@ -114,42 +114,50 @@ PMCReadyToBoot (
                     &(GlobalNvsArea->Area->SSRAMBar0Address)
                     );
 
-      SideBandAndThenOr32 (
-        0xC6,
-        0x0300 + 0x001C,
-        0xFFFFFFFF,
-        (BIT1 | BIT0)
-        );
+    SideBandAndThenOr32 (
+      0xC6,
+      0x0300 + 0x001C,
+      0xFFFFFFFF,
+      (BIT1 | BIT0)
+      );
 
-      SideBandAndThenOr32 (
-        0xC6,
-        0x0300 + 0x0038,
-        0xFFFFFFFF,
-        BIT0
-        );
+    SideBandAndThenOr32 (
+      0xC6,
+      0x0300 + 0x0038,
+      0xFFFFFFFF,
+      BIT0
+      );
 
-      //
-      // Switch the PMC SSRAM to ACPI mode.
-      //
-      SideBandAndThenOr32 (
-        0x95,
-        0x208,
-        0xFFFFFFFF,
-        BIT0 | B_PMC_IOSF2OCP_PCICFGCTRL3_BAR1_DISABLE3
-        );
+    //
+    // Switch the PMC SSRAM to ACPI mode.
+    //
+    SideBandAndThenOr32 (
+      0x95,
+      0x208,
+      0xFFFFFFFF,
+      BIT0 | B_PMC_IOSF2OCP_PCICFGCTRL3_BAR1_DISABLE3
+      );
 
-      //
-      // Program PMC ACPI IRQ.
-      //
-      Data32 = SideBandRead32 (0x95, 0x204);
-      Data32 |= BIT1;
-      Data32 |= 0x00028000;
-      SideBandWrite32 (0x95, 0x204, Data32);
+    //
+    // Program PMC ACPI IRQ.
+    //
+    Data32 = SideBandRead32 (0x95, 0x204);
+    Data32 |= BIT1;
+    Data32 |= 0x00028000;
+    SideBandWrite32 (0x95, 0x204, Data32);
 
-      Data32 = SideBandRead32 (0x95, 0x204);
-      DEBUG ((DEBUG_INFO, "  PMC Interrupt value= %x \n ", Data32));
+    Data32 = SideBandRead32 (0x95, 0x204);
+    DEBUG ((DEBUG_INFO, "  PMC Interrupt value= %x \n ", Data32));
 
   }
+
+  PciBar0RegOffset = (UINT32)MmPciAddress(0, DEFAULT_PCI_BUS_NUMBER_SC, 0, 0, 0x48);
+  PciBar0RegOffset = (MmioRead32(PciBar0RegOffset) & 0xFFFF7000);
+  GlobalNvsArea->Area->IPCBIOSMailBoxData = (UINT32)PciBar0RegOffset + 0x7000 + 0x80;
+  GlobalNvsArea->Area->IPCBIOSMailBoxInterface = (UINT32)PciBar0RegOffset + 0x7000 + 0x84;
+  DEBUG((DEBUG_INFO, "  BIOS MAIL-BOX Data= %x \n ", GlobalNvsArea->Area->IPCBIOSMailBoxData));
+  DEBUG((DEBUG_INFO, "  BIOS MAIL-BOX Interface= %x \n ", GlobalNvsArea->Area->IPCBIOSMailBoxInterface));
+
 }
 
 

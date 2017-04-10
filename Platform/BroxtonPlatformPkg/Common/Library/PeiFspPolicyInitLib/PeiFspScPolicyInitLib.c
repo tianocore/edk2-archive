@@ -396,6 +396,82 @@ PeiFspScPolicyInit (
     }
     FspsUpd->FspsConfig.ResetWaitTimer = 300;
 
+
+  //
+  // Configure Interrupt Polarity
+  //
+  FspsUpd->FspsConfig.IPC[0] = (UINT32)
+    ((V_ITSS_SB_IPC_ACTIVE_LOW << 31) + // IRQ 31
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 30) +  // IRQ 30
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 29) +  // IRQ 29
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 28) +  // IRQ 28
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 27) +  // IRQ 27
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 26) +  // IRQ 26
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 25) +  // IRQ 25
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 24) +  // IRQ 24
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 23) +  // IRQ 23
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 22) +  // IRQ 22
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 21) +  // IRQ 21
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 20) +  // IRQ 20
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 19) +  // IRQ 19
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 18) +  // IRQ 18
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 17) +  // IRQ 17
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 16) +  // IRQ 16
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 15) +  // IRQ 15
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 14) +  // IRQ 14
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 13) +  // IRQ 13
+    (V_ITSS_SB_IPC_ACTIVE_HIGH << 12) + // IRQ 12
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 11) +  // IRQ 11
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 10) +  // IRQ 10
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 9) +   // IRQ  9
+    (V_ITSS_SB_IPC_ACTIVE_HIGH << 8) +  // IRQ  8
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 7) +   // IRQ  7
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 6) +   // IRQ  6
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 5) +   // IRQ  5
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 4) +   // IRQ  4
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 3) +   // IRQ  3
+    (V_ITSS_SB_IPC_ACTIVE_HIGH << 2) +  // IRQ  2
+    (V_ITSS_SB_IPC_ACTIVE_HIGH << 1) +  // IRQ  1
+    (V_ITSS_SB_IPC_ACTIVE_HIGH << 0))   // IRQ  0
+    ;
+
+  FspsUpd->FspsConfig.IPC[1] = (UINT32)
+    ((V_ITSS_SB_IPC_ACTIVE_LOW << 31) + // IRQ 63
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 30) +  // IRQ 62
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 29) +  // IRQ 61
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 28) +  // IRQ 60
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 27) +  // IRQ 59
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 26) +  // IRQ 58
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 25) +  // IRQ 57
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 24) +  // IRQ 56
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 23) +  // IRQ 55
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 22) +  // IRQ 54
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 21) +  // IRQ 53
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 20) +  // IRQ 52
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 19) +  // IRQ 51
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 18) +  // IRQ 50
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 17) +  // IRQ 49
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 16) +  // IRQ 48
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 15) +  // IRQ 47
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 14) +  // IRQ 46
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 13) +  // IRQ 45
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 12) +  // IRQ 44
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 11) +  // IRQ 43
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 10) +  // IRQ 42
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 9) +   // IRQ 41
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 8) +   // IRQ 40
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 7) +   // IRQ 39
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 6) +   // IRQ 38
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 5) +   // IRQ 37
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 4) +   // IRQ 36
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 3) +   // IRQ 35
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 2) +   // IRQ 34
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 1) +   // IRQ 33
+    (V_ITSS_SB_IPC_ACTIVE_LOW << 0))    // IRQ 32
+    ;
+    FspsUpd->FspsConfig.IPC[2] = 0xFFFFFFFF;
+    FspsUpd->FspsConfig.IPC[3] = 0xFFFFFFFF;
+  
     //
     // Set GMM configuration according to setup value
     //
