@@ -586,7 +586,7 @@ APRIORI DXE {
   #
   INF MdeModulePkg/Core/PiSmmCore/PiSmmIpl.inf
   INF MdeModulePkg/Core/PiSmmCore/PiSmmCore.inf
-  INF $(PLATFORM_PACKAGE_COMMON)/SampleCode/UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.inf
+  INF UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.inf
   INF UefiCpuPkg/CpuIo2Smm/CpuIo2Smm.inf
   INF MdeModulePkg/Universal/LockBox/SmmLockBox/SmmLockBox.inf
   INF UefiCpuPkg/PiSmmCommunication/PiSmmCommunicationSmm.inf
