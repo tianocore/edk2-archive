@@ -251,7 +251,7 @@
   }
 
   FILE FREEFORM = E08CA6D5-8D02-43ae-ABB1-952CC787C933 {
-    SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Vbt/VbtBxtEdp.bin
+    SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Vbt/VbtBxtMipi.bin
     SECTION UI = "IntelGopVbt1"
   }
 !endif
@@ -561,7 +561,7 @@ APRIORI DXE {
 !if $(GOP_DRIVER_ENABLE) == TRUE
   INF $(PLATFORM_PACKAGE_COMMON)/Console/PlatformGopPolicyDxe/PlatformGopPolicyDxe.inf
   FILE FREEFORM = E08CA6D5-8D02-43ae-ABB1-952CC787C933 {
-    SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Vbt/VbtBxtEdp.bin
+    SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Vbt/VbtBxtMipi.bin
     SECTION UI = "IntelGopVbt1"
   }
 !endif
