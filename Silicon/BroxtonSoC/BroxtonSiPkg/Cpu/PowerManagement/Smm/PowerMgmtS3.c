@@ -1,7 +1,7 @@
 /** @file
   This is the SMM driver for saving and restoring the powermanagement related MSRs.
 
-  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2011 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -140,15 +140,18 @@ RunOnAllLogicalProcessors (
   // Run the procedure on all logical processors.
   //
   (*Procedure) (Buffer);
-  for (Index = 1; Index < gSmst->NumberOfCpus; Index++) {
-    Status = EFI_NOT_READY;
-    while (Status != EFI_SUCCESS) {
-      Status = gSmst->SmmStartupThisAp (Procedure, Index, Buffer);
-      if (Status != EFI_SUCCESS) {
-        //
-        // SmmStartupThisAp might return failure if AP is busy executing some other code. Let's wait for sometime and try again.
-        //
-        MicroSecondDelay (PPM_WAIT_PERIOD);
+  for (Index = 0; Index < gSmst->NumberOfCpus; Index++) {
+    if (Index != gSmst->CurrentlyExecutingCpu) {
+      Status = EFI_NOT_READY;
+      while (Status != EFI_SUCCESS) {
+        Status = gSmst->SmmStartupThisAp (Procedure, Index, Buffer);
+        ASSERT(Status != EFI_INVALID_PARAMETER);
+        if (Status != EFI_SUCCESS) {
+          //
+          // SmmStartupThisAp might return failure if AP is busy executing some other code. Let's wait for sometime and try again.
+          //
+          MicroSecondDelay (PPM_WAIT_PERIOD);
+        }
       }
     }
   }

@@ -1,7 +1,7 @@
 ## @file
 #  Platform Feature Pcd Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -91,3 +91,8 @@
   # new core to see if we can re-enable this
   gPlatformModuleTokenSpaceGuid.PcdDeprecatedFunctionRemove|FALSE
 
+  ## Indicates if SMM Startup AP in a blocking fashion.
+  #   TRUE  - SMM Startup AP in a blocking fashion.<BR>
+  #   FALSE - SMM Startup AP in a non-blocking fashion.<BR>
+  # @Prompt SMM Startup AP in a blocking fashion.
+  gUefiCpuPkgTokenSpaceGuid.PcdCpuSmmBlockStartupThisAp|FALSE
