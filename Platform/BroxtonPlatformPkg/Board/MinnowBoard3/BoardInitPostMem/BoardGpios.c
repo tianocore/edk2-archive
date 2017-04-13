@@ -1,7 +1,7 @@
 /** @file
   Gpio setting for multiplatform.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -188,10 +188,6 @@ MultiPlatformGpioProgram (
       GpioPadConfigTable (sizeof (mBXT_GpioInitData_NW) / sizeof (mBXT_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
       GpioPadConfigTable (sizeof (mBXT_GpioInitData_W) / sizeof (mBXT_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
       GpioPadConfigTable (sizeof (mBXT_GpioInitData_SW) / sizeof (mBXT_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_N_LH) / sizeof (mBXT_GpioInitData_N_LH[0]), mBXT_GpioInitData_N_LH);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_SW_LH) / sizeof (mBXT_GpioInitData_SW_LH[0]), mBXT_GpioInitData_SW_LH);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_W_LH) / sizeof (mBXT_GpioInitData_W_LH[0]), mBXT_GpioInitData_W_LH);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_NW_LH) / sizeof (mBXT_GpioInitData_NW_LH[0]), mBXT_GpioInitData_NW_LH);
 
       if (SystemConfiguration.ScIshEnabled == 0) {
         DEBUG ((DEBUG_INFO, "Switch ISH_I2C0 & ISH_I2C1 to LPSS_I2C5 and LPSS I2C6. \n" ));
@@ -262,9 +258,9 @@ MultiPlatformGpioProgram (
       //
       DEBUG ((DEBUG_INFO, "Dump Community pad registers, Board ID: 0x%X\n", PlatformInfoHob->BoardId));
       DumpGpioPadTable (sizeof (mBXT_GpioInitData_N) / sizeof (mBXT_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_NW_LH) / sizeof (mBXT_GpioInitData_NW_LH[0]), PlatformInfoHob->PlatformGpioSetting_NW);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_W_LH) / sizeof (mBXT_GpioInitData_W_LH[0]), PlatformInfoHob->PlatformGpioSetting_W);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_SW_LH) / sizeof (mBXT_GpioInitData_SW_LH[0]), PlatformInfoHob->PlatformGpioSetting_SW);
+      DumpGpioPadTable (sizeof (mBXT_GpioInitData_NW) / sizeof (mBXT_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
+      DumpGpioPadTable (sizeof (mBXT_GpioInitData_W) / sizeof (mBXT_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
+      DumpGpioPadTable (sizeof (mBXT_GpioInitData_SW) / sizeof (mBXT_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
       break;
     default:
     //
