@@ -326,14 +326,6 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_Audio_SSP6 []=
   BXT_GPIO_PAD_CONF(L"GPIO_192 DBI_SCL",         M0  ,     HI_Z  ,GPIO_D,   HI    ,   NA      ,  Wake_Disabled,  P_2K_H,   NA    ,    NA,NA        ,  NA  ,  GPIO_PADBAR+0x0028,  NORTHWEST),//Feature: Codec Power Down PD Net in Sch: SOC_CODEC_PD_N
 };
 
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_N_RVP2[] =
-{
-  //
-  //                  Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,  Wake_Enabled ,Term_H_L,Inverted, GPI_ROUT, IOSstae, IOSTerm,     MMIO_Offset  ,Community
-  //
-  BXT_GPIO_PAD_CONF(L"GPIO_33",                  M0   ,    GPI   ,  NA   ,  NA    ,   Edge     , Wake_Disabled, P_20K_L,   NA    ,IOAPIC,IOS_Masked,   SAME, GPIO_PADBAR+0x0108,  NORTH),//Feature: Interrput          Net in Sch: PMIC_IRQ_R_N
-};
-
 BXT_GPIO_PAD_INIT  mBXT_GpioInitData_FAB2[] =
 {
   //
