@@ -1,7 +1,7 @@
 /** @file
   This is a generic template for a child of the IchSmm driver.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -142,6 +142,7 @@ InitializePlatformSmm (
   EFI_SMM_SW_REGISTER_CONTEXT               SwContext;
   UINTN                                     VarSize;
   EFI_BOOT_MODE                             BootMode;
+  UINT32                                    Data32;
   Handle = NULL;
 
   //
@@ -315,6 +316,16 @@ InitializePlatformSmm (
 
   ASSERT_EFI_ERROR (Status);
 
+  
+  Data32 = IoRead32 (mAcpiBaseAddr + R_SMI_EN);
+  S3BootScriptSaveIoWrite (
+    S3BootScriptWidthUint32,
+    (mAcpiBaseAddr + R_SMI_EN),
+    1,
+    &Data32
+    );
+  
+  
   //
   // Get the ICHn protocol
   //

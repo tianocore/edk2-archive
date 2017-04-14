@@ -1,7 +1,7 @@
 /** @file
   SMM S3 handler Driver implementation file.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -22,7 +22,6 @@ SaveRuntimeScriptTable (
   IN EFI_SMM_SYSTEM_TABLE2       *Smst
   )
 {
-  UINT32  Data32;
   UINT16  Data16;
   UINT8   Data8;
   UINT32  DwordData;
@@ -56,14 +55,6 @@ SaveRuntimeScriptTable (
     0x64,
     (UINTN) 1,
     &Data8
-    );
-
-  Data32 = IoRead32 (mAcpiBaseAddr + R_SMI_EN);
-  S3BootScriptSaveIoWrite (
-    S3BootScriptWidthUint32,
-    (mAcpiBaseAddr + R_SMI_EN),
-    1,
-    &Data32
     );
 
   //
