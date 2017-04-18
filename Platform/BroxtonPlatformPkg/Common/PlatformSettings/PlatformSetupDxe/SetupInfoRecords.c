@@ -1808,7 +1808,6 @@ CheckSystemConfigSave (
   SEC_INFOMATION          SeCInfo;
   UINT8                   SecureBootCfg;
   UINTN                   DataSize;
-  BOOLEAN                 SecureBootNotFound;
 
   Status = gBS->LocateProtocol (
                   &gEfiSeCOperationProtocolGuid,
@@ -1831,7 +1830,6 @@ CheckSystemConfigSave (
   // Secure Boot configuration changes
   //
   DataSize = sizeof (SecureBootCfg);
-  SecureBootNotFound = FALSE;
   Status = gRT->GetVariable (
                   EFI_SECURE_BOOT_ENABLE_NAME,
                   &gEfiSecureBootEnableDisableGuid,
@@ -1841,18 +1839,7 @@ CheckSystemConfigSave (
                   );
 
   if (EFI_ERROR (Status)) {
-    SecureBootNotFound = TRUE;
-  }
-
-  if (SecureBootNotFound) {
-    Status = gRT->GetVariable (
-                    EFI_SECURE_BOOT_ENABLE_NAME,
-                    &gEfiSecureBootEnableDisableGuid,
-                    NULL,
-                    &DataSize,
-                    &SecureBootCfg
-                    );
-    ASSERT_EFI_ERROR (Status);
+    SecureBootCfg = 0;
   }
 
   if ((SecureBootCfg) != SystemConfigPtr->SecureBoot) {
