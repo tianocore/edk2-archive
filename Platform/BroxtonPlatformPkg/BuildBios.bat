@@ -317,6 +317,12 @@ if ErrorLevel 1 goto BldFail
 echo Building ResetVector...
 
 set ResetVectorPath=%WORKSPACE%\%PLATFORM_RC_PACKAGE%\Cpu\ResetVector
+
+pushd %ResetVectorPath%\Vtf0
+  nasm.exe %Nasm_Flags% -o Bin\ResetVector.ia32.port80.raw ResetVectorCode.asm
+  python %CORE_PATH%\UefiCpuPkg\ResetVector\Vtf0\Tools\FixupForRawSection.py Bin\ResetVector.ia32.port80.raw
+popd
+
 pushd %ResetVectorPath%\Vtf1
   nasm.exe %Nasm_Flags% -o Bin\ResetVector.ia32.port80.raw ResetVectorCode.asm
   python %CORE_PATH%\UefiCpuPkg\ResetVector\Vtf0\Tools\FixupForRawSection.py Bin\ResetVector.ia32.port80.raw
