@@ -1,7 +1,7 @@
 ;; @file
 ;  Search for the Boot Firmware Volume (BFV) base address.
 ;
-;  Copyright (c) 2008 - 2016, Intel Corporation. All rights reserved.<BR>
+;  Copyright (c) 2008 - 2017, Intel Corporation. All rights reserved.<BR>
 ;
 ;  This program and the accompanying materials
 ;  are licensed and made available under the terms and conditions of the BSD License
@@ -183,7 +183,7 @@ istruc HobStruc
     dd 0x00100000   ; .CarSize
     dd 0xFFF00000   ; .IBBSource  = Not used
     dd 0xFEF45000   ; .IBBBase    = .CarBase
-    dd 0x00078000   ; .IBBSize    = PcdFlashFvIBBMSize = FLASH_REGION_FV_IBBM_SIZE in .fdf
+    dd 0x00076000   ; .IBBSize    = size of (FVIBBM.fv+FSP_M.fv) = BLD_IBBM_SIZE + FSP_IBBM_SIZE = 0x76000
     dd 0xFFFFF000   ; .IBBLSource = 0x100000000 - .IBBLSize = PcdFlashFvIBBLBase
     dd 0xFEF40000   ; .IBBLBase   = .IBBBase + .IBBSize
     dd 0x00001000   ; .IBBLSize   = PcdFlashFvIBBLSize = FLASH_REGION_FV_IBBL_SIZE in .fdf
