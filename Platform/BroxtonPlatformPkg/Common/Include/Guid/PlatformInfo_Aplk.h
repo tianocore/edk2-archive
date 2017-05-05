@@ -1,7 +1,7 @@
 /** @file
   GUID used for Platform Info Data entries in the HOB list.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -149,7 +149,7 @@ typedef struct {
 
 typedef enum {
   BOARD_ID_LFH_CRB         = 0x07,     // Leaf Hill
-  BOARD_ID_MINNOW          = 0x80,     // Minnow Board
+  BOARD_ID_MINNOW          = 0x0F,     // Minnow Board
   BOARD_ID_APL_UNKNOWN     = 0xFF
 } APL_BOARD_ID_LIST;
 
