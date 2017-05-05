@@ -64,24 +64,30 @@ GetEmbeddedBoardIdFabId(
   padConfg0.r.PMode = 0;
   padConfg0.r.GPIORxTxDis = 0x1;
   GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
+
   //
-  // Board_ID3: PMIC_PWRGOOD
+  // Board_ID3: GP_CAMERASB10
   //
-  CommAndOffset = GetCommOffset (NORTHWEST, 0x00C0);
+
+  CommAndOffset = GetCommOffset (NORTH, 0x01E0);
   padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
+  padConfg1.padCnf1 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET);
+
+  padConfg0.r.PMode = M0; // Set to GPIO mode
+  padConfg0.r.GPIORxTxDis = GPI;  // Set to GPI
   GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  //
-  // Set to Pull Up 20K
-  //
-  padConfg1.r.Term = 0xC;
+
+  padConfg1.r.IOSTerm  = EnPu;    // Enable pull-up
+  padConfg1.r.Term     = P_20K_H; // Set to 20K pull-up    
   GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  
+
+  //
+  // Read out Board_ID 
+  //
   *BoardId = (UINT8) (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00F0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) | \
                      (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00D0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 1) | \
                      (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00C8) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 2) | \
-                     (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00C0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 3));
+                     (((GpioPadRead (GetCommOffset (NORTH, 0x01E0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 3));
 
   DEBUG ((DEBUG_INFO,  "BoardId from PMIC strap: %02X\n", *BoardId));
 
