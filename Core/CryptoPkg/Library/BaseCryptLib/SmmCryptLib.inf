@@ -46,7 +46,7 @@
   Hash/CryptSha512Null.c
   Hmac/CryptHmacMd5Null.c
   Hmac/CryptHmacSha1Null.c
-  Hmac/CryptHmacSha256Null.c
+  Hmac/CryptHmacSha256.c
   Cipher/CryptAes.c
   Cipher/CryptTdesNull.c
   Cipher/CryptArc4Null.c

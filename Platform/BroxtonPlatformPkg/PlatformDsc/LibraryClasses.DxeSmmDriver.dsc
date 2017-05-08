@@ -1,7 +1,7 @@
 ## @file
 #  Dxe Smm Driver Library Classes Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -39,4 +39,4 @@
   !endif
 
   SmmCpuFeaturesLib|UefiCpuPkg/Library/SmmCpuFeaturesLib/SmmCpuFeaturesLib.inf
-
+  CpuExceptionHandlerLib|UefiCpuPkg/Library/CpuExceptionHandlerLib/SmmCpuExceptionHandlerLib.inf

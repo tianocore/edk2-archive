@@ -19,8 +19,8 @@
 #include <Library/IoLib.h>
 #include <Library/DebugLib.h>
 #include <Library/PciLib.h>
+#include <ScRegs/RegsPcu.h>
 
-#include "ScRegs.h"
 
 #define RESET_GENERATOR_PORT 0xCF9
 

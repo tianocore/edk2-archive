@@ -1,7 +1,7 @@
 ## @file
 #  Platform Dynamic Pcd Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -53,5 +53,5 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase|0xfff60000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase|0xfff9e000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0xfffa0000
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdFastPS2Detection|FALSE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFastPS2Detection|FALSE
 

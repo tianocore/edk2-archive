@@ -49,7 +49,7 @@ copy /y %WORKSPACE%\%PLATFORM_PATH%\DeviceCommonPkg\Override\BaseTools\Conf\tool
 :: Setup EDK environment. Edksetup puts new copies of target.txt, tools_def.txt, build_rule.txt in WorkSpace\Conf
 :: Also run edksetup as soon as possible to avoid it from changing environment variables we're overriding
 set "VCINSTALLDIR="
-set EDK_TOOLS_PATH=%CORE_PATH%\BaseTools
+set EDK_TOOLS_PATH=%WORKSPACE%\BaseTools
 call edksetup.bat
 @echo off
 

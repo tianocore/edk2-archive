@@ -16,7 +16,7 @@
   VariableServiceSetVariable() should also check authenticate data to avoid buffer overflow,
   integer overflow. It should also check attribute to avoid authentication bypass.
 
-  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -3448,6 +3448,9 @@ VariableExistsInHob (
   VARIABLE_POINTER_TRACK  Variable;
   EFI_STATUS              Status;
 
+  if (mVariableModuleGlobal->VariableGlobal.HobVariableBase == 0) {
+    return FALSE;
+  }
   Variable.CurrPtr  = NULL;
   Variable.StartPtr = GetStartPointer ((VARIABLE_STORE_HEADER *) (UINTN) mVariableModuleGlobal->VariableGlobal.HobVariableBase);
   Variable.EndPtr   = GetEndPointer   ((VARIABLE_STORE_HEADER *) (UINTN) mVariableModuleGlobal->VariableGlobal.HobVariableBase);

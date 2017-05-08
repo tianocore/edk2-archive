@@ -1,7 +1,7 @@
 /** @file
   SC Init Smm module for SC specific SMI handlers.
 
-  Copyright (c) 2013 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2013 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -14,6 +14,7 @@
 **/
 
 #include "ScInitSmm.h"
+#include <Library/MemoryAllocationLib.h>
 
 GLOBAL_REMOVE_IF_UNREFERENCED EFI_SMM_SW_DISPATCH2_PROTOCOL *mSwDispatch;
 GLOBAL_REMOVE_IF_UNREFERENCED EFI_SMM_SX_DISPATCH2_PROTOCOL *mSxDispatch;
@@ -144,6 +145,7 @@ ScInitSmmEntryPoint (
 {
   EFI_STATUS              Status;
   EFI_PEI_HOB_POINTERS    HobPtr;
+  SC_PCIE_CONFIG          *PcieRpConfig;
 
   DEBUG ((DEBUG_INFO, "ScInitSmmEntryPoint()\n"));
 
@@ -171,12 +173,20 @@ ScInitSmmEntryPoint (
   ASSERT (HobPtr.Guid != NULL);
   mScPolicy = (SC_POLICY_HOB *) GET_GUID_HOB_DATA (HobPtr.Guid);
 
-  Status = GetConfigBlock ((VOID *) mScPolicy, &gPcieRpConfigGuid, (VOID *) &mPcieRpConfig);
+  Status = GetConfigBlock ((VOID *) mScPolicy, &gPcieRpConfigGuid, (VOID *) &PcieRpConfig);
   ASSERT_EFI_ERROR (Status);
+
+  mPcieRpConfig = AllocatePool(sizeof (SC_PCIE_CONFIG));
+  if (mPcieRpConfig != NULL) {
+    CopyMem (mPcieRpConfig, PcieRpConfig, sizeof (SC_PCIE_CONFIG));
+    }
+
   InitializeSxHandler (ImageHandle);
 
   Status = InitializeScPcieSmm (ImageHandle, SystemTable);
   ASSERT_EFI_ERROR (Status);
+
+  FreePool (mPcieRpConfig);
 
   return EFI_SUCCESS;
 }

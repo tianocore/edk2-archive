@@ -37,12 +37,12 @@
   DEFINE FLASH_AREA_SIZE                                        = 0x00800000
 
   DEFINE FLASH_REGION_FV_IBBR_OFFSET                            = 0x00000000
-  DEFINE FLASH_REGION_FV_IBBR_SIZE                              = 0x00060000
+  DEFINE FLASH_REGION_FV_IBBR_SIZE                              = 0x00050000
   DEFINE FLASH_REGION_OBB_OFFSET                                = $(FLASH_REGION_FV_IBBR_OFFSET) + $(FLASH_REGION_FV_IBBR_SIZE)
-  DEFINE FLASH_REGION_OBB_SIZE                                  = 0x0007B000
+  DEFINE FLASH_REGION_OBB_SIZE                                  = 0x00076000
   DEFINE FLASH_REGION_OBBX_OFFSET                               = $(FLASH_REGION_OBB_OFFSET) + $(FLASH_REGION_OBB_SIZE)
   !if $(EXT_BIOS_ENABLE) == FALSE
-    DEFINE FLASH_REGION_OBBX_SIZE                               = 0x00165000
+    DEFINE FLASH_REGION_OBBX_SIZE                               = 0x0017A000
   !else
     DEFINE FLASH_REGION_OBBX_SIZE                               = 0x002EC000
   !endif
@@ -451,6 +451,7 @@ APRIORI DXE {
   INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdControllerDxe/SdControllerDxe.inf
   INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdMediaDeviceDxe/SdMediaDeviceDxe.inf
 
+  INF MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe.inf
   INF IntelFrameworkModulePkg/Universal/Acpi/AcpiS3SaveDxe/AcpiS3SaveDxe.inf
 
   #

@@ -1,7 +1,7 @@
 /** @file
   Header file for SC Init SMM Handler
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -58,8 +58,6 @@ extern UINTN                         mResvMmioSize;
 
 #define DeviceD0 0x00
 #define DeviceD3 0x03
-
-#define ARRAY_SIZE (data) (sizeof (data) / sizeof (data[0]))
 
 typedef enum {
   PciCfg,

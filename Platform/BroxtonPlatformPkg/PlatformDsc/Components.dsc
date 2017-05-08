@@ -72,6 +72,8 @@
   $(PLATFORM_SI_PACKAGE)/SiInit/Dxe/SiInitDxe.inf
   MdeModulePkg/Universal/Metronome/Metronome.inf
 
+  MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe.inf
+
   IntelFrameworkModulePkg/Universal/Acpi/AcpiS3SaveDxe/AcpiS3SaveDxe.inf {
     <PcdsPatchableInModule>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0xF0000043
@@ -212,16 +214,6 @@
 
   $(PLATFORM_PACKAGE_COMMON)/SampleCode/SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.inf
 !endif
-
-
-  PerformancePkg/Dp_App/Dp.inf {
-  <LibraryClasses>
-  !if $(PERFORMANCE_ENABLE) == TRUE
-    PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
-    TimerLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformTscTimerLib/DxeTscTimerLib.inf
-  !endif
-  }
-
 
 !if $(TPM12_ENABLE) == TRUE
   SecurityPkg/Tcg/TcgDxe/TcgDxe.inf

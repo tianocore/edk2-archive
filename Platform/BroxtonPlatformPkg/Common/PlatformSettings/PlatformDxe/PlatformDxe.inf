@@ -125,7 +125,7 @@
   gEfiBxtTokenSpaceGuid.PcdPmcSsramBaseAddress0
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
   gPlatformModuleTokenSpaceGuid.PcdPBTNDisableInterval
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdFastPS2Detection
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFastPS2Detection
   gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
 
 [Depex]

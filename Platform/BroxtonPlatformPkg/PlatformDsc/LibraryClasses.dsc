@@ -98,6 +98,9 @@
       S3BootScriptLib|MdePkg/Library/BaseS3BootScriptLibNull/BaseS3BootScriptLibNull.inf
    !endif
 
+   PciSegmentLib|MdePkg/Library/BasePciSegmentLibPci/BasePciSegmentLibPci.inf
+   FileExplorerLib|MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf
+   
    #
    # Generic Modules
    #

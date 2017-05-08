@@ -37,7 +37,7 @@
 // Please make sure the PCD Serivce PEIM Version is consistent with
 // the version of the generated PEIM PCD Database by build tool.
 //
-#define PCD_SERVICE_PEIM_VERSION      5
+#define PCD_SERVICE_PEIM_VERSION      6
 
 //
 // PCD_PEI_SERVICE_DRIVER_VERSION is defined in Autogen.h.

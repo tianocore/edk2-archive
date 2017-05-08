@@ -83,8 +83,8 @@
   !endif
 
   # Optimize Driver init time in FastBoot Mode
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdPs2KbdExtendedVerification|FALSE
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdPs2MouseExtendedVerification|FALSE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPs2KbdExtendedVerification|FALSE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPs2MouseExtendedVerification|FALSE
 
   # Disable Deprecated Function
   # bugbug benben: set this to FALSE to allow PcdSetXXX() to work in SecurityPkg. Check

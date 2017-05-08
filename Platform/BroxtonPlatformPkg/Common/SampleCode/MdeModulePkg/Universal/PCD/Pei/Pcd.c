@@ -1,7 +1,7 @@
 /** @file
   All Pcd Ppi services are implemented here.
 
-  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -257,7 +257,7 @@ PeiGetPcdInfoGetSku (
   VOID
   )
 {
-  return GetPcdDatabase()->SystemSkuId;
+  return (UINTN) GetPcdDatabase()->SystemSkuId;
 }
 
 /**
