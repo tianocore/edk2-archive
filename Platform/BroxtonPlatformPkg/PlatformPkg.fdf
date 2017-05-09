@@ -19,10 +19,10 @@
     #==========================================================================================
     # 3MB BIOS Layout Definition
     #==========================================================================================
-    DEFINE FLASH_BASE       = 0xFFD00000    #The base address of the 3MB FLASH Device.
-    DEFINE FLASH_SIZE       = 0x00300000    #The flash size in bytes of the 3MB FLASH Device
+    DEFINE FLASH_BASE       = 0xFFCE9000    #The base address of the 3MB FLASH Device.
+    DEFINE FLASH_SIZE       = 0x00317000    #The flash size in bytes of the 3MB FLASH Device
     DEFINE FLASH_BLOCK_SIZE = 0x1000        #The block size in bytes of the 3MB FLASH Device.
-    DEFINE FLASH_NUM_BLOCKS = 0x300         #The number of blocks in 3MB FLASH Device.
+    DEFINE FLASH_NUM_BLOCKS = 0x317         #The number of blocks in 3MB FLASH Device.
   !else
     #==========================================================================================
     # 5MB BIOS Layout Definition
