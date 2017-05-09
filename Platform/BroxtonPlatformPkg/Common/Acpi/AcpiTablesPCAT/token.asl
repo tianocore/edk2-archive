@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -50,6 +50,5 @@ Name(PEER, 0x1)         // _OSC: Pci Express Advanced Error Reporting control
 Name(PECS, 0x1)         // _OSC: Pci Express Capability Structure control
 Name(ITKE, 0x0)         // This will be overridden by the ITK module.
 Name(FTBL, 0x4)         // Platform Flavor - Tablet flavor for ASL code.
-Name(GRBM, 0xF)         // Board id for Gordon Ridge BMP MRB
 Name(MNHL, 0x5)         // Board id for Mineral Hill
 

@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -532,12 +532,8 @@ scope (\_SB.PCI0) {
       //
       // GPIO 183: Set GPIOTXState = 0
       //
+      Store (0, \_SB.PCI0.SDC.GPOV)
 
-      If (LEqual(BDID,GRBM)) {
-        Store (1, \_SB.PCI0.SDC.GPOV)
-      } Else {
-        Store (0, \_SB.PCI0.SDC.GPOV)
-      }
 
       //
       // Save GPIO_177 DW0 and DW1
@@ -557,12 +553,8 @@ scope (\_SB.PCI0) {
       //
       // GPIO 183: Set GPIOTXState = 1
       //
+      Store (1, \_SB.PCI0.SDC.GPOV)
 
-      If (LEqual(BDID,GRBM)) {
-        Store (0, \_SB.PCI0.SDC.GPOV)
-      } Else {
-        Store (1, \_SB.PCI0.SDC.GPOV)
-      }
 
       //
       // Clear Normal Interrupt Status Enable Bit 6 & 7
@@ -667,13 +659,8 @@ scope (\_SB.PCI0) {
             //      Set gpiotxstate =1
             //
 
-            // GPIO 183: Set GPIOTXState = 1
-
-            If (LEqual(BDID,GRBM)) {
-            Store (0, \_SB.PCI0.SDC.GPOV)
-            } Else {
             Store (1, \_SB.PCI0.SDC.GPOV)
-            }
+
             // Sleep for 50ms Between Powering Off / Powering On
             Sleep (50)
 
@@ -681,13 +668,7 @@ scope (\_SB.PCI0) {
             //     GPIO 183:
             //       Set gpiotxstate = 0
 
-            // GPIO 183: Set GPIOTXState = 0
-
-            If (LEqual(BDID,GRBM)) {
-            Store (1, \_SB.PCI0.SDC.GPOV)
-            } Else {
             Store (0, \_SB.PCI0.SDC.GPOV)
-            }
 
             Return (Buffer(){0x00})
           }
