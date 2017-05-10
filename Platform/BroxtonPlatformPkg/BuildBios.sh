@@ -1,3 +1,14 @@
+#
+# Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+# 
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+
 ##**********************************************************************
 ## Function define
 ##**********************************************************************
@@ -12,12 +23,11 @@ echo -e $(date)
 ##**********************************************************************
 ## Initial Setup
 ##**********************************************************************
-#WORKSPACE=$(pwd)
-EDK_TOOLS_PATH=
+
 Build_Flags=
 SV_String=_
 exitCode=0
-Arch=IA32
+Arch=X64
 
 ## Initialize all the build flags to FALSE
 ## depending on the cmd line input, some will be set to TRUE prior to building
@@ -59,11 +69,12 @@ fi
 
 ## Override tools_def.txt
 #cp $WORKSPACE\BaseTools\Conf\tools_def.template $WORKSPACE\Conf\tools_def.txt
+#:: Override tools_def.txt
+echo Creating Conf folder and build config files...
+cp $WORKSPACE/BaseTools/Conf/target.template $WORKSPACE/Conf/target.txt
+cp $WORKSPACE/BaseTools/Conf/tools_def.template $WORKSPACE/Conf/tools_def.txt
+cp $WORKSPACE/BaseTools/Conf/build_rule.template $WORKSPACE/Conf/build_rule.txt
 
-## Setup EDK environment. Edksetup puts new copies of target.txt, tools_def.txt, build_rule.txt in WorkSpace\Conf
-## Also run edksetup as soon as possible to avoid it from changing environment variables we're overriding
-##. edksetup.sh > /dev/null
-. edksetup.sh
 
 ## Get gcc version to determine which tool_def.template to use.
 ## If gcc version is 4.6 or before, use default. If not, use new one.
@@ -78,11 +89,10 @@ else
 fi
 
 #make -C BaseTools > /dev/null
-make -C BaseTools 
 
 ## Define platform specific environment variables.
-PLATFORM_NAME=BxtPlatformPkg
-PLATFORM_PACKAGE=Platform/BxtPlatformPkg
+PLATFORM_NAME=BroxtonPlatformPkg
+PLATFORM_PACKAGE=Platform/BroxtonPlatformPkg
 EFI_SOURCE=$WORKSPACE
 EDK_SOURCE=$WORKSPACE
 
@@ -149,36 +159,16 @@ if [ "$2" == "" ]; then
 fi
 
 ## Remove the values for Platform_Type and Build_Target from BiosId.env and stage in Conf/
-cp $PLATFORM_PACKAGE/BiosId.env       Conf/BiosId.env
-sed -i '/^BOARD_ID/d' Conf/BiosId.env
-sed -i '/^BUILD_TYPE/d' Conf/BiosId.env
+cp $WORKSPACE/$PLATFORM_PACKAGE/BiosId.env       $WORKSPACE/Conf/BiosId.env
+sed -i '/^BOARD_ID/d' $WORKSPACE/Conf/BiosId.env
+sed -i '/^BUILD_TYPE/d' $WORKSPACE/Conf/BiosId.env
 
-## BOARD_ID needs to be exactly 7 characters (GenBiosId.exe limitation)
-echo "Setting  $1  platform configuration and BIOS ID..."
-if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "$eNB_RVP" ]; then ## Lower case to upper case
-  BOARD_ID="$eNB_RVP"RVP
-  echo BOARD_ID = "$eNB_RVP"RVP >> Conf/BiosId.env
-  ENBDT_PF_BUILD=TRUE
-  PLATFORM_NAME=AplPlatSamplePkg
-  PLATFORM_PACKAGE=Platform/AplPlatSamplePkg
 
-elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "$Phblt_RVP" ]; then
-  BOARD_ID="$Phblt_RVP"RVP
-  echo BOARD_ID = "$Phblt_RVP"RVP >> Conf/BiosId.env
-  TABLET_PF_BUILD=TRUE
-
-elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "$Embd_RVP" ]; then
-  BOARD_ID="$Embd_RVP"RVP
-  echo BOARD_ID = "$Embd_RVP"RVP >> Conf/BiosId.env
-  BYTI_PF_BUILD=TRUE
-  PLATFORM_PACKAGE=Platform/IsgPlatPkg
-
-else
-  echo "Error - Unsupported PlatformType: $1"
-  echo "Please review the Help screen "/?""
-  ErrorExit
-fi
-  
+BOARD_ID=MNW3
+echo BOARD_ID = MINNOW3 >> $WORKSPACE/Conf/BiosId.env
+ENBDT_PF_BUILD=TRUE
+PLATFORM_NAME=BroxtonPlatformPkg
+PLATFORM_PACKAGE=Platform/BroxtonPlatformPkg  
 Platform_Type=$1
 
 ## Create new DefineAtBuildMacros.dsc file
@@ -209,11 +199,11 @@ fi
 if [ "$(echo $2 | tr 'a-z' 'A-Z')" == "RELEASE" ]; then
   TARGET=RELEASE
   BUILD_TYPE=R
-  echo BUILD_TYPE = R >> Conf/BiosId.env
+  echo BUILD_TYPE = R >> $WORKSPACE/Conf/BiosId.env
 else
   TARGET=DEBUG
   BUILD_TYPE=D
-  echo BUILD_TYPE = D >> Conf/BiosId.env
+  echo BUILD_TYPE = D >> $WORKSPACE/Conf/BiosId.env
 fi
 
 
@@ -221,14 +211,14 @@ fi
 ## Additional EDK Build Setup/Configuration
 ##**********************************************************************
 echo "Ensuring correct build directory is present for GenBiosId..."
-ACTIVE_PLATFORM=$PLATFORM_PACKAGE/PlatformPkg.dsc
+ACTIVE_PLATFORM=$PLATFORM_PACKAGE/PlatformPkgX64.dsc
 #TOOL_CHAIN_TAG=GCC47
 MAX_CONCURRENT_THREAD_NUMBER=1
-sed -i '/^ACTIVE_PLATFORM/d' Conf/target.txt
-sed -i '/^TARGET /d' Conf/target.txt
-sed -i '/^TARGET_ARCH/d' Conf/target.txt
-sed -i '/^TOOL_CHAIN_TAG/d' Conf/target.txt
-sed -i '/^MAX_CONCURRENT_THREAD_NUMBER/d' Conf/target.txt
+sed -i '/^ACTIVE_PLATFORM/d' $WORKSPACE/Conf/target.txt
+sed -i '/^TARGET /d' $WORKSPACE/Conf/target.txt
+sed -i '/^TARGET_ARCH/d' $WORKSPACE/Conf/target.txt
+sed -i '/^TOOL_CHAIN_TAG/d' $WORKSPACE/Conf/target.txt
+sed -i '/^MAX_CONCURRENT_THREAD_NUMBER/d' $WORKSPACE/Conf/target.txt
 echo ACTIVE_PLATFORM = $ACTIVE_PLATFORM                           >> Conf/target.txt
 echo TARGET          = $TARGET                                    >> Conf/target.txt
 echo TOOL_CHAIN_TAG  = $TOOL_CHAIN_TAG                            >> Conf/target.txt
@@ -242,10 +232,9 @@ fi
 ###
 ### Update ASL path for GCC47 & 46
 ###
-  echo  "*_GCC46_*_ASL_PATH = \"wine $WORKSPACE/PlatformTools/ASL/iasl.exe\"" >> Conf/tools_def.txt
-  echo  "*_GCC47_*_ASL_PATH = \"wine $WORKSPACE/PlatformTools/ASL/iasl.exe\"" >> Conf/tools_def.txt
+
 ## Fix error due to '\' in OBJCOPY_ADDDEBUGFLAG GCC Common rule
-  echo DEBUG_*_*_OBJCOPY_ADDDEBUGFLAG     = --add-gnu-debuglink=\$\(DEBUG_DIR\)/\$\(MODULE_NAME\).debug >> Conf/tools_def.txt
+  echo DEBUG_*_*_OBJCOPY_ADDDEBUGFLAG     = --add-gnu-debuglink=\$\(DEBUG_DIR\)/\$\(MODULE_NAME\).debug >> $WORKSPACE/Conf/tools_def.txt
 ### 
 
 ##**********************************************************************
@@ -259,11 +248,9 @@ fi
 if [ -e "$BUILD_PATH/$Arch/BiosId.bin" ]; then
   rm -f $BUILD_PATH/$Arch/BiosId.bin
 fi
-wine PlatformTools/GenBiosId/GenBiosId.exe -i Conf/BiosId.env -o $BUILD_PATH/$Arch/BiosId.bin
+./Platform/BroxtonPlatformPkg/Common/Tools/GenBiosId/GenBiosId -i Conf/BiosId.env -o $BUILD_PATH/$Arch/BiosId.bin
 
-echo "Running UniTool..."
-## Scan the main CRB tree, excluding R8VlvDeviceSvRestrictedPkg folders
-wine PlatformTools/UniTool/UniTool.exe -b -u -x Platform/BxtPlatformPkg  PlatformSetupDxe/UqiList.uni 1>>Unitool.log 2>&1
+
 
 echo
 echo "**** Replace DebugLib.h to save space.... ****"
@@ -272,17 +259,16 @@ cp PlatformTools/GCC/DebugLib.h Core/MdePkg/Include/Library/
 echo
 echo "**** Copy ResetVector to original folder ****"
 echo "**** Due to nasm can't execute in Ubuntu ****"
-cp PlatformTools/GCC/Vtf0/ResetVector.ia32.port80.raw $PLATFORM_PACKAGE/Override/UefiCpuPkg/ResetVector/Vtf0/Bin
-cp PlatformTools/GCC/Vtf1/ResetVector.ia32.port80.raw $PLATFORM_PACKAGE/Override/UefiCpuPkg/ResetVector/Vtf1/Bin
+
 
 echo "Invoking EDK2 build..."
-build $Build_Flags
 
+build $Build_Flags
 
 ##**********************************************************************
 ## Post Build processing and cleanup
 ##**********************************************************************
-grep "_PCD_VALUE_" $BUILD_PATH/IA32/$PLATFORM_PACKAGE/PlatformPei/PlatformPei/DEBUG/AutoGen.h > FlashMap.h
+grep "_PCD_VALUE_" $BUILD_PATH/IA32/BroxtonPlatformPkg/PlatformPei/PlatformPei/DEBUG/AutoGen.h > FlashMap.h
 
 #echo "Running fce..."
 ## Extract Hii data from build and store in HiiDefaultData.txt
