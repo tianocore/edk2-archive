@@ -1,7 +1,7 @@
 /** @file
   Platform PCI Bus Initialization Driver.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -405,6 +405,8 @@ PciBusEvent (
   UINTN                         Index;
   UINT8                         mCacheLineSize = 0x10;
   UINTN                         Seg, Bus, Dev, Fun;
+  UINT32                        AcpiIoPortBaseAddr;
+  UINT32                        CmdValue;
 
   while (TRUE) {
     BufferSize = sizeof (EFI_HANDLE);
@@ -448,6 +450,35 @@ PciBusEvent (
       //
       Status = PciIo->GetLocation (PciIo, &Seg, &Bus, &Dev, &Fun);
       if ((Seg ==0) && (Bus == 0) && (Dev == 13) && (Fun == 1)) {
+        //
+        // Set PMC acpi io port address
+        //        
+        AcpiIoPortBaseAddr = (UINT32) PcdGet16 (PcdScAcpiIoPortBaseAddress);
+        PciIo->Pci.Write (
+                     PciIo,
+                     EfiPciIoWidthUint32,
+                     0x20,
+                     1,
+                     &AcpiIoPortBaseAddr
+                     );
+
+        PciIo->Pci.Read (
+                     PciIo,
+                     EfiPciIoWidthUint8,
+                     PCI_COMMAND_OFFSET,
+                     1,
+                     &CmdValue
+                     );
+
+        CmdValue |= BIT0;
+        PciIo->Pci.Write (
+                     PciIo,
+                     EfiPciIoWidthUint8,
+                     PCI_COMMAND_OFFSET,
+                     1,
+                     &CmdValue
+                     );
+
         Supports |= BIT0;
       }
       //
