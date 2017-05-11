@@ -151,29 +151,28 @@ MultiPlatformGpioProgram (
   )
 {
   UINTN                             VariableSize;
-  EFI_STATUS                        Status;
   EFI_PEI_READ_ONLY_VARIABLE2_PPI   *VariableServices;
   SYSTEM_CONFIGURATION              SystemConfiguration;
 
   VariableSize = sizeof (SYSTEM_CONFIGURATION);
   ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
 
-  Status = (*PeiServices)->LocatePpi (
-                             PeiServices,
-                             &gEfiPeiReadOnlyVariable2PpiGuid,
-                             0,
-                             NULL,
-                             (VOID **) &VariableServices
-                             );
+ (*PeiServices)->LocatePpi (
+                    PeiServices,
+                    &gEfiPeiReadOnlyVariable2PpiGuid,
+                    0,
+                    NULL,
+                    (VOID **) &VariableServices
+                     );
 
-  Status = VariableServices->GetVariable (
-                               VariableServices,
-                               PLATFORM_SETUP_VARIABLE_NAME,
-                               &gEfiSetupVariableGuid,
-                               NULL,
-                               &VariableSize,
-                               &SystemConfiguration
-                               );
+  VariableServices->GetVariable (
+                      VariableServices,
+                      PLATFORM_SETUP_VARIABLE_NAME,
+                      &gEfiSetupVariableGuid,
+                      NULL,
+                      &VariableSize,
+                      &SystemConfiguration
+                      );
 
   DEBUG ((DEBUG_INFO, "MultiPlatformGpioProgram()...\n"));
 

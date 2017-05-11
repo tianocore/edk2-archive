@@ -2,7 +2,7 @@
   GPIO setting for CherryView.
   This file includes package header files, library classes.
 
-  Copyright (c) 2013 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2013 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -20,7 +20,7 @@
 #include <PiPei.h>
 #include <Library/IoLib.h>
 #include <Library/HobLib.h>
-#include <Library/Timerlib.h>
+#include <Library/TimerLib.h>
 #include <Guid/PlatformInfo_Aplk.h>
 
 VOID GpioTest (VOID);

@@ -1,7 +1,7 @@
 /** @file
   Gpio setting for multiplatform.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -151,29 +151,28 @@ MultiPlatformGpioProgram (
   )
 {
    UINTN                             VariableSize;
-   EFI_STATUS                        Status;
    EFI_PEI_READ_ONLY_VARIABLE2_PPI   *VariableServices;
    SYSTEM_CONFIGURATION              SystemConfiguration;
 
   VariableSize = sizeof (SYSTEM_CONFIGURATION);
   ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
 
-  Status = (*PeiServices)->LocatePpi (
-                             PeiServices,
-                             &gEfiPeiReadOnlyVariable2PpiGuid,
-                             0,
-                             NULL,
-                             (VOID **) &VariableServices
-                             );
+  (*PeiServices)->LocatePpi (
+                    PeiServices,
+                    &gEfiPeiReadOnlyVariable2PpiGuid,
+                    0,
+                    NULL,
+                    (VOID **) &VariableServices
+                    );
 
-  Status = VariableServices->GetVariable (
-                               VariableServices,
-                               PLATFORM_SETUP_VARIABLE_NAME,
-                               &gEfiSetupVariableGuid,
-                               NULL,
-                               &VariableSize,
-                               &SystemConfiguration
-                               );
+  VariableServices->GetVariable (
+                      VariableServices,
+                      PLATFORM_SETUP_VARIABLE_NAME,
+                      &gEfiSetupVariableGuid,
+                      NULL,
+                      &VariableSize,
+                      &SystemConfiguration
+                      );
 
   DEBUG ((DEBUG_INFO, "MultiPlatformGpioProgram()...\n"));
 

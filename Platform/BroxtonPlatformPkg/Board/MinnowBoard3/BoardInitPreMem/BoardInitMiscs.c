@@ -140,7 +140,6 @@ Mb3DramCreatePolicyDefaults (
   UINT8                               (*ChSwizlePtr)[DRAM_POLICY_NUMBER_CHANNELS][DRAM_POLICY_NUMBER_BITS];
   PlatfromDramConf                    *DramConfig;
   BOOLEAN                             ReadSetupVars;
-  EFI_PLATFORM_INFO_HOB               *PlatformInfoHob = NULL;
   EFI_PEI_HOB_POINTERS                Hob;
 
   DEBUG ((EFI_D_INFO, "*** Minnow Board 3 DramCreatePolicyDefaults\n"));
@@ -279,7 +278,7 @@ Mb3DramCreatePolicyDefaults (
   //
   Hob.Raw = GetFirstGuidHob (&gEfiPlatformInfoGuid);
   ASSERT (Hob.Raw != NULL);
-  PlatformInfoHob = GET_GUID_HOB_DATA (Hob.Raw);
+
 
   DEBUG ((EFI_D_INFO, "Minnow has single rank memory\n"));
   DramPolicy->DualRankSupportEnabled = FALSE;

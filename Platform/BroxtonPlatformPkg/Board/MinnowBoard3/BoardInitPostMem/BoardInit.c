@@ -1,7 +1,7 @@
 /** @file
   Board Init driver.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -26,7 +26,7 @@
 EFI_STATUS
 EFIAPI
 MinnowBoard3PostMemInitCallback (
-  IN CONST EFI_PEI_SERVICES     **PeiServices,
+  IN EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,
   IN VOID                       *Ppi
   );
@@ -47,7 +47,7 @@ static EFI_PEI_PPI_DESCRIPTOR mMinnowBoard3PostMemDonePpi = {
 EFI_STATUS
 EFIAPI
 MinnowBoard3PostMemInitCallback (
-  IN CONST EFI_PEI_SERVICES     **PeiServices,
+  IN EFI_PEI_SERVICES           **PeiServices,
   IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,
   IN VOID                       *Ppi
   )
