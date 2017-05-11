@@ -1,7 +1,7 @@
 /** @file
   CPU microcode update library.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -194,11 +194,10 @@ InitializeMicrocode (
   EFI_STATUS          Status;
   EFI_CPUID_REGISTER  Cpuid;
   UINT32              UcodeRevision;
-  ACPI_CPU_DATA       *mAcpiCpuData;
 
   Status = EFI_NOT_FOUND;
 
-  mAcpiCpuData = (ACPI_CPU_DATA *) (ExchangeInfo->AcpiCpuDataAddress);
+
   AsmCpuid (
     CPUID_VERSION_INFO,
     &Cpuid.RegEax,

@@ -2,7 +2,7 @@
   This driver is responsible for the registration of child drivers
   and the abstraction of the SC SMI sources.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -33,84 +33,102 @@ PRIVATE_DATA          mPrivateData = {  // for the structure
   NULL,                                 // Handler returned whan calling SmiHandlerRegister
   NULL,                                 // EFI handle returned when calling InstallMultipleProtocolInterfaces
   {                                     // protocol arrays
+
+    {
     //
     // elements within the array
     //
-    {
-      PROTOCOL_SIGNATURE,
-      UsbType,
-      &gEfiSmmUsbDispatch2ProtocolGuid,
-      {
-        (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
-        (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
-      }
+        (UINTN)PROTOCOL_SIGNATURE,
+        UsbType,
+        &gEfiSmmUsbDispatch2ProtocolGuid,
+        {
+         {
+          (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
+          (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
+         }
+        }
+
     },
     {
-      PROTOCOL_SIGNATURE,
-      SxType,
-      &gEfiSmmSxDispatch2ProtocolGuid,
-      {
-        (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
-        (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
-      }
+
+        (UINTN)PROTOCOL_SIGNATURE,
+        SxType,
+        &gEfiSmmSxDispatch2ProtocolGuid,
+        {{
+          (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
+          (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
+        }}
+      
     },
     {
-      PROTOCOL_SIGNATURE,
-      SwType,
-      &gEfiSmmSwDispatch2ProtocolGuid,
-      {
-        (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
-        (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister,
-        (UINTN) MAXIMUM_SWI_VALUE
-      }
+
+        (UINTN)PROTOCOL_SIGNATURE,
+        SwType,
+        &gEfiSmmSwDispatch2ProtocolGuid,
+        {{
+          (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
+          (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister,
+          (UINTN) MAXIMUM_SWI_VALUE
+        }}
+      
     },
     {
-      PROTOCOL_SIGNATURE,
-      GpiType,
-      &gEfiSmmGpiDispatch2ProtocolGuid,
-      {
-        (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
-        (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister,
-        (UINTN) V_GPIO_NUM_SUPPORTED_GPIS
-      }
+
+        (UINTN)PROTOCOL_SIGNATURE,
+        GpiType,
+        &gEfiSmmGpiDispatch2ProtocolGuid,
+        {{
+          (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
+          (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister,
+          (UINTN) V_GPIO_NUM_SUPPORTED_GPIS
+        }}
+
     },
     {
-      PROTOCOL_SIGNATURE,
-      IchnType,
-      &gEfiSmmIchnDispatchProtocolGuid,
-      {
-        (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
-        (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
-      }
+
+        (UINTN)PROTOCOL_SIGNATURE,
+        IchnType,
+        &gEfiSmmIchnDispatchProtocolGuid,
+        {{
+          (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
+          (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
+        }}
+
     },
-    {
-      PROTOCOL_SIGNATURE,
+    { 
+
+      (UINTN)PROTOCOL_SIGNATURE,
       IchnExType,
       &gEfiSmmIchnDispatchExProtocolGuid,
-      {
+      {{
         (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
         (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
-      }
+      }}
+
     },
-    {
-      PROTOCOL_SIGNATURE,
+    {  
+
+      (UINTN)PROTOCOL_SIGNATURE,
       PowerButtonType,
       &gEfiSmmPowerButtonDispatch2ProtocolGuid,
-      {
+      {{
         (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
         (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister
-      }
+      }}
+      
     },
     {
-      PROTOCOL_SIGNATURE,
+
+      (UINTN)PROTOCOL_SIGNATURE,
       PeriodicTimerType,
       &gEfiSmmPeriodicTimerDispatch2ProtocolGuid,
-      {
+      {{
         (SC_SMM_GENERIC_REGISTER) ScSmmCoreRegister,
         (SC_SMM_GENERIC_UNREGISTER) ScSmmCoreUnRegister,
         (UINTN) ScSmmPeriodicTimerDispatchGetNextShorterInterval
-      }
-    },
+      }}
+
+    }
   }
 };
 

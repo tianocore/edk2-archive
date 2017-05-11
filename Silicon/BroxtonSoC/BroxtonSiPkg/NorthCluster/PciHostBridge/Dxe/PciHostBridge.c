@@ -2,7 +2,7 @@
   Pci Host Bridge driver:
   Provides the basic interfaces to abstract a PCI Host Bridge Resource Allocation.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -41,24 +41,37 @@
 //
 static UINTN                              RootBridgeNumber[1]       = { 1 };
 
-static UINT64                             RootBridgeAttribute[1][1] = { EFI_PCI_HOST_BRIDGE_COMBINE_MEM_PMEM };
+static UINT64                             RootBridgeAttribute[1][1] = { {EFI_PCI_HOST_BRIDGE_COMBINE_MEM_PMEM }};
 
 static EFI_PCI_ROOT_BRIDGE_DEVICE_PATH    mEfiPciRootBridgeDevicePath[1][1] = {
-  {
-    ACPI_DEVICE_PATH,
-    ACPI_DP,
-    (UINT8) (sizeof (ACPI_HID_DEVICE_PATH)),
-    (UINT8) ((sizeof (ACPI_HID_DEVICE_PATH)) >> 8),
-    EISA_PNP_ID(0x0A03),
-    0,
-    END_DEVICE_PATH_TYPE,
-    END_ENTIRE_DEVICE_PATH_SUBTYPE,
-    END_DEVICE_PATH_LENGTH,
-    0
+{ 
+ {
+    {
+      {
+        ACPI_DEVICE_PATH,
+        ACPI_DP,
+        {
+          (UINT8) (sizeof (ACPI_HID_DEVICE_PATH)),
+          (UINT8) ((sizeof (ACPI_HID_DEVICE_PATH)) >> 8)
+        }
+       },
+       EISA_PNP_ID(0x0A03),
+       0
+    },
+    {
+      END_DEVICE_PATH_TYPE,
+      END_ENTIRE_DEVICE_PATH_SUBTYPE,
+      {
+        END_DEVICE_PATH_LENGTH,
+        0
+      }
+    }
   }
+
+ }
 };
 
-static PCI_ROOT_BRIDGE_RESOURCE_APPETURE  mResAppeture[1][1] = { { 0, 255, 0, 0xffffffff, 0, 1 << 16 } };
+static PCI_ROOT_BRIDGE_RESOURCE_APPETURE  mResAppeture[1][1] = { {{ 0, 255, 0, 0xffffffff, 0, (1 << 16) } }};
 
 static EFI_HANDLE                         mDriverImageHandle;
 

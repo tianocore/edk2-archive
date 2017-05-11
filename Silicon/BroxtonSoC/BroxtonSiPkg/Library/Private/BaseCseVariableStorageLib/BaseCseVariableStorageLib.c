@@ -1,7 +1,7 @@
 /** @file
   CSE Variable Storage Library.
 
-  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016-2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -110,7 +110,7 @@ EstablishAndLoadCseVariableStores (
         //
         // Check if the variable store exists
         //
-        Status = HeciGetNVMFileSize (CseVariableFileInfo[Type]->FileName, &VariableHeaderRegionBufferSize);
+        Status = HeciGetNVMFileSize ((UINT8 *)(CseVariableFileInfo[Type]->FileName), &VariableHeaderRegionBufferSize);
 
         //
         // If there's an error finding the file, do not establish this store as
@@ -354,9 +354,9 @@ ReadCseNvmFile (
   }
 
   if (HeciProtocolActive == CseVariableHeci1Protocol) {
-    return HeciReadNVMFile (CseFileName, FileOffset, Data, DataSize);
+    return HeciReadNVMFile ((UINT8 *)CseFileName, FileOffset, Data, DataSize);
   } else if (Heci2Protocol != NULL) {
-    return Heci2ReadNVMFile (CseFileName, FileOffset, Data, DataSize, Heci2Protocol);
+    return Heci2ReadNVMFile ((UINT8 *)CseFileName, FileOffset, Data, DataSize, Heci2Protocol);
   } else {
     ASSERT (FALSE);
   }
@@ -412,9 +412,9 @@ UpdateCseNvmFile (
   }
 
   if (HeciProtocolActive == CseVariableHeci1Protocol) {
-    return HeciWriteNVMFile (CseFileName, FileOffset, Data, DataSize, Truncate);
+    return HeciWriteNVMFile ((UINT8 *)CseFileName, FileOffset, Data, DataSize, Truncate);
   } else if (Heci2Protocol != NULL) {
-    Status = Heci2WriteNVMFile (CseFileName, FileOffset, Data, DataSize, Truncate);
+    Status = Heci2WriteNVMFile ((UINT8 *)CseFileName, FileOffset, Data, DataSize, Truncate);
     return Status;
   } else {
     ASSERT (FALSE);
@@ -455,7 +455,7 @@ CreateCseNvmVariableStore (
   //
   // Check if a variable store already exists
   //
-  Status = HeciGetNVMFileSize (StoreFileName, StoreSize);
+  Status = HeciGetNVMFileSize ((UINT8 *)StoreFileName, StoreSize);
   if (Status == EFI_SUCCESS || (Status != EFI_NOT_FOUND && EFI_ERROR (Status))) {
     return Status;
   }
@@ -731,10 +731,10 @@ FindVariableEx (
 EFI_STATUS
 EFIAPI
 FindVariable (
-  IN  CONST  CHAR16                      *VariableName,
-  IN  CONST  EFI_GUID                    *VendorGuid,
-  IN  CONST  CSE_VARIABLE_FILE_INFO      **CseVariableFileInfo,
-  OUT        VARIABLE_NVM_POINTER_TRACK  *VariablePtrTrack
+  IN   CONST CHAR16                      *VariableName,
+  IN   CONST EFI_GUID                    *VendorGuid,
+  IN    CSE_VARIABLE_FILE_INFO      **CseVariableFileInfo,
+  OUT   VARIABLE_NVM_POINTER_TRACK  *VariablePtrTrack
   )
 {
   EFI_STATUS                  Status;
@@ -801,9 +801,9 @@ FindVariable (
 EFI_STATUS
 EFIAPI
 GetNextCseVariableName (
-  IN   CHAR16                  *VariableName,
-  IN   EFI_GUID                *VariableGuid,
-  IN   CSE_VARIABLE_FILE_INFO  **CseVariableFileInfo,
+  IN  CONST CHAR16                  *VariableName,
+  IN  CONST EFI_GUID                *VariableGuid,
+  IN    CSE_VARIABLE_FILE_INFO  **CseVariableFileInfo,
   OUT  VARIABLE_NVM_HEADER     **VariablePtr,
   OUT  BOOLEAN                 *IsAuthVariable
   )
@@ -979,9 +979,9 @@ GetNextCseVariableName (
 EFI_STATUS
 EFIAPI
 GetCseVariable (
-  IN CONST  CSE_VARIABLE_FILE_INFO     **CseVariableFileInfo,
-  IN CONST  CHAR16                     *VariableName,
-  IN CONST  EFI_GUID                   *VariableGuid,
+  IN        CSE_VARIABLE_FILE_INFO     **CseVariableFileInfo,
+  IN  CONST      CHAR16                     *VariableName,
+  IN  CONST      EFI_GUID                   *VariableGuid,
   OUT       UINT32                     *Attributes            OPTIONAL,
   IN OUT    UINTN                      *DataSize,
   OUT       VOID                       *Data,

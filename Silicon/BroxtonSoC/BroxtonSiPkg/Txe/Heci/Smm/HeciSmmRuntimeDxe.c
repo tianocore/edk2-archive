@@ -1,7 +1,7 @@
 /** @file
   HECI Smm Runtime Dxe driver.
 
-  Copyright (c) 2007 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2007 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -25,7 +25,7 @@
 #include <Library/UefiLib.h>
 #include <Library/BaseLib.h>
 #include <Guid/EventGroup.h>
-#include <protocol/Heci.h>
+#include <Protocol/Heci.h>
 #include <HeciSmm.h>
 #include <Library/SideBandLib.h>
 #include <SeCAccess.h>
@@ -523,15 +523,15 @@ EfiHeciGetSecMode (
 }
 
 EFI_HECI_PROTOCOL mHeciProtocol = {
-  EfiHeciSendwack,
-  EfiHeciReadMessage,
-  EfiHeciSendMessage,
-  EfiHeciReset,
-  EfiHeciInit,
-  EfiHeciResetWait,
-  EfiHeciReinit,
-  EfiHeciGetSecStatus,
-  EfiHeciGetSecMode
+  (EFI_HECI_SENDWACK)EfiHeciSendwack,
+  (EFI_HECI_READ_MESSAGE)EfiHeciReadMessage,
+  (EFI_HECI_SEND_MESSAGE)EfiHeciSendMessage,
+  (EFI_HECI_RESET)EfiHeciReset,
+  (EFI_HECI_INIT)EfiHeciInit,
+  (EFI_HECI_RESET_WAIT)EfiHeciResetWait,
+  (EFI_HECI_REINIT)EfiHeciReinit,
+  (EFI_HECI_GET_SEC_STATUS)EfiHeciGetSecStatus,
+  (EFI_HECI_GET_SEC_MODE)EfiHeciGetSecMode
 };
 
 

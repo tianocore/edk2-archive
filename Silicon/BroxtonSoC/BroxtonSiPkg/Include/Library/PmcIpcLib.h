@@ -1,7 +1,7 @@
 /** @file
   Base IPC library implementation.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -169,7 +169,7 @@ typedef union {
   @retval  EFI_NOT_READY  Not ready for a new IPC
 
 **/
-RETURN_STATUS
+EFI_STATUS
 EFIAPI
 ReadyForNewIpc (
   VOID
@@ -182,7 +182,7 @@ ReadyForNewIpc (
   @param[in]   MessageId    The message identifier to send in the IPC packet.
 
 **/
-RETURN_STATUS
+EFI_STATUS
 EFIAPI
 IpcSendCommand (
   IN UINT32  MessageId
@@ -199,7 +199,7 @@ IpcSendCommand (
   @param[in, out] BufferSize                 The size, in bytes, of Buffer.  Ignored if Buffer is NULL.
 
 **/
-RETURN_STATUS
+EFI_STATUS
 EFIAPI
 IpcSendCommandEx (
   IN      UINT32  Command,
@@ -222,7 +222,7 @@ IpcSendCommandEx (
   @param[in, out] BufferSize                 The size, in bytes, of Buffer.  Ignored if Buffer is NULL.
 
 **/
-RETURN_STATUS
+EFI_STATUS
 EFIAPI
 IpcSendCommandBar0Ex (
   IN      UINT32  PciBar0,

@@ -1,7 +1,7 @@
 /** @file
   File to contain all the hardware specific stuff for the Smm Ichn dispatch protocol.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -56,7 +56,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_ACPI_PM1_EN
+          {R_ACPI_PM1_EN}
         },
         S_ACPI_PM1_EN,
         N_ACPI_PM1_EN_RTC
@@ -68,7 +68,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_ACPI_PM1_STS
+          {R_ACPI_PM1_STS}
         },
         S_ACPI_PM1_STS,
         N_ACPI_PM1_STS_RTC
@@ -122,7 +122,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_STS
+          {R_SMI_STS}
         },
         S_SMI_STS,
         N_SMI_STS_SERIRQ
@@ -154,7 +154,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_EN
+          {R_SMI_EN}
         },
         S_SMI_EN,
         N_SMI_EN_TCO
@@ -166,7 +166,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_STS
+          {R_SMI_STS}
         },
         S_SMI_STS,
         N_SMI_STS_TCO
@@ -198,7 +198,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_EN
+          {R_SMI_EN}
         },
         S_SMI_EN,
         N_SMI_EN_TCO
@@ -207,7 +207,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           PCR_ADDR_TYPE,
-          SC_PCR_ADDRESS (0xD0, R_PCR_ITSS_NMICSTS)
+          {SC_PCR_ADDRESS (0xD0, R_PCR_ITSS_NMICSTS)}
         },
         S_PCR_ITSS_NMICSTS,
         N_PCR_ITSS_NMI2SMIEN
@@ -218,7 +218,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           PCR_ADDR_TYPE,
-          SC_PCR_ADDRESS (0xD0, R_PCR_ITSS_NMICSTS)
+          {SC_PCR_ADDRESS (0xD0, R_PCR_ITSS_NMICSTS)}
         },
         S_PCR_ITSS_NMICSTS,
         N_PCR_ITSS_NMI2SMISTS
@@ -251,7 +251,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_EN
+          {R_SMI_EN}
         },
         S_SMI_EN,
         N_SMI_EN_SPI_SSMI
@@ -276,7 +276,7 @@ SC_SMM_SOURCE_DESC ICHN_SOURCE_DESCS[NUM_ICHN_TYPES] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_STS
+          {R_SMI_STS}
         },
         S_SMI_STS,
         N_SMI_STS_SPI_SSMI
@@ -474,7 +474,7 @@ SC_SMM_SOURCE_DESC ICHN_EX_SOURCE_DESCS[IchnExTypeMAX - IchnExPciExpress] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_ACPI_PM1_EN
+          {R_ACPI_PM1_EN}
         },
         S_ACPI_PM1_EN,
         N_ACPI_PM1_EN_TMROF
@@ -486,7 +486,7 @@ SC_SMM_SOURCE_DESC ICHN_EX_SOURCE_DESCS[IchnExTypeMAX - IchnExPciExpress] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_ACPI_PM1_STS
+          {R_ACPI_PM1_STS}
         },
         S_ACPI_PM1_STS,
         N_ACPI_PM1_STS_TMROF

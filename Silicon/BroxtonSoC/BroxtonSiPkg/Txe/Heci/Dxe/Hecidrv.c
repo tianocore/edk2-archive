@@ -1,7 +1,7 @@
 /** @file
   HECI driver.
 
-  Copyright (c) 2007 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2007 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -76,7 +76,7 @@ FlashDeviceEndOfPostEvent (
     Status = gBS->LocateProtocol (
                     &gEfiHeciSmmRuntimeProtocolGuid,
                     NULL,
-                    &mHeci2Protocol
+                    (VOID **)&mHeci2Protocol
                     );
     if (GetFirstGuidHob (&gFdoModeEnabledHobGuid) == NULL) {
       ASSERT_EFI_ERROR (Status);

@@ -1,7 +1,7 @@
 /** @file
   CSE Variable Storage Selector Library.
 
-  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -46,9 +46,9 @@ typedef enum {
 CSE_VARIABLE_FILE_TYPE
 EFIAPI
 GetCseVariableStoreFileType (
-  IN CONST CHAR16                 *VariableName,
-  IN CONST EFI_GUID               *VendorGuid,
-  IN CONST CSE_VARIABLE_FILE_INFO **CseVariableFileInfo
+  IN  CONST CHAR16                 *VariableName,
+  IN  CONST EFI_GUID               *VendorGuid,
+  IN  CSE_VARIABLE_FILE_INFO       **CseVariableFileInfo
   );
 
 /**

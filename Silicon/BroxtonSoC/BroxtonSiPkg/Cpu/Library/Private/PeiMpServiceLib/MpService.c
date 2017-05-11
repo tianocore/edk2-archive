@@ -1,7 +1,7 @@
 /** @file
   PEIM to initialize multi-processor.
 
-  Copyright (c) 2013 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2013 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -730,7 +730,7 @@ SwitchBsp (
   IN BOOLEAN                  EnableOldBsp
   )
 {
-  EFI_STATUS            Status;
+
   CPU_DATA_BLOCK        *CpuData;
   CPU_STATE             CpuState;
   UINT64                *MtrrValues;
@@ -804,7 +804,7 @@ SwitchBsp (
     }
   }
 
-  Status              = ChangeCpuState (mMpSystemData->BSP, EnableOldBsp, CPU_CAUSE_NOT_DISABLED);
+  ChangeCpuState (mMpSystemData->BSP, EnableOldBsp, CPU_CAUSE_NOT_DISABLED);
   mMpSystemData->BSP  = CpuNumber;
 
   return EFI_SUCCESS;
@@ -1004,7 +1004,7 @@ FillMpData (
   IN UINTN                MaximumCPUsForThisSystem
   )
 {
-  EFI_STATUS     Status;
+
   BOOLEAN        HyperThreadingEnabled;
 
   mMpSystemData = &mMpCpuRuntimeData->MpSystemData;
@@ -1025,10 +1025,10 @@ FillMpData (
   mMpCpuRuntimeData->AcpiCpuData.APState         = HyperThreadingEnabled;
   mMpCpuRuntimeData->AcpiCpuData.StackAddress    = (EFI_PHYSICAL_ADDRESS) (UINTN) StackAddressStart;
 
-  Status = PrepareGdtIdtForAP (
-             (IA32_DESCRIPTOR *) (UINTN) mMpCpuRuntimeData->AcpiCpuData.GdtrProfile,
-             (IA32_DESCRIPTOR *) (UINTN) mMpCpuRuntimeData->AcpiCpuData.IdtrProfile
-             );
+  PrepareGdtIdtForAP (
+    (IA32_DESCRIPTOR *) (UINTN) mMpCpuRuntimeData->AcpiCpuData.GdtrProfile,
+    (IA32_DESCRIPTOR *) (UINTN) mMpCpuRuntimeData->AcpiCpuData.IdtrProfile
+    );
 
   //
   // First BSP fills and inits all known values, including it's own records.

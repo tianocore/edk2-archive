@@ -1,7 +1,7 @@
 /** @file
   Implementation file for the HECI2 Power Management library.
 
-  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016-2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -41,7 +41,7 @@ GetHeci2PmProtocol (
     Status = gSmst->SmmLocateProtocol (
                       &gEfiHeci2PmProtocolGuid,
                       NULL,
-                      &mHeci2PmProtocol
+                      (VOID **)&mHeci2PmProtocol
                       );
 
     if (EFI_ERROR (Status)) {

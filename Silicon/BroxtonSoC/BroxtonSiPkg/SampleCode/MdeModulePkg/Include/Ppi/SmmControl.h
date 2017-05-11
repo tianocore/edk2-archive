@@ -9,7 +9,7 @@
   event from a platform chipset agent is an optional capability for both IA-32 and Itanium-based
   systems.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -25,7 +25,7 @@
 #define _SMM_CONTROL_PPI_H_
 
 #define PEI_SMM_CONTROL_PPI_GUID \
-  { 0x61c68702, 0x4d7e, 0x4f43, 0x8d, 0xef, 0xa7, 0x43, 0x5, 0xce, 0x74, 0xc5 }
+  { 0x61c68702, 0x4d7e, 0x4f43, {0x8d, 0xef, 0xa7, 0x43, 0x5, 0xce, 0x74, 0xc5} }
 
 typedef struct _PEI_SMM_CONTROL_PPI  PEI_SMM_CONTROL_PPI;
 

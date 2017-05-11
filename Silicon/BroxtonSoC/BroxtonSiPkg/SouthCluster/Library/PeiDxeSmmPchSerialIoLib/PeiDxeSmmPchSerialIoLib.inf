@@ -35,7 +35,3 @@
   MmPciLib
   ScPlatformLib
 
-[BuildOptions]
-  *_*_IA32_ASM_FLAGS = /w /Od /GL-
-  *_*_IA32_CC_FLAGS = /w /Od /GL-
-  *_*_X64_CC_FLAGS = /w /Od /GL-

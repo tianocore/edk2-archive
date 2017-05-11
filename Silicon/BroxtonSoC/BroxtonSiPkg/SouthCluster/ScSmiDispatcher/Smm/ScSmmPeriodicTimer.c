@@ -1,7 +1,7 @@
 /** @file
   File to contain all the hardware specific stuff for the Periodical Timer dispatch protocol.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -115,7 +115,7 @@ SC_SMM_SOURCE_DESC mTIMER_SOURCE_DESCS[NUM_TIMERS] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_EN
+          {R_SMI_EN}
         },
         S_SMI_EN,
         N_SMI_EN_PERIODIC
@@ -127,7 +127,7 @@ SC_SMM_SOURCE_DESC mTIMER_SOURCE_DESCS[NUM_TIMERS] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_STS
+          {R_SMI_STS}
         },
         S_SMI_STS,
         N_SMI_STS_PERIODIC
@@ -141,7 +141,7 @@ SC_SMM_SOURCE_DESC mTIMER_SOURCE_DESCS[NUM_TIMERS] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_EN
+          {R_SMI_EN}
         },
         S_SMI_EN,
         N_SMI_EN_SWSMI_TMR
@@ -153,7 +153,7 @@ SC_SMM_SOURCE_DESC mTIMER_SOURCE_DESCS[NUM_TIMERS] = {
       {
         {
           ACPI_ADDR_TYPE,
-          R_SMI_STS
+          {R_SMI_STS}
         },
         S_SMI_STS,
         N_SMI_STS_SWSMI_TMR

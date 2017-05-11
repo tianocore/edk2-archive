@@ -2,7 +2,7 @@
   This library will determine memory configuration information from the chipset
   and memory and create SMBIOS memory structures appropriately.
 
-  Copyright (c) 2013 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2013 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -15,6 +15,9 @@
 **/
 
 #include "SmbiosMemory.h"
+
+MEM_INFO_PROTOCOL      *mMemInfoHob;
+EFI_SMBIOS_HANDLE      mSmbiosType16Handle;
 
 //
 // Physical Memory Array (Type 16) data

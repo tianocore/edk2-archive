@@ -1,7 +1,7 @@
 /** @file
   Heci driver core. For Dxe Phase, determines the HECI device and initializes it.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -528,7 +528,6 @@ HeciReceive (
 )
 {
   UINTN                                ReadSize;
-  UINTN                                Size;
   UINTN                                Index;
   UINTN                                HeciMBAR;
   HECI_MESSAGE_HEADER                  MessageHeader;
@@ -543,7 +542,7 @@ HeciReceive (
   EFI_STATUS                           Status;
 
   DEBUG ((EFI_D_INFO, "Start HeciReceive\n"));
-  Size = 0;
+
   ReadSize = 0;
 
   HeciMBAR = CheckAndFixHeciForAccess (HeciDev);
@@ -700,7 +699,7 @@ HeciSend (
   UINTN                  HeciMBAR;
   UINTN                  StallCount;
   UINTN                  MaxCount;
-  UINTN                  OverAllDelay;
+
   BOOLEAN                TimeOut;
   HECI_MESSAGE_HEADER    MessageHeader;
   EFI_HECI2_PM_PROTOCOL  *Heci2PmProtocol;
@@ -748,7 +747,7 @@ HeciSend (
   MaxBuffer = HostControlReg->r.H_CBD;
 
   MaxCount = 0;
-  OverAllDelay = 0;
+
   TimeOut = FALSE;
 
   DEBUG_CODE_BEGIN ();
@@ -961,11 +960,10 @@ HeciInitialize(
   HECI_FWS_REGISTER                   SeCFirmwareStatus;
   UINTN                               HeciMBAR;
   EFI_STATUS                          Status;
-  UINT32                              SeCMode;
+
 
   DEBUG ((EFI_D_INFO, "HECI Initialize  ++ \n "));
 
-  SeCMode = SEC_MODE_NORMAL;
 
   //
   // Make sure that HECI device BAR is correct and device is enabled.

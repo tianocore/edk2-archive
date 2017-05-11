@@ -3,7 +3,7 @@
   All function in this library is available for PEI, DXE, and SMM,
   But do not support UEFI RUNTIME environment call.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -214,7 +214,7 @@ ConfigureSerialIoController (
         Bar = MmioRead32 (PciCfgBase + R_LPSS_IO_BAR) & 0xFFFFF000;
       }
 
-      MmioWrite32 (Bar + R_LPSS_IO_REMAP_ADDRESS_LOW, Bar);
+      MmioWrite32 (Bar + R_LPSS_IO_REMAP_ADDRESS_LOW, (UINT32)Bar);
 
       //
       // Set Memory space Enable
@@ -236,7 +236,7 @@ ConfigureSerialIoController (
 
         do {
           PchPcrRead32(0xC6, SerialIoPsf3Offsets[Controller].Psf3BaseAddress + 0x001C, &Data32);
-        } while (Data32 & BIT18 != BIT18);
+        } while ((Data32 & BIT18) != BIT18);
 
         //
         // Assign BAR0 and Set Memory space Enable
@@ -254,7 +254,7 @@ ConfigureSerialIoController (
       //
       // Update Address Remap Register with Current BAR
       //
-      MmioWrite32 (Bar + R_LPSS_IO_REMAP_ADDRESS_LOW, Bar);
+      MmioWrite32 (Bar + R_LPSS_IO_REMAP_ADDRESS_LOW, (UINT32)Bar);
 
       ///
       /// Get controller out of reset

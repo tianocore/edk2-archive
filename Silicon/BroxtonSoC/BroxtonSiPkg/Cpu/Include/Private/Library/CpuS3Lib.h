@@ -1,7 +1,7 @@
 /** @file
   Header file for Cpu Init Lib Pei Phase.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -27,7 +27,7 @@
 **/
 EFI_STATUS
 S3InitializeCpu (
-  IN CONST EFI_PEI_SERVICES    **PeiServices
+  IN  EFI_PEI_SERVICES    **PeiServices
   );
 #endif
 

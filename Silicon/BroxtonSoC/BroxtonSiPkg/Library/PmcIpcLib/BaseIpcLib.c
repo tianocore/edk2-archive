@@ -1,7 +1,7 @@
 /** @file
   Base IPC library implementation.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -66,6 +66,7 @@ ReadyForNewIpc (
 
 **/
 EFI_STATUS
+EFIAPI
 IpcSendCommandEx (
   IN      UINT32  Command,
   IN      UINT8   SubCommand,
@@ -108,7 +109,7 @@ IpcSendCommandEx (
   @param[in, out] BufferSize            The size, in bytes, of Buffer.  Ignored if Buffer is NULL.
 
 **/
-RETURN_STATUS
+EFI_STATUS
 EFIAPI
 IpcSendCommandBar0Ex (
   IN      UINT32  PciBar0,

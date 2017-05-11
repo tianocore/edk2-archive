@@ -1,7 +1,7 @@
 /** @file
   CSE Variable Storage Library.
 
-  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -131,11 +131,11 @@ InitializeCseStorageGlobalVariableStructures (
 EFI_STATUS
 EFIAPI
 GetNextCseVariableName (
-  IN   CHAR16                  *VariableName,
-  IN   EFI_GUID                *VariableGuid,
-  IN   CSE_VARIABLE_FILE_INFO  **CseVariableFileInfo,
-  OUT  VARIABLE_NVM_HEADER     **VariablePtr,
-  OUT  BOOLEAN                 *IsAuthVariable
+  IN   CONST CHAR16                  *VariableName,
+  IN   CONST EFI_GUID                *VariableGuid,
+  IN   CSE_VARIABLE_FILE_INFO        **CseVariableFileInfo,
+  OUT  VARIABLE_NVM_HEADER           **VariablePtr,
+  OUT  BOOLEAN                       *IsAuthVariable
   );
 
 /**
@@ -246,10 +246,10 @@ BuildCseDataFileName (
 EFI_STATUS
 EFIAPI
 FindVariable (
-  IN  CONST  CHAR16                      *VariableName,
-  IN  CONST  EFI_GUID                    *VendorGuid,
-  IN  CONST  CSE_VARIABLE_FILE_INFO      **CseVariableFileInfo,
-  OUT        VARIABLE_NVM_POINTER_TRACK  *VariablePtrTrack
+  IN   CONST  CHAR16                      *VariableName,
+  IN   CONST  EFI_GUID                    *VendorGuid,
+  IN   CSE_VARIABLE_FILE_INFO             **CseVariableFileInfo,
+  OUT  VARIABLE_NVM_POINTER_TRACK         *VariablePtrTrack
   );
 
 /**
@@ -312,13 +312,13 @@ FindDeletedVariable (
 EFI_STATUS
 EFIAPI
 GetCseVariable (
-  IN CONST  CSE_VARIABLE_FILE_INFO     **CseVariableFileInfo,
-  IN CONST  CHAR16                     *VariableName,
-  IN CONST  EFI_GUID                   *VariableGuid,
-  OUT       UINT32                     *Attributes            OPTIONAL,
-  IN OUT    UINTN                      *DataSize,
-  OUT       VOID                       *Data,
-  OUT       VARIABLE_NVM_HEADER        *VariableHeader        OPTIONAL
+  IN         CSE_VARIABLE_FILE_INFO     **CseVariableFileInfo,
+  IN  CONST  CHAR16                     *VariableName,
+  IN  CONST  EFI_GUID                   *VariableGuid,
+  OUT        UINT32                     *Attributes            OPTIONAL,
+  IN OUT     UINTN                      *DataSize,
+  OUT        VOID                       *Data,
+  OUT        VARIABLE_NVM_HEADER        *VariableHeader        OPTIONAL
   );
 
 #endif

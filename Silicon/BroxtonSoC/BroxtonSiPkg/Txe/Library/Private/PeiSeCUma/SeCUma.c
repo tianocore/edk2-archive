@@ -1,7 +1,7 @@
 /** @file
   Framework PEIM to SeCUma.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -141,7 +141,6 @@ HandleSecBiosAction (
   IN UINT8                        BiosAction
   )
 {
-  EFI_STATUS              Status;
   HECI_FWS_REGISTER       SeCFirmwareStatus;
 
   //
@@ -163,7 +162,7 @@ HandleSecBiosAction (
       // Case: Perform Non-Power Cycle Reset
       //
       DEBUG ((DEBUG_ERROR, "SEC FW has requested a Non-PCR.\n"));
-      Status = PerformReset (CBM_DIR_NON_PCR);
+      PerformReset (CBM_DIR_NON_PCR);
       break;
 
     case CBM_DIR_PCR:
@@ -171,7 +170,7 @@ HandleSecBiosAction (
       // Case: Perform Power Cycle Reset
       //
       DEBUG ((DEBUG_ERROR, "SEC FW has requested a PCR.\n"));
-      Status = PerformReset (CBM_DIR_PCR);
+      PerformReset (CBM_DIR_PCR);
       break;
 
     case 3:
@@ -200,7 +199,7 @@ HandleSecBiosAction (
       // Case: Perform Global Reset
       //
       DEBUG ((DEBUG_ERROR, "SEC FW has requested a Global Reset.\n"));
-      Status = PerformReset (CBM_DIR_GLOBAL_RESET);
+      PerformReset (CBM_DIR_GLOBAL_RESET);
       break;
 
     case CBM_DIR_CONTINUE_POST:
@@ -333,7 +332,6 @@ PerformReset (
   UINT8       ResetType
   )
 {
-  EFI_STATUS  Status;
   UINT32      Data32;
   UINT32      GpioBase;
   UINT8       Reset;
@@ -342,7 +340,7 @@ PerformReset (
   Reset     = 0;
   GpioBase  = 0;
 
-  Status = ClearDISB ();
+  ClearDISB ();
 
   ETR = (UINT32) MmPciAddress (0, 0, PCI_DEVICE_NUMBER_PMC, PCI_FUNCTION_NUMBER_PMC_IPC1, R_PMC_PMIR);
   MmioAnd32 (

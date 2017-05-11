@@ -3,7 +3,7 @@
   This driver will determine memory configuration information from the chipset
   and memory and create SMBIOS memory structures appropriately.
 
-  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -159,9 +159,9 @@ typedef struct {
 //
 // Module-wide global variables
 //
-MEM_INFO_PROTOCOL               *mMemInfoHob;
+extern MEM_INFO_PROTOCOL               *mMemInfoHob;
 extern EFI_SMBIOS_PROTOCOL       *mSmbios;
-EFI_SMBIOS_HANDLE      mSmbiosType16Handle;
+extern EFI_SMBIOS_HANDLE      mSmbiosType16Handle;
 
 extern CHAR8 *DimmToDevLocator[];
 extern CHAR8 *DimmToBankLocator[];

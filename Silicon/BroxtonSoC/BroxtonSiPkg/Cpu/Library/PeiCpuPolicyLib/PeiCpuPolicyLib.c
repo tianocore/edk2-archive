@@ -1,7 +1,7 @@
 /** @file
   This file is PeiCpuPolicy library.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -27,9 +27,7 @@ LoadCpuPreMemDefault (
   IN   VOID         *ConfigBlockPointer
   )
 {
-  CPU_CONFIG_PREMEM    *CpuConfigPreMem;
 
-  CpuConfigPreMem = ConfigBlockPointer;
 
   return EFI_SUCCESS;
 }
@@ -41,9 +39,7 @@ LoadBiosGuardDefault (
   IN   VOID         *ConfigBlockPointer
   )
 {
-  BIOS_GUARD_CONFIG  *BiosGuardConfig;
 
-  BiosGuardConfig = ConfigBlockPointer;
 
   return EFI_SUCCESS;
 }

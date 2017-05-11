@@ -3,7 +3,7 @@
   Software SCI interface between system BIOS, ASL code, and Graphics drivers.
   The code in this file will load the driver and initialize the interface.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -722,7 +722,7 @@ IgdOpRegionInit (
   //
   Status = EfiCreateEventReadyToBootEx(
              TPL_CALLBACK,
-             SetGOPVersionCallback,
+             (EFI_EVENT_NOTIFY)SetGOPVersionCallback,
              NULL,
              &mReadyToBootEvent
              );

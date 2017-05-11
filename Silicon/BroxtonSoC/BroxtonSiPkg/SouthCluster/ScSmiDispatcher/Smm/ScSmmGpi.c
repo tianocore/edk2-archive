@@ -1,7 +1,7 @@
 /** @file
   File to contain all the hardware specific stuff for the Smm Gpi dispatch protocol.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -26,7 +26,7 @@ CONST SC_SMM_SOURCE_DESC  SC_GPI_SOURCE_DESC_TEMPLATE = {
   {
     {
       {
-        GPIO_ADDR_TYPE, 0x0
+        GPIO_ADDR_TYPE, {0x0}
       },
       S_GPIO_GP_SMI_EN, 0x0,
     },
@@ -36,7 +36,7 @@ CONST SC_SMM_SOURCE_DESC  SC_GPI_SOURCE_DESC_TEMPLATE = {
   {
     {
       {
-        GPIO_ADDR_TYPE, 0x0
+        GPIO_ADDR_TYPE, {0x0}
       },
       S_GPIO_GP_SMI_STS, 0x0,
     },

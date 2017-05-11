@@ -1,7 +1,7 @@
 /** @file
   File to contain all the hardware specific stuff for the Smm Power Button dispatch protocol.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -21,7 +21,7 @@ CONST SC_SMM_SOURCE_DESC POWER_BUTTON_SOURCE_DESC = {
     {
       {
         ACPI_ADDR_TYPE,
-        R_ACPI_PM1_EN
+        {R_ACPI_PM1_EN}
       },
       S_ACPI_PM1_EN,
       N_ACPI_PM1_EN_PWRBTN
@@ -33,7 +33,7 @@ CONST SC_SMM_SOURCE_DESC POWER_BUTTON_SOURCE_DESC = {
     {
       {
         ACPI_ADDR_TYPE,
-        R_ACPI_PM1_STS
+        {R_ACPI_PM1_STS}
       },
       S_ACPI_PM1_STS,
       N_ACPI_PM1_STS_PWRBTN

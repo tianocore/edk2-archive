@@ -32,9 +32,9 @@
 CSE_VARIABLE_FILE_TYPE
 EFIAPI
 GetCseVariableStoreFileType (
-  IN CONST CHAR16                 *VariableName,
-  IN CONST EFI_GUID               *VendorGuid,
-  IN CONST CSE_VARIABLE_FILE_INFO **CseVariableFileInfo
+  IN  CONST CHAR16                 *VariableName,
+  IN  CONST EFI_GUID               *VendorGuid,
+  IN  CSE_VARIABLE_FILE_INFO       **CseVariableFileInfo
   )
 {
   CSE_VARIABLE_FILE_TYPE    Type;

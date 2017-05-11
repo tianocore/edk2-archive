@@ -236,7 +236,7 @@ Heci2WriteNVMFile (
     //
     // Copy the name of the NVM file to write
     //
-    ASSERT (AsciiStrLen (FileName) <= sizeof (WriteFileMessage->FileName));
+    ASSERT (AsciiStrLen ((CONST CHAR8*)FileName) <= sizeof (WriteFileMessage->FileName));
     ASSERT (sizeof (Heci2DataBuffer) > sizeof (HECI2_TRUSTED_CHANNEL_BIOS_WRITE_REQ));
     AsciiStrCpyS ((CHAR8 *) WriteFileMessage->FileName, sizeof (WriteFileMessage->FileName), (CONST CHAR8 *) FileName);
 
@@ -351,7 +351,7 @@ Heci2ReadNVMFile (
     //
     // Copy the name of the NVM file to read
     //
-    ASSERT (AsciiStrLen (FileName) <= sizeof (ReadFileMessage->FileName));
+    ASSERT (AsciiStrLen ((CONST CHAR8*)FileName) <= sizeof (ReadFileMessage->FileName));
     ASSERT (sizeof (Heci2DataBuffer) > sizeof (HECI2_TRUSTED_CHANNEL_BIOS_READ_REQ));
     AsciiStrCpyS ((CHAR8 *) ReadFileMessage->FileName, sizeof (ReadFileMessage->FileName), (CONST CHAR8 *) FileName);
 

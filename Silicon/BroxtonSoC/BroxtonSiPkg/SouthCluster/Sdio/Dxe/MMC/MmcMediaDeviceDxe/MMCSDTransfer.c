@@ -2244,6 +2244,7 @@ MmcGetCurrentPartitionNum (
 
 **/
 VOID
+EFIAPI
 SetEmmcWpOnEvent(
   IN EFI_EVENT          Event,
   IN VOID               *Context
