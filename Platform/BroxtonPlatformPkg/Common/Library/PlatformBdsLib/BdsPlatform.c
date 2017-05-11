@@ -1,7 +1,7 @@
 /** @file
   This file include all platform action which can be customized by IBV/OEM.
 
-  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -34,7 +34,7 @@
 
 extern EFI_GUID gUndiDriverImageGuid;
 
-EFI_GUID gUefiShellFileGuid = { 0x7C04A583, 0x9E3E, 0x4f1c, 0xAD, 0x65, 0xE0, 0x52, 0x68, 0xD0, 0xB4, 0xD1 };
+EFI_GUID gUefiShellFileGuid = { 0x7C04A583, 0x9E3E, 0x4f1c, {0xAD, 0x65, 0xE0, 0x52, 0x68, 0xD0, 0xB4, 0xD1 }};
 
 EFI_USER_PROFILE_HANDLE                           mCurrentUser = NULL;
 EFI_EVENT                                         mHotKeyTimerEvent = NULL;
@@ -443,7 +443,7 @@ FastBootUpdateConInVarByConInBehavior (
   EfiCreateProtocolNotifyEvent (
     &gSetupEnterGuid,
     TPL_CALLBACK,
-    ConnectAllConsolesForSetupMenu,
+    (EFI_EVENT_NOTIFY)ConnectAllConsolesForSetupMenu,
     NULL,
     &SetupRegistration
     );

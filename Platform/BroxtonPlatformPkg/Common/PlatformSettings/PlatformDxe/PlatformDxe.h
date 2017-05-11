@@ -1,7 +1,7 @@
 /** @file
   Header file for Platform Initialization Driver.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -69,7 +69,7 @@
 // Platform driver GUID
 //
 #define EFI_PLATFORM_DRIVER_GUID \
-  { 0x056E7324, 0xA718, 0x465b, 0x9A, 0x84, 0x22, 0x8F, 0x06, 0x64, 0x2B, 0x4F }
+  { 0x056E7324, 0xA718, 0x465b, {0x9A, 0x84, 0x22, 0x8F, 0x06, 0x64, 0x2B, 0x4F }}
 
 #define EFI_SECTION_STRING                  0x1C
 #define EFI_FORWARD_DECLARATION(x) typedef struct _##x x

@@ -1,7 +1,7 @@
 /** @file
   Sample to provide FSP platform information related function.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -230,16 +230,13 @@ GetS3MemoryInfo (
   ACPI_VARIABLE_SET               *AcpiVariableSet;
   EFI_PEI_HOB_POINTERS            GuidHob;
   EFI_PHYSICAL_ADDRESS            *AcpiVariableAddress;
-  UINTN                           AcpiVarHobSize;
 
   GuidHob.Raw = GetHobList ();
   AcpiVariableAddress = NULL;
-  AcpiVarHobSize = 0;
 
   if (GuidHob.Raw != NULL) {
     if ((GuidHob.Raw = GetNextGuidHob (&gEfiAcpiVariableCompatiblityGuid, GuidHob.Raw)) != NULL) {
       AcpiVariableAddress = GET_GUID_HOB_DATA (GuidHob.Guid);
-      AcpiVarHobSize = GET_GUID_HOB_DATA_SIZE (GuidHob.Guid);
     }
   }
 

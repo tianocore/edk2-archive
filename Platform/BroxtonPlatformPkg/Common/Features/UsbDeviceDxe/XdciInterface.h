@@ -65,7 +65,7 @@ EFI_STATUS
 (EFIAPI *DEV_CORE_REG_CALLBACK) (
   IN VOID                      *CoreHandle,
   IN USB_DEVICE_EVENT_ID       Event,
-  IN EFI_STATUS                (*callbackFn)(IN USB_DEVICE_CALLBACK_PARAM *CbEventParams)
+  IN USB_DEVICE_CALLBACK_FUNC  CallbackFn
   );
 
 typedef

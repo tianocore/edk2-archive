@@ -1,6 +1,6 @@
 // /** @file
 //
-//  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -115,7 +115,7 @@ formset
   #include "Thermal.vfi"
   #include "SystemComponent.vfi"
   #include "DebugConfig.vfi"
-  #include "AcpiSetup.Vfi"
-  #include "RTD3.Vfi"
+  #include "AcpiSetup.vfi"
+  #include "RtD3.vfi"
 
 endformset;

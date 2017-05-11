@@ -70,7 +70,7 @@ GetMemoryMap (
   Status = gBS->AllocatePool (
                   EfiBootServicesData,
                   *EfiMemoryMapSize,
-                  EfiMemoryMap
+                  (VOID **)EfiMemoryMap
                   );
   if (EFI_ERROR(Status)) {
     DEBUG ((EFI_D_ERROR, "Can not Allocate Memory\n"));

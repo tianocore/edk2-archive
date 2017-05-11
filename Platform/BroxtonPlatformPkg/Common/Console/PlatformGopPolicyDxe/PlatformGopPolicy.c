@@ -1,7 +1,7 @@
 /** @file
   Platform GOP Driver Policy.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -23,7 +23,7 @@
 #include <Library/HobLib.h>
 #include <Guid/PlatformInfo.h>
 
-EFI_BOOT_SERVICES   *gBS;
+extern EFI_BOOT_SERVICES   *gBS;
 
 PLATFORM_GOP_POLICY_PROTOCOL  mPlatformGOPPolicy;
 
@@ -82,7 +82,7 @@ GetVbtData (
   SYSTEM_CONFIGURATION          SystemConfiguration;
   UINTN                         VarSize;
   EFI_STATUS                    Status;
-  EFI_GUID  BmpImageGuid = { 0xE08CA6D5, 0x8D02, 0x43ae, 0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33 };
+  EFI_GUID  BmpImageGuid = { 0xE08CA6D5, 0x8D02, 0x43ae, {0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33} };
   UINTN                         FvProtocolCount;
   EFI_HANDLE                    *FvHandles;
   EFI_FIRMWARE_VOLUME2_PROTOCOL *Fv;
@@ -130,7 +130,7 @@ GetVbtData (
                      &BmpImageGuid,
                      EFI_SECTION_RAW,
                      0,
-                     &Buffer,
+                     (VOID **)&Buffer,
                      &VbtBufferSize,
                      &AuthenticationStatus
                      );

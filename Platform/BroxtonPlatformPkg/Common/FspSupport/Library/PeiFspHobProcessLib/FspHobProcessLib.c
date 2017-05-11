@@ -1,7 +1,7 @@
 /** @file
   Null instance of Platform Sec Lib.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -64,14 +64,13 @@ GetMemorySizeInMemoryTypeInformation (
   IN EFI_PEI_SERVICES **PeiServices
   )
 {
-  EFI_STATUS                  Status;
   EFI_PEI_HOB_POINTERS        Hob;
   EFI_MEMORY_TYPE_INFORMATION *MemoryData;
   UINT8                       Index;
   UINTN                       TempPageNum;
 
   MemoryData = NULL;
-  Status     = (*PeiServices)->GetHobList (PeiServices, (VOID **) &Hob.Raw);
+  (*PeiServices)->GetHobList ((CONST EFI_PEI_SERVICES **)PeiServices, (VOID **) &Hob.Raw);
   while (!END_OF_HOB_LIST (Hob)) {
     if (Hob.Header->HobType == EFI_HOB_TYPE_GUID_EXTENSION &&
       CompareGuid (&Hob.Guid->Name, &gEfiMemoryTypeInformationGuid)) {
@@ -181,10 +180,6 @@ FspHobProcessForMemoryResource (
   BOOLEAN               FoundFspMemHob;
   EFI_STATUS            Status;
   EFI_BOOT_MODE         BootMode;
-  EFI_PEI_SERVICES      **PeiServices;
-  FSPM_UPD              *FspmUpd;
-
-  PeiServices = (EFI_PEI_SERVICES **) GetPeiServicesTablePointer ();
 
   PeiServicesGetBootMode (&BootMode);
 
@@ -195,7 +190,6 @@ FspHobProcessForMemoryResource (
   FspMemoryBase = 0;
   FoundFspMemHob = FALSE;
 
-  FspmUpd = (FSPM_UPD *) GetFspMemoryInitUpdDataPointer ();
 
   //
   // Parse the hob list from fsp
@@ -352,7 +346,6 @@ ProcessFspHobList (
 )
 {
   EFI_PEI_HOB_POINTERS   FspHob;
-  EFI_PEI_HOB_POINTERS   DxeHob;
   BOOLEAN                TransferFlag;
 
   //
@@ -400,7 +393,7 @@ ProcessFspHobList (
 
     if (TransferFlag) {
       DEBUG ((DEBUG_INFO, "FSP  Extended    GUID HOB: {%g} HobLength = %x\n", &(FspHob.Guid->Name), FspHob.Header->HobLength));
-      DxeHob.Raw = BuildGuidDataHob(&FspHob.Guid->Name, GET_GUID_HOB_DATA(FspHob.Raw), GET_GUID_HOB_DATA_SIZE(FspHob.Raw));
+      BuildGuidDataHob(&FspHob.Guid->Name, GET_GUID_HOB_DATA(FspHob.Raw), GET_GUID_HOB_DATA_SIZE(FspHob.Raw));
     }
     FspHob.Raw = GET_NEXT_HOB (FspHob);
   }

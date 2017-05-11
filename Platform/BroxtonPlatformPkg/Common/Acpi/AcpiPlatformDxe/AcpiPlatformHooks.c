@@ -1,7 +1,7 @@
 /** @file
   ACPI Platform Driver Hooks.
 
-  Copyright (c) 1996 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1996 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -32,11 +32,6 @@ extern SYSTEM_CONFIGURATION             mSystemConfiguration;
 
 ENHANCED_SPEEDSTEP_PROTOCOL             *mEistProtocol  = NULL;
 
-
-//
-// Global for the CPU I/O Protocol that is consumed by this driver
-//
-EFI_CPU_IO2_PROTOCOL        *mCpuIo;
 
 EFI_CPU_ID_MAP              mCpuApicIdAcpiIdMapTable[MAX_CPU_NUM];
 

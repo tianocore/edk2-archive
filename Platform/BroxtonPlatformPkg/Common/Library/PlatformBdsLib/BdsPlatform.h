@@ -1,7 +1,7 @@
 /** @file
   Header file for BDS Platform specific code.
 
-  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -71,16 +71,25 @@ extern EFI_DEVICE_PATH_PROTOCOL  *gSerialIoConnect[];
 #define SUBCLASS_BOOT       1
 #define PROTOCOL_KEYBOARD   1
 
+//
+// the short form device path for Usb keyboard
+//
+#define CLASS_HID           3
+#define SUBCLASS_BOOT       1
+#define PROTOCOL_KEYBOARD   1
+
 #define PCI_DEVICE_PATH_NODE(Func, Dev) \
   { \
-    HARDWARE_DEVICE_PATH, \
-    HW_PCI_DP, \
     { \
-      (UINT8) (sizeof (PCI_DEVICE_PATH)), \
-      (UINT8) ((sizeof (PCI_DEVICE_PATH)) >> 8) \
-    }, \
-    (Func), \
-    (Dev) \
+      HARDWARE_DEVICE_PATH, \
+      HW_PCI_DP, \
+      { \
+        (UINT8) (sizeof (PCI_DEVICE_PATH)), \
+        (UINT8) ((sizeof (PCI_DEVICE_PATH)) >> 8) \
+      } \
+     }, \
+     (Func), \
+     (Dev) \
   }
 
 #define PNPID_DEVICE_PATH_NODE(PnpId) \
@@ -132,8 +141,10 @@ extern EFI_DEVICE_PATH_PROTOCOL  *gSerialIoConnect[];
     { \
       MESSAGING_DEVICE_PATH, \
       MSG_USB_CLASS_DP, \
-      (UINT8) (sizeof (USB_CLASS_DEVICE_PATH)), \
-      (UINT8) ((sizeof (USB_CLASS_DEVICE_PATH)) >> 8) \
+      {\
+        (UINT8) (sizeof (USB_CLASS_DEVICE_PATH)), \
+        (UINT8) ((sizeof (USB_CLASS_DEVICE_PATH)) >> 8) \
+      }\
     }, \
     0xffff, \
     0xffff, \

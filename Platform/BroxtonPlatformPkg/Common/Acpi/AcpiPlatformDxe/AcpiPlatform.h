@@ -3,7 +3,7 @@
   this driver are defined in the Tiano ACPI External Product Specification,
   revision 0.3.6.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -53,7 +53,12 @@
 //
 // Global variables
 //
-EFI_GLOBAL_NVS_AREA_PROTOCOL  mGlobalNvsArea;
+extern EFI_GLOBAL_NVS_AREA_PROTOCOL  mGlobalNvsArea;
+
+//
+// Global for the CPU I/O Protocol that is consumed by this driver
+//
+extern EFI_CPU_IO2_PROTOCOL        *mCpuIo;
 
 //
 // ACPI table information used to initialize tables.

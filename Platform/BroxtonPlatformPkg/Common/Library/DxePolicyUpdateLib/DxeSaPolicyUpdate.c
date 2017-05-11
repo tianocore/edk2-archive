@@ -1,7 +1,7 @@
 /** @file
   This file is the library for SA DXE Policy initialzation.
 
-  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -60,7 +60,7 @@ UpdateDxeSaPolicy (
   Status = gBS->LocateProtocol (
                   &gPlatformGOPPolicyGuid,
                   NULL,
-                  &GopPolicy
+                  (VOID **)&GopPolicy
                   );
 
   if (EFI_ERROR (Status) || (GopPolicy == NULL)) {

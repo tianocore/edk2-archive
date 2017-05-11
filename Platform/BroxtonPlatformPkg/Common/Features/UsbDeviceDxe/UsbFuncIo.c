@@ -1901,7 +1901,7 @@ StartXdciController (
   UsbFuncIoDevPtr->DeviceId = USBFU_PID;
   UsbFuncIoDevPtr->StartUpController = TRUE;
 
-  Status = UsbDeviceInit (&ConfigParams, &UsbFuncIoDevPtr->DrvCore);
+  Status = UsbDeviceInit (&ConfigParams, (VOID **)&UsbFuncIoDevPtr->DrvCore);
   if (Status != EFI_SUCCESS) {
     Status = EFI_DEVICE_ERROR;
     goto EXIT_START_CONTROLLER;
@@ -2166,6 +2166,7 @@ DEV_INIT_EXIT:
 }
 
 EFI_STATUS
+EFIAPI
 StartController (
   IN EFI_USBFN_IO_PROTOCOL        *This
   )
@@ -2210,6 +2211,7 @@ DEV_DEINIT_EXIT:
 }
 
 EFI_STATUS
+EFIAPI
 StopController (
   IN EFI_USBFN_IO_PROTOCOL        *This
   )

@@ -131,32 +131,31 @@ typedef struct _EFI_ACPI_LOW_POWER_IDLE_TABLE {
 #pragma pack()
 
 EFI_ACPI_LOW_POWER_IDLE_TABLE Lpit = {
-
-  //
-  // Header
-  //
-
-
-  EFI_ACPI_LOW_POWER_IDLE_TABLE_SIGNATURE,
-  sizeof (EFI_ACPI_LOW_POWER_IDLE_TABLE),
-  EFI_ACPI_LOW_POWER_IDLE_TABLE_REVISION ,
-
-  //
-  // Checksum will be updated at runtime
-  //
-  0x00,
-
-  //
-  // It is expected that these values will be updated at runtime
-  //
-  ' ', ' ', ' ', ' ', ' ', ' ',
-
-  0,
-  EFI_ACPI_OEM_LPIT_REVISION,
-  0,
-  0,
+  {
+    //
+    // Header
+    //
 
 
+    EFI_ACPI_LOW_POWER_IDLE_TABLE_SIGNATURE,
+    sizeof (EFI_ACPI_LOW_POWER_IDLE_TABLE),
+    EFI_ACPI_LOW_POWER_IDLE_TABLE_REVISION ,
+
+    //
+    // Checksum will be updated at runtime
+    //
+    0x00,
+
+    //
+    // It is expected that these values will be updated at runtime
+    //
+    {' ', ' ', ' ', ' ', ' ', ' '},
+
+    0,
+    EFI_ACPI_OEM_LPIT_REVISION,
+    0,
+    0
+  },
 
   //
   // Descriptor

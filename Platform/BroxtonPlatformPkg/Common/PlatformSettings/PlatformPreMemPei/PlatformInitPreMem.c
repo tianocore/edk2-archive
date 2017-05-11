@@ -24,7 +24,7 @@
 #include <Ppi/TemporaryRamSupport.h>
 #include <Ppi/BlockIo.h>
 #include <Ppi/ReadOnlyVariable2.h>
-#include <Ppi/SecUma.h>
+#include <Ppi/SeCUma.h>
 #include <Ppi/FvLoadFile.h>
 #include <Ppi/Stall.h>
 #include <Ppi/MemoryDiscovered.h>
@@ -53,7 +53,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PerformanceLib.h>
 #include <Library/MtrrLib.h>
-#include <Library/I2cLib.h>
+#include <Library/I2CLib.h>
 #include <Library/PmicLib.h>
 #include <Library/PeiVariableCacheLib.h>
 #include <Library/PeiSiPolicyLib.h>

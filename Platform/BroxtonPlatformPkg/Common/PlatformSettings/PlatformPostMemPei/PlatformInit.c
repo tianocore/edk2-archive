@@ -21,7 +21,7 @@
 #include <Library/PcdLib.h>
 #include <Private/Library/CpuS3Lib.h>
 #include <Library/HeciMsgLib.h>
-#include <Ppi/SecUma.h>
+#include <Ppi/SeCUma.h>
 
 #ifdef __GNUC__
   #pragma GCC push_options
@@ -281,8 +281,8 @@ BXTPolicyInit (
 {
   VOID*                           Buffer;
   UINT32                          Size;
-  EFI_GUID                        PeiLogoGuid        = { 0x7BB28B99, 0x61BB, 0x11D5, 0x9A, 0x5D, 0x00, 0x90, 0x27, 0x3F, 0xC1, 0x4D };
-  EFI_GUID                        TianmaVbtGuid      = { 0xE08CA6D5, 0x8D02, 0x43ae, 0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33 };
+  EFI_GUID                        PeiLogoGuid        = { 0x7BB28B99, 0x61BB, 0x11D5, {0x9A, 0x5D, 0x00, 0x90, 0x27, 0x3F, 0xC1, 0x4D} };
+  EFI_GUID                        TianmaVbtGuid      = { 0xE08CA6D5, 0x8D02, 0x43ae, {0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33} };
   VBT_INFO                        VbtInfo;
 
 
@@ -307,7 +307,7 @@ BXTPolicyInit (
   //
   // Build the VBT data into HOB for DXE GOP
   //
-  VbtInfo.VbtAddress = (EFI_PHYSICAL_ADDRESS) Buffer;
+  VbtInfo.VbtAddress = (EFI_PHYSICAL_ADDRESS)(UINTN)Buffer;
   VbtInfo.VbtSize = Size;
   DEBUG ((DEBUG_INFO, "VbtInfo VbtAddress is 0x%x\n", Buffer));
   DEBUG ((DEBUG_INFO, "VbtInfo VbtSize is 0x%x\n", Size));

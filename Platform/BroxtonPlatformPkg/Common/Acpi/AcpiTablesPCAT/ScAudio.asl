@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2011 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -161,73 +161,73 @@
             // PP Module Waves (module XAMAXXAU)
             // Check PP module with GUID B489C2DE-0F96-42E1-8A2D-C25B5091EE49
             If (LEqual(Arg3, ToUUID ("B489C2DE-0F96-42E1-8A2D-C25B5091EE49"))) {
-              Return(And(ADPM, BIT0)) // ADPM[BIT0] set - supported (return true)
+              Return(And(ADPM, 0x01)) // ADPM[BIT0] set - supported (return true)
             }
 
             // PP Module DTS (module PRMSND)
             // Check PP module with GUID E1284052-8664-4FE4-A353-3878F72704C3
             If (LEqual(Arg3, ToUUID ("E1284052-8664-4FE4-A353-3878F72704C3"))) {
-              Return(And(ADPM, BIT1)) // ADPM[BIT1] set - supported (return true)
+              Return(And(ADPM, 0x02)) // ADPM[BIT1] set - supported (return true)
             }
 
               // PP Module IntelSst Speech
             // Check PP module with GUID 7C708106-3AFF-40FE-88BE-8C999B3F7445
             If (LEqual(Arg3, ToUUID ("7C708106-3AFF-40FE-88BE-8C999B3F7445"))) {
-              Return(And(ADPM, BIT2)) // ADPM[BIT2] set - supported (return true)
+              Return(And(ADPM, 0x04)) // ADPM[BIT2] set - supported (return true)
             }
 
             // PP Module Dolby
             // Check PP module with GUID E0E018A8-3550-4B54-A8D0-A8E05D0FCBA2
             If (LEqual(Arg3, ToUUID ("E0E018A8-3550-4B54-A8D0-A8E05D0FCBA2"))) {
-              Return(And(ADPM, BIT3)) // ADPM[BIT3] set - supported (return true)
+              Return(And(ADPM, 0x08)) // ADPM[BIT3] set - supported (return true)
             }
 
             // PP Module Samsung SoundAlive
             // Check PP module with GUID 202BADB5-8870-4290-B536-F2380C63F55D
             If (LEqual(Arg3, ToUUID ("202BADB5-8870-4290-B536-F2380C63F55D"))) {
-              Return(And(ADPM, BIT4)) // ADPM[BIT4] set - supported (return true)
+              Return(And(ADPM, 0x10)) // ADPM[BIT4] set - supported (return true)
             }
 
             // PP Module Samsung SoundBooster
             // Check PP module with GUID EB3FEA76-394B-495D-A14D-8425092D5CB7
             If (LEqual(Arg3, ToUUID ("EB3FEA76-394B-495D-A14D-8425092D5CB7"))) {
-              Return(And(ADPM, BIT5)) // ADPM[BIT5] set - supported (return true)
+              Return(And(ADPM, 0x20)) // ADPM[BIT5] set - supported (return true)
             }
 
             // PP Module Samsung EQ/DRC
             // Check PP module with GUID F1C69181-329A-45F0-8EEF-D8BDDF81E036
             If (LEqual(Arg3, ToUUID ("F1C69181-329A-45F0-8EEF-D8BDDF81E036"))) {
-              Return(And(ADPM, BIT6)) // ADPM[BIT6] set - supported (return true)
+              Return(And(ADPM, 0x40)) // ADPM[BIT6] set - supported (return true)
             }
 
             // PP Module ForteMedia SAMSoft
             // Check PP module with GUID B3573EFF-6441-4A75-91F7-4281EEC4597D
             If (LEqual(Arg3, ToUUID ("B3573EFF-6441-4A75-91F7-4281EEC4597D"))) {
-              Return(And(ADPM, BIT7)) // ADPM[BIT7] set - supported (return true)
+              Return(And(ADPM, 0x80)) // ADPM[BIT7] set - supported (return true)
             }
 
             // PP Module WoV Intel
             // Check PP module with GUID EC774FA9-28D3-424A-90E4-69F984F1EEB7
             If (LEqual(Arg3, ToUUID ("EC774FA9-28D3-424A-90E4-69F984F1EEB7"))) {
-              Return(And(ADPM, BIT8)) // ADPM[BIT8] set - supported (return true)
+              Return(And(ADPM, 0x100)) // ADPM[BIT8] set - supported (return true)
             }
 
             // PP Module WoV Sensory
             // Check PP module with GUID F101FEF0-FF5A-4AD4-8710-43592A6F7948
             If (LEqual(Arg3, ToUUID ("F101FEF0-FF5A-4AD4-8710-43592A6F7948"))) {
-              Return(And(ADPM, BIT9)) // ADPM[BIT9] set - supported (return true)
+              Return(And(ADPM, 0x200)) // ADPM[BIT9] set - supported (return true)
             }
 
             // PP Module Conexant
             // Check PP module with GUID F3578986-4400-4ADF-AE7E-CD433CD3F26E
             If (LEqual(Arg3, ToUUID ("F3578986-4400-4ADF-AE7E-CD433CD3F26E"))) {
-              Return(And(ADPM, BIT10)) // ADPM[BIT10] set - supported (return true)
+              Return(And(ADPM, 0x0400)) // ADPM[BIT10] set - supported (return true)
             }
 
             // PP Module Aware
             // Check PP module with GUID 13B5E4D7-A91A-4059-8290-605B01CCB650
             If (LEqual(Arg3, ToUUID ("13B5E4D7-A91A-4059-8290-605B01CCB650"))) {
-              Return(And(ADPM, BIT11)) // ADPM[BIT11] set - supported (return true)
+              Return(And(ADPM, 0x0800)) // ADPM[BIT11] set - supported (return true)
             }
 
               Return(0) // Is not supported

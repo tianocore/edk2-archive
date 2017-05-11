@@ -1,7 +1,7 @@
 /** @file
   This file is SampleCode of the library for Intel CPU PEI Policy Update initialization.
 
-  Copyright (c) 2009 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2009 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -43,7 +43,6 @@ UpdatePeiCpuPolicy (
   CPU_CONFIG                  *CpuConfig;
   POWER_MGMT_CONFIG           *PowerMgmtConfig;
   EFI_PEI_HOB_POINTERS        Hob;
-  EFI_PLATFORM_INFO_HOB       *PlatformInfo;
 
   Status = GetConfigBlock ((CONFIG_BLOCK_TABLE_HEADER *) SiCpuPolicyPpi, &gCpuConfigGuid, (VOID *) &CpuConfig);
   ASSERT_EFI_ERROR (Status);
@@ -55,7 +54,6 @@ UpdatePeiCpuPolicy (
 
   Hob.Raw = GetFirstGuidHob (&gEfiPlatformInfoGuid);
   ASSERT (Hob.Raw != NULL);
-  PlatformInfo = GET_GUID_HOB_DATA (Hob.Raw);
 
   CpuConfig->ActiveProcessorCores        = SystemConfiguration->ActiveProcessorCores;
   CpuConfig->DisableCore1                = SystemConfiguration->Core1;

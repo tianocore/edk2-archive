@@ -1,17 +1,17 @@
-;; @file
-;  Chipset constants and macros.
-;
-;  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
-;
-;  This program and the accompanying materials
-;  are licensed and made available under the terms and conditions of the BSD License
-;  which accompanies this distribution.  The full text of the license may be found at
-;  http://opensource.org/licenses/bsd-license.php.
-;
-;  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-;  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED
-;
-;;
+# @file
+#  Chipset constants and macros.
+#
+#  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED
+#
+#
 
 #
 # APIC register
@@ -92,6 +92,7 @@
 
 .equ R_PMC_MMIO_BAR0,               ((0x0D * 8 + 0x01) * 0x1000 + 0x0010 + CPU_HEC_BASE)  #BAR0 IO config register. B0:D13:F1 0x10
 .equ R_PMC_MMIO_BAR1,               ((0x0D * 8 + 0x01) * 0x1000 + 0x0018 + CPU_HEC_BASE)  #BAR1 IO config register. B0:D13:F1 0x18
+.equ R_PMC_MMIO_BAR1_OFFSET_4,      0x04 
 .equ SYRE_CPURST,                   14
 
 #

@@ -1101,7 +1101,7 @@ UpdatePlatformInformation (
   //
   // Update VBIOS version in Setup
   //
-  Status = gBS->LocateProtocol (&gEfiLegacyBiosProtocolGuid, NULL, &LegacyBios);
+  Status = gBS->LocateProtocol (&gEfiLegacyBiosProtocolGuid, NULL, (VOID **)&LegacyBios);
   if (!EFI_ERROR (Status)) {
     RegSet.X.AX = 0x5f01;
     Status = LegacyBios->Int86 (LegacyBios, 0x10, &RegSet);

@@ -631,15 +631,15 @@ InitPlatformResolution (
   )
 {
   PANEL_RESOLUTION PanelResolution[] = {
-    0, 0,     0,     // Native Mode, Find the highest resolution which GOP supports.
-    1, 640,   480,
-    2, 800,   600,
-    3, 1024,  768,
-    4, 1280,  1024,
-    5, 1366,  768,
-    6, 1680,  1050,
-    7, 1920,  1200,
-    8, 1280,  800,
+    {0, 0,     0},     // Native Mode, Find the highest resolution which GOP supports.
+    {1, 640,   480},
+    {2, 800,   600},
+    {3, 1024,  768},
+    {4, 1280,  1024},
+    {5, 1366,  768},
+    {6, 1680,  1050},
+    {7, 1920,  1200},
+    {8, 1280,  800}
   };
 
   //

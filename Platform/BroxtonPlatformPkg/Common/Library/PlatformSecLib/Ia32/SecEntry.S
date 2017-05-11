@@ -2,7 +2,7 @@
 #  This is the code that goes from real-mode to protected mode.
 #  It consumes the reset vector.
 #
-#  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -187,13 +187,13 @@ ASM_PFX (PlatformInitialization):
   movl    $R_PMC_MMIO_BAR0, %edi
   movl    $IPC1_BASE_ADDRESS, (%edi)
 
-  movl    $(R_PMC_MMIO_BAR0 + $4), %edi
+  movl    $(R_PMC_MMIO_BAR0 + R_PMC_MMIO_BAR1_OFFSET_4), %edi
   movl    $0x00, (%edi)
 
   movl    $R_PMC_MMIO_BAR1, %edi
   movl    $SSRAM_BASE_ADDRESS, (%edi)
 
-  movl    $( R_PMC_MMIO_BAR1 + $4), %edi
+  movl    $( R_PMC_MMIO_BAR1 + R_PMC_MMIO_BAR1_OFFSET_4), %edi
   movl    $0x00, (%edi)
   
   #
@@ -333,7 +333,7 @@ no_RTC_pwr_failure:
   outw    %ax, %dx
 
 .if 1
-  ; Do nothing
+  # Do nothing
 .else
   #
   # Clear the Second Timeout Status bit by writing 1

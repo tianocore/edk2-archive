@@ -342,7 +342,7 @@ UsbDeviceDxeDriverStop (
   Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiUsbFnIoProtocolGuid,
-                  &UsbFunIoProtocol,
+                  (VOID **)&UsbFunIoProtocol,
                   This->DriverBindingHandle,
                   Controller,
                   EFI_OPEN_PROTOCOL_GET_PROTOCOL

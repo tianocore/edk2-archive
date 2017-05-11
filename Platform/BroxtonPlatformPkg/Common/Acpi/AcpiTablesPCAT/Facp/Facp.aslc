@@ -1,7 +1,7 @@
 /** @file
   Fixed ACPI Description Table
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -136,7 +136,7 @@ EFI_ACPI_5_0_FIXED_ACPI_DESCRIPTION_TABLE FACP = {
   // X_General Purpose Event 0 Register Block
   //
   EFI_ACPI_5_0_SYSTEM_IO,
-  0x100,
+  0x80,
   0x00,
   EFI_ACPI_5_0_BYTE,
   GPE0_BLK,

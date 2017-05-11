@@ -1,7 +1,7 @@
 /** @file
   Implements Overclocking Interface for OS Application ie Iron city.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -85,6 +85,7 @@ static UINT16 GetUcsiRev(VOID)
 
 **/
 EFI_STATUS
+EFIAPI
 UsbTypeCEntryPoint (
   IN EFI_HANDLE       ImageHandle,
   IN EFI_SYSTEM_TABLE *SystemTable
@@ -95,7 +96,7 @@ UsbTypeCEntryPoint (
 
   DEBUG ((DEBUG_INFO, "UsbTypeC entrypoint.\n"));
 
-  Status = gBS->LocateProtocol (&gEfiGlobalNvsAreaProtocolGuid, NULL, &GlobalNvsAreaProtocol);
+  Status = gBS->LocateProtocol (&gEfiGlobalNvsAreaProtocolGuid, NULL, (VOID **)&GlobalNvsAreaProtocol);
   ASSERT_EFI_ERROR (Status);
   if (EFI_ERROR (Status)) {
     return Status;
@@ -106,7 +107,7 @@ UsbTypeCEntryPoint (
   //
   // Allocate memory in ACPI NVS
   //
-  Status = AllocateMemoryBelow4G (EfiACPIMemoryNVS, 0x1000, &OpmBuffer);
+  Status = AllocateMemoryBelow4G (EfiACPIMemoryNVS, 0x1000, (VOID **)&OpmBuffer);
   ASSERT_EFI_ERROR (Status);
 
   if (EFI_ERROR (Status)) {

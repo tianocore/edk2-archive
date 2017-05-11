@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -572,7 +572,7 @@ Scope(\_SB)
 //
 // CPU Participant
 //
-Include("TCPUParticipant.asl")
+Include("TcpuParticipant.asl")
 
 Include("DPLYParticipant.asl")
 
@@ -589,7 +589,7 @@ Include("TFN1Participant.asl")
 //
 // Participants using device sensors.
 //
-Include("TPWRParticipant.asl")
+Include("TPwrParticipant.asl")
 
 //
 // Participants using motherboard thermistors.

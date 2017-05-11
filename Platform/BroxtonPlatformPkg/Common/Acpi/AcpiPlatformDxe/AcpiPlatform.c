@@ -1,7 +1,7 @@
 /** @file
   ACPI Platform Driver.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -64,6 +64,7 @@ CHAR16    gACPIOSFRModelStringVariableName[]  = ACPI_OSFR_MODEL_STRING_VARIABLE_
 CHAR16    gACPIOSFRRefDataBlockVariableName[] = ACPI_OSFR_REF_DATA_BLOCK_VARIABLE_NAME;
 CHAR16    gACPIOSFRMfgStringVariableName[]    = ACPI_OSFR_MFG_STRING_VARIABLE_NAME;
 
+EFI_GLOBAL_NVS_AREA_PROTOCOL  mGlobalNvsArea;
 EFI_CPU_IO2_PROTOCOL          *mCpuIo;
 
 BOOLEAN                       mFirstNotify;
@@ -280,7 +281,7 @@ InstallAcpiTableForPlatformSsdt (
                       &gPlatformSsdtImageGuid,
                       EFI_SECTION_RAW,
                       Instance,
-                      &CurrentTable,
+                      (VOID **)&CurrentTable,
                       (UINTN *) &Size,
                       &FvStatus
                       );

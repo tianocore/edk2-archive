@@ -1,7 +1,7 @@
 /** @file
   A helper driver to save information to SMRAM after SMRR is enabled.
 
-  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2011 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -19,7 +19,7 @@
 
 #define EFI_SMRAM_CPU_NVS_HEADER_GUID \
   { \
-    0x429501d9, 0xe447, 0x40f4, 0x86, 0x7b, 0x75, 0xc9, 0x3a, 0x1d, 0xb5, 0x4e \
+    0x429501d9, 0xe447, 0x40f4, {0x86, 0x7b, 0x75, 0xc9, 0x3a, 0x1d, 0xb5, 0x4e} \
   }
 
 GLOBAL_REMOVE_IF_UNREFERENCED UINT8   mSmiDataRegister;

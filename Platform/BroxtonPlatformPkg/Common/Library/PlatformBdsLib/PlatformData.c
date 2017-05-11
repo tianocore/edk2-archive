@@ -2,7 +2,7 @@
   Defined the platform specific device path which will be used by
   platform Bbd to perform the platform policy connect.
 
-  Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -117,13 +117,17 @@ EFI_DEVICE_PATH_PROTOCOL* gPlatformAllPossiblePciVgaConsole [] = {
 //
 LEGACY_HD_DEVICE_PATH gLegacyHd = {
   {
-    BBS_DEVICE_PATH,
-    BBS_BBS_DP,
-    (UINT8) (sizeof (BBS_BBS_DEVICE_PATH)),
-    (UINT8) ((sizeof (BBS_BBS_DEVICE_PATH)) >> 8),
+    {
+      BBS_DEVICE_PATH,
+      BBS_BBS_DP,
+      {
+        (UINT8) (sizeof (BBS_BBS_DEVICE_PATH)),
+        (UINT8) ((sizeof (BBS_BBS_DEVICE_PATH)) >> 8)
+      }
+    },
     BBS_TYPE_HARDDRIVE,
     0,
-    0
+    {0}
   },
   gEndEntire
 };
@@ -133,13 +137,17 @@ LEGACY_HD_DEVICE_PATH gLegacyHd = {
 //
 LEGACY_HD_DEVICE_PATH gLegacyCdrom = {
   {
-    BBS_DEVICE_PATH,
-    BBS_BBS_DP,
-    (UINT8) (sizeof (BBS_BBS_DEVICE_PATH)),
-    (UINT8) ((sizeof (BBS_BBS_DEVICE_PATH)) >> 8),
+    {
+      BBS_DEVICE_PATH,
+      BBS_BBS_DP,
+      {
+        (UINT8) (sizeof (BBS_BBS_DEVICE_PATH)),
+        (UINT8) ((sizeof (BBS_BBS_DEVICE_PATH)) >> 8),
+       } 
+    },
     BBS_TYPE_CDROM,
     0,
-    0
+    {0}
   },
   gEndEntire
 };

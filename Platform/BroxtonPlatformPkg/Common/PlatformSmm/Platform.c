@@ -124,6 +124,7 @@ CpuSmmSxWorkAround(
 
 **/
 EFI_STATUS
+EFIAPI
 InitializePlatformSmm (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
@@ -210,7 +211,7 @@ InitializePlatformSmm (
     PowerButtonContext.Phase = EfiPowerButtonEntry;
     Status = PowerButtonDispatch->Register(
                                     PowerButtonDispatch,
-                                    PowerButtonCallback,
+                                    (EFI_SMM_HANDLER_ENTRY_POINT2)PowerButtonCallback,
                                     &PowerButtonContext,
                                     &Handle
                                     );
@@ -235,7 +236,7 @@ InitializePlatformSmm (
 
   Status = SxDispatch->Register (
                          SxDispatch,
-                         SxSleepEntryCallBack,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)SxSleepEntryCallBack,
                          &EntryDispatchContext,
                          &Handle
                          );
@@ -244,7 +245,7 @@ InitializePlatformSmm (
 
   Status = SxDispatch->Register (
                          SxDispatch,
-                         S4S5CallBack,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)S4S5CallBack,
                          &EntryDispatchContext,
                          &Handle
                          );
@@ -254,7 +255,7 @@ InitializePlatformSmm (
 
   Status = SxDispatch->Register (
                          SxDispatch,
-                         S4S5CallBack,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)S4S5CallBack,
                          &EntryDispatchContext,
                          &Handle
                          );
@@ -262,7 +263,7 @@ InitializePlatformSmm (
 
   Status = SxDispatch->Register (
                          SxDispatch,
-                         S5SleepAcLossCallBack,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)S5SleepAcLossCallBack,
                          &EntryDispatchContext,
                          &Handle
                          );
@@ -284,7 +285,7 @@ InitializePlatformSmm (
   SwContext.SwSmiInputValue = ACPI_ENABLE;
   Status = SwDispatch->Register (
                          SwDispatch,
-                         EnableAcpiCallback,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)EnableAcpiCallback,
                          &SwContext,
                          &Handle
                          );
@@ -296,7 +297,7 @@ InitializePlatformSmm (
   SwContext.SwSmiInputValue = ACPI_DISABLE;
   Status = SwDispatch->Register (
                          SwDispatch,
-                         DisableAcpiCallback,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)DisableAcpiCallback,
                          &SwContext,
                          &Handle
                          );
@@ -309,7 +310,7 @@ InitializePlatformSmm (
 
   Status = SwDispatch->Register (
                          SwDispatch,
-                         TpmPtsSmbsCallback,
+                         (EFI_SMM_HANDLER_ENTRY_POINT2)TpmPtsSmbsCallback,
                          &SwContext,
                          &Handle
                          );
@@ -344,7 +345,7 @@ InitializePlatformSmm (
     IchnContext.Type = mTco1Sources[Index];
     Status = IchnDispatch->Register(
                              IchnDispatch,
-                             DummyTco1Callback,
+                             (EFI_SMM_ICHN_DISPATCH)DummyTco1Callback,
                              &IchnContext,
                              &Handle
                              );
