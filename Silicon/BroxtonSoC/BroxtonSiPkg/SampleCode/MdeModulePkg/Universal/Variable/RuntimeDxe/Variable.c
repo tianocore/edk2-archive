@@ -1122,7 +1122,7 @@ Reclaim (
   VARIABLE_POINTER_TRACK        VarErrFlagPtr;
 
   Status = EFI_SUCCESS;
-
+  VariableSize = 0;
   UpdatingVariable            = NULL;
   UpdatingInDeletedTransition = NULL;
 

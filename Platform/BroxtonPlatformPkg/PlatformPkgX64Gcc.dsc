@@ -177,5 +177,5 @@
 #[BuildOptions.Common]
 
 [BuildOptions.Common.EDKII]
-   !include PlatformDsc/BuildOptions.EDKII.dsc
+   !include PlatformDsc/BuildOptions.EDKII.Gcc.dsc
 

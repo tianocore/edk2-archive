@@ -211,7 +211,7 @@ fi
 ## Additional EDK Build Setup/Configuration
 ##**********************************************************************
 echo "Ensuring correct build directory is present for GenBiosId..."
-ACTIVE_PLATFORM=$PLATFORM_PACKAGE/PlatformPkgX64.dsc
+ACTIVE_PLATFORM=$PLATFORM_PACKAGE/PlatformPkgX64Gcc.dsc
 #TOOL_CHAIN_TAG=GCC47
 MAX_CONCURRENT_THREAD_NUMBER=1
 sed -i '/^ACTIVE_PLATFORM/d' $WORKSPACE/Conf/target.txt

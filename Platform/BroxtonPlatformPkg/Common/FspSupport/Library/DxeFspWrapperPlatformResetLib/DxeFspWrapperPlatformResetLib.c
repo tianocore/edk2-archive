@@ -33,7 +33,7 @@ CallFspWrapperResetSystem (
   IN UINT32    ResetType
   )
 {
-  EFI_RESET_TYPE             EfiResetType;
+  EFI_RESET_TYPE             EfiResetType = EfiResetCold;
 
   switch (ResetType) {
     case FSP_STATUS_RESET_REQUIRED_COLD:

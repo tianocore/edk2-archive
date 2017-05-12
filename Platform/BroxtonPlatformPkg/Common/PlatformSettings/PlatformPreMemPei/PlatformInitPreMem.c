@@ -893,7 +893,7 @@ PlatformInitPreMemEntryPoint (
   DRAM_POLICY_PPI                  *DramPolicy;
   EFI_PEI_PPI_DESCRIPTOR           *NewPeiPpiDescriptor;
   EFI_BOOT_MODE                    BootMode;
-  CarMapStruc                      *CarMap;
+  CarMapStruc                      *CarMap = NULL;
   SYSTEM_CONFIGURATION             SystemConfiguration;
   UINTN                            VariableSize;
   EFI_PEI_HOB_POINTERS             Hob;
@@ -938,7 +938,7 @@ PlatformInitPreMemEntryPoint (
                  &gBoardPreMemInitPpiGuid,
                  Instance,
                  &PeiPpiDescriptor,
-                 &BoardPreMemInitPpi
+                 (VOID **)&BoardPreMemInitPpi
                  );
 
       if (Status == EFI_NOT_FOUND) {
