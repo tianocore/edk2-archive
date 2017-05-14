@@ -14,5 +14,7 @@ export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/P
 
 . edksetup.sh
 
+make -C BaseTools
+
 ./Platform/BroxtonPlatformPkg/BuildIFWI.sh APLI Release
 
