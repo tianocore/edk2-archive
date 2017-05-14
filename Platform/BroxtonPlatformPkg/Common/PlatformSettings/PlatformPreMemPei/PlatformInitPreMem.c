@@ -217,6 +217,10 @@ CopyMemSse4 (
   IN UINTN SizeInBytes
   )
 {
+
+  #ifdef __GNUC__
+  CopyMem (Dst, Src, SizeInBytes); 
+  #else
   _asm {
     //
     // Initialize pointers to start of the USWC memory
@@ -281,6 +285,7 @@ CopyMemSse4 (
     movdqu  xmm3, [esp + 48]
     add     esp, 040h // stack cleanup
   }
+  #endif
   // End of Bulk Load loop
 }
 

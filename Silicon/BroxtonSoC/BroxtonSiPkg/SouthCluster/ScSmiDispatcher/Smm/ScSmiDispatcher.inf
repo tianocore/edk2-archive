@@ -82,4 +82,4 @@
   gEfiPciRootBridgeIoProtocolGuid
 
 [BuildOptions]
-  *_*_X64_CC_FLAGS  = -D X64_BUILD_SUPPORT = 1
+  *_*_X64_CC_FLAGS  = -D X64_BUILD_SUPPORT=1
