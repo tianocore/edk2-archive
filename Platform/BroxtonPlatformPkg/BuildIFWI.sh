@@ -165,6 +165,4 @@ sh Platform/BroxtonPlatformPkg/BuildBios.sh $Build_Flags $Platform_Type $Build_T
 echo
 echo Finished Building BIOS.
 
-## Start Integration process
-echo ======================================================================
-echo Skip "Build_IFWI:  Calling IFWI Stitching Script..."
+

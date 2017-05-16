@@ -8,6 +8,12 @@
 # THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 # WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
+Target_Flag=Release
+if [ "$1" == "Debug" ]; then
+  Target_Flag=Debug
+fi
+
+echo $Target_Flag
 
 export WORKSPACE=`pwd`
 export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/Platform:$WORKSPACE/Platform/BroxtonPlatformPkg:$WORKSPACE/Silicon/BroxtonSoC:$WORKSPACE/Platform/BroxtonPlatformPkg/Common
@@ -16,5 +22,5 @@ export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/P
 
 make -C BaseTools
 
-./Platform/BroxtonPlatformPkg/BuildIFWI.sh APLI Release
+. ./Platform/BroxtonPlatformPkg/BuildIFWI.sh APLI $Target_Flag
 

@@ -76,19 +76,9 @@ cp $WORKSPACE/BaseTools/Conf/tools_def.template $WORKSPACE/Conf/tools_def.txt
 cp $WORKSPACE/BaseTools/Conf/build_rule.template $WORKSPACE/Conf/build_rule.txt
 
 
-## Get gcc version to determine which tool_def.template to use.
-## If gcc version is 4.6 or before, use default. If not, use new one.
-GCCVERSION=$(gcc --version | grep 'gcc' | grep '[0-9]' | cut -d ' ' -f 4 | cut -d '.' -f 2)
-if (($GCCVERSION > 6)); then
-  echo "GCC version is 4.7 or after"
-  TOOL_CHAIN_TAG=GCC47
-else
-  echo "Type 'gcc --version' to check version"
-  echo "Please update GCC version to 4.7 or later"
-  ErrorExit
-fi
 
-#make -C BaseTools > /dev/null
+
+TOOL_CHAIN_TAG=GCC5
 
 ## Define platform specific environment variables.
 PLATFORM_NAME=BroxtonPlatformPkg
@@ -268,7 +258,22 @@ build $Build_Flags
 ##**********************************************************************
 ## Post Build processing and cleanup
 ##**********************************************************************
+
+#
+# FSP Rebase and Split
+#
+#   0xFEF7A000 = gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspBase = $(CAR_BASE_ADDRESS) + $(BLD_RAM_DATA_SIZE) + $(FSP_RAM_DATA_SIZE) + $(FSP_EMP_DATA_SIZE) + $(BLD_IBBM_SIZE)
+pushd  $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin
+python $WORKSPACE/Core/IntelFsp2Pkg/Tools/SplitFspBin.py rebase -f ApolloLakeFsp.fd -c m -b 0xFEF7A000 -o ./ -n FSP.fd
+python $WORKSPACE/Core/IntelFsp2Pkg/Tools/SplitFspBin.py split -f FSP.fd -o ./ -n FSP.Fv
+popd
+cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_T.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_M.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_S.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+
+    
 grep "_PCD_VALUE_" $BUILD_PATH/IA32/BroxtonPlatformPkg/PlatformPei/PlatformPei/DEBUG/AutoGen.h > FlashMap.h
+
 
 #echo "Running fce..."
 ## Extract Hii data from build and store in HiiDefaultData.txt
@@ -276,19 +281,8 @@ grep "_PCD_VALUE_" $BUILD_PATH/IA32/BroxtonPlatformPkg/PlatformPei/PlatformPei/D
 
 ## copy the Setup variable to the SetupDefault variable and save changes to BxtXXX.fd
 #wine PlatformTools/FCE/FCE.exe mirror -i $BUILD_PATH/FV/SOC.fd -o $BUILD_PATH/FV/Bxt"$Arch".fd Setup SetupDefault 1>>EDK2.log 2>&1
-echo "Skip FCE tool..."
+#echo "Skip FCE tool..."
 cp $BUILD_PATH/FV/SOC.fd $BUILD_PATH/FV/Bxt"$Arch".fd
-
-##echo Running KeyEnroll...
-## RestrictedBegin
-##if /i not "$Platform_Type" == "$eNB_RVP" (
-##   call $PLATFORM_PACKAGE/Restricted/Internal/Tools/KeyEnroll/KeyEnroll.bat  $BUILD_PATH  $BUILD_PATH/FV/Vlv"$Arch".fd 1>>EDK2.log 2>&1
-##) else if /i "$Platform_Type" == "$eNB_RVP" (
-##   call $PLATFORM_PACKAGE/Restricted/Internal/Tools/KeyEnroll/BBAY-KeyEnroll.bat  $BUILD_PATH  $BUILD_PATH/FV/Vlv"$Arch".fd 1>>EDK2.log 2>&1
-##)
-##   if %ERRORLEVEL% NEQ 0 goto BldFail
-## RestrictedEnd
-echo Skip "KeyEnroll tool..."
 
 ## Set the Board_Id, Build_Type, Version_Major, and Version_Minor environment variables
 ##find /v "#" Conf\BiosId.env > ver_strings
@@ -298,28 +292,36 @@ echo Skip "KeyEnroll tool..."
 VERSION_MAJOR=$(grep '^VERSION_MAJOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-4)
 VERSION_MINOR=$(grep '^VERSION_MINOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-2)
 BIOS_Name="$BOARD_ID""$SV_String""$Arch"_"$BUILD_TYPE"_"$VERSION_MAJOR"_"$VERSION_MINOR"
-cp -f $BUILD_PATH/FV/Bxt"$Arch".fd  $WORKSPACE/$BIOS_Name.ROM
-cp -f $BUILD_PATH/FV/FVOBB.Fv  $WORKSPACE
-cp -f $BUILD_PATH/FV/FVOBBX.Fv $WORKSPACE
-cp -f $BUILD_PATH/FV/FVIBBR.Fv $WORKSPACE
-cp -f $BUILD_PATH/FV/FVIBBM.Fv $WORKSPACE
-cp -f $BUILD_PATH/FV/FVIBBL.Fv $WORKSPACE
+cp -f $BUILD_PATH/FV/Bxt"$Arch".fd  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/$BIOS_Name.ROM
+cp -f $BUILD_PATH/FV/FVOBB.Fv  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $BUILD_PATH/FV/FVOBBX.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $BUILD_PATH/FV/FVIBBR.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $BUILD_PATH/FV/FVIBBM.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $BUILD_PATH/FV/FVIBBL.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp FlashMap.h $WORKSPACE/$BIOS_Name.map
 
-echo
-echo "Skip Running BIOS_Signing.bat ..."
-#echo "Running BIOS_Signing.bat ..."
-##pushd Stitch/BIOS_Signing
-##set SEC_Ver=1.0.0.1054
-##call BIOS_Signing.bat ../../$BIOS_Name  $target  $Arch  BLAK  $SEC_Ver  >>../../EDK2.log 2>&1
-## use temp signing until Signing Script can be updated for BXT
-#cd Stitch/BIOS_Signing_Temp
-#./SBT_sign_no_KM_3M.sh  ../../$BIOS_Name  >>../../EDK2.log 2>&1
-#echo "BIOS signing complete"
+
+#
+# Assmeble components
+#
+pushd $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+
+cat FVIBBL.Fv > IBBL.Fv
+
+cat FVIBBM.Fv FSP_M.Fv > IBB.Fv
+
+cat FSP_S.Fv FVIBBR.Fv FVOBB.Fv FVOBBX.Fv > OBB.Fv
+
+cat SpiChunk1.bin IBBL.Fv IBB.Fv SpiChunk2.bin OBB.Fv NvStorage.Fv SpiChunk3.bin > MINNOWV3.X64.0063.IFWI.SPI.bin
+
+popd
 
 echo
-echo Build location:     $BUILD_PATH
-echo BIOS ROM Created:   $BIOS_Name
+echo SPI IFWI location:     $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/MINNOWV3.X64.0063.IFWI.SPI.bin
 echo
 echo -------------------- The EDKII BIOS build has successfully completed. --------------------
 echo
