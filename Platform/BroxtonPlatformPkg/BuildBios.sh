@@ -271,10 +271,6 @@ cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP
 cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_M.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_S.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 
-    
-grep "_PCD_VALUE_" $BUILD_PATH/IA32/BroxtonPlatformPkg/PlatformPei/PlatformPei/DEBUG/AutoGen.h > FlashMap.h
-
-
 #echo "Running fce..."
 ## Extract Hii data from build and store in HiiDefaultData.txt
 #wine PlatformTools/FCE/FCE.exe read -i $BUILD_PATH/FV/SOC.fd > $BUILD_PATH/FV/HiiDefaultData.txt 1>>EDK2.log 2>&1
@@ -292,7 +288,7 @@ cp $BUILD_PATH/FV/SOC.fd $BUILD_PATH/FV/Bxt"$Arch".fd
 VERSION_MAJOR=$(grep '^VERSION_MAJOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-4)
 VERSION_MINOR=$(grep '^VERSION_MINOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-2)
 BIOS_Name="$BOARD_ID""$SV_String""$Arch"_"$BUILD_TYPE"_"$VERSION_MAJOR"_"$VERSION_MINOR"
-cp -f $BUILD_PATH/FV/Bxt"$Arch".fd  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/$BIOS_Name.ROM
+
 cp -f $BUILD_PATH/FV/FVOBB.Fv  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVOBBX.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVIBBR.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
@@ -302,7 +298,7 @@ cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/Spi
 cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp FlashMap.h $WORKSPACE/$BIOS_Name.map
+
 
 
 #
@@ -316,12 +312,12 @@ cat FVIBBM.Fv FSP_M.Fv > IBB.Fv
 
 cat FSP_S.Fv FVIBBR.Fv FVOBB.Fv FVOBBX.Fv > OBB.Fv
 
-cat SpiChunk1.bin IBBL.Fv IBB.Fv SpiChunk2.bin OBB.Fv NvStorage.Fv SpiChunk3.bin > MINNOWV3.X64.0063.IFWI.SPI.bin
+cat SpiChunk1.bin IBBL.Fv IBB.Fv SpiChunk2.bin OBB.Fv NvStorage.Fv SpiChunk3.bin > $BIOS_Name"_GCC".bin
 
 popd
 
 echo
-echo SPI IFWI location:     $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/MINNOWV3.X64.0063.IFWI.SPI.bin
+echo SPI IFWI location:     $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/$BIOS_Name"_GCC".bin
 echo
 echo -------------------- The EDKII BIOS build has successfully completed. --------------------
 echo
