@@ -54,4 +54,10 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase|0xfff9e000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0xfffa0000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFastPS2Detection|FALSE
+  
+  ## Indicate whether a physical presence user exist.
+  # When it is configured to Dynamic or DynamicEx, it can be set through detection using 
+  # a platform-specific method (e.g. Button pressed) in a actual platform in early boot phase.<BR><BR>
+  # @Prompt A physical presence user status
+  gEfiSecurityPkgTokenSpaceGuid.PcdUserPhysicalPresence|TRUE
 
