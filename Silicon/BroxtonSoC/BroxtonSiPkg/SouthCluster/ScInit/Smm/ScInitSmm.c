@@ -186,8 +186,6 @@ ScInitSmmEntryPoint (
   Status = InitializeScPcieSmm (ImageHandle, SystemTable);
   ASSERT_EFI_ERROR (Status);
 
-  FreePool (mPcieRpConfig);
-
   return EFI_SUCCESS;
 }
 
