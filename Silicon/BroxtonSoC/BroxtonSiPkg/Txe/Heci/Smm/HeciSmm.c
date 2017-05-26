@@ -106,6 +106,7 @@ IsHeciCseResponse (
   );
 
 EFI_STATUS
+EFIAPI
 EfiHeciReadMessage (
   IN      HECI_DEVICE      HeciDev,
   IN      UINT32           Blocking,
@@ -1002,6 +1003,7 @@ SmmEndOfDxeCallback (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciSendwack (
   IN      HECI_DEVICE      HeciDev,
   IN OUT  UINT32           *Message,
@@ -1040,6 +1042,7 @@ EfiHeciSendwack (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciReadMessage (
   IN      HECI_DEVICE      HeciDev,
   IN      UINT32           Blocking,
@@ -1070,6 +1073,7 @@ EfiHeciReadMessage (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciSendMessage (
   IN      HECI_DEVICE      HeciDev,
   IN      UINT32           *Message,
@@ -1095,6 +1099,7 @@ EfiHeciSendMessage (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciReset (
   IN      HECI_DEVICE      HeciDev
   )
@@ -1113,6 +1118,7 @@ EfiHeciReset (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciInit (
   IN    HECI_DEVICE      HeciDev
   )
@@ -1131,6 +1137,7 @@ EfiHeciInit (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciReinit (
   IN    HECI_DEVICE      HeciDev
   )
@@ -1150,6 +1157,7 @@ EfiHeciReinit (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciResetWait (
   IN    HECI_DEVICE      HeciDev,
   IN    UINT32           Delay
@@ -1169,6 +1177,7 @@ EfiHeciResetWait (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciGetSecStatus (
   IN UINT32                       *Status
   )
@@ -1188,6 +1197,7 @@ EfiHeciGetSecStatus (
 
 **/
 EFI_STATUS
+EFIAPI
 EfiHeciGetSecMode (
   IN HECI_DEVICE      HeciDev,
   IN UINT32           *Mode

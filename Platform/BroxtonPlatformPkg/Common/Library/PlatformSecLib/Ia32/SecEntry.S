@@ -207,6 +207,7 @@ ASM_PFX (PlatformInitialization):
   #
   movl    $0x121, %ecx
   movl    $(BIT16 + ACPI_BASE_ADDRESS + R_ACPI_PM1_TMR), %eax  # Bit 16 is enable and 15:0 address
+  movl    $0x2FBA2E25, %edx
   wrmsr
 
   #

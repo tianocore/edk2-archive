@@ -292,6 +292,7 @@ SmiInputValueDuplicateCheck (
 
 **/
 EFI_STATUS
+EFIAPI
 ScSmmCoreRegister (
   IN  SC_SMM_GENERIC_PROTOCOL                          *This,
   IN  EFI_SMM_HANDLER_ENTRY_POINT2                     DispatchFunction,
@@ -557,6 +558,7 @@ Error:
 
 **/
 EFI_STATUS
+EFIAPI
 ScSmmCoreUnRegister (
   IN SC_SMM_GENERIC_PROTOCOL                            *This,
   IN EFI_HANDLE                                         *DispatchHandle

@@ -163,6 +163,7 @@ echo "Build_IFWI:  Calling BIOS build Script..."
 sh Platform/BroxtonPlatformPkg/BuildBios.sh $Build_Flags $Platform_Type $Build_Target
 
 echo
-echo Finished Building BIOS.
+echo Finished Building Process.
+echo
 
 

@@ -1,7 +1,7 @@
 /** @file
   Header file for Platform Smm driver.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -108,6 +108,7 @@ typedef struct {
 // Callback function prototypes
 //
 EFI_STATUS
+EFIAPI
 PowerButtonCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -116,6 +117,7 @@ PowerButtonCallback (
   );
 
 EFI_STATUS
+EFIAPI
 S5SleepWakeOnLanCallBack (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -124,6 +126,7 @@ S5SleepWakeOnLanCallBack (
   );
 
 EFI_STATUS
+EFIAPI
 S5SleepAcLossCallBack (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -133,6 +136,7 @@ S5SleepAcLossCallBack (
 
 
 EFI_STATUS
+EFIAPI
 S4S5CallBack (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -141,6 +145,7 @@ S4S5CallBack (
   );
 
 EFI_STATUS
+EFIAPI
 EnableAcpiCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -149,6 +154,7 @@ EnableAcpiCallback (
   );
 
 EFI_STATUS
+EFIAPI
 DisableAcpiCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -157,6 +163,7 @@ DisableAcpiCallback (
   );
 
 EFI_STATUS
+EFIAPI
 SmmReadyToBootCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -165,18 +172,21 @@ SmmReadyToBootCallback (
   );
 
 VOID
+EFIAPI
 DummyTco1Callback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  EFI_SMM_ICHN_DISPATCH_CONTEXT           *DispatchContext
   );
 
 VOID
+EFIAPI
 PmeCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  EFI_SMM_ICHN_DISPATCH_CONTEXT           *DispatchContext
   );
 
 VOID
+EFIAPI
 PerrSerrCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  EFI_SMM_ICHN_DISPATCH_CONTEXT           *DispatchContext
@@ -184,6 +194,7 @@ PerrSerrCallback (
 
 
 VOID
+EFIAPI
 EnableWatchdogCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  EFI_SMM_ICHN_DISPATCH_CONTEXT           *DispatchContext
@@ -199,6 +210,7 @@ TurnOffVregUsb (
   );
 
 EFI_STATUS
+EFIAPI
 SxSleepEntryCallBack (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -212,6 +224,7 @@ SaveRuntimeScriptTable (
   );
 
 EFI_STATUS
+EFIAPI
 TpmPtsSmbsCallback (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,

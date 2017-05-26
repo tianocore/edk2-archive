@@ -78,6 +78,7 @@ DevicePathSize (
   );
 
 EFI_STATUS
+EFIAPI
 S5SleepWakeOnRtcCallBack (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -441,6 +442,7 @@ Stall (
 
 
 EFI_STATUS
+EFIAPI
 SmmReadyToBootCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -484,6 +486,7 @@ SmmReadyToBootCallback (
 
 **/
 EFI_STATUS
+EFIAPI
 SxSleepEntryCallBack (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -623,6 +626,7 @@ SetAfterG3On (
 
 **/
 EFI_STATUS
+EFIAPI
 PowerButtonCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  CONST VOID                              *DispatchContext,
@@ -681,6 +685,7 @@ PowerButtonCallback (
 
 
 VOID
+EFIAPI
 PmeCallback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  EFI_SMM_ICHN_DISPATCH_CONTEXT           *DispatchContext
@@ -691,6 +696,7 @@ PmeCallback (
 
 
 EFI_STATUS
+EFIAPI
 S5SleepAcLossCallBack (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -711,6 +717,7 @@ S5SleepAcLossCallBack (
 
 
 EFI_STATUS
+EFIAPI
 S4S5CallBack (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -754,6 +761,7 @@ S4S5CallBack (
 
 **/
 EFI_STATUS
+EFIAPI
 EnableAcpiCallback (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -822,6 +830,7 @@ EnableAcpiCallback (
 
 **/
 EFI_STATUS
+EFIAPI
 DisableAcpiCallback (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -843,6 +852,7 @@ DisableAcpiCallback (
 
 
 VOID
+EFIAPI
 DummyTco1Callback (
   IN  EFI_HANDLE                              DispatchHandle,
   IN  EFI_SMM_ICHN_DISPATCH_CONTEXT           *DispatchContext
@@ -877,6 +887,7 @@ DevicePathSize (
 
 
 EFI_STATUS
+EFIAPI
 S5SleepWakeOnRtcCallBack (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,
@@ -1064,6 +1075,7 @@ BcdToHex(
 
 **/
 EFI_STATUS
+EFIAPI
 TpmPtsSmbsCallback (
   IN  EFI_HANDLE                    DispatchHandle,
   IN  CONST VOID                    *DispatchContext,

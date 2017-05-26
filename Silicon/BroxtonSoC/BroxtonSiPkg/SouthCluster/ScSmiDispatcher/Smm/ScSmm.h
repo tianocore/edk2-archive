@@ -499,6 +499,7 @@ typedef struct {
 
 **/
 EFI_STATUS
+EFIAPI
 ScSmmCoreRegister (
   IN  SC_SMM_GENERIC_PROTOCOL          *This,
   IN  EFI_SMM_HANDLER_ENTRY_POINT2     DispatchFunction,
@@ -522,6 +523,7 @@ ScSmmCoreRegister (
 
 **/
 EFI_STATUS
+EFIAPI
 ScSmmCoreUnRegister (
   IN  SC_SMM_GENERIC_PROTOCOL        *This,
   IN  EFI_HANDLE                     *DispatchHandle
@@ -767,6 +769,7 @@ ScSmmPeriodicTimerClearSource (
 
 **/
 EFI_STATUS
+EFIAPI
 ScSmmPeriodicTimerDispatchGetNextShorterInterval (
   IN CONST EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL    *This,
   IN OUT UINT64                                         **SmiTickInterval

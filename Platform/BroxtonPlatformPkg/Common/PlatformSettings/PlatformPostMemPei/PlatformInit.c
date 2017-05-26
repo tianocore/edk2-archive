@@ -31,6 +31,7 @@
 #endif
 
 EFI_STATUS
+EFIAPI
 CpuS3SmmAccessNotifyCallback (
   IN EFI_PEI_SERVICES           **PeiServices,
   IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,
@@ -545,6 +546,7 @@ PeiGetSectionFromFv (
 
 
 EFI_STATUS
+EFIAPI
 CpuS3SmmAccessNotifyCallback (
   IN EFI_PEI_SERVICES           **PeiServices,
   IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,
@@ -571,6 +573,7 @@ CpuS3SmmAccessNotifyCallback (
 
 **/
 EFI_STATUS
+EFIAPI
 EndOfPeiPpiNotifyCallback (
   IN EFI_PEI_SERVICES           **PeiServices,
   IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,

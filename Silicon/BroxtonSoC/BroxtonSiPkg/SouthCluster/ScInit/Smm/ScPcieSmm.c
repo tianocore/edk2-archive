@@ -183,6 +183,7 @@ ScPciePmIoTrapSmiCallback (
 
 **/
 VOID
+EFIAPI
 ScPciePmSwSmiCallback (
   IN EFI_HANDLE                  DispatchHandle,
   IN EFI_SMM_SW_REGISTER_CONTEXT *DispatchContext,

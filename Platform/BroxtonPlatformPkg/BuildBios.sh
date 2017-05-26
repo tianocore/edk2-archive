@@ -317,7 +317,7 @@ cat SpiChunk1.bin IBBL.Fv IBB.Fv SpiChunk2.bin OBB.Fv NvStorage.Fv SpiChunk3.bin
 popd
 
 echo
-echo SPI IFWI location:     $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/$BIOS_Name"_GCC".bin
+echo Check if SPI IFWI image is generated at below location:
+echo $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/$BIOS_Name"_GCC".bin
 echo
-echo -------------------- The EDKII BIOS build has successfully completed. --------------------
 echo

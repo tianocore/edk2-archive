@@ -505,6 +505,7 @@ ScSmmPeriodicTimerProgramTimers (
 
 **/
 EFI_STATUS
+EFIAPI
 ScSmmPeriodicTimerDispatchGetNextShorterInterval (
   IN CONST EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL  *This,
   IN OUT UINT64                                       **SmiTickInterval

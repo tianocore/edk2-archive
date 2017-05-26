@@ -153,6 +153,7 @@ GetSleepTypeAfterWakeup (
   );
 
 EFI_STATUS
+EFIAPI
 EndOfPeiPpiNotifyCallback (
   IN EFI_PEI_SERVICES           **PeiServices,
   IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,

@@ -170,14 +170,7 @@
   !if $(SECURE_BOOT_ENABLE)
       FILE = $(WORKSPACE)/Platform/$(PLATFORM_PACKAGE_COMMON)/Binaries/Prebuild/X64/VpdBlockSecBoot.bin
   !else
-    !if $(TOOL_CHAIN_TAG) != GCC47
       FILE = $(WORKSPACE)/Platform/$(PLATFORM_PACKAGE_COMMON)/Binaries/Prebuild/X64/VpdBlock.bin
-    !else
-      #
-      # Temporary solution for not having FCE linux version
-      #
-      FILE = $(WORKSPACE)/Platform/$(PLATFORM_PACKAGE_COMMON)/Binaries/Prebuild/X64/VpdBlockVar.bin
-    !endif
   !endif
 
   $(FLASH_REGION_NVSTORAGE_SUBREGION_NV_FTW_WORKING_OFFSET)|$(FLASH_REGION_NVSTORAGE_SUBREGION_NV_FTW_WORKING_SIZE)
@@ -501,16 +494,23 @@ APRIORI DXE {
   INF MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableSmm/FirmwarePerformanceSmm.inf
 !endif
 
+!if $(TOOL_CHAIN_TAG) == GCC5
+  INF UefiCpuPkg/CpuDxe/CpuDxe.inf
+!else
   INF $(PLATFORM_SI_PACKAGE)/Cpu/CpuInit/Dxe/CpuInitDxe.inf
+!endif
+
   INF IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf
+
+!if $(TOOL_CHAIN_TAG) != GCC5
   INF $(PLATFORM_PACKAGE_COMMON)/SampleCode/IntelFsp2WrapperPkg/FspNotifyDxe/FspNotifyDxe.inf
+!endif
 
-
-  !if $(SMM_VARIABLE_ENABLE)
-    INF $(PLATFORM_SI_PACKAGE)/VariableStorage/Dxe/CseVariableStorageSmmRuntimeDxe/CseVariableStorageSmmRuntimeDxe.inf
-  !else
-    INF $(PLATFORM_SI_PACKAGE)/VariableStorage/Dxe/CseVariableStorageSmmRuntimeDxe/CseVariableStorageRuntimeDxe.inf
-  !endif
+!if $(SMM_VARIABLE_ENABLE)
+  INF $(PLATFORM_SI_PACKAGE)/VariableStorage/Dxe/CseVariableStorageSmmRuntimeDxe/CseVariableStorageSmmRuntimeDxe.inf
+!else
+  INF $(PLATFORM_SI_PACKAGE)/VariableStorage/Dxe/CseVariableStorageSmmRuntimeDxe/CseVariableStorageRuntimeDxe.inf
+!endif
 
 
 !if $(SMM_VARIABLE_ENABLE)
@@ -557,7 +557,9 @@ APRIORI DXE {
   INF $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformInfoDxe/PlatformInfoDxe.inf
   #INF $(TABLET_PLATFORM_PACKAGE)/PlatformCpuInfo/PlatformCpuInfoDxe.inf
   INF $(PLATFORM_PACKAGE_COMMON)/SaveMemoryConfigDxe/SaveMemoryConfigDxe.inf
+!if $(TOOL_CHAIN_TAG) != GCC5
   INF $(PLATFORM_PACKAGE_COMMON)/Features/S3/SmramSaveInfoHandlerSmm/SmramSaveInfoHandlerSmm.inf
+!endif
 
 !if $(GOP_DRIVER_ENABLE) == TRUE
   INF $(PLATFORM_PACKAGE_COMMON)/Console/PlatformGopPolicyDxe/PlatformGopPolicyDxe.inf

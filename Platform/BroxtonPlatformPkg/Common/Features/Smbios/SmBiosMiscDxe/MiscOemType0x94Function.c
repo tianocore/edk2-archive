@@ -756,6 +756,7 @@ UpdatePlatformInformation (
 
 **/
 VOID
+EFIAPI
 AddSmbiosT0x94Callback (
   IN EFI_EVENT  Event,
   IN VOID       *Context

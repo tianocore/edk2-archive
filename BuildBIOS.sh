@@ -11,6 +11,11 @@
 Target_Flag=Release
 if [ "$1" == "Debug" ]; then
   Target_Flag=Debug
+  shift
+fi
+if [ "$1" == "Release" ]; then
+  Target_Flag=Release
+  shift
 fi
 
 echo $Target_Flag
