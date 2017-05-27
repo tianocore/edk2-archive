@@ -27,5 +27,5 @@ export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/P
 
 make -C BaseTools
 
-. ./Platform/BroxtonPlatformPkg/BuildIFWI.sh APLI $Target_Flag
+bash ./Platform/BroxtonPlatformPkg/BuildIFWI.sh APLI $Target_Flag
 
