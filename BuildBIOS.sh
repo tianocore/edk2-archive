@@ -8,6 +8,34 @@
 # THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 # WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
+
+##**********************************************************************
+## Initial Setup
+##**********************************************************************
+
+Build_Flags=
+
+## Parse Optional arguments
+if [ "$1" == "/?" ]; then
+  Usage
+fi
+
+## Build Flags
+for (( i=1; i<=$#; ))
+  do
+    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
+      FabId=B
+      Build_Flags="$Build_Flags /B"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/A" ]; then
+      FabId=A
+      Build_Flags="$Build_Flags /A"
+      shift
+    else
+      break
+    fi
+  done
+
 Target_Flag=Release
 if [ "$1" == "Debug" ]; then
   Target_Flag=Debug
@@ -18,6 +46,7 @@ if [ "$1" == "Release" ]; then
   shift
 fi
 
+echo $Build_Flags
 echo $Target_Flag
 
 export WORKSPACE=`pwd`
@@ -27,5 +56,5 @@ export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/P
 
 make -C BaseTools
 
-bash ./Platform/BroxtonPlatformPkg/BuildIFWI.sh APLI $Target_Flag
+bash ./Platform/BroxtonPlatformPkg/BuildIFWI.sh $Build_Flags APLI $Target_Flag
 

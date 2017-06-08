@@ -29,14 +29,14 @@ if "%~1"=="/?"      goto Usage
 if /i "%~1"=="Help" goto Usage
 
 set FspWrapper=FALSE
-set Stepping=B
+set FabId=B
 
 if /i "%~2"=="B" (
-    set Stepping=B
+    set FabId=B
 )
 
 if /i "%~2"=="A" (
-    set Stepping=A
+    set FabId=A
 )
 
 :OptLoop1
@@ -119,16 +119,16 @@ copy /y /b %BIOS_Names%\IBBL.Fv .\BIOS_COMPONENTS
 copy /y /b %BIOS_Names%\IBB.Fv .\BIOS_COMPONENTS
 copy /y /b %BIOS_Names%\OBB.Fv .\BIOS_COMPONENTS
 copy /y /b %BIOS_Names%\NvStorage.Fv .\BIOS_COMPONENTS
-if %Stepping%==B (
-  copy /y /b ..\..\Binaries\IFWI\B_Stepping\SpiChunk1.bin .
-  copy /y /b ..\..\Binaries\IFWI\B_Stepping\SpiChunk2.bin .
-  copy /y /b ..\..\Binaries\IFWI\B_Stepping\SpiChunk3.bin .
+if %FabId%==B (
+  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk1.bin .
+  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk2.bin .
+  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk3.bin .
   copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
   ) else (
-  copy /y /b ..\..\Binaries\IFWI\A_Stepping\SpiChunk1.bin .
-  copy /y /b ..\..\Binaries\IFWI\A_Stepping\SpiChunk2.bin .
-  copy /y /b ..\..\Binaries\IFWI\A_Stepping\SpiChunk3.bin .
-  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
+  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk1.bin .
+  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk2.bin .
+  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk3.bin .
+  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
   )
 
 move /y spi_out.bin %BIOS_ID%.bin  >> Stitching.log

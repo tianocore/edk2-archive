@@ -60,6 +60,7 @@ exitCode=0
 Build_Flags=
 Stitch_Flags=
 Arch=IA32
+FabId=B
 
 ## Description of each Platform/Board_ID
 ##   APLK - Netbook/Desktop (PCCG)
@@ -106,6 +107,14 @@ for (( i=1; i<=$#; ))
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
       Build_Flags="$Build_Flags /x64"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
+      FabId=B
+      Build_Flags="$Build_Flags /B"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/A" ]; then
+      FabId=A
+      Build_Flags="$Build_Flags /A"
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/VP" ]; then
       Build_Flags="$Build_Flags /vp"

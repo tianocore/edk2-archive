@@ -6,7 +6,7 @@ set exitCode=0
 set "Build_Flags= "
 set Arch=X64
 set SkipUsageFlag=FALSE
-set Stepping=B
+set FabId=B
 set WORKSPACE=%CD%
 if %WORKSPACE:~-1%==\ (
   set WORKSPACE=%WORKSPACE:~0,-1%
@@ -79,13 +79,13 @@ if /i "%~1"=="/FspW" (
     goto OptLoop
 )
 if /i "%~1"=="/A" (
-    set Stepping=A
+    set FabId=A
     set Build_Flags=%Build_Flags% /A
     shift
     goto OptLoop
 )
 if /i "%~1"=="/B" (
-    set Stepping=B
+    set FabId=B
     set Build_Flags=%Build_Flags% /B
     shift
     goto OptLoop
@@ -139,8 +139,8 @@ echo.
 echo BIOS ROM input:  %BIOS_Name%
 echo.
 pushd %STITCH_PATH%
-   echo  - call IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %Stepping%
-   call %STITCH_PATH%\IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %Stepping%
+   echo  - call IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %FabId%
+   call %STITCH_PATH%\IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %FabId%
    @echo off
 popd
 if ErrorLevel 1 (

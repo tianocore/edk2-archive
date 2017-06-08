@@ -28,6 +28,7 @@ Build_Flags=
 SV_String=_
 exitCode=0
 Arch=X64
+FabId=B
 
 ## Initialize all the build flags to FALSE
 ## depending on the cmd line input, some will be set to TRUE prior to building
@@ -128,6 +129,12 @@ for (( i=1; i<=$#; ))
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
+      FabId=B
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/A" ]; then
+      FabId=A
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/VP" ]; then
       VP_BIOS_ENABLE=TRUE
@@ -294,12 +301,18 @@ cp -f $BUILD_PATH/FV/FVOBBX.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Too
 cp -f $BUILD_PATH/FV/FVIBBR.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVIBBM.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVIBBL.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/B_Stepping/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 
-
+if [ $FabId == "B" ]; then
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+else
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+fi
 
 #
 # Assmeble components

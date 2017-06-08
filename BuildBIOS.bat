@@ -10,7 +10,7 @@ set PlatformName=
 set BuildTarget=Debug
 set Compiler=/vs13
 set Arch=/x64
-set Stepping=/B
+set FabId=/B
 
 :: Optional arguments
 :OptLoop
@@ -61,13 +61,13 @@ if /i "%~1"=="/vs15" (
     goto OptLoop
 )
 if /i "%~1"=="/A" (
-    set Stepping=/A
+    set FabId=/A
     echo.
     shift
     goto OptLoop
 )
 if /i "%~1"=="/B" (
-    set Stepping=/B
+    set FabId=/B
     echo.
     shift
     goto OptLoop
@@ -83,8 +83,8 @@ set BuildTarget=%~2
 
 :OptLoopEnd
 echo ---- Call Build Script of Broxton ----
-echo calling : Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %Stepping% /fspw %BuildFlags% MINN %BuildTarget% 
-call Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %Stepping% /fspw %BuildFlags% MINN %BuildTarget% 
+echo calling : Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
+call Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
 
 goto Exit
 
@@ -97,8 +97,8 @@ echo.
 echo        /vs13  Set Compiler to vs2013 build (default: vs2013)
 echo        /x64   Set Arch to X64  (default: X64)
 echo        /IA32  Set Arch to IA32 (default: X64)
-echo        /A     Set stepping to A (default: B stepping)
-echo        /B     Set stepping to B (default: B stepping)
+echo        /A     Set FabId to A (default:  FAB_B)
+echo        /B     Set FabId to B (default:  FAB_B)
 echo        PlatformName:  Broxton
 echo        BuildTargets:  Release, Debug
 

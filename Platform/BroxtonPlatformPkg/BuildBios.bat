@@ -24,7 +24,7 @@ set "Build_Flags= "
 set exitCode=0
 set Arch=X64
 set Compiler=VS2013
-set Stepping=B
+set FabId=B
 if not defined BiosVersion set BiosVersion=DEV
 
 
@@ -154,13 +154,13 @@ if /i "%~1"=="/FspW" (
     goto OptLoop
 )
 if /i "%~1"=="/A" (
-    set Stepping=A
+    set FabId=A
     echo.
     shift
     goto OptLoop
 )
 if /i "%~1"=="/B" (
-    set Stepping=B
+    set FabId=B
     echo.
     shift
     goto OptLoop
@@ -409,7 +409,6 @@ copy /y/b %BUILD_PATH%\FV\FvOBBX.fv  %Storage_Folder% >nul
 copy /y/b %BUILD_PATH%\FV\FvOBBY.fv  %Storage_Folder% >nul
 
 if /i "%FSP_WRAPPER%" == "TRUE" (
-  if %Stepping%==B (
 ::  0xFEF7A000 = gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspBase = $(CAR_BASE_ADDRESS) + $(BLD_RAM_DATA_SIZE) + $(FSP_RAM_DATA_SIZE) + $(FSP_EMP_DATA_SIZE) + $(BLD_IBBM_SIZE)
     pushd  %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin
     python %WORKSPACE%\Core\IntelFsp2Pkg\Tools\SplitFspBin.py rebase -f ApolloLakeFsp.fd -c m -b 0xFEF7A000 -o .\ -n FSP.fd
@@ -418,14 +417,6 @@ if /i "%FSP_WRAPPER%" == "TRUE" (
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin\FSP_T.Fv %Storage_Folder%\FSP_T.Fv
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin\FSP_M.Fv %Storage_Folder%\FSP_M.Fv
     copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspBinPkg\FspBin\FSP_S.Fv %Storage_Folder%\FSP_S.Fv
-  ) else (
-    pushd  %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP
-    python %WORKSPACE%\Core\IntelFsp2Pkg\Tools\SplitFspBin.py split -f FSP.fd -o .\ -n FSP.Fv
-    popd
-    copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP\FSP_T.Fv %Storage_Folder%\FSP_T.Fv
-    copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP\FSP_M.Fv %Storage_Folder%\FSP_M.Fv
-    copy /y/b %WORKSPACE%\Silicon\BroxtonSoC\BroxtonFspPkg\ApolloLakeFspGold\FSP\FSP_S.Fv %Storage_Folder%\FSP_S.Fv
-  )
 )
 
 echo Get NvStorage Base and Size...
