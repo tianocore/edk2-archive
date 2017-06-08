@@ -169,6 +169,7 @@
     <LibraryClasses>
       NULL|$(PLATFORM_NAME)/Board/MinnowBoard3/BoardInitDxe/BoardInitDxe.inf
       NULL|$(PLATFORM_NAME)/Board/LeafHill/BoardInitDxe/BoardInitDxe.inf
+      NULL|$(PLATFORM_NAME)/Board/BensonGlacier/BoardInitDxe/BoardInitDxe.inf
   }
 
 !if $(DATAHUB_ENABLE) == TRUE

@@ -1,0 +1,58 @@
+## @file
+#  Board detected module for Intel(R) Atom(TM) x5 Processor Series.
+#  It will detect the board ID.
+#
+#  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010017
+  BASE_NAME                      = BensonGlacierInitPreMem
+  FILE_GUID                      = 6D2C88A1-78D0-428B-BB8E-47CCA5A3AEEF
+  VERSION_STRING                 = 1.0
+  MODULE_TYPE                    = PEIM
+  CONSTRUCTOR                    = BensonGlacierInitConstructor
+
+[Sources]
+  BoardInit.c
+  PlatformId.c
+  BoardInitMiscs.c
+
+[LibraryClasses]
+  PeiServicesLib
+  PcdLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonFspPkg/BroxtonFspPkg.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+  BroxtonPlatformPkg/Common/SampleCode/IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  IntelFsp2WrapperPkg/IntelFsp2WrapperPkg.dec
+  Silicon/BroxtonSoC/BroxtonSiPkg/NorthCluster/MemoryInit/MemoryInit.dec
+
+[Pcd]
+  gPlatformModuleTokenSpaceGuid.PcdBoardId
+  gPlatformModuleTokenSpaceGuid.PcdFabId
+  gPlatformModuleTokenSpaceGuid.PcdUpdateFspmUpdFunc
+  gPlatformModuleTokenSpaceGuid.PcdDramCreatePolicyDefaultsFunc
+  gMinnowModuleTokenSpaceGuid.PcdDefaultFabId            ## CONSUMES
+  gMinnowModuleTokenSpaceGuid.PcdMinnowBoardDetectionRun ## CONSUMES
+  gMinnowModuleTokenSpaceGuid.PcdMinnowBoardDetected     ## CONSUMES
+
+[Guids]
+
+[Ppis]
+  gBoardPreMemInitPpiGuid
+  gBoardPreMemInitDoneGuid
+

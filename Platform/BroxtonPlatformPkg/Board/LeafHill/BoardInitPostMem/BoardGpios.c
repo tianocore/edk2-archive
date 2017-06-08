@@ -179,6 +179,7 @@ MultiPlatformGpioProgram (
   switch (PlatformInfoHob->BoardId) {
     case BOARD_ID_LFH_CRB:
     case BOARD_ID_MINNOW:
+    case BOARD_ID_BENSON:
       //
       // PAD programming
       //
@@ -257,6 +258,7 @@ MultiPlatformGpioProgram (
   switch (PlatformInfoHob->BoardId) {
     case BOARD_ID_LFH_CRB:
     case BOARD_ID_MINNOW:
+    case BOARD_ID_BENSON:
       //
       // PAD programming
       //

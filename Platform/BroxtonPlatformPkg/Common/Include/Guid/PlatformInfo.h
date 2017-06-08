@@ -164,6 +164,7 @@ typedef enum {
 typedef enum {
   BOARD_ID_LFH_CRB         = 0x07,     // Leaf Hill
   BOARD_ID_MINNOW          = 0x0F,     // Minnow Board
+  BOARD_ID_BENSON          = 0x0C,     // Benson Glacier
   BOARD_ID_APL_UNKNOWN     = 0xFF
 } APL_BOARD_ID_LIST;
 
