@@ -434,13 +434,15 @@ APRIORI DXE {
   INF MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 
   #
-  # eMMC/SD Card
+  # SDIO
   #
 !if $(EMMC_DRIVER_ENABLE) == TRUE
-  INF MdeModulePkg/Bus/Pci/SdMmcPciHcDxe/SdMmcPciHcDxe.inf
-  INF MdeModulePkg/Bus/Sd/EmmcDxe/EmmcDxe.inf
-  INF MdeModulePkg/Bus/Sd/SdDxe/SdDxe.inf  
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcHostDxe/MmcHostDxe.inf
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/MMC/MmcMediaDeviceDxe/MmcMediaDeviceDxe.inf
 !endif
+
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdControllerDxe/SdControllerDxe.inf
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Sdio/Dxe/SD/SdMediaDeviceDxe/SdMediaDeviceDxe.inf
 
   INF MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe.inf
   INF IntelFrameworkModulePkg/Universal/Acpi/AcpiS3SaveDxe/AcpiS3SaveDxe.inf
