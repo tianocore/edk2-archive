@@ -425,15 +425,15 @@ MediaDeviceDriverAllPartitionNotPresent (
 
 STATIC
 struct {
-  DEVICE_LOGICAL_UNIT_DEVICE_PATH  LogicalUnit;
+  CONTROLLER_DEVICE_PATH    LogicalUnit;
   EFI_DEVICE_PATH_PROTOCOL  End;
 } EmmcDevPathTemplate = {
   {
     {
-      MESSAGING_DEVICE_PATH,
-      MSG_DEVICE_LOGICAL_UNIT_DP,
+      HARDWARE_DEVICE_PATH,
+      HW_CONTROLLER_DP,
       {
-        sizeof (DEVICE_LOGICAL_UNIT_DEVICE_PATH),
+        sizeof (CONTROLLER_DEVICE_PATH),
         0
       },
     },
@@ -494,7 +494,7 @@ MediaDeviceDriverInstallBlockIo (
     Partition->Handle = NULL;
     Partition->CardData = CardData;
 
-    EmmcDevPathTemplate.LogicalUnit.Lun = Loop;
+    EmmcDevPathTemplate.LogicalUnit.ControllerNumber = Loop;
     Partition->DevPath =
       AppendDevicePath (
         MainPath,
