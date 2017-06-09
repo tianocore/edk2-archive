@@ -159,7 +159,10 @@
 
   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
   MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe.inf
-  PcAtChipsetPkg/PcatRealTimeClockRuntimeDxe/PcatRealTimeClockRuntimeDxe.inf
+  PcAtChipsetPkg/PcatRealTimeClockRuntimeDxe/PcatRealTimeClockRuntimeDxe.inf {
+    <PcdsFixedAtBuild>     
+      gPcAtChipsetPkgTokenSpaceGuid.PcdMinimalValidYear|2017 
+  }
   MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
 
   $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformSetupDxe/PlatformSetupDxe.inf {
