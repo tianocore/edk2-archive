@@ -541,7 +541,7 @@ Scope(\_SB)
 
     OperationRegion(GPOP, SystemMemory, GP0A, GP0L)
     Field(\_SB.GPO0.GPOP, ByteAcc, NoLock, Preserve) {
-      Offset(0x578), //PIN 15:15 * 8 + 0x500  // WiFi Reset
+      Offset(0x550), //PIN 10:10 * 8 + 0x500  // WiFi Reset
       CWLE, 1,
       Offset(0x5B0), //PIN 22:22 * 8 + 0x500  // SATA_ODD_PWRGT_R
       ODPW, 1

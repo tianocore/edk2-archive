@@ -57,10 +57,8 @@ DefinitionBlock (
 
   include ("PSS/MonzaX2K_IMPJ0003.asl")
 
-  include ("Bluetooth/Bluetooth_BCM2E40.asl")
-
-  include ("Wifi/WIFI_Broadcom1.asl")
-  include ("Wifi/WIFI_Broadcom2.asl")
+  include ("Bluetooth/LBEE5KL1DX.asl")
+  include ("Wifi/LBEE5KL1DX.asl")
 
   include ("Gps/Gps.asl")
 
