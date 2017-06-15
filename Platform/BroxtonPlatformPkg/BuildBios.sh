@@ -162,7 +162,7 @@ sed -i '/^BUILD_TYPE/d' $WORKSPACE/Conf/BiosId.env
 
 
 BOARD_ID=MNW3
-echo BOARD_ID = MINNOW3 >> $WORKSPACE/Conf/BiosId.env
+echo BOARD_ID = MINNOWV >> $WORKSPACE/Conf/BiosId.env
 ENBDT_PF_BUILD=TRUE
 PLATFORM_NAME=BroxtonPlatformPkg
 PLATFORM_PACKAGE=Platform/BroxtonPlatformPkg  
