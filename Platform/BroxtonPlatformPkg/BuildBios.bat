@@ -218,8 +218,8 @@ if "%Arch%"=="IA32" (
 if "%Arch%"=="X64" (
     findstr /b /v "BOARD_ID BUILD_TYPE" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
 ) else if "%Arch%"=="IA32" (
-    findstr /b /v "BOARD_ID BUILD_TYPE OEM_ID" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
-    echo OEM_ID = I32 >> Conf\BiosId.env
+    findstr /b /v "BOARD_ID BUILD_TYPE BOARD_EXT" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
+    echo BOARD_EXT = I32 >> Conf\BiosId.env
 )
 
 if /i "%~2" == "RELEASE" (
