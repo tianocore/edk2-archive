@@ -216,9 +216,9 @@ if "%Arch%"=="IA32" (
 ::Stage of copy of BiosId.env in Conf/ with Platform_Type and Build_Target values removed
 
 if "%Arch%"=="X64" (
-    findstr /b /v "BOARD_ID BUILD_TYPE" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
+    findstr /b /v "BOARD_ID BUILD_TYPE VERSION_MINOR" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
 ) else if "%Arch%"=="IA32" (
-    findstr /b /v "BOARD_ID BUILD_TYPE BOARD_EXT" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
+    findstr /b /v "BOARD_ID BUILD_TYPE VERSION_MINOR BOARD_EXT" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
     echo BOARD_EXT = I32 >> Conf\BiosId.env
 )
 
@@ -228,6 +228,12 @@ if /i "%~2" == "RELEASE" (
 ) else (
     set target=DEBUG
     echo BUILD_TYPE = D >> Conf\BiosId.env
+)
+
+if %FabId%==B (
+    echo VERSION_MINOR = 0B >> Conf\BiosId.env
+) else (
+    echo VERSION_MINOR = 0A >> Conf\BiosId.env
 )
 
 :: Set the Build_Type, Version_Major, and Version_Minor environment variables

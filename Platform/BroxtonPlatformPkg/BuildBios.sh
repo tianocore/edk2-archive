@@ -159,6 +159,7 @@ fi
 cp $WORKSPACE/$PLATFORM_PACKAGE/BiosId.env       $WORKSPACE/Conf/BiosId.env
 sed -i '/^BOARD_ID/d' $WORKSPACE/Conf/BiosId.env
 sed -i '/^BUILD_TYPE/d' $WORKSPACE/Conf/BiosId.env
+sed -i '/^VERSION_MINOR/d' $WORKSPACE/Conf/BiosId.env
 
 
 BOARD_ID=MNW3
@@ -203,6 +204,13 @@ else
   echo BUILD_TYPE = D >> $WORKSPACE/Conf/BiosId.env
 fi
 
+if [ $FabId == "B" ]; then
+  VERSION_MINOR=0B
+  echo VERSION_MINOR = 0B >> $WORKSPACE/Conf/BiosId.env
+else
+  VERSION_MINOR=0A
+  echo VERSION_MINOR = 0A >> $WORKSPACE/Conf/BiosId.env
+fi
 
 ##**********************************************************************
 ## Additional EDK Build Setup/Configuration
