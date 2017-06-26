@@ -139,5 +139,9 @@ InstallMonoStatusCode (
   IN CONST EFI_PEI_SERVICES    **PeiServices
   );
 
+EFI_STATUS 
+PlatformCreateDefaultVariableHob (
+IN UINT16  DefaultId
+);
 #endif
 

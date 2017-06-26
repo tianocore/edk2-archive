@@ -387,10 +387,15 @@ if not exist "%AutoGenPath%" (
 findstr /L "_PCD_VALUE_" %AutoGenPath% > %STITCH_PATH%\FlashMap.h
 
 echo Running FCE...
+copy /b %BUILD_PATH%\FV\FvIBBM.fv + /b %BUILD_PATH%\FV\Soc.fd /b %BUILD_PATH%\FV\Temp.fd
 :: Extract Hii data from build and store a copy in HiiDefaultData.txt
-fce.exe read -i %BUILD_PATH%\FV\Soc.fd > %BUILD_PATH%\FV\HiiDefaultData.txt 2>>EDK2.log
+:: UQI 0006 005C 0078 0030 0031 0030 0031 is for question prompt(STR_IPU_ENABLED)
+:: First 0006 is the length of string; Next six byte values are mapped to STR_IPU_ENABLED string value defined in Platform\BroxtonPlatformPkg\Common\PlatformSettings\PlatformSetupDxe\VfrStrings.uni.
+fce.exe read -i %BUILD_PATH%\FV\Temp.fd 0006 005C 0078 0030 0031 0030 0031 > %BUILD_PATH%\FV\HiiDefaultData.txt 2>>EDK2.log
 :: Generate the Setup variable and save changes to BxtXXX.fd
-fce.exe update -i %BUILD_PATH%\FV\Soc.fd -s %BUILD_PATH%\FV\HiiDefaultData.txt -o %BUILD_PATH%\FV\Bxt%Arch%.fd  1>>EDK2.log 2>&1
+:: B73FE497-B92E-416e-8326-45AD0D270091 is the GUID of IBBM FV
+fce.exe update -i %BUILD_PATH%\FV\Temp.fd -s %BUILD_PATH%\FV\HiiDefaultData.txt -o %BUILD_PATH%\FV\Bxt%Arch%.fd  -g B73FE497-B92E-416e-8326-45AD0D270091 -a 1>>EDK2.log 2>&1
+split -f %BUILD_PATH%\FV\Bxt%Arch%.fd -s 0x35000 -o %BUILD_PATH%\FV\FvIBBM.fv
 
 if ErrorLevel 1 goto BldFail
 
@@ -401,7 +406,7 @@ if "%BUILD_TYPE%"=="R" set BUILD_TYPE=R
 
 echo Copy BIOS...
 set BIOS_Name=%BOARD_ID%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
-copy /y/b %BUILD_PATH%\FV\Bxt%Arch%.fd  %STITCH_PATH%\%BIOS_Name%.ROM >nul
+copy /y/b %BUILD_PATH%\FV\Soc.fd          %STITCH_PATH%\%BIOS_Name%.ROM >nul
 copy /y   %STITCH_PATH%\FlashMap.h        %STITCH_PATH%\%BIOS_Name%.map >nul
 
 set Storage_Folder=%STITCH_PATH%\%BIOS_Name%

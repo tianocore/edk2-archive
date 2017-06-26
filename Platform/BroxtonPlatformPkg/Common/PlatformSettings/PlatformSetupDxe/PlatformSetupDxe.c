@@ -402,6 +402,8 @@ SystemConfigCallback (
   CHAR16                                     *StringBuffer2;
   EFI_STATUS                                 Status;
   SEC_OPERATION_PROTOCOL                     *SeCOp;
+  UINTN                        VariableSize;
+  UINT32                       VariableAttributes;
 
   StringBuffer1 = AllocateZeroPool (200 * sizeof (CHAR16));
   ASSERT (StringBuffer1 != NULL);
@@ -412,7 +414,43 @@ SystemConfigCallback (
     return EFI_OUT_OF_RESOURCES;
   }
 
+  Private = EFI_CALLBACK_INFO_FROM_THIS (This);
+  FakeNvData = &Private->FakeNvData;
+
   switch (Action) {
+    case EFI_BROWSER_ACTION_FORM_OPEN:
+    {
+      if (KeyValue == 0x1003) {
+        if (!HiiGetBrowserData (&mSystemConfigGuid, mVariableName, sizeof (SYSTEM_CONFIGURATION), (UINT8 *) FakeNvData)) {
+           return EFI_NOT_FOUND;
+        }
+
+        CheckSystemConfigLoad (FakeNvData);
+
+        //
+        // Pass changed uncommitted data back to Form Browser
+        //
+        HiiSetBrowserData (&mSystemConfigGuid, mVariableName, sizeof (SYSTEM_CONFIGURATION), (UINT8 *) FakeNvData, NULL);
+      }
+      break;
+    }
+    case EFI_BROWSER_ACTION_SUBMITTED:
+    {
+      if (KeyValue == 0x1002) {
+        VariableSize = sizeof (SYSTEM_CONFIGURATION);
+        Status = gRT->GetVariable (
+                        L"Setup",
+                        &gEfiSetupVariableGuid,
+                        &VariableAttributes,
+                        &VariableSize,
+                        FakeNvData
+                        );
+        if (!EFI_ERROR (Status)) {
+          CheckSystemConfigSave (FakeNvData);
+        }
+      }
+      break;
+    }
     case EFI_BROWSER_ACTION_CHANGING:
     case EFI_BROWSER_ACTION_CHANGED:
     {
