@@ -1,6 +1,6 @@
 /** @file
 
-Copyright (c) 2004  - 2014, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2004  - 2017, Intel Corporation. All rights reserved.<BR>
                                                                                    
   This program and the accompanying materials are licensed and made available under
   the terms and conditions of the BSD License that accompanies this distribution.  
@@ -39,6 +39,7 @@ MISC_SMBIOS_TABLE_EXTERNS(EFI_MISC_CHASSIS_MANUFACTURER_DATA, MiscChassisManufac
 MISC_SMBIOS_TABLE_EXTERNS(EFI_CACHE_VARIABLE_RECORD, MiscProcessorCache, MiscProcessorCache); //type 7
 MISC_SMBIOS_TABLE_EXTERNS(EFI_CPU_DATA_RECORD, MiscProcessorInformation, MiscProcessorInformation); //type 4
 MISC_SMBIOS_TABLE_EXTERNS(EFI_MEMORY_ARRAY_LOCATION_DATA, MiscPhysicalMemoryArray,MiscPhysicalMemoryArray);
+MISC_SMBIOS_TABLE_EXTERNS(EFI_MEMORY_ARRAY_START_ADDRESS_DATA, MiscMemoryArrayMappedAddress, MiscMemoryArrayMappedAddress); //type 19
 MISC_SMBIOS_TABLE_EXTERNS(EFI_MEMORY_ARRAY_LINK_DATA, MiscMemoryDevice, MiscMemoryDevice);
 
 MISC_SMBIOS_TABLE_EXTERNS(EFI_MISC_PORT_INTERNAL_CONNECTOR_DESIGNATOR_DATA, MiscPortIde1, MiscPortInternalConnectorDesignator);
@@ -72,6 +73,7 @@ EFI_MISC_SMBIOS_DATA_TABLE  mMiscSubclassDataTable[] = {
   MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscProcessorInformation, MiscProcessorInformation),  //type 4
   MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscPhysicalMemoryArray, MiscPhysicalMemoryArray),    //Type 16
   MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscMemoryDevice, MiscMemoryDevice), //Type 17
+  MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscMemoryArrayMappedAddress, MiscMemoryArrayMappedAddress), //Type 19
   MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscPortIde1, MiscPortInternalConnectorDesignator),
   MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscPortIde2, MiscPortInternalConnectorDesignator),
   MISC_SMBIOS_TABLE_ENTRY_DATA_AND_FUNCTION(MiscPortAtxPower, MiscPortInternalConnectorDesignator),
