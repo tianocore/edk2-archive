@@ -3010,8 +3010,8 @@ form formid     = HDAUDIO_OPTIONS_FORM_ID,
   oneof varid   = Setup.ScHdAudioIoBufferOwnership,
     prompt      = STRING_TOKEN(STR_HDA_IO_BUFF_PROMPT),
     help        = STRING_TOKEN(STR_HDA_IO_BUFF_HELP),
-    option text = STRING_TOKEN(STR_HDA_HDALINK), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_HDA_I2S), value = 3, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_HDA_HDALINK), value = 0, flags =  RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_HDA_I2S), value = 3, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
   endoneof;
 
   oneof varid   = Setup.ScHdAudioBiosCfgLockDown,
