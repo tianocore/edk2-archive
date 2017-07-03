@@ -1,7 +1,7 @@
 /** @file
   Null instance of Sec Platform Hook Lib.
 
-  Copyright (c) 2007 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2007 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -42,12 +42,6 @@ PlatformSecLibConstructor (
   );
 
   DefaultsRestored = FALSE;
-
-  //
-  // Perform a checksum computation and verify if the checksum is correct. If the checksum is incorrect
-  // initialize all the CMOS location to their default values and recalculate the checksum.
-  //
-  InitCmos (FALSE, &DefaultsRestored);
 
   return EFI_SUCCESS;
 }
