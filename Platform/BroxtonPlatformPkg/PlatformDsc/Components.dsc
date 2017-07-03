@@ -209,6 +209,7 @@
 
   $(PLATFORM_PACKAGE_COMMON)/DptfDxe/DptfDxe.inf
   $(PLATFORM_PACKAGE_COMMON)/PnpDxe/PnpDxe.inf
+  $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformGpio/PlatformGpio.inf
 
 !if $(SEC_ENABLE) == TRUE
   $(PLATFORM_PACKAGE_COMMON)/SeCPolicyInitDxe/SeCPolicyInitDxe.inf

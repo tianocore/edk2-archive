@@ -3,7 +3,7 @@
 #
 #  This package provides platform specific modules.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -150,6 +150,8 @@
   gSmmThunkProtocolGuid                       = { 0x2a82fce6, 0x8bb6, 0x413e, { 0xb9, 0xeb, 0x45, 0xdf, 0xc0, 0x52, 0x2d, 0xf3 }}
   gEfiTrEEPlatformProtocolGuid                = { 0x77ef4b99, 0x1186, 0x48ab, { 0x9d, 0x0b, 0x0b, 0x78, 0x12, 0xe5, 0xe6, 0xab }}
   gLegacyUsbProtocolGuid                      = { 0x2ad8e2d2, 0x2e91, 0x4cd1, { 0x95, 0xf5, 0xe7, 0x8f, 0xe5, 0xeb, 0xe3, 0x16 }}
+
+  gEdkiiGpioProtocolGuid                  = { 0x239a4037, 0x5231, 0x44d6, {0xa2, 0xab, 0x51, 0x74, 0xcd, 0x81, 0xff, 0x85 }}
 
 [PcdsDynamic,PcdsDynamicEx]   # 0x00000000
   gMinnowModuleTokenSpaceGuid.PcdMinnowBoardDetectionRun|FALSE|BOOLEAN|0x00000001

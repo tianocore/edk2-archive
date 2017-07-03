@@ -576,6 +576,7 @@ APRIORI DXE {
 }
 
   INF $(PLATFORM_PACKAGE_COMMON)/PnpDxe/PnpDxe.inf
+  INF $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformGpio/PlatformGpio.inf
 
   #
   # Secure Boot
