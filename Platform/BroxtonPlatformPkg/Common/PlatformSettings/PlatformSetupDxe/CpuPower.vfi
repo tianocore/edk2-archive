@@ -95,7 +95,7 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
     oneof varid     = SETUP_DATA.CStateAutoDemotion,
       prompt      = STRING_TOKEN(STR_CST_AUTO_DEMOTION),
       help        = STRING_TOKEN(STR_CST_AUTO_DEMOTION_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
       option text = STRING_TOKEN(STR_C1_AUTO_DEMOTION), value = 1, flags = RESET_REQUIRED;
       option text = STRING_TOKEN(STR_C3_AUTO_DEMOTION), value = 2, flags = RESET_REQUIRED;
       option text = STRING_TOKEN(STR_C1_AND_C3_AUTO_DEMOTION), value = 3, flags = RESET_REQUIRED;
@@ -104,7 +104,7 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
     oneof varid     = Setup.CStateUnDemotion,
       prompt      = STRING_TOKEN(STR_CST_UNDEMOTION),
       help        = STRING_TOKEN(STR_CST_UNDEMOTION_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
       option text = STRING_TOKEN(STR_C1_AUTO_DEMOTION), value = 1, flags = RESET_REQUIRED;
       option text = STRING_TOKEN(STR_C3_AUTO_DEMOTION), value = 2, flags = RESET_REQUIRED;
       option text = STRING_TOKEN(STR_C1_AND_C3_AUTO_DEMOTION), value = 3, flags = RESET_REQUIRED;
@@ -113,15 +113,15 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
     oneof varid     = Setup.PkgCStateDemotion,
       prompt      = STRING_TOKEN(STR_PKG_CST_DEMOTION),
       help        = STRING_TOKEN(STR_PKG_CST_DEMOTION),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags =  RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags =  RESET_REQUIRED;
     endoneof;
 
     oneof varid     = Setup.PkgCStateUnDemotion,
       prompt      = STRING_TOKEN(STR_PKG_CST_UNDEMOTION),
       help        = STRING_TOKEN(STR_PKG_CST_UNDEMOTION),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
   endif;
 
@@ -143,8 +143,8 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
     oneof varid    = Setup.PowerLimit1Enable,
       prompt      = STRING_TOKEN(STR_LONG_DUR_PWR_LIMIT_SUPPORT_PROMPT),
       help        = STRING_TOKEN(STR_LONG_DUR_PWR_LIMIT_SUPPORT_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
   endif;
   
@@ -153,8 +153,8 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
     oneof varid    = Setup.PowerLimit1Clamp,
       prompt      = STRING_TOKEN(STR_LONG_DUR_PWR_LIMIT_CLAMP_PROMPT),
       help        = STRING_TOKEN(STR_LONG_DUR_PWR_LIMIT_CLAMP_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     oneof varid  = Setup.PowerLimit1,

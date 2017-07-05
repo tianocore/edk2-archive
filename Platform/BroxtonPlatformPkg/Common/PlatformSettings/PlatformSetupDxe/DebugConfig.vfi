@@ -1,7 +1,7 @@
 // /** @file
 //  Debug Configuration formset.
 //
-//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -56,15 +56,15 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
   oneof varid   = SETUP_DATA.SeCEOPEnable,
     prompt      = STRING_TOKEN(STR_TXE_END_OF_POST_PROMPT),
     help        = STRING_TOKEN(STR_TXE_END_OF_POST_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
   endoneof;
 
   oneof varid   = SETUP_DATA.SeCLockDir,
     prompt      = STRING_TOKEN(STR_TXE_LOCK_DIR_PROMPT),
     help        = STRING_TOKEN(STR_TXE_LOCK_DIR_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
   endoneof;
 
   subtitle text = STRING_TOKEN(STR_NULL_STRING);
@@ -74,8 +74,8 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
   oneof varid   = SETUP_DATA.PttSuppressCommandSend,
     prompt      = STRING_TOKEN(STR_PTT_SUPPRESS_COMMAND_PROMPT),
     help        = STRING_TOKEN(STR_PTT_SUPPRESS_COMMAND_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
   endoneof;
 
   subtitle text = STRING_TOKEN(STR_NULL_STRING);
@@ -148,7 +148,7 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
      oneof varid   = Setup.ProcTraceMemSize,
         prompt      = STRING_TOKEN(STR_PROC_TRACE_MEM_SIZE_PROMPT),
         help        = STRING_TOKEN(STR_PROC_TRACE_MEM_SIZE_HELP),
-        option text = STRING_TOKEN(STR_DISABLED), value = 0xFF, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+        option text = STRING_TOKEN(STR_DISABLE), value = 0xFF, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
         option text = STRING_TOKEN(STR_4KB),      value = 0,    flags = RESET_REQUIRED;
         option text = STRING_TOKEN(STR_8KB),      value = 1,    flags = RESET_REQUIRED;
         option text = STRING_TOKEN(STR_16KB),     value = 2,    flags = RESET_REQUIRED;

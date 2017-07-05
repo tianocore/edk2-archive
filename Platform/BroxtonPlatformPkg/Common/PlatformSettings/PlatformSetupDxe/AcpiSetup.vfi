@@ -1,7 +1,7 @@
 // /** @file
 //  ACPI Setup formset.
 //
-//  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -21,7 +21,7 @@ form formid = ACPI_SETUP_FORM_ID,
     oneof varid   = SETUP_DATA.PciExpNative,
       prompt      = STRING_TOKEN(STR_ACPI_PCIE_NATIVE_PROMPT),
       help        = STRING_TOKEN(STR_ACPI_PCIE_NATIVE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
       option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
   endif; // suppressif
@@ -30,7 +30,7 @@ form formid = ACPI_SETUP_FORM_ID,
     oneof varid   = SETUP_DATA.NativeAspmEnable,
       prompt      = STRING_TOKEN(STR_NATIVE_ASPM_PROMPT),
       help        = STRING_TOKEN(STR_NATIVE_ASPM_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | RESET_REQUIRED;
       option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | RESET_REQUIRED;
     endoneof;
   endif; // suppressif
@@ -38,8 +38,8 @@ form formid = ACPI_SETUP_FORM_ID,
   oneof varid   = SETUP_DATA.IrmtConfiguration,
     prompt      = STRING_TOKEN(STR_IRMT),
     help        = STRING_TOKEN(STR_IRMT_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
   endoneof;
 
   oneof varid   = Setup.LowPowerS0Idle,
@@ -53,38 +53,38 @@ form formid = ACPI_SETUP_FORM_ID,
     oneof varid   = SETUP_DATA.TenSecondPowerButtonEnable,
       prompt      = STRING_TOKEN(STR_10SEC_POWER_BUTTON_ENABLE),
       help        = STRING_TOKEN(STR_10SEC_POWER_BUTTON_ENABLE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     oneof varid     = SETUP_DATA.PciDelayOptimizationEcr,
       prompt      = STRING_TOKEN(STR_PCI_DELAY_OPTIMIZATION_ECR),
       help        = STRING_TOKEN(STR_PCI_DELAY_OPTIMIZATION_ECR_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
   endif; // suppressif
 
   oneof varid   = SETUP_DATA.CSNotifyEC,
     prompt      = STRING_TOKEN(STR_NOTIFY_EC),
     help        = STRING_TOKEN(STR_NOTIFY_EC_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
   endoneof;
 
   suppressif NOT ideqval SETUP_DATA.CSNotifyEC == 1;
     oneof varid   = SETUP_DATA.CSDebugLightEC,
       prompt      = STRING_TOKEN(STR_DEBUG_LT_EC),
       help        = STRING_TOKEN(STR_DEBUG_LT_EC_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     oneof varid   = SETUP_DATA.EcLowPowerMode,
       prompt      = STRING_TOKEN(STR_EC_LOWPOWER_MODE),
       help        = STRING_TOKEN(STR_EC_LOWPOWER_MODE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
   endif; // suppressif
 

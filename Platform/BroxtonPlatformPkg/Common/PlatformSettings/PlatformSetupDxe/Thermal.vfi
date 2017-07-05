@@ -1,7 +1,7 @@
 // /** @file
 //  Thermal Setup formset.
 //
-//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -23,8 +23,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid    = Setup.AutoThermalReporting,
       prompt      = STRING_TOKEN(STR_THERMAL_REPORTING_PROMPT),
       help        = STRING_TOKEN(STR_THERMAL_REPORTING_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags =  RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags =  RESET_REQUIRED;
     endoneof;
 
   suppressif ideqval Setup.EnableDptf == 0x1 OR ideqval Setup.AutoThermalReporting == 0x1;
@@ -214,22 +214,22 @@ form formid = THERMAL_FORM_ID,
     oneof   varid   = Setup.DptfDisplayDevice,
       prompt      = STRING_TOKEN(STR_DPTF_DISPLAY_PROMPT),
       help        = STRING_TOKEN(STR_DPTF_DISPLAY_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     oneof varid    = Setup.DptfFanDevice,
       prompt      = STRING_TOKEN(STR_FAN_DPTF_PROMPT),
       help        = STRING_TOKEN(STR_FAN_DPTF_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     oneof varid    = Setup.EnableSen1Participant,
       prompt      = STRING_TOKEN(STR_SEN1_DEVICE_PROMPT),
       help        = STRING_TOKEN(STR_PROC_MEMORY_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval Setup.EnableSen1Participant == 0;
@@ -304,8 +304,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnablePowerParticipant,
       prompt      = STRING_TOKEN(STR_POWER_DEVICE),
       help        = STRING_TOKEN(STR_POWER_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnablePowerParticipant == 0;
@@ -327,8 +327,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableGen1Participant,
       prompt      = STRING_TOKEN(STR_GEN1_DEVICE),
       help        = STRING_TOKEN(STR_GEN1_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableGen1Participant == 0;
@@ -390,8 +390,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableGen2Participant,
       prompt      = STRING_TOKEN(STR_GEN2_DEVICE),
       help        = STRING_TOKEN(STR_GEN2_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableGen2Participant == 0;
@@ -453,8 +453,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableGen3Participant,
       prompt      = STRING_TOKEN(STR_GEN3_DEVICE),
       help        = STRING_TOKEN(STR_GEN3_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableGen3Participant == 0;
@@ -516,8 +516,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableGen4Participant,
       prompt      = STRING_TOKEN(STR_GEN4_DEVICE),
       help        = STRING_TOKEN(STR_GEN4_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableGen4Participant == 0;
@@ -640,8 +640,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableVS1Participant,
       prompt      = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE1),
       help        = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableVS1Participant == 0;
@@ -694,8 +694,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableVS2Participant,
       prompt      = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE2),
       help        = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableVS2Participant == 0;
@@ -748,8 +748,8 @@ form formid = THERMAL_FORM_ID,
     oneof varid     = SETUP_DATA.EnableVS3Participant,
       prompt      = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE3),
       help        = STRING_TOKEN(STR_VIRTUAL_SENSOR_DEVICE_HELP),
-      option text = STRING_TOKEN(STR_DISABLED),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLED),  value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
     endoneof;
 
     suppressif ideqval SETUP_DATA.EnableVS3Participant == 0;

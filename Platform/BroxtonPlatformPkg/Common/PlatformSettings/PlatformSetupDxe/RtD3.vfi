@@ -1,7 +1,7 @@
 // /** @file
 //  RtD3 Setup formset.
 //
-//  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -21,8 +21,8 @@
     oneof varid     = Setup.Rtd3Support,
               prompt      = STRING_TOKEN(STR_RTD3),
               help        = STRING_TOKEN(STR_RTD3_HELP),
-              option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-              option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+              option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+              option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
     endoneof;
     
     suppressif ideqval Setup.Rtd3Support == 0x0;
@@ -30,8 +30,8 @@
       oneof varid   = Setup.ConsolidatedPR,
           prompt      = STRING_TOKEN(STR_CONSOLIDATED_POWER_RESOURCE_PROMPT),
           help        = STRING_TOKEN(STR_CONSOLIDATED_POWER_RESOURCE_PROMPT_HELP),
-          option text = STRING_TOKEN(STR_DISABLED),	value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED),	value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE),	value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE),	value = 1, flags = RESET_REQUIRED;
         endoneof;
       
 
@@ -133,8 +133,8 @@
       oneof varid     = Setup.PstateCapping,
           prompt      = STRING_TOKEN(STR_RTD3_PSTATE_CAPPING),
           help        = STRING_TOKEN(STR_RTD3_PSTATE_CAPPING_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3UsbPt1,
@@ -142,13 +142,13 @@
           help        = STRING_TOKEN(STR_RTD3_USB_PORT_HELP),
           option text = STRING_TOKEN(STR_HIGHSPEED), value = 1, flags = RESET_REQUIRED;
           option text = STRING_TOKEN(STR_SUPERSPEED), value = 2, flags = RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3UsbPt2,
           prompt      = STRING_TOKEN(STR_RTD3_USB_PORT2),
           help        = STRING_TOKEN(STR_RTD3_USB_PORT_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
           option text = STRING_TOKEN(STR_HIGHSPEED), value = 1, flags = RESET_REQUIRED;
           option text = STRING_TOKEN(STR_SUPERSPEED), value = 2, flags = RESET_REQUIRED;
       endoneof;
@@ -156,42 +156,42 @@
       oneof varid     = Setup.RTD3I2C0SensorHub,
           prompt      = STRING_TOKEN(STR_RTD3_I2C0_SENSOR),
           help        = STRING_TOKEN(STR_RTD3_I2C0_SENSOR_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3ZPODD,
           prompt      = STRING_TOKEN(STR_RTD3_ZPODD),
           help        = STRING_TOKEN(STR_RTD3_ZPODD_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3Camera,
           prompt      = STRING_TOKEN(STR_RTD3_CAMERA),
           help        = STRING_TOKEN(STR_RTD3_CAMERA_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3SataPort1,
           prompt      = STRING_TOKEN(STR_RTD3_SATAPORT1),
           help        = STRING_TOKEN(STR_RTD3_SATAPORT_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3SataPort2,
           prompt      = STRING_TOKEN(STR_RTD3_SATAPORT2),
           help        = STRING_TOKEN(STR_RTD3_SATAPORT_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-          option text = STRING_TOKEN(STR_ENABLED), value = 1, flags = RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = RESET_REQUIRED;
       endoneof;
 
       oneof varid     = Setup.RTD3SataPort3,
           prompt      = STRING_TOKEN(STR_RTD3_SATAPORT3),
           help        = STRING_TOKEN(STR_RTD3_SATAPORT_HELP),
-          option text = STRING_TOKEN(STR_DISABLED), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+          option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
           option text = STRING_TOKEN(STR_MINICARD15), value = 1, flags = RESET_REQUIRED;
           option text = STRING_TOKEN(STR_MINICARD33), value = 2, flags = RESET_REQUIRED;
       endoneof;

@@ -68,8 +68,8 @@ form formid = SECURITY_CONFIGURATION_FORM_ID,
   oneof   varid   = Setup.SecEnable,
     prompt      = STRING_TOKEN(STR_SEC_SETTING_PROMPT),
     help        = STRING_TOKEN(STR_SEC_SETTING_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value=0x00, flags=RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED), value=0x01,  flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value=0x01,  flags=DEFAULT | RESET_REQUIRED;
   endoneof;
   endif;
   endif;
@@ -79,23 +79,23 @@ form formid = SECURITY_CONFIGURATION_FORM_ID,
   oneof   varid   = Setup.SecFlashUpdate,
     prompt      = STRING_TOKEN(STR_SEC_FLASH_UPDATE_PROMPT),
     help        = STRING_TOKEN(STR_SEC_FLASH_UPDATE_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value=0x00, flags=DEFAULT | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED), value=0x01, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value=0x01, flags=RESET_REQUIRED;
   endoneof;
 
   oneof   varid   = Setup.SecFirmwareUpdate,
     prompt      = STRING_TOKEN(STR_SEC_FIRMWARE_UPDATE_PROMPT),
     help        = STRING_TOKEN(STR_SEC_FIRMWARE_UPDATE_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value=0x00, flags=DEFAULT | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED), value=0x01, flags=RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags=DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value=0x01, flags=RESET_REQUIRED;
   endoneof;
   endif;
 
   oneof   varid   = Setup.SeCEOPEnable,
     prompt      = STRING_TOKEN(STR_SEC_EOP_PROMPT),
     help        = STRING_TOKEN(STR_SEC_EOP_HELP),
-    option text = STRING_TOKEN(STR_DISABLED), value=0x00, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLED), value=0x01, flags = DEFAULT | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE), value=0x00, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE), value=0x01, flags = DEFAULT | RESET_REQUIRED;
   endoneof;
 
   grayoutif ideqval Setup.SeCEOPEnable == 1;
