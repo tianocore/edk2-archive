@@ -31,26 +31,6 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
 
   subtitle text = STRING_TOKEN(STR_NULL_STRING);
 
-  subtitle text = STRING_TOKEN(STR_APEIBERT_STRING);
-  oneof varid  = Setup.APEIBERT,
-    prompt   = STRING_TOKEN (STR_APEIBERT_PROMPT),
-    help     = STRING_TOKEN (STR_APEIBERT_HELP),
-    option text = STRING_TOKEN (STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN (STR_DISABLE), value = 0, flags = RESET_REQUIRED;
-  endoneof;
-  subtitle text = STRING_TOKEN(STR_NULL_STRING);
-
-  subtitle text = STRING_TOKEN(STR_ACPIMEMDBG_STRING);
-
-  oneof varid  = Setup.ACPIMemDbg,
-    prompt   = STRING_TOKEN (STR_ACPIMEMDBG_SWTICH),
-    help     = STRING_TOKEN (STR_ACPIMEMDBG_SWTICH_HELP),
-    option text = STRING_TOKEN (STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN (STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
-  endoneof;
-
-  subtitle text = STRING_TOKEN(STR_NULL_STRING);
-
   subtitle text = STRING_TOKEN(STR_TXE_DEBUG_OPTION_STRING);
 
   oneof varid   = SETUP_DATA.SeCEOPEnable,
@@ -58,13 +38,6 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
     help        = STRING_TOKEN(STR_TXE_END_OF_POST_HELP),
     option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
     option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-  endoneof;
-
-  oneof varid   = SETUP_DATA.SeCLockDir,
-    prompt      = STRING_TOKEN(STR_TXE_LOCK_DIR_PROMPT),
-    help        = STRING_TOKEN(STR_TXE_LOCK_DIR_HELP),
-    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
   endoneof;
 
   subtitle text = STRING_TOKEN(STR_NULL_STRING);
@@ -119,13 +92,6 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
 
 
   subtitle text = STRING_TOKEN(STR_OS_DNX_STRING);
-
-  oneof varid  = Setup.OSDnX,
-    prompt   = STRING_TOKEN (STR_OS_DNX_ENABLE),
-    help     = STRING_TOKEN (STR_OS_DNX_ENABLE_HELP),
-    option text = STRING_TOKEN (STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN (STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-  endoneof;
 
     oneof varid   = Setup.IshI2c0PullUp,
       prompt      = STRING_TOKEN (STR_ISH_I2C0_GPIO_PULL_ENABLE_PROMPT),
@@ -183,17 +149,6 @@ form formid = DEBUG_CONFIGURATION_FORM_ID,
             option text = STRING_TOKEN(STR_TOPA_OUTPUT),         value = 1, flags = RESET_REQUIRED;
           endoneof;
       endif;
-
-#ifdef CRASHDUMP_SUPPORT
-  subtitle text = STRING_TOKEN(STR_NULL_STRING);
-  oneof varid = Setup.CrashDump,
-    prompt   = STRING_TOKEN(STR_CRASHDUMP_PROMPT),
-    help     = STRING_TOKEN(STR_CRASHDUMP_HELP),
-    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-  endoneof;
-#endif 
- 
 
   subtitle text = STRING_TOKEN(STR_NULL_STRING);
   subtitle text = STRING_TOKEN(STR_DATA_CLEAR_STRING);
