@@ -1,7 +1,7 @@
 ## @file
 #  Component description file for the Broxton RC DXE drivers.
 #
-#  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -16,7 +16,6 @@
 #
 # CPU
 #
-  $(PLATFORM_SI_PACKAGE)/Cpu/CpuInit/Dxe/CpuInitDxe.inf
   !if $(PPM_ENABLE) == TRUE
     $(PLATFORM_SI_PACKAGE)/Cpu/PowerManagement/Dxe/PowerMgmtDxe.inf
     $(PLATFORM_SI_PACKAGE)/Cpu/PowerManagement/Smm/PowerMgmtSmm.inf

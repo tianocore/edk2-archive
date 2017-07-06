@@ -43,6 +43,7 @@
       MpInitLib|UefiCpuPkg/Library/MpInitLib/DxeMpInitLib.inf
   }
   
+  UefiCpuPkg/CpuS3DataDxe/CpuS3DataDxe.inf
   UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
   MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
 
@@ -246,7 +247,6 @@
   $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformDxe/PlatformDxe.inf
 
   $(PLATFORM_PACKAGE_COMMON)/SaveMemoryConfigDxe/SaveMemoryConfigDxe.inf
-  $(PLATFORM_PACKAGE_COMMON)/Features/S3/SmramSaveInfoHandlerSmm/SmramSaveInfoHandlerSmm.inf
 
 !if $(GOP_DRIVER_ENABLE) == TRUE
   $(PLATFORM_PACKAGE_COMMON)/Console/PlatformGopPolicyDxe/PlatformGopPolicyDxe.inf

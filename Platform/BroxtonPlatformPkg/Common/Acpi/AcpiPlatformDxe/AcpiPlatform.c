@@ -16,6 +16,7 @@
 #include <Guid/AcpiTableStorage.h>
 #include <Guid/EfiVpdData.h>
 #include <Guid/GlobalVariable.h>
+#include <Protocol/CpuGlobalNvsArea.h>
 #include <Guid/PlatformInfo.h>
 #include <Guid/PlatformCpuInfo.h>
 #include <Guid/SetupVariable.h>
@@ -42,6 +43,7 @@
 #include <Library/DxeVtdLib.h>
 #include <Library/SideBandLib.h>
 #include <Library/SteppingLib.h>
+#include <Private/CpuInitDataHob.h>
 #include "PlatformBaseAddresses.h"
 
 #if (ENBDT_PF_ENABLE == 0)
@@ -66,6 +68,8 @@ CHAR16    gACPIOSFRMfgStringVariableName[]    = ACPI_OSFR_MFG_STRING_VARIABLE_NA
 
 EFI_GLOBAL_NVS_AREA_PROTOCOL  mGlobalNvsArea;
 EFI_CPU_IO2_PROTOCOL          *mCpuIo;
+CPU_INIT_DATA_HOB             *mCpuInitDataHob = NULL;
+CPU_GLOBAL_NVS_AREA_PROTOCOL  CpuGlobalNvsAreaProtocol;
 
 BOOLEAN                       mFirstNotify;
 EFI_PLATFORM_INFO_HOB         *mPlatformInfo;
@@ -1317,6 +1321,7 @@ AcpiPlatformEntryPoint (
   CHAR16                        LocalGuidString[GUID_CHARS_NUMBER];
   UINTN                         Data32;
   UINT32                        VariableAttributes;
+  VOID                          *Hob;
 
   mFirstNotify      = FALSE;
   TableVersion      = EFI_ACPI_TABLE_VERSION_2_0;
@@ -1998,6 +2003,35 @@ AcpiPlatformEntryPoint (
                   &mGlobalNvsArea,
                   NULL
                   );
+
+
+
+  //
+  // Get CPU Init Data Hob
+  //
+  Hob = GetFirstGuidHob (&gCpuInitDataHobGuid);
+  if (Hob == NULL) {
+    DEBUG ((DEBUG_ERROR, "CPU Data HOB not available\n"));
+    ASSERT_EFI_ERROR (EFI_NOT_FOUND);
+  }
+  mCpuInitDataHob    = (CPU_INIT_DATA_HOB *) ((UINTN) Hob + sizeof (EFI_HOB_GUID_TYPE));
+
+  //
+  // Get CPU Global NVS protocol pointer
+  //
+  CpuGlobalNvsAreaProtocol.Area = (CPU_GLOBAL_NVS_AREA *) (UINTN) mCpuInitDataHob->CpuGnvsPointer;
+  CpuGlobalNvsAreaProtocol.Area->DtsAcpiEnable  = 0;
+
+  //
+  // Install Cpu Power management GlobalNVS Area protocol
+  //
+  Status = gBS->InstallMultipleProtocolInterfaces (
+                  &Handle,
+                  &gCpuGlobalNvsAreaProtocolGuid,
+                  &CpuGlobalNvsAreaProtocol,
+                  NULL
+                  );
+  ASSERT_EFI_ERROR (Status);
 
   //
   // Read tables from the storage file.

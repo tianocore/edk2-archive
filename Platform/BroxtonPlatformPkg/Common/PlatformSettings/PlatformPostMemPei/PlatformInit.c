@@ -19,7 +19,6 @@
 #include <Guid/PttPTPInstanceGuid.h>
 #include <Ppi/Smbus2.h>
 #include <Library/PcdLib.h>
-#include <Private/Library/CpuS3Lib.h>
 #include <Library/HeciMsgLib.h>
 #include <Ppi/SeCUma.h>
 
@@ -30,13 +29,6 @@
   #pragma optimize ("", off)
 #endif
 
-EFI_STATUS
-EFIAPI
-CpuS3SmmAccessNotifyCallback (
-  IN EFI_PEI_SERVICES           **PeiServices,
-  IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,
-  IN VOID                       *Ppi
-  );
 
 static EFI_PEI_RESET_PPI            mResetPpi = { IchReset };
 
@@ -68,11 +60,6 @@ static EFI_PEI_PPI_DESCRIPTOR       mPpiList[] = {
 };
 
 static EFI_PEI_NOTIFY_DESCRIPTOR    mNotifyList[] = {
-  {
-    EFI_PEI_PPI_DESCRIPTOR_NOTIFY_CALLBACK,
-    &gPeiSmmAccessPpiGuid,
-    CpuS3SmmAccessNotifyCallback
-  },
   {
     (EFI_PEI_PPI_DESCRIPTOR_NOTIFY_CALLBACK | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
     &gEfiEndOfPeiSignalPpiGuid,
@@ -540,23 +527,6 @@ PeiGetSectionFromFv (
       }
     }
   }
-
-  return EFI_SUCCESS;
-}
-
-
-EFI_STATUS
-EFIAPI
-CpuS3SmmAccessNotifyCallback (
-  IN EFI_PEI_SERVICES           **PeiServices,
-  IN EFI_PEI_NOTIFY_DESCRIPTOR  *NotifyDescriptor,
-  IN VOID                       *Ppi
-  )
-{
-  //
-  // Restore Cpu settings only during S3 resume
-  //
-  S3InitializeCpu (PeiServices);
 
   return EFI_SUCCESS;
 }

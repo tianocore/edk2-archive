@@ -55,7 +55,6 @@
   CpuPolicyLib
   TimerLib
   ScPlatformLib
-  CpuS3Lib
   SeCUmaLib
 
 [Ppis]

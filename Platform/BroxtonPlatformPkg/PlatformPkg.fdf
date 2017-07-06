@@ -494,11 +494,8 @@ APRIORI DXE {
   INF MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableSmm/FirmwarePerformanceSmm.inf
 !endif
 
-!if $(TOOL_CHAIN_TAG) == GCC5
   INF UefiCpuPkg/CpuDxe/CpuDxe.inf
-!else
-  INF $(PLATFORM_SI_PACKAGE)/Cpu/CpuInit/Dxe/CpuInitDxe.inf
-!endif
+  INF UefiCpuPkg/CpuS3DataDxe/CpuS3DataDxe.inf
 
   INF IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf
 
@@ -557,9 +554,6 @@ APRIORI DXE {
   INF $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformInfoDxe/PlatformInfoDxe.inf
   #INF $(TABLET_PLATFORM_PACKAGE)/PlatformCpuInfo/PlatformCpuInfoDxe.inf
   INF $(PLATFORM_PACKAGE_COMMON)/SaveMemoryConfigDxe/SaveMemoryConfigDxe.inf
-!if $(TOOL_CHAIN_TAG) != GCC5
-  INF $(PLATFORM_PACKAGE_COMMON)/Features/S3/SmramSaveInfoHandlerSmm/SmramSaveInfoHandlerSmm.inf
-!endif
 
 !if $(GOP_DRIVER_ENABLE) == TRUE
   INF $(PLATFORM_PACKAGE_COMMON)/Console/PlatformGopPolicyDxe/PlatformGopPolicyDxe.inf
