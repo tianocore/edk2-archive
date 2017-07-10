@@ -83,13 +83,6 @@ BgUpdateFspmUpd (
     }
 
   }
-  //
-  // override RankEnable settings for Benson
-  //
-  FspUpdRgn->FspmConfig.Ch0_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch1_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch2_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch3_RankEnable   = 1;
 
   DEBUG ((DEBUG_INFO, "UpdateFspmUpd - gEfiPlatformInfoGuid\n"));
   Hob.Raw = GetFirstGuidHob (&gEfiPlatformInfoGuid);
@@ -104,10 +97,37 @@ BgUpdateFspmUpd (
     ASSERT (FALSE);
   }
 
+  FspUpdRgn->FspmConfig.Package         = 1;
+  FspUpdRgn->FspmConfig.Profile         = 11;
+  FspUpdRgn->FspmConfig.MemoryDown      = 1;
+  FspUpdRgn->FspmConfig.DDR3LPageSize   = 0;
+  FspUpdRgn->FspmConfig.DDR3LASR        = 0;
+  FspUpdRgn->FspmConfig.MemorySizeLimit = 0x1800;
+  FspUpdRgn->FspmConfig.DIMM0SPDAddress = 0;
+  FspUpdRgn->FspmConfig.DIMM1SPDAddress = 0;
+  FspUpdRgn->FspmConfig.DDR3LPageSize   = 0;
+  FspUpdRgn->FspmConfig.DDR3LASR        = 0;
+
+  FspUpdRgn->FspmConfig.Ch0_RankEnable   = 1;
+  FspUpdRgn->FspmConfig.Ch0_DeviceWidth  = 2;
   FspUpdRgn->FspmConfig.Ch0_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch0_Option       = 3;
+
+  FspUpdRgn->FspmConfig.Ch1_RankEnable   = 1;
+  FspUpdRgn->FspmConfig.Ch1_DeviceWidth  = 2;
   FspUpdRgn->FspmConfig.Ch1_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch1_Option       = 3;
+
+  FspUpdRgn->FspmConfig.Ch2_RankEnable   = 1;
+  FspUpdRgn->FspmConfig.Ch2_DeviceWidth  = 2;
   FspUpdRgn->FspmConfig.Ch2_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch2_Option       = 3;
+
+  FspUpdRgn->FspmConfig.Ch3_RankEnable   = 1;
+  FspUpdRgn->FspmConfig.Ch3_DeviceWidth  = 2;
   FspUpdRgn->FspmConfig.Ch3_DramDensity  = 2;
+  FspUpdRgn->FspmConfig.Ch3_Option       = 3;
+
   return EFI_SUCCESS;
 }
 
