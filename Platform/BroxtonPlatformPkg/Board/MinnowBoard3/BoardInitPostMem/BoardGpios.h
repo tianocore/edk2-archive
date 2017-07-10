@@ -80,16 +80,16 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_N[] =
   BXT_GPIO_PAD_CONF(L"GPIO_14",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA     ,NA   ,     NA, GPIO_PADBAR+0x0070,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_15",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA     ,NA   ,     NA, GPIO_PADBAR+0x0078,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_16",                  M0   ,    GPI   ,  NA   ,  NA    ,   Edge     , Wake_Disabled, P_20K_H, Inverted,IOAPIC,  HizRx0I ,DisPuPd, GPIO_PADBAR+0x0080,  NORTH),//Feature:SIM Card Detect        Net in Sch: SIM_CON_CD1, falling edge trigger
-  BXT_GPIO_PAD_CONF(L"GPIO_17",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0088,  NORTH),//Feature: LB
-  BXT_GPIO_PAD_CONF(L"GPIO_18",                  M0   ,    GPI   , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0090,  NORTH),//Feature: LB
-  BXT_GPIO_PAD_CONF(L"GPIO_19",                  M0   ,    GPI   , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0098,  NORTH),//Feature: LB
+  BXT_GPIO_PAD_CONF(L"GPIO_17",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0088,  NORTH),//Feature: LB 
+  BXT_GPIO_PAD_CONF(L"GPIO_18",                  M0   ,    GPI   , GPIO_D,  NA    ,   Edge     , Wake_Disabled,  P_NONE,    NA   ,    NA,    TxDRxE,     NA, GPIO_PADBAR+0x0090,  NORTH),
+  BXT_GPIO_PAD_CONF(L"GPIO_19",                  M0   ,    GPI   , GPIO_D,  NA    ,   Edge     , Wake_Disabled,  P_NONE,    NA   ,    NA,    TxDRxE,     NA, GPIO_PADBAR+0x0098,  NORTH),
   BXT_GPIO_PAD_CONF(L"GPIO_20",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00A0,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_21",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00A8,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_23",                  M0   ,    GPO   , NA   ,   HI    ,   NA      ,  Wake_Disabled, P_20K_L,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00B8,  NORTH),//Feature: LB USB Power in LFH
   BXT_GPIO_PAD_CONF(L"GPIO_24",                  M5   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,   NA    ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00C0,  NORTH),//SATA_DEVSLP0
   BXT_GPIO_PAD_CONF(L"GPIO_25",                  M0   ,    GPI   , ACPI_D,  NA    ,   Level    , Wake_Disabled, P_20K_H, Inverted,   SCI,     NA   ,     NA, GPIO_PADBAR+0x00C8,  NORTH),//Feature:ODD MD/DA SCI          Net in Sch: SATA_ODD_DA_IN
   BXT_GPIO_PAD_CONF(L"GPIO_26",                  M5   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00D0,  NORTH),//SATA_LEDN
-  BXT_GPIO_PAD_CONF(L"GPIO_27",                  M0   ,    GPI   ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00D8,  NORTH),//Feature:DFU                    Net in Sch: NFC_DFU
+  BXT_GPIO_PAD_CONF(L"GPIO_27",                  M0   ,    GPI   , GPIO_D,  NA    ,   Edge     , Wake_Disabled, P_NONE,   NA    ,    NA,    TxDRxE,     NA, GPIO_PADBAR+0x00D8,  NORTH),      
   BXT_GPIO_PAD_CONF(L"GPIO_28",                  M2   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,IOS_Masked,   SAME, GPIO_PADBAR+0x00E0,  NORTH),//                               Net in Sch: ISH_GPIO10
   BXT_GPIO_PAD_CONF(L"GPIO_29",                  M2   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,IOS_Masked,   SAME, GPIO_PADBAR+0x00E8,  NORTH),//                               Net in Sch: ISH_GPIO11
   BXT_GPIO_PAD_CONF(L"GPIO_30",                  M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,IOS_Masked,   SAME, GPIO_PADBAR+0x00F0,  NORTH),//                               Net in Sch: ISH_GPIO12
@@ -214,8 +214,8 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_NW [] =
   BXT_GPIO_PAD_CONF(L"GPIO_109 GP_SSP_0_RXD",    M1   ,    NA    , NA    ,  NA     ,  NA      ,  Wake_Disabled, P_20K_H,   NA    ,    NA,HizRx0I   ,  EnPd,   GPIO_PADBAR+0x0200,  NORTHWEST),
   BXT_GPIO_PAD_CONF(L"GPIO_110 GP_SSP_0_TXD",    M1   ,    NA    , NA    ,  NA     ,  NA      ,  Wake_Disabled, P_20K_H,   NA    ,    NA,HizRx0I   ,  EnPd,   GPIO_PADBAR+0x0208,  NORTHWEST),
   BXT_GPIO_PAD_CONF(L"GPIO_111 GP_SSP_1_CLK",    M0   ,    GPI   ,GPIO_D,  NA     ,   NA      ,Wake_Disabled, P_20K_L,    NA   ,    NA  ,NA        ,     NA,  GPIO_PADBAR+0x0210,  NORTHWEST),//Not used on RVP
-  BXT_GPIO_PAD_CONF(L"GPIO_112 GP_SSP_1_FS0",    M1   ,    NA    , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0218,  NORTHWEST),
-  BXT_GPIO_PAD_CONF(L"GPIO_113 GP_SSP_1_FS1",    M1   ,    NA    , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0220,  NORTHWEST),
+  BXT_GPIO_PAD_CONF(L"GPIO_112 GP_SSP_1_FS0",    M2   ,    NA    , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0218,  NORTHWEST),
+  BXT_GPIO_PAD_CONF(L"GPIO_113 GP_SSP_1_FS1",    M2   ,    NA    , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0220,  NORTHWEST),
   BXT_GPIO_PAD_CONF(L"GPIO_116 GP_SSP_1_RXD",    M2   ,    NA    , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0228,  NORTHWEST),//Feature: LPSS UART Hdr
   BXT_GPIO_PAD_CONF(L"GPIO_117 GP_SSP_1_TXD",    M2   ,    NA    , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0230,  NORTHWEST),//Feature: LPSS UART Hdr
   BXT_GPIO_PAD_CONF(L"GPIO_118 GP_SSP_2_CLK",    M0   ,    GPIO  , NA   ,   NA    ,   NA      ,  Wake_Disabled, P_20K_L,   NA    ,    NA,NA        ,    NA,   GPIO_PADBAR+0x0238,  NORTHWEST),
