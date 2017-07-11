@@ -6,7 +6,7 @@ function Usage ( ) {
   echo
   echo "Script to build BIOS firmware and stitch the entire IFWI."
   echo
-  echo "Usage: Build_IFWI.bat [options]  PlatformType  BuildTarget  "
+  echo "Usage: Build_IFWI.sh [options]  PlatformType  BuildTarget  "
   echo
   echo 
   echo "       /yL [option]  :   Enable SPI lock"
@@ -15,7 +15,8 @@ function Usage ( ) {
   echo
   echo "       See  Stitch/Stitch_Config.txt  for additional stitching settings."
   echo
-  echo
+  echo "Press any key......"
+  read
   exit 0
 }
 
@@ -71,6 +72,8 @@ for (( i=1; i<=$#; ))
 
 ## Require 2 input parameters
 if [ "$2" == "" ]; then
+  echo "Not Enough Arguments Provided"
+  echo "Please review the Help screen"
   Usage
 fi
 

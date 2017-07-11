@@ -7,7 +7,7 @@ function Usage() {
   echo "***************************************************************************"
   echo "Build BIOS rom for VLV platforms."
   echo
-  echo "Usage: bld_vlv.bat  PlatformType [Build Target]"
+  echo "Usage: bld_vlv.sh  PlatformType [Build Target]"
   echo
   echo
   echo "       Platform Types:  MNW2"
