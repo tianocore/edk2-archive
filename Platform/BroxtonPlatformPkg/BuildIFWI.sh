@@ -13,41 +13,16 @@
 ##**********************************************************************
 ## Function define
 ##**********************************************************************
-function Usage() {
+function Usage () {
   echo
   echo "Script to build BIOS firmware and stitch the entire IFWI."
   echo
-  echo "Usage: BuildIFWI.bat [options] ^<PlatformType^> ^<BuildTarget^> [IFWI Suffix]"
+  echo "Usage: BuildIFWI.sh Build_Flags Platform_Type Build_Target"
   echo
-  echo "       /?    Display this help text                                                       "
-  echo "       /q    Quiet mode. Only display Fatal Errors (slightly faster)                      "
-  echo "       /l    Log a copy of the build output to EDK2.log                                   "
-  echo "       /c    CleanAll before building                                                     "
-  echo "       /w    Enabled WinDbg module for build                                              "
-  echo "       /sv   Build with SVBIOS flags enabled                                              "
-  echo "       /ppv  Build with PPV flags enabled                                                 "
-  echo "       /rvv  Build with RVV BXTM flags enabled                                            "
-  echo "       /rvvp Build with RVVP BXTP flags enabled                                           "
-  echo "       /x64  Set Arch to X64  (default: IA32)                                             "
-  echo "       /sata Enable SATA Build                                                            "
-  echo "       /pcie Enable PCIe Build                                                            "
-  echo "       /nG   Not update GOP driver per StitchConfig (override src version)                "
-  echo "       /uM   Update Microcode per StitchConfig  (override src version)                    "
-  echo
-  echo "      Set ONLY ONE of the following:                                                      "
-  echo "       /vp   Set special build flag for ALL Pre-Si                                        "
-  echo "       /csle Set special build flag for C-SLE                                             "
-  echo
-  echo "     Platform Types:   $eNB_RVP $Phblt_RVP $Phblt_Die1_RVP $Embd_RVP                      "
-  echo "                      APLK - Netbook/Desktop                                              "
-  echo "                      BXTM - Phablet build for BXT-A                                      "
-  echo "                      BXTM1 - Phablet build for BXT Die1(E0)                              "
-  echo "                      APLI - Embedded/IVI build (IOTG)                                     "
-  echo
-  echo "       Build Targets:    Release, Debug                                                   "
-  echo "       IFWI Suffix:      Suffix to append to end of IFWI filename (default: MM_DD_YYYY)   "
-  echo
-  echo "       See  Stitch/Stitch_Config.txt  for additional stitching settings.                  "
+  echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B)"
+  echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B)"
+  echo "       Platform_Type [optional]:    Broxton  "                   
+  echo "       Build_Target:                Release, Debug       "
   echo
   echo "Press any key......"
   read
@@ -74,6 +49,12 @@ Embd_RVP=APLI
 
 ## Parse Optional arguments
 if [ "$1" == "/?" ]; then
+  Usage
+fi
+
+if [ "$1" == "" ]; then
+  echo "Not Enough Arguments Provided"
+  echo "Please review the Help screen"
   Usage
 fi
 
@@ -153,7 +134,8 @@ for (( i=1; i<=$#; ))
 ## Require 2 input parameters
 if [ "$2" == "" ]; then
   echo "Not Enough Arguments Provided"
-  echo "Please review the Help screen "/?""
+  echo "Please review the Help screen"
+  Usage
 fi
 
 ## Assign required arguments

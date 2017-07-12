@@ -10,6 +10,25 @@
 #
 
 ##**********************************************************************
+## Function define
+##**********************************************************************
+function Usage () {
+  echo
+  echo "Script to build BIOS firmware and stitch the entire IFWI."
+  echo
+  echo "Usage: BuildBIOS.sh Build_Flags [PlatformName]  Target_Flag"
+  echo
+  echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B)"
+  echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B)"
+  echo "       PlatformName [optional]:     Broxton  "                   
+  echo "       Target_Flag:                 Release, Debug       "
+  echo
+  echo "Press any key......"
+  read
+  exit 0
+}
+
+##**********************************************************************
 ## Initial Setup
 ##**********************************************************************
 
@@ -19,6 +38,13 @@ Build_Flags=
 if [ "$1" == "/?" ]; then
   Usage
 fi
+
+if [ "$1" == "" ]; then
+  echo "Not Enough Arguments Provided"
+  echo "Please review the Help screen"
+  Usage
+fi
+
 
 ## Build Flags
 for (( i=1; i<=$#; ))
@@ -56,5 +82,5 @@ export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/P
 
 make -C BaseTools
 
-bash ./Platform/BroxtonPlatformPkg/BuildIFWI.sh $Build_Flags APLI $Target_Flag
+bash ./Platform/BroxtonPlatformPkg/BuildIFWI.sh $Build_Flags Broxton $Target_Flag
 
