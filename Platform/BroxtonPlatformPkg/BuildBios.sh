@@ -94,40 +94,7 @@ EDK_SOURCE=$WORKSPACE
 ## Optional arguments
 for (( i=1; i<=$#; ))
   do
-    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/Q" ]; then
-      Build_Flags="$Build_Flags --quiet"
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/L" ]; then
-      Build_Flags="$Build_Flags -j EDK2.log"
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/C" ]; then
-      echo "Removing previous Build files..."
-      if [ -d "Build" ]; then
-        rm -r Build
-      fi
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/W" ]; then
-      SrcDebug=TRUE
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/SV" ]; then
-      SV_BIOS_ENABLE=TRUE
-      SV_String=_SV_
-      Arch=X64
-      echo "-- Forcing to 64-bit for SV build --"
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/PPV" ]; then
-      PPV_BIOS_ENABLE=TRUE
-      SV_String=_PPV_
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/RVVP" ]; then
-      RVVP_BIOS_ENABLE=TRUE
-      SV_String=_RVVP_
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/RVV" ]; then
-      RVV_BIOS_ENABLE=TRUE
-      SV_String=_RVV_
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
+    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
@@ -135,12 +102,6 @@ for (( i=1; i<=$#; ))
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/A" ]; then
       FabId=A
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/VP" ]; then
-      VP_BIOS_ENABLE=TRUE
-      shift
-    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/CSLE" ]; then
-      CSLE_ENABLE=TRUE
       shift
     else
       break
@@ -151,7 +112,7 @@ for (( i=1; i<=$#; ))
 if [ "$2" == "" ]; then
   echo 
   echo "Not Enough Arguments Provided"
-  echo "Please review the Help screen "/?""
+  echo "Please review the Help screen"
   ErrorExit
 fi
 
