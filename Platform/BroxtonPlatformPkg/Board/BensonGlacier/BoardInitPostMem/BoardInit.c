@@ -81,7 +81,7 @@ BensonGlacierPostMemInitCallback (
   //
   // Set init function PCD
   //
-  PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) MultiPlatformInfoInit);
+  PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) BensonMultiPlatformInfoInit);
 
   //
   // Add init steps here

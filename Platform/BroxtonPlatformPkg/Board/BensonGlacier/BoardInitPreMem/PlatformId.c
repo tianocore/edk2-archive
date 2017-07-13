@@ -22,7 +22,7 @@
 
 EFI_STATUS
 EFIAPI
-GetEmbeddedBoardIdFabId(
+BensonGetEmbeddedBoardIdFabId(
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -89,7 +89,7 @@ GetEmbeddedBoardIdFabId(
                      (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00C8) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 2) | \
                      (((GpioPadRead (GetCommOffset (NORTH, 0x01E0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 3));
 
-  DEBUG ((DEBUG_INFO,  "BoardId from PMIC strap: %02X\n", *BoardId));
+  DEBUG ((DEBUG_INFO,  "BoardId: %02X\n", *BoardId));
 
   //
   // Fab_ID0: PMIC_I2C_SDA
@@ -147,7 +147,7 @@ GetEmbeddedBoardIdFabId(
                    (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00D8) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 2) | \
                    (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00E0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 3));
 
-  DEBUG ((EFI_D_INFO,  "FabId from PMIC strap: %02X\n", *FabId));
+  DEBUG ((EFI_D_INFO,  "FabId: %02X\n", *FabId));
 
 
   return EFI_SUCCESS;
@@ -156,7 +156,7 @@ GetEmbeddedBoardIdFabId(
 
 EFI_STATUS
 EFIAPI
-GetIVIBoardIdFabId (
+BensonGetIVIBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId

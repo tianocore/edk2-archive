@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef _MULTIPLATFORM_LIB_H_
-#define _MULTIPLATFORM_LIB_H_
+#ifndef _LEAFHILL_MULTIPLATFORM_LIB_H_
+#define _LEAFHILL_MULTIPLATFORM_LIB_H_
 
 #include <BoardFunctionsPei.h>
 #include <Guid/SetupVariable.h>

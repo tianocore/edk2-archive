@@ -81,7 +81,7 @@ MinnowBoard3PostMemInitCallback (
   //
   // Set init function PCD
   //
-  PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) MultiPlatformInfoInit);
+  PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) Minnow3MultiPlatformInfoInit);
 
   //
   // Add init steps here

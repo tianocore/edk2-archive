@@ -1,7 +1,7 @@
 /** @file
   Board Init driver.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -31,14 +31,14 @@ MinnowBoard3PreMemInit (
   IN PEI_BOARD_PRE_MEM_INIT_PPI *This
   );
 
-static PEI_BOARD_PRE_MEM_INIT_PPI mPreMemInitPpiInstance = {
+static PEI_BOARD_PRE_MEM_INIT_PPI mMinnow3PreMemInitPpiInstance = {
   MinnowBoard3PreMemInit
 };
 
 static EFI_PEI_PPI_DESCRIPTOR mMinnowBoard3PreMemInitPpi = {
   (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
   &gBoardPreMemInitPpiGuid,
-  &mPreMemInitPpiInstance
+  &mMinnow3PreMemInitPpiInstance
 };
 
 static EFI_PEI_PPI_DESCRIPTOR mMinnowBoard3PreMemInitDonePpi = {
@@ -77,7 +77,7 @@ MinnowBoard3PreMemInit (
   //
   // Pre Mem Board Init
   //
-  Status = GetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
+  Status = Minnow3GetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
 
   if (BoardId != (UINT8) BOARD_ID_MINNOW) {
     DEBUG ((EFI_D_INFO,  "Not a Minnow Board - skip\n"));

@@ -25,11 +25,11 @@
 
 **/
 VOID
-GpioGroupTierInit (
+Minnow3GpioGroupTierInit (
   IN EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
 {
-  DEBUG ((DEBUG_INFO, "GpioGroupTierInit Start\n"));
+  DEBUG ((DEBUG_INFO, "Minnow3GpioGroupTierInit Start\n"));
   switch (PlatformInfoHob->BoardId) {
     default:
       GpioSetGroupToGpeDwX (GPIO_BXTP_GROUP_7,  // map group 7 to GPE 0 ~ 31
@@ -38,13 +38,13 @@ GpioGroupTierInit (
       break;
   }
 
-  DEBUG ((DEBUG_INFO, "GpioGroupTierInit End\n"));
+  DEBUG ((DEBUG_INFO, "Minnow3GpioGroupTierInit End\n"));
 }
 
 
 EFI_STATUS
 EFIAPI
-MultiPlatformInfoInit (
+Minnow3MultiPlatformInfoInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN OUT EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
@@ -110,30 +110,30 @@ MultiPlatformInfoInit (
   //
   // Get GPIO table
   //
-  Status = MultiPlatformGpioTableInit (PeiServices, PlatformInfoHob);
+  Status = Minnow3MultiPlatformGpioTableInit (PeiServices, PlatformInfoHob);
   ASSERT_EFI_ERROR (Status);
 
   //
   // Program GPIO
   //
-  Status = MultiPlatformGpioProgram (PeiServices, PlatformInfoHob);
+  Status = Minnow3MultiPlatformGpioProgram (PeiServices, PlatformInfoHob);
 
   if (GetBxtSeries () == BxtP) {
-    GpioGroupTierInit (PlatformInfoHob);
+    Minnow3GpioGroupTierInit (PlatformInfoHob);
   }
 
   //
   // Update OemId
   //
-  Status = InitializeBoardOemId (PeiServices, PlatformInfoHob);
-  Status = InitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
+  Status = Minnow3InitializeBoardOemId (PeiServices, PlatformInfoHob);
+  Status = Minnow3InitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
 
   return EFI_SUCCESS;
 }
 
 
 EFI_STATUS
-InitializeBoardOemId (
+Minnow3InitializeBoardOemId (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   )
@@ -158,7 +158,7 @@ InitializeBoardOemId (
 }
 
 EFI_STATUS
-InitializeBoardSsidSvid (
+Minnow3InitializeBoardSsidSvid (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   )

@@ -13,8 +13,8 @@
 
 **/
 
-#ifndef __PLATFORM_ID_H__
-#define __PLATFORM_ID_H__
+#ifndef __LEAFHILL_PLATFORM_ID_H__
+#define __LEAFHILL_PLATFORM_ID_H__
 
 //
 // Strap Fw Cfg ID define
@@ -27,14 +27,14 @@
 
 EFI_STATUS
 EFIAPI
-GetFwCfgId (
+LeafHillGetFwCfgId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *FwCfgId
   );
 
 EFI_STATUS
 EFIAPI
-GetBoardIdFabId (
+LeafHillGetBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -42,7 +42,7 @@ GetBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetEmbeddedBoardIdFabId (
+LeafHillGetEmbeddedBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -50,7 +50,7 @@ GetEmbeddedBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetIVIBoardIdFabId (
+LeafHillGetIVIBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -58,21 +58,21 @@ GetIVIBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetDockId (
+LeafHillGetDockId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *DockId
   );
 
 EFI_STATUS
 EFIAPI
-GetOsSelPss (
+LeafHillGetOsSelPss (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *OsSelPss
   );
 
 EFI_STATUS
 EFIAPI
-GetBomIdPss (
+LeafHillGetBomIdPss (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BomIdPss
   );

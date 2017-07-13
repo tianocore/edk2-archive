@@ -13,8 +13,8 @@
 
 **/
 
-#ifndef __PLATFORM_ID_H__
-#define __PLATFORM_ID_H__
+#ifndef __BENSON_PLATFORM_ID_H__
+#define __BENSON_PLATFORM_ID_H__
 
 //
 // Strap Fw Cfg ID define
@@ -27,14 +27,14 @@
 
 EFI_STATUS
 EFIAPI
-GetFwCfgId (
+BensonGetFwCfgId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *FwCfgId
   );
 
 EFI_STATUS
 EFIAPI
-GetBoardIdFabId (
+BensonGetBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -42,7 +42,7 @@ GetBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetEmbeddedBoardIdFabId (
+BensonGetEmbeddedBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -50,7 +50,7 @@ GetEmbeddedBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetIVIBoardIdFabId (
+BensonGetIVIBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -58,21 +58,21 @@ GetIVIBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetDockId (
+BensonGetDockId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *DockId
   );
 
 EFI_STATUS
 EFIAPI
-GetOsSelPss (
+BensonGetOsSelPss (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *OsSelPss
   );
 
 EFI_STATUS
 EFIAPI
-GetBomIdPss (
+BensonGetBomIdPss (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BomIdPss
   );

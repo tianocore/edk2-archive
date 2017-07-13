@@ -2,7 +2,7 @@
   Multiplatform initialization header file.
   This file includes package header files, library classes.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef _MULTIPLATFORM_LIB_H_
-#define _MULTIPLATFORM_LIB_H_
+#ifndef _MINNOW_MULTIPLATFORM_LIB_H_
+#define _MINNOW_MULTIPLATFORM_LIB_H_
 
 #define LEN_64M       0x4000000
 //
@@ -88,37 +88,37 @@
 #define SUBSYSTEM_SVID_SSID   (SUBSYSTEM_VENDOR_ID + (SUBSYSTEM_DEVICE_ID << 16))
 
 EFI_STATUS
-GetPlatformInfoHob (
+Minnow3GetPlatformInfoHob (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT EFI_PLATFORM_INFO_HOB     **PlatformInfoHob
   );
 
 EFI_STATUS
-MultiPlatformGpioTableInit (
+Minnow3MultiPlatformGpioTableInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PLATFORM_INFO_HOB      *PlatformInfoHob
   );
 
 EFI_STATUS
-MultiPlatformGpioProgram (
+Minnow3MultiPlatformGpioProgram (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PLATFORM_INFO_HOB      *PlatformInfoHob
   );
 
 EFI_STATUS
-MultiPlatformInfoInit (
+Minnow3MultiPlatformInfoInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN OUT EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   );
 
 EFI_STATUS
-InitializeBoardOemId (
+Minnow3InitializeBoardOemId (
   IN CONST EFI_PEI_SERVICES      **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   );
 
 EFI_STATUS
-InitializeBoardSsidSvid (
+Minnow3InitializeBoardSsidSvid (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   );

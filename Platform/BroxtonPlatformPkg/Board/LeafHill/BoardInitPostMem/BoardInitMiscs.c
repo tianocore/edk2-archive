@@ -24,11 +24,11 @@
 
 **/
 VOID
-GpioGroupTierInit (
+LeafHillGpioGroupTierInit (
   IN EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
 {
-  DEBUG ((DEBUG_INFO, "GpioGroupTierInit Start\n"));
+  DEBUG ((DEBUG_INFO, "LeafHillGpioGroupTierInit Start\n"));
   switch (PlatformInfoHob->BoardId) {
     default:
       GpioSetGroupToGpeDwX (GPIO_BXTP_GROUP_7,  // map group 7 to GPE 0 ~ 31
@@ -37,13 +37,13 @@ GpioGroupTierInit (
       break;
   }
 
-  DEBUG ((DEBUG_INFO, "GpioGroupTierInit End\n"));
+  DEBUG ((DEBUG_INFO, "LeafHillGpioGroupTierInit End\n"));
 }
 
 
 EFI_STATUS
 EFIAPI
-MultiPlatformInfoInit (
+LeafHillMultiPlatformInfoInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN OUT EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
@@ -108,30 +108,30 @@ MultiPlatformInfoInit (
   //
   // Get GPIO table
   //
-  Status = MultiPlatformGpioTableInit (PeiServices, PlatformInfoHob);
+  Status = LeafHillMultiPlatformGpioTableInit (PeiServices, PlatformInfoHob);
   ASSERT_EFI_ERROR (Status);
 
   //
   // Program GPIO
   //
-  Status = MultiPlatformGpioProgram (PeiServices, PlatformInfoHob);
+  Status = LeafHillMultiPlatformGpioProgram (PeiServices, PlatformInfoHob);
 
   if (GetBxtSeries () == BxtP) {
-    GpioGroupTierInit (PlatformInfoHob);
+    LeafHillGpioGroupTierInit (PlatformInfoHob);
   }
 
   //
   // Update OemId
   //
-  Status = InitializeBoardOemId (PeiServices, PlatformInfoHob);
-  Status = InitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
+  Status = LeafHillInitializeBoardOemId (PeiServices, PlatformInfoHob);
+  Status = LeafHillInitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
 
   return EFI_SUCCESS;
 }
 
 
 EFI_STATUS
-InitializeBoardOemId (
+LeafHillInitializeBoardOemId (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   )
@@ -157,7 +157,7 @@ InitializeBoardOemId (
 
 
 EFI_STATUS
-InitializeBoardSsidSvid (
+LeafHillInitializeBoardSsidSvid (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   )

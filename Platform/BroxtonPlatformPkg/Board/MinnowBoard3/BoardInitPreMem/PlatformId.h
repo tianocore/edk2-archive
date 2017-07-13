@@ -1,7 +1,7 @@
 /** @file
   Header file for the Platform ID code.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -13,8 +13,8 @@
 
 **/
 
-#ifndef __PLATFORM_ID_H__
-#define __PLATFORM_ID_H__
+#ifndef __MINNOWBOARD_PLATFORM_ID_H__
+#define __MINNOWBOARD_PLATFORM_ID_H__
 
 //
 // Strap Fw Cfg ID define
@@ -27,14 +27,14 @@
 
 EFI_STATUS
 EFIAPI
-GetFwCfgId (
+Minnow3GetFwCfgId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *FwCfgId
   );
 
 EFI_STATUS
 EFIAPI
-GetBoardIdFabId (
+Minnow3GetBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -42,7 +42,7 @@ GetBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetEmbeddedBoardIdFabId (
+Minnow3GetEmbeddedBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -50,7 +50,7 @@ GetEmbeddedBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetIVIBoardIdFabId (
+Minnow3GetIVIBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -58,21 +58,21 @@ GetIVIBoardIdFabId (
 
 EFI_STATUS
 EFIAPI
-GetDockId (
+Minnow3GetDockId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *DockId
   );
 
 EFI_STATUS
 EFIAPI
-GetOsSelPss (
+Minnow3GetOsSelPss (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *OsSelPss
   );
 
 EFI_STATUS
 EFIAPI
-GetBomIdPss (
+Minnow3GetBomIdPss (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BomIdPss
   );

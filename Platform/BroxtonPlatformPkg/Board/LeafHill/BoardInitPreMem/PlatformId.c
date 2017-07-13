@@ -22,7 +22,7 @@
 
 EFI_STATUS
 EFIAPI
-GetEmbeddedBoardIdFabId(
+LeafHillGetEmbeddedBoardIdFabId(
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
@@ -156,7 +156,7 @@ GetEmbeddedBoardIdFabId(
 
 EFI_STATUS
 EFIAPI
-GetIVIBoardIdFabId (
+LeafHillGetIVIBoardIdFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId

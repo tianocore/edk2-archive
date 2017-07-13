@@ -13,8 +13,8 @@
 
 **/
 
-#ifndef _BOARDGPIOS_H_
-#define _BOARDGPIOS_H_
+#ifndef _MINNOW3_BOARDGPIOS_H_
+#define _MINNOW3_BOARDGPIOS_H_
 
 #include <PiPei.h>
 #include"ChipsetAccess.h"
@@ -58,7 +58,7 @@ Wake_Enabled:
 //
 // North Community
 //
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_N[] =
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_N[] =
 {
   //
   //                  Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,  Wake_Enabled ,Term_H_L,Inverted, GPI_ROUT, IOSstae, IOSTerm,     MMIO_Offset  ,Community
@@ -142,7 +142,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_N[] =
 //
 // North West Community
 //
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_NW [] =
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_NW [] =
 {
   //
   //                 Group Pin#:  pad_name,     PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger, Wake_Enabled, Term_H_L,Inverted,GPI_ROUT,IOSstae,  IOSTerm,     MMIO_Offset    ,  Community
@@ -234,7 +234,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_NW [] =
 //
 // West Community
 //
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_W [] =
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_W [] =
 {
   //
   //                   Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,Wake_Enabled, Term_H_L, Inverted,GPI_ROUT,IOSstae, IOSTerm,     MMIO_Offset    , Community
@@ -287,7 +287,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_W [] =
  //
  // South West Community
  //
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_SW[]=
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_SW[]=
 {
   //
   //                  Group Pin#:  pad_name,       PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,Wake_Enabled, Term_H_L,Inverted,GPI_ROUT,IOSstae,  IOSTerm,   MMIO_Offset     ,  Community
@@ -326,7 +326,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_SW[]=
   BXT_GPIO_PAD_CONF(L"SMB_ALERTB",                 M1,     NA    ,   NA   ,  NA     ,   NA       ,Wake_Disabled, P_20K_H,    NA   ,    NA  ,IOS_Masked, SAME, GPIO_PADBAR+ 0x00F8 , SOUTHWEST),//Feature: SMB_ALERTB
 };
 
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_Audio_SSP6 []=
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_Audio_SSP6 []=
 {
   //
   //                  Group Pin#:  pad_name,       PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,Wake_Enabled, Term_H_L,Inverted,GPI_ROUT,IOSstae, IOSTerm,MMIO_Offset, Community
@@ -340,7 +340,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_Audio_SSP6 []=
   BXT_GPIO_PAD_CONF(L"GPIO_192 DBI_SCL",         M0  ,     HI_Z  ,GPIO_D,   HI    ,   NA      ,  Wake_Disabled,  P_2K_H,   NA    ,    NA,NA        ,  NA  ,  GPIO_PADBAR+0x0028,  NORTHWEST),//Feature: Codec Power Down PD Net in Sch: SOC_CODEC_PD_N
 };
 
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_FAB2[] =
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_FAB2[] =
 {
   //
   //                  Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,  Wake_Enabled ,Term_H_L,Inverted, GPI_ROUT, IOSstae, IOSTerm,     MMIO_Offset  ,Community
@@ -353,7 +353,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_FAB2[] =
 //
 // GPIO 191 is only used if EPI reworks are applied on the board. This GPIO switches between SD Card data (if set to 1) and EPI data (if set to 0).
 //
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_EPI_Override[] =
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_EPI_Override[] =
 {
   //
   //                  Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,  Wake_Enabled ,Term_H_L,Inverted, GPI_ROUT, IOSstae, IOSTerm,     MMIO_Offset  ,Community
@@ -361,7 +361,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_EPI_Override[] =
   BXT_GPIO_PAD_CONF(L"GPIO_191 DBI_SDA",        M0,   GPO,        GPIO_D,LO,       NA,           Wake_Disabled,P_20K_L, NA,       NA,       NA,      NA,          GPIO_PADBAR + 0x0020, NORTHWEST),//Feature: SD_I2C MUX SEL     Net in Sch: INA_MUX_SEL
 };
 
-BXT_GPIO_PAD_INIT  mBXT_GpioInitData_LPSS_I2C[] =
+BXT_GPIO_PAD_INIT  mMinnow3_GpioInitData_LPSS_I2C[] =
 {
   BXT_GPIO_PAD_CONF(L"GPIO_134 LPSS_I2C5_SDA",   M1   ,    NA   ,  NA    ,  NA    ,   NA      ,  Wake_Disabled, P_20K_H,   NA    ,    NA,  HizRx0I,  EnPd,    GPIO_PADBAR+0x0050,  WEST),
   BXT_GPIO_PAD_CONF(L"GPIO_135 LPSS_I2C5_SCL",   M1   ,    NA   ,  NA    ,  NA    ,   NA      ,  Wake_Disabled, P_20K_H,   NA    ,    NA,  HizRx0I,  EnPd,    GPIO_PADBAR+0x0058,  WEST),
@@ -370,7 +370,7 @@ BXT_GPIO_PAD_INIT  mBXT_GpioInitData_LPSS_I2C[] =
 };
 
 
-BXT_GPIO_PAD_INIT  LomDisableGpio[] =
+BXT_GPIO_PAD_INIT  Minnow3LomDisableGpio[] =
 {
   //
   // LAN

@@ -31,14 +31,14 @@ BensonGlacierPreMemInit (
   IN PEI_BOARD_PRE_MEM_INIT_PPI *This
   );
 
-static PEI_BOARD_PRE_MEM_INIT_PPI mPreMemInitPpiInstance = {
+static PEI_BOARD_PRE_MEM_INIT_PPI mBensonPreMemInitPpiInstance = {
   BensonGlacierPreMemInit
 };
 
 static EFI_PEI_PPI_DESCRIPTOR mBensonGlacierPreMemInitPpi = {
   (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
   &gBoardPreMemInitPpiGuid,
-  &mPreMemInitPpiInstance
+  &mBensonPreMemInitPpiInstance
 };
 
 static EFI_PEI_PPI_DESCRIPTOR mBensonGlacierPreMemInitDonePpi = {
@@ -77,7 +77,7 @@ BensonGlacierPreMemInit (
   //
   // Pre Mem Board Init
   //
-  Status = GetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
+  Status = BensonGetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
 
   if (BoardId != (UINT8) BOARD_ID_BENSON) {
     DEBUG ((EFI_D_INFO,  "Not a Benson Glacier - skip\n"));

@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef _MULTIPLATFORM_LIB_H_
-#define _MULTIPLATFORM_LIB_H_
+#ifndef _LEAFHILL_MULTIPLATFORM_LIB_H_
+#define _LEAFHILL_MULTIPLATFORM_LIB_H_
 
 #define LEN_64M       0x4000000
 //
@@ -87,37 +87,37 @@
 #define SUBSYSTEM_SVID_SSID   (SUBSYSTEM_VENDOR_ID + (SUBSYSTEM_DEVICE_ID << 16))
 
 EFI_STATUS
-GetPlatformInfoHob (
+LeafHillGetPlatformInfoHob (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT EFI_PLATFORM_INFO_HOB     **PlatformInfoHob
   );
 
 EFI_STATUS
-MultiPlatformGpioTableInit (
+LeafHillMultiPlatformGpioTableInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PLATFORM_INFO_HOB      *PlatformInfoHob
   );
 
 EFI_STATUS
-MultiPlatformGpioProgram (
+LeafHillMultiPlatformGpioProgram (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PLATFORM_INFO_HOB      *PlatformInfoHob
   );
 
 EFI_STATUS
-MultiPlatformInfoInit (
+LeafHillMultiPlatformInfoInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN OUT EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   );
 
 EFI_STATUS
-InitializeBoardOemId (
+LeafHillInitializeBoardOemId (
   IN CONST EFI_PEI_SERVICES      **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   );
 
 EFI_STATUS
-InitializeBoardSsidSvid (
+LeafHillInitializeBoardSsidSvid (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   );

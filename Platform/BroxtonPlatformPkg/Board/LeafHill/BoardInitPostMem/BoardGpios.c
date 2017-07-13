@@ -13,7 +13,7 @@
 
 **/
 
-#include <BoardGpios.h>
+#include "BoardGpios.h"
 #include <Library/GpioLib.h>
 #include <Library/SteppingLib.h>
 
@@ -29,12 +29,12 @@
 
 **/
 EFI_STATUS
-MultiPlatformGpioTableInit (
+LeafHillMultiPlatformGpioTableInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PLATFORM_INFO_HOB      *PlatformInfoHob
   )
 {
-  DEBUG ((DEBUG_INFO, "MultiPlatformGpioTableInit()...\n"));
+  DEBUG ((DEBUG_INFO, "LeafHillMultiPlatformGpioTableInit()...\n"));
   DEBUG ((DEBUG_INFO, "PlatformInfoHob->BoardId: 0x%02X\n", PlatformInfoHob->BoardId));
 
   //
@@ -43,17 +43,17 @@ MultiPlatformGpioTableInit (
   switch (PlatformInfoHob->BoardId) {
     case BOARD_ID_LFH_CRB:
     case BOARD_ID_MINNOW:
-      PlatformInfoHob->PlatformGpioSetting_SW = &mBXT_GpioInitData_SW[0];
-      PlatformInfoHob->PlatformGpioSetting_W = &mBXT_GpioInitData_W[0];
-      PlatformInfoHob->PlatformGpioSetting_NW = &mBXT_GpioInitData_NW[0];
-      PlatformInfoHob->PlatformGpioSetting_N = &mBXT_GpioInitData_N[0];
+      PlatformInfoHob->PlatformGpioSetting_SW = &mLeafHill_GpioInitData_SW[0];
+      PlatformInfoHob->PlatformGpioSetting_W = &mLeafHill_GpioInitData_W[0];
+      PlatformInfoHob->PlatformGpioSetting_NW = &mLeafHill_GpioInitData_NW[0];
+      PlatformInfoHob->PlatformGpioSetting_N = &mLeafHill_GpioInitData_N[0];
       break;
 
     default:
-      PlatformInfoHob->PlatformGpioSetting_SW = &mBXT_GpioInitData_SW[0];
-      PlatformInfoHob->PlatformGpioSetting_W = &mBXT_GpioInitData_W[0];
-      PlatformInfoHob->PlatformGpioSetting_NW = &mBXT_GpioInitData_NW[0];
-      PlatformInfoHob->PlatformGpioSetting_N = &mBXT_GpioInitData_N[0];
+      PlatformInfoHob->PlatformGpioSetting_SW = &mLeafHill_GpioInitData_SW[0];
+      PlatformInfoHob->PlatformGpioSetting_W = &mLeafHill_GpioInitData_W[0];
+      PlatformInfoHob->PlatformGpioSetting_NW = &mLeafHill_GpioInitData_NW[0];
+      PlatformInfoHob->PlatformGpioSetting_N = &mLeafHill_GpioInitData_N[0];
       break;
   }
 
@@ -66,7 +66,7 @@ MultiPlatformGpioTableInit (
 
 **/
 VOID
-SetGpioPadCfgLock (
+LeafHillSetGpioPadCfgLock (
   VOID
   )
 {
@@ -145,7 +145,7 @@ SetGpioPadCfgLock (
 
 **/
 EFI_STATUS
-MultiPlatformGpioProgram (
+LeafHillMultiPlatformGpioProgram (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN EFI_PLATFORM_INFO_HOB      *PlatformInfoHob
   )
@@ -174,7 +174,7 @@ MultiPlatformGpioProgram (
                       &SystemConfiguration
                       );
 
-  DEBUG ((DEBUG_INFO, "MultiPlatformGpioProgram()...\n"));
+  DEBUG ((DEBUG_INFO, "LeafHillMultiPlatformGpioProgram()...\n"));
 
   switch (PlatformInfoHob->BoardId) {
     case BOARD_ID_LFH_CRB:
@@ -184,18 +184,18 @@ MultiPlatformGpioProgram (
       // PAD programming
       //
       DEBUG ((DEBUG_INFO, "PAD programming, Board ID: 0x%X\n", PlatformInfoHob->BoardId));
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_N) / sizeof (mBXT_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_NW) / sizeof (mBXT_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_W) / sizeof (mBXT_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_SW) / sizeof (mBXT_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_N_LH) / sizeof (mBXT_GpioInitData_N_LH[0]), mBXT_GpioInitData_N_LH);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_SW_LH) / sizeof (mBXT_GpioInitData_SW_LH[0]), mBXT_GpioInitData_SW_LH);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_W_LH) / sizeof (mBXT_GpioInitData_W_LH[0]), mBXT_GpioInitData_W_LH);
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_NW_LH) / sizeof (mBXT_GpioInitData_NW_LH[0]), mBXT_GpioInitData_NW_LH);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_N) / sizeof (mLeafHill_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_NW) / sizeof (mLeafHill_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_W) / sizeof (mLeafHill_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_SW) / sizeof (mLeafHill_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_N_LH) / sizeof (mLeafHill_GpioInitData_N_LH[0]), mLeafHill_GpioInitData_N_LH);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_SW_LH) / sizeof (mLeafHill_GpioInitData_SW_LH[0]), mLeafHill_GpioInitData_SW_LH);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_W_LH) / sizeof (mLeafHill_GpioInitData_W_LH[0]), mLeafHill_GpioInitData_W_LH);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_NW_LH) / sizeof (mLeafHill_GpioInitData_NW_LH[0]), mLeafHill_GpioInitData_NW_LH);
 
       if (SystemConfiguration.ScIshEnabled == 0) {
         DEBUG ((DEBUG_INFO, "Switch ISH_I2C0 & ISH_I2C1 to LPSS_I2C5 and LPSS I2C6. \n" ));
-        GpioPadConfigTable(sizeof(mBXT_GpioInitData_LPSS_I2C)/sizeof(mBXT_GpioInitData_LPSS_I2C[0]), mBXT_GpioInitData_LPSS_I2C);
+        GpioPadConfigTable(sizeof(mLeafHill_GpioInitData_LPSS_I2C)/sizeof(mLeafHill_GpioInitData_LPSS_I2C[0]), mLeafHill_GpioInitData_LPSS_I2C);
       }
     break;
   default:
@@ -203,10 +203,10 @@ MultiPlatformGpioProgram (
     //
     // PAD programming
     //
-    GpioPadConfigTable (sizeof (mBXT_GpioInitData_N) / sizeof (mBXT_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
-    GpioPadConfigTable (sizeof (mBXT_GpioInitData_NW) / sizeof (mBXT_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
-    GpioPadConfigTable (sizeof (mBXT_GpioInitData_W) / sizeof (mBXT_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
-    GpioPadConfigTable (sizeof (mBXT_GpioInitData_SW) / sizeof (mBXT_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
+    GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_N) / sizeof (mLeafHill_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
+    GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_NW) / sizeof (mLeafHill_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
+    GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_W) / sizeof (mLeafHill_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
+    GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_SW) / sizeof (mLeafHill_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
 
     //
     // Note1: This BXT BIOS WA needs to be applied after PAD programming to overwrite the GPIO setting to take effect.
@@ -215,7 +215,7 @@ MultiPlatformGpioProgram (
     //
     if (PlatformInfoHob->FABID == FAB2) {
       DEBUG ((DEBUG_INFO, "FAB ID: FAB2\n"));
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_FAB2 )/ sizeof (mBXT_GpioInitData_FAB2[0]), mBXT_GpioInitData_FAB2);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_FAB2 )/ sizeof (mLeafHill_GpioInitData_FAB2[0]), mLeafHill_GpioInitData_FAB2);
     }
 
     if (SystemConfiguration.TDO == 2) {  //Auto
@@ -228,20 +228,20 @@ MultiPlatformGpioProgram (
 
     if (SystemConfiguration.ScHdAudioIoBufferOwnership == 3) {
       DEBUG ((DEBUG_INFO, "HD Audio IO Buffer Ownership is I2S. Change GPIO pin settings for it. \n" ));
-      GpioPadConfigTable ( sizeof (mBXT_GpioInitData_Audio_SSP6) / sizeof (mBXT_GpioInitData_Audio_SSP6[0]), mBXT_GpioInitData_Audio_SSP6);
+      GpioPadConfigTable ( sizeof (mLeafHill_GpioInitData_Audio_SSP6) / sizeof (mLeafHill_GpioInitData_Audio_SSP6[0]), mLeafHill_GpioInitData_Audio_SSP6);
     }
 
     if (SystemConfiguration.PcieRootPortEn[4] == FALSE) {
       DEBUG ((DEBUG_INFO, "Onboard LAN disable. \n" ));
-      GpioPadConfigTable ( sizeof (LomDisableGpio) / sizeof (LomDisableGpio[0]), LomDisableGpio);
+      GpioPadConfigTable ( sizeof (LeafHillLomDisableGpio) / sizeof (LeafHillLomDisableGpio[0]), LeafHillLomDisableGpio);
     }
 
     if (SystemConfiguration.EPIEnable == 1) {
       DEBUG((DEBUG_INFO, "Overriding GPIO 191 for EPI\n"));
-      GpioPadConfigTable (sizeof (mBXT_GpioInitData_EPI_Override) / sizeof (mBXT_GpioInitData_EPI_Override[0]), mBXT_GpioInitData_EPI_Override);
+      GpioPadConfigTable (sizeof (mLeafHill_GpioInitData_EPI_Override) / sizeof (mLeafHill_GpioInitData_EPI_Override[0]), mLeafHill_GpioInitData_EPI_Override);
     }
     if (SystemConfiguration.GpioLock == TRUE) {
-      SetGpioPadCfgLock ();
+      LeafHillSetGpioPadCfgLock ();
     }
     DEBUG ((DEBUG_INFO, "No board ID available for this board ....\n"));
     break;
@@ -263,20 +263,20 @@ MultiPlatformGpioProgram (
       // PAD programming
       //
       DEBUG ((DEBUG_INFO, "Dump Community pad registers, Board ID: 0x%X\n", PlatformInfoHob->BoardId));
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_N) / sizeof (mBXT_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_NW_LH) / sizeof (mBXT_GpioInitData_NW_LH[0]), PlatformInfoHob->PlatformGpioSetting_NW);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_W_LH) / sizeof (mBXT_GpioInitData_W_LH[0]), PlatformInfoHob->PlatformGpioSetting_W);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_SW_LH) / sizeof (mBXT_GpioInitData_SW_LH[0]), PlatformInfoHob->PlatformGpioSetting_SW);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_N) / sizeof (mLeafHill_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_NW_LH) / sizeof (mLeafHill_GpioInitData_NW_LH[0]), PlatformInfoHob->PlatformGpioSetting_NW);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_W_LH) / sizeof (mLeafHill_GpioInitData_W_LH[0]), PlatformInfoHob->PlatformGpioSetting_W);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_SW_LH) / sizeof (mLeafHill_GpioInitData_SW_LH[0]), PlatformInfoHob->PlatformGpioSetting_SW);
       break;
     default:
 
       //
       // Dump Community pad registers
       //
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_N) / sizeof (mBXT_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_NW) / sizeof (mBXT_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_W) / sizeof (mBXT_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
-      DumpGpioPadTable (sizeof (mBXT_GpioInitData_SW) / sizeof (mBXT_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_N) / sizeof (mLeafHill_GpioInitData_N[0]), PlatformInfoHob->PlatformGpioSetting_N);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_NW) / sizeof (mLeafHill_GpioInitData_NW[0]), PlatformInfoHob->PlatformGpioSetting_NW);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_W) / sizeof (mLeafHill_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
+      DumpGpioPadTable (sizeof (mLeafHill_GpioInitData_SW) / sizeof (mLeafHill_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
       break;
   }
 

@@ -27,7 +27,7 @@
 
 **/
 EFI_STATUS
-GetPlatformInfoHob (
+LeafHillGetPlatformInfoHob (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT EFI_PLATFORM_INFO_HOB     **PlatformInfoHob
   )

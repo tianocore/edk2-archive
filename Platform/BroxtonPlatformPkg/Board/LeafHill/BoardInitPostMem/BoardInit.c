@@ -81,7 +81,7 @@ LeafHillPostMemInitCallback (
   //
   // Set init function PCD
   //
-  PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) MultiPlatformInfoInit);
+  PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) LeafHillMultiPlatformInfoInit);
 
   //
   // Add init steps here

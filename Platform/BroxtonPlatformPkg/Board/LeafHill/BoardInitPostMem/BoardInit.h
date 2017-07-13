@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef _BOARDINIT_H_
-#define _BOARDINIT_H_
+#ifndef _LEAFHILL_BOARDINIT_H_
+#define _LEAFHILL_BOARDINIT_H_
 
 #include <PiPei.h>
 #include <Library/IoLib.h>
@@ -23,7 +23,7 @@
 #include <Library/TimerLib.h>
 #include <Guid/PlatformInfo_Aplk.h>
 
-VOID GpioTest (VOID);
+VOID LeafHillGpioTest (VOID);
 
 #endif
 

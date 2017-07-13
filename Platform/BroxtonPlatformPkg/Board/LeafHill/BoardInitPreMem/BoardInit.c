@@ -31,14 +31,14 @@ LeafHillPreMemInit (
   IN PEI_BOARD_PRE_MEM_INIT_PPI *This
   );
 
-static PEI_BOARD_PRE_MEM_INIT_PPI mPreMemInitPpiInstance = {
+static PEI_BOARD_PRE_MEM_INIT_PPI mLeafHillPreMemInitPpiInstance = {
   LeafHillPreMemInit
 };
 
 static EFI_PEI_PPI_DESCRIPTOR mLeafHillPreMemInitPpi = {
   (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
   &gBoardPreMemInitPpiGuid,
-  &mPreMemInitPpiInstance
+  &mLeafHillPreMemInitPpiInstance
 };
 
 static EFI_PEI_PPI_DESCRIPTOR mLeafHillPreMemInitDonePpi = {
@@ -76,7 +76,7 @@ LeafHillPreMemInit (
   //
   // Pre Mem Board Init
   //
-  Status = GetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
+  Status = LeafHillGetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
   if (BoardId != (UINT8) BOARD_ID_LFH_CRB) {
     DEBUG ((EFI_D_INFO,  "Not a Leaf Hill Board - skip\n"));
     return EFI_SUCCESS;

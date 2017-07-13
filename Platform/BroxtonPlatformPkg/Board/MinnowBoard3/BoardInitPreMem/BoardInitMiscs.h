@@ -2,7 +2,7 @@
   Multiplatform initialization header file.
   This file includes package header files, library classes.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef _MULTIPLATFORM_LIB_H_
-#define _MULTIPLATFORM_LIB_H_
+#ifndef _MINNOW_MULTIPLATFORM_LIB_H_
+#define _MINNOW_MULTIPLATFORM_LIB_H_
 
 #include <BoardFunctionsPei.h>
 #include <Guid/SetupVariable.h>

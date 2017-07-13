@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef __BOARD_INIT_DXE_H__
-#define __BOARD_INIT_DXE_H__
+#ifndef __BENSON_BOARD_INIT_DXE_H__
+#define __BENSON_BOARD_INIT_DXE_H__
 
 #include <BoardFunctionsDxe.h>
 #include <Library/UefiDriverEntryPoint.h>

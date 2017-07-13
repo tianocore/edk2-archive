@@ -1,7 +1,7 @@
 /** @file
   This file does Multiplatform initialization.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -26,7 +26,7 @@
 
 **/
 EFI_STATUS
-GetPlatformInfoHob (
+BensonGetPlatformInfoHob (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT EFI_PLATFORM_INFO_HOB     **PlatformInfoHob
   )

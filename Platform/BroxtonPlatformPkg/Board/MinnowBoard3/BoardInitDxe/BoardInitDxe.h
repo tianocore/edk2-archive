@@ -14,8 +14,8 @@
 
 **/
 
-#ifndef __BOARD_INIT_DXE_H__
-#define __BOARD_INIT_DXE_H__
+#ifndef __MINNOW3_BOARD_INIT_DXE_H__
+#define __MINNOW3_BOARD_INIT_DXE_H__
 
 #include <BoardFunctionsDxe.h>
 #include <Library/UefiDriverEntryPoint.h>

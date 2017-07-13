@@ -1,7 +1,7 @@
 /** @file
   This file does Multiplatform initialization.
 
-  Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -25,11 +25,11 @@
 
 **/
 VOID
-GpioGroupTierInit (
+BensonGpioGroupTierInit (
   IN EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
 {
-  DEBUG ((DEBUG_INFO, "GpioGroupTierInit Start\n"));
+  DEBUG ((DEBUG_INFO, "BensonGpioGroupTierInit Start\n"));
   switch (PlatformInfoHob->BoardId) {
     default:
       GpioSetGroupToGpeDwX (GPIO_BXTP_GROUP_7,  // map group 7 to GPE 0 ~ 31
@@ -38,13 +38,13 @@ GpioGroupTierInit (
       break;
   }
 
-  DEBUG ((DEBUG_INFO, "GpioGroupTierInit End\n"));
+  DEBUG ((DEBUG_INFO, "BensonGpioGroupTierInit End\n"));
 }
 
 
 EFI_STATUS
 EFIAPI
-MultiPlatformInfoInit (
+BensonMultiPlatformInfoInit (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   IN OUT EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
@@ -110,30 +110,30 @@ MultiPlatformInfoInit (
   //
   // Get GPIO table
   //
-  Status = MultiPlatformGpioTableInit (PeiServices, PlatformInfoHob);
+  Status = BensonMultiPlatformGpioTableInit (PeiServices, PlatformInfoHob);
   ASSERT_EFI_ERROR (Status);
 
   //
   // Program GPIO
   //
-  Status = MultiPlatformGpioProgram (PeiServices, PlatformInfoHob);
+  Status = BensonMultiPlatformGpioProgram (PeiServices, PlatformInfoHob);
 
   if (GetBxtSeries () == BxtP) {
-    GpioGroupTierInit (PlatformInfoHob);
+    BensonGpioGroupTierInit (PlatformInfoHob);
   }
 
   //
   // Update OemId
   //
-  Status = InitializeBoardOemId (PeiServices, PlatformInfoHob);
-  Status = InitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
+  Status = BensonInitializeBoardOemId (PeiServices, PlatformInfoHob);
+  Status = BensonInitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
 
   return EFI_SUCCESS;
 }
 
 
 EFI_STATUS
-InitializeBoardOemId (
+BensonInitializeBoardOemId (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   )
@@ -158,7 +158,7 @@ InitializeBoardOemId (
 }
 
 EFI_STATUS
-InitializeBoardSsidSvid (
+BensonInitializeBoardSsidSvid (
   IN CONST EFI_PEI_SERVICES       **PeiServices,
   IN EFI_PLATFORM_INFO_HOB        *PlatformInfoHob
   )
