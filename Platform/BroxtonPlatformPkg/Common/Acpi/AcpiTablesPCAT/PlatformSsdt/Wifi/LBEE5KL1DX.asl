@@ -12,9 +12,7 @@
 **/
 
 /*
- GPIO_10 for Wi-Fi direct IRQ 0x6D.
- GPIO_15 for Wi-Fi reset
- PMIC_STDBY for Wi-Fi disable, NW index 30
+ GPIO_10 for Wi-Fi Kill.
 */
 
 
@@ -45,13 +43,13 @@ Scope(\_SB.PCI0.SDIO)
 
     Method (_PS3, 0, NotSerialized)
     {
-      Store( 0x00, \_SB.GPO0.CWLE )        // Put WiFi chip in Reset
+      Store( 0x01, \_SB.GPO0.CWLE )        // Disable
       Sleep(150)
     }
 
     Method (_PS0, 0, NotSerialized)
     {
-      Store( 0x01, \_SB.GPO0.CWLE )      // Take WiFi chip out in Reset
+      Store( 0x00, \_SB.GPO0.CWLE )        // Enable
       Sleep(150)
     }
   }
