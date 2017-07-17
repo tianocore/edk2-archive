@@ -127,7 +127,7 @@ UpdateFspUpdConfigs (
   DEBUG ((DEBUG_INFO, "GetFspFspmUpdDataPointer - 0x%x\n", FspmUpd));
 
   FspmUpd->FspmConfig.SerialDebugPortDevice     = 2;
-  FspmUpd->FspmConfig.SerialDebugPortType       = 0;// Skip the serial port init since we already did it
+  FspmUpd->FspmConfig.SerialDebugPortType       = 2;// Skip the serial port init since we already did it
   FspmUpd->FspmConfig.SerialDebugPortStrideSize = 2;
   FspmUpd->FspmConfig.SerialDebugPortAddress    = 0;
   FspmUpd->FspmConfig.PreMemGpioTableEntryNum   = 0;
