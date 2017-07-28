@@ -368,6 +368,8 @@ ProcessFspHobList (
       } else if (CompareGuid(&FspHob.Guid->Name, &gFspNonVolatileStorageHobGuid)) {
         DEBUG ((DEBUG_INFO, "Transfer Memory Config Data HOB!\n"));
         TransferFlag = TRUE;
+      } else if (CompareGuid(&FspHob.Guid->Name, &gFspVariableNvDataHobGuid)) {
+        TransferFlag = TRUE;
       } else if (CompareGuid(&FspHob.Guid->Name, &gEfiBootMediaHobGuid)) {
         TransferFlag = TRUE;
       } else if (CompareGuid(&FspHob.Guid->Name, &gEfiIfwiDnxRequestHobGuid)) {

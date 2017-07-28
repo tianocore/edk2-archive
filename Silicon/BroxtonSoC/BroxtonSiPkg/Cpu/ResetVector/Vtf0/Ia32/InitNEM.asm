@@ -183,7 +183,7 @@ istruc HobStruc
     dd 0x00100000   ; .CarSize
     dd 0xFFF00000   ; .IBBSource  = Not used
     dd 0xFEF45000   ; .IBBBase    = .CarBase
-    dd 0x0008D000   ; .IBBSize    = size of (FVIBBM.fv+FSP_M.fv) = BLD_IBBM_SIZE + FSP_IBBM_SIZE = 0x8D000
+    dd 0x0008E000   ; .IBBSize    = size of (FVIBBM.fv+FSP_M.fv) = BLD_IBBM_SIZE + FSP_IBBM_SIZE = 0x8D000
     dd 0xFFFFF000   ; .IBBLSource = 0x100000000 - .IBBLSize = PcdFlashFvIBBLBase
     dd 0xFEF40000   ; .IBBLBase   = .IBBBase + .IBBSize
     dd 0x00001000   ; .IBBLSize   = PcdFlashFvIBBLSize = FLASH_REGION_FV_IBBL_SIZE in .fdf

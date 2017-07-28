@@ -15,7 +15,7 @@
   here. This file needs to be included by most MMRC components,
   including Mmrc.h.
 
-  Copyright (c) 2005 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2005 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -97,7 +97,7 @@
 //
 // Minor Version
 //
-#define VERSION_MINOR                                      0
+#define VERSION_MINOR                                      20
 //
 // Print MRC functions as they execute
 //
@@ -774,10 +774,6 @@
 //
 //
 #define RX_PI_MIN_WIDTH                                    20
-//
-//
-//
-#define LDO_TRAINING                                       0
 //
 //
 //

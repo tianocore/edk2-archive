@@ -22,16 +22,9 @@
 #include <stdio.h>
 #endif
 
-#if USE_64_BIT_VARIABLES
-#define UINTX UINT64
-#else
-#define UINTX UINT32
-#endif
-typedef UINT32           MMRC_STATUS;
-
-//
-// MRC version description.
-//
+///
+/// MRC version description.
+///
 typedef union {
   struct{
     UINT8      Major;             ///< Major version number
@@ -179,8 +172,8 @@ typedef struct {
 //
 typedef struct {
   UINT16                    ScramblerSeed[MAX_CHANNELS];
-  UINT32                    SaMemCfgCrc;
-  UINT32                    MrcParamsSaveRestoreCrc;
+  UINT16                    LP4_MR4VALUE[MAX_CHANNELS];
+  UINT32                    BootVariableNvDataCrc;
 } BOOT_VARIABLE_NV_DATA;
 
 typedef struct {
@@ -233,7 +226,6 @@ typedef struct {
   UINT8                     ASR_Supported;
   UINT8                     OdtHigh;
   UINT16                    LP4_MR0VALUE;
-  UINT16                    LP4_MR4VALUE;
   CHANNEL_OPTION            ChOption;
 } CHANNEL;
 
@@ -254,6 +246,8 @@ typedef struct {
   UINT32        MuxcodeNv[MaxFrequencyIndex];
   BOOLEAN       SetupMaxPiDone[MaxFrequencyIndex];
   UINT32        DataSize;
+  UINT32        SaMemCfgCrc;
+  UINT32        MrcParamsSaveRestoreCrc;
 } MRC_PARAMS_SAVE_RESTORE;
 
 //

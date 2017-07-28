@@ -19,6 +19,16 @@
 UPDATE_FSPM_UPD_FUNC mBgUpdateFspmUpdPtr = BgUpdateFspmUpd;
 DRAM_CREATE_POLICY_DEFAULTS_FUNC   mBgDramCreatePolicyDefaultsPtr = BgDramCreatePolicyDefaults;
 
+//
+// Benson Glacier swizzling
+//
+UINT8 ChSwizzle_BG[DRAM_POLICY_NUMBER_CHANNELS][DRAM_POLICY_NUMBER_BITS] = {
+  {9,11,10,12,14,15,8,13,0,3,5,1,2,6,7,4,28,25,27,26,29,30,31,24,17,22,23,18,19,20,21,16}, // Channel 0
+  {0,1,5,4,3,6,7,2,12,13,10,14,15,8,9,11,20,23,22,17,21,19,18,16,26,28,29,24,31,25,30,27}, // Channel 1
+  {13,9,15,8,11,10,12,14,2,3,7,4,1,6,0,5,31,29,26,28,25,24,30,27,21,23,16,18,20,19,17,22}, // Channel 2
+  {3,1,6,7,2,5,4,0,8,9,11,10,12,14,13,15,21,17,18,19,23,22,16,20,29,27,25,30,28,24,31,26}  // Channel 3
+};
+
 EFI_STATUS
 EFIAPI
 BgUpdateFspmUpd (
@@ -30,7 +40,8 @@ BgUpdateFspmUpd (
   EFI_PLATFORM_INFO_HOB          *PlatformInfo = NULL;
   DRAM_POLICY_PPI                *DramPolicy;
   EFI_STATUS                     Status;
-  MRC_NV_DATA_FRAME              *MrcNvData;
+  MRC_PARAMS_SAVE_RESTORE        *MrcNvData;
+  BOOT_VARIABLE_NV_DATA          *BootVariableNvData;
   MRC_PARAMS_SAVE_RESTORE        *MrcParamsHob;
   BOOT_VARIABLE_NV_DATA          *BootVariableNvDataHob;
 
@@ -73,13 +84,18 @@ BgUpdateFspmUpd (
     CopyMem (&(FspUpdRgn->FspmConfig.Ch0_Bit_swizzling), &DramPolicy->ChSwizzle, sizeof (DramPolicy->ChSwizzle));
 
     if (((VOID *)(UINT32)DramPolicy->MrcTrainingDataPtr != 0) &&
-        ((VOID *)(UINT32)DramPolicy->MrcBootDataPtr     != 0)) {
-      MrcNvData = (MRC_NV_DATA_FRAME *) AllocateZeroPool (sizeof (MRC_NV_DATA_FRAME));
-      MrcParamsHob = (MRC_PARAMS_SAVE_RESTORE*)((UINT32)DramPolicy->MrcTrainingDataPtr);
+       ((VOID *)(UINT32)DramPolicy->MrcBootDataPtr     != 0)) {
+      DEBUG ((DEBUG_INFO, "UpdateFspmUpd - NvsBufferPtr\n"));
+      MrcNvData          = (MRC_PARAMS_SAVE_RESTORE *) AllocateZeroPool (sizeof (MRC_PARAMS_SAVE_RESTORE));
+      BootVariableNvData = (BOOT_VARIABLE_NV_DATA *) AllocateZeroPool (sizeof (BOOT_VARIABLE_NV_DATA));
+
+      MrcParamsHob          = (MRC_PARAMS_SAVE_RESTORE*)((UINT32)DramPolicy->MrcTrainingDataPtr);
       BootVariableNvDataHob = (BOOT_VARIABLE_NV_DATA*)((UINT32)DramPolicy->MrcBootDataPtr);
-      CopyMem(&(MrcNvData->MrcParamsSaveRestore), MrcParamsHob, sizeof (MRC_PARAMS_SAVE_RESTORE));
-      CopyMem(&(MrcNvData->BootVariableNvData), BootVariableNvDataHob, sizeof (BOOT_VARIABLE_NV_DATA));
-      FspUpdRgn->FspmArchUpd.NvsBufferPtr = (VOID *)(UINT32)MrcNvData;
+
+      CopyMem(MrcNvData, MrcParamsHob, sizeof (MRC_PARAMS_SAVE_RESTORE));
+      CopyMem(BootVariableNvData, BootVariableNvDataHob, sizeof (BOOT_VARIABLE_NV_DATA));
+      FspUpdRgn->FspmArchUpd.NvsBufferPtr        = (VOID *)(UINT32)MrcNvData;
+      FspUpdRgn->FspmConfig.VariableNvsBufferPtr = (VOID *)(UINT32)BootVariableNvData;
     }
 
   }
@@ -89,7 +105,7 @@ BgUpdateFspmUpd (
   ASSERT (Hob.Raw != NULL);
   PlatformInfo = GET_GUID_HOB_DATA (Hob.Raw);
 
-  DEBUG ((DEBUG_INFO, "**** BG - UpdateFspmUpd,BoardId = %d\n", PlatformInfo->BoardId));
+  DEBUG ((DEBUG_INFO, "**** BG - UpdateFspmUpd,BoardId = 0x%02x\n", PlatformInfo->BoardId));
   if (PlatformInfo->BoardId != BOARD_ID_BENSON) {
     //
     // ASSERT false if BoardId isn't Benson
@@ -97,36 +113,43 @@ BgUpdateFspmUpd (
     ASSERT (FALSE);
   }
 
-  FspUpdRgn->FspmConfig.Package         = 1;
-  FspUpdRgn->FspmConfig.Profile         = 11;
-  FspUpdRgn->FspmConfig.MemoryDown      = 1;
-  FspUpdRgn->FspmConfig.DDR3LPageSize   = 0;
-  FspUpdRgn->FspmConfig.DDR3LASR        = 0;
-  FspUpdRgn->FspmConfig.MemorySizeLimit = 0x1800;
-  FspUpdRgn->FspmConfig.DIMM0SPDAddress = 0;
-  FspUpdRgn->FspmConfig.DIMM1SPDAddress = 0;
-  FspUpdRgn->FspmConfig.DDR3LPageSize   = 0;
-  FspUpdRgn->FspmConfig.DDR3LASR        = 0;
+  //
+  // Overrides for Benson Glacier (Micron #MT53B512M32D2NP-062 AIT:C) from Platfrom4 profile
+  //
+  FspUpdRgn->FspmConfig.Package               = 0x01;
+  FspUpdRgn->FspmConfig.Profile               = 0x0B; // LPDDR4_2400_24_22_22
+  FspUpdRgn->FspmConfig.MemoryDown            = 0x01;
+  FspUpdRgn->FspmConfig.DualRankSupportEnable = 0x01;
+  
+  FspUpdRgn->FspmConfig.Ch0_RankEnable        = 0x03; // [0]: Rank 0 [1]: Rank 1
+  FspUpdRgn->FspmConfig.Ch0_DeviceWidth       = 0x01; // x16
+  FspUpdRgn->FspmConfig.Ch0_DramDensity       = 0x02; // 8Gb
+  FspUpdRgn->FspmConfig.Ch0_Option            = 0x03;
 
-  FspUpdRgn->FspmConfig.Ch0_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch0_DeviceWidth  = 2;
-  FspUpdRgn->FspmConfig.Ch0_DramDensity  = 2;
-  FspUpdRgn->FspmConfig.Ch0_Option       = 3;
+  FspUpdRgn->FspmConfig.Ch1_RankEnable        = 0x03; // [0]: Rank 0 [1]: Rank 1
+  FspUpdRgn->FspmConfig.Ch1_DeviceWidth       = 0x01; // x16
+  FspUpdRgn->FspmConfig.Ch1_DramDensity       = 0x02; // 8Gb
+  FspUpdRgn->FspmConfig.Ch1_Option            = 0x03;
 
-  FspUpdRgn->FspmConfig.Ch1_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch1_DeviceWidth  = 2;
-  FspUpdRgn->FspmConfig.Ch1_DramDensity  = 2;
-  FspUpdRgn->FspmConfig.Ch1_Option       = 3;
+  FspUpdRgn->FspmConfig.Ch2_RankEnable        = 0x03; // [0]: Rank 0 [1]: Rank 1
+  FspUpdRgn->FspmConfig.Ch2_DeviceWidth       = 0x01; // x16
+  FspUpdRgn->FspmConfig.Ch2_DramDensity       = 0x02; // 8Gb
+  FspUpdRgn->FspmConfig.Ch2_Option            = 0x03;
 
-  FspUpdRgn->FspmConfig.Ch2_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch2_DeviceWidth  = 2;
-  FspUpdRgn->FspmConfig.Ch2_DramDensity  = 2;
-  FspUpdRgn->FspmConfig.Ch2_Option       = 3;
+  FspUpdRgn->FspmConfig.Ch3_RankEnable        = 0x03; // [0]: Rank 0 [1]: Rank 1
+  FspUpdRgn->FspmConfig.Ch3_DeviceWidth       = 0x01; // x16
+  FspUpdRgn->FspmConfig.Ch3_DramDensity       = 0x02; // 8Gb
+  FspUpdRgn->FspmConfig.Ch3_Option            = 0x03;
 
-  FspUpdRgn->FspmConfig.Ch3_RankEnable   = 1;
-  FspUpdRgn->FspmConfig.Ch3_DeviceWidth  = 2;
-  FspUpdRgn->FspmConfig.Ch3_DramDensity  = 2;
-  FspUpdRgn->FspmConfig.Ch3_Option       = 3;
+  //
+  // Swizzling
+  //
+  if (ChSwizzle_BG != NULL) {
+    CopyMem (&(FspUpdRgn->FspmConfig.Ch0_Bit_swizzling), ChSwizzle_BG[0], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
+    CopyMem (&(FspUpdRgn->FspmConfig.Ch1_Bit_swizzling), ChSwizzle_BG[1], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
+    CopyMem (&(FspUpdRgn->FspmConfig.Ch2_Bit_swizzling), ChSwizzle_BG[2], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
+    CopyMem (&(FspUpdRgn->FspmConfig.Ch3_Bit_swizzling), ChSwizzle_BG[3], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
+  }
 
   return EFI_SUCCESS;
 }
@@ -160,7 +183,6 @@ BgDramCreatePolicyDefaults (
   UINT8                               (*ChSwizlePtr)[DRAM_POLICY_NUMBER_CHANNELS][DRAM_POLICY_NUMBER_BITS];
   PlatfromDramConf                    *DramConfig;
   BOOLEAN                             ReadSetupVars;
-  EFI_PEI_HOB_POINTERS                Hob;
 
   DEBUG ((EFI_D_INFO, "*** Benson Glacier DramCreatePolicyDefaults\n"));
   DramPolicy = (DRAM_POLICY_PPI *) AllocateZeroPool (sizeof (DRAM_POLICY_PPI));
@@ -257,10 +279,20 @@ BgDramCreatePolicyDefaults (
     DramPolicy->InterleavedMode         = DramConfig->InterleavedMode;
     DramPolicy->MinRefRate2xEnabled     = DramConfig->MinRefRate2xEnabled;
     DramPolicy->DualRankSupportEnabled  = DramConfig->DualRankSupportEnabled;
-}
+  }
 
+  //
+  // DRP
+  //
   if (DrpPtr != NULL) {
     CopyMem (DramPolicy->ChDrp, DrpPtr, sizeof (DramPolicy->ChDrp));
+  }
+
+  //
+  // Swizzling
+  //
+  if (ChSwizlePtr != NULL) {
+    CopyMem (DramPolicy->ChSwizzle, ChSwizlePtr, sizeof (DramPolicy->ChSwizzle));
   }
 
   Status = VariablePpi->GetVariable (
@@ -278,33 +310,10 @@ BgDramCreatePolicyDefaults (
     }
   }
 
-  if (ChSwizlePtr != NULL) CopyMem (DramPolicy->ChSwizzle, ChSwizlePtr, sizeof (DramPolicy->ChSwizzle));
-
   DramPolicy->MrcTrainingDataPtr = (EFI_PHYSICAL_ADDRESS) *MrcTrainingDataAddr;
   DramPolicy->MrcBootDataPtr     = (EFI_PHYSICAL_ADDRESS) *MrcBootDataAddr;
-
-  //
-  // WA for MH board to 6GB. We just apply it if memory size has not been override in smip XML.
-  //
-  if (DramPolicy->SystemMemorySizeLimit == 0) {
-    DramPolicy->SystemMemorySizeLimit = 0x1800;
-    if ((DramPolicy->ChDrp[2].RankEnable == 0) && (DramPolicy->ChDrp[3].RankEnable == 0)) {  //half config
-      DramPolicy->SystemMemorySizeLimit /= 2;
-    }
-  }
-
-  //
-  // Get Platform Info HOB
-  //
-  Hob.Raw = GetFirstGuidHob (&gEfiPlatformInfoGuid);
-  ASSERT (Hob.Raw != NULL);
-
-
-  DEBUG ((EFI_D_INFO, "Benson has single rank memory\n"));
-  DramPolicy->DualRankSupportEnabled = FALSE;
 
   *DramPolicyPpi = DramPolicy;
 
   return EFI_SUCCESS;
 }
-

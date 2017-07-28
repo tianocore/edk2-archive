@@ -2,7 +2,7 @@
   This is the driver that locates the MemoryConfigurationData HOB, if it
   exists, and saves the data to NVRAM.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -183,10 +183,12 @@ SaveMemoryConfigEntryPoint (
   EFI_STATUS               Status;
   EFI_HANDLE               Handle                       = NULL;
   EFI_HOB_GUID_TYPE        *GuidHob                     = NULL;
+  EFI_HOB_GUID_TYPE        *VariableGuidHob             = NULL;
   EFI_PLATFORM_INFO_HOB    *PlatformInfoHob             = NULL;
   EFI_PLATFORM_SETUP_ID    *BootModeBuffer              = NULL;
   MEM_INFO_PROTOCOL        *MemInfoHobProtocol          = NULL;
-  MRC_NV_DATA_FRAME        *MemoryConfigHobData         = NULL;
+  MRC_PARAMS_SAVE_RESTORE  *MemoryConfigHobData         = NULL;
+  BOOT_VARIABLE_NV_DATA    *VariableNvHobData           = NULL;
   UINTN                    MemoryConfigHobDataSize      = 0;
   UINT8                    Channel                      = 0;
   UINT8                    Slot                         = 0;
@@ -239,6 +241,14 @@ SaveMemoryConfigEntryPoint (
     return EFI_NOT_FOUND;
   }
 
+  if ((VariableGuidHob = GetFirstGuidHob (&gFspVariableNvDataHobGuid)) != NULL) {
+    VariableNvHobData = GET_GUID_HOB_DATA(VariableGuidHob);
+  }
+
+  if (VariableNvHobData == NULL) {
+    return EFI_NOT_FOUND;
+  }
+
   //
   // Populate and install the MemInfoHobProtocol
   //
@@ -249,21 +259,21 @@ SaveMemoryConfigEntryPoint (
 
     for (Channel = 0; Channel < CH_NUM; Channel++) {
       for (Slot = 0; Slot < DIMM_NUM; Slot++) {
-        MemInfoHobProtocol->MemInfoData.memSize += MemoryConfigHobData->MrcParamsSaveRestore.Channel[Channel].SlotMem[Slot];
-        MemInfoHobProtocol->MemInfoData.dimmSize[Slot + (Channel * DIMM_NUM)] = MemoryConfigHobData->MrcParamsSaveRestore.Channel[Channel].SlotMem[Slot];
-        MemInfoHobProtocol->MemInfoData.DimmPresent[Slot + (Channel * DIMM_NUM)] = MemoryConfigHobData->MrcParamsSaveRestore.Channel[Channel].DimmPresent[Slot];
+        MemInfoHobProtocol->MemInfoData.memSize += MemoryConfigHobData->Channel[Channel].SlotMem[Slot];
+        MemInfoHobProtocol->MemInfoData.dimmSize[Slot + (Channel * DIMM_NUM)] = MemoryConfigHobData->Channel[Channel].SlotMem[Slot];
+        MemInfoHobProtocol->MemInfoData.DimmPresent[Slot + (Channel * DIMM_NUM)] = MemoryConfigHobData->Channel[Channel].DimmPresent[Slot];
         if (MemInfoHobProtocol->MemInfoData.DimmPresent[Slot + (Channel * DIMM_NUM)]) {
-          MemInfoHobProtocol->MemInfoData.DimmsSpdData[Slot + (Channel * DIMM_NUM)] = MemoryConfigHobData->MrcParamsSaveRestore.Channel[Channel].SpdData[Slot].Buffer;
+          MemInfoHobProtocol->MemInfoData.DimmsSpdData[Slot + (Channel * DIMM_NUM)] = MemoryConfigHobData->Channel[Channel].SpdData[Slot].Buffer;
         } else {
           MemInfoHobProtocol->MemInfoData.DimmsSpdData[Slot + (Channel * DIMM_NUM)] = NULL;
         }
       }
     }
 
-    MemInfoHobProtocol->MemInfoData.ddrFreq   = MemoryConfigHobData->MrcParamsSaveRestore.CurrentFrequency;
-    MemInfoHobProtocol->MemInfoData.memSize   = MemoryConfigHobData->MrcParamsSaveRestore.SystemMemorySize;
-    MemInfoHobProtocol->MemInfoData.ddrType   = MemoryConfigHobData->MrcParamsSaveRestore.Channel[0].DramType;
-    MemInfoHobProtocol->MemInfoData.BusWidth  = MemoryConfigHobData->MrcParamsSaveRestore.BusWidth;
+    MemInfoHobProtocol->MemInfoData.ddrFreq   = MemoryConfigHobData->CurrentFrequency;
+    MemInfoHobProtocol->MemInfoData.memSize   = MemoryConfigHobData->SystemMemorySize;
+    MemInfoHobProtocol->MemInfoData.ddrType   = MemoryConfigHobData->Channel[0].DramType;
+    MemInfoHobProtocol->MemInfoData.BusWidth  = MemoryConfigHobData->BusWidth;
 
     DEBUG ((EFI_D_INFO, "SaveMemoryConfigEntryPoint - Freq:0x%x\n", MemInfoHobProtocol->MemInfoData.ddrFreq));
     DEBUG ((EFI_D_INFO, "SaveMemoryConfigEntryPoint - Memsize:0x%x\n", MemInfoHobProtocol->MemInfoData.memSize));
@@ -276,13 +286,13 @@ SaveMemoryConfigEntryPoint (
                     );
   }
 
-  Status = SaveMrcData (mMemoryConfigVariable, (UINT8 *) &(MemoryConfigHobData->MrcParamsSaveRestore), sizeof (MRC_PARAMS_SAVE_RESTORE));
-  if (EFI_ERROR(Status)) {
+  Status = SaveMrcData(mMemoryConfigVariable, (UINT8 *) MemoryConfigHobData, sizeof(MRC_PARAMS_SAVE_RESTORE));
+  if (EFI_ERROR(Status)){
     return Status;
   }
 
-  Status = SaveMrcData (mMemoryBootVariable, (UINT8 *) &(MemoryConfigHobData->BootVariableNvData), sizeof (BOOT_VARIABLE_NV_DATA));
-  if (EFI_ERROR (Status)) {
+  Status = SaveMrcData(mMemoryBootVariable, (UINT8 *) VariableNvHobData, sizeof(BOOT_VARIABLE_NV_DATA));
+  if (EFI_ERROR(Status)){
     return Status;
   }
 
