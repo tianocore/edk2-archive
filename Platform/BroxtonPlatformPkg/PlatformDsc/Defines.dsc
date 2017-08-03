@@ -163,3 +163,8 @@
     DEFINE FSP_RAM_CODE_SIZE               = $(FSP_IBBM_SIZE)
     DEFINE CAR_REGION_SIZE                 = 0x100000
 
+!if $(TARGET) == DEBUG
+  DEFINE SOURCE_DEBUG_ENABLE     = TRUE
+!else 
+  DEFINE SOURCE_DEBUG_ENABLE     = FALSE
+!endif

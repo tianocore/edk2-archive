@@ -291,7 +291,7 @@ HeciWriteNVMFile (
   SendNVMWrite->Size = (UINT32) DataSize;
   SendNVMWrite->Truncate = (Truncate) ? 1 : 0;
   SendNVMWrite->SrcAddressLower = (UINT32) (UINTN) TempBuffer;
-  SendNVMWrite->SrcAddressUpper = (UINT32) ((PHYSICAL_ADDRESS) (UINTN) TempBuffer >> 32);
+  SendNVMWrite->SrcAddressUpper = (UINT32) RShiftU64 ((PHYSICAL_ADDRESS) (UINTN) TempBuffer, 32);
   DEBUG ((EFI_D_INFO, "TempBuffer: 0x%x \n", TempBuffer));
 
   DEBUG ((EFI_D_INFO, "WRITE_TO_RPMB_STORAGE_CMD_REQ_DATA size if %x\n", sizeof(WRITE_TO_RPMB_STORAGE_CMD_REQ_DATA)));
@@ -383,7 +383,7 @@ HeciReadNVMFile(
   SendNVMRead->Offset = Offset;
   SendNVMRead->Size = (UINT16)*DataSize;
   SendNVMRead->DstAddressLower = (UINT32) (UINTN) TempBuffer;
-  SendNVMRead->DstAddressUpper = (UINT32) ((PHYSICAL_ADDRESS) (UINTN) TempBuffer >> 32);;
+  SendNVMRead->DstAddressUpper = (UINT32) RShiftU64 ((PHYSICAL_ADDRESS) (UINTN) TempBuffer, 32);
   DEBUG((EFI_D_INFO, "TempBuffer: 0x%x \n", TempBuffer));
 
   DEBUG ((EFI_D_INFO, "READ_FROM_RPMB_STORAGE_CMD_REQ_DATA size if %x\n", sizeof (READ_FROM_RPMB_STORAGE_CMD_REQ_DATA)));

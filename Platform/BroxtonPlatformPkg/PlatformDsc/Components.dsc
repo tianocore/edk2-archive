@@ -32,6 +32,10 @@
       PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   }
 
+!if $(SOURCE_DEBUG_ENABLE) == TRUE
+  SourceLevelDebugPkg/DebugAgentDxe/DebugAgentDxe.inf
+!endif
+
   UefiCpuPkg/CpuDxe/CpuDxe.inf {
     <LibraryClasses>
       CpuLib|MdePkg/Library/BaseCpuLib/BaseCpuLib.inf

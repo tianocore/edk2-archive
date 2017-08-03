@@ -23,6 +23,8 @@
 
   !if $(SOURCE_DEBUG_ENABLE) == TRUE
      DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/SmmDebugAgentLib.inf
+  !else 
+     DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
   !endif
 
   !if $(SECURE_BOOT_ENABLE) == TRUE

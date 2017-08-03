@@ -43,7 +43,11 @@
   BaseCryptLib|CryptoPkg/Library/BaseCryptLib/PeiCryptLib.inf
   SerialPortLib|$(PLATFORM_PACKAGE_COMMON)/Library/BaseSerialPortLib/BaseSerialPortLib.inf
 !if $(SOURCE_DEBUG_ENABLE) == TRUE
-   SerialPortLib|MdeModulePkg/Library/BaseSerialPortLib16550/BaseSerialPortLib16550.inf
+  DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/SecPeiDebugAgentLib.inf 
+
+!else
+  DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
+
 !endif
 
   DebugLib|$(PLATFORM_PACKAGE_COMMON)/Library/PeiDebugLib/PeiDebugLib.inf

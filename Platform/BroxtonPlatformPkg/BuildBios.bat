@@ -204,7 +204,7 @@ copy /y nul %Build_Macros% >nul
 
 ::output platform specific build macros to DefineAtBuildMacros.dsc
 echo DEFINE ENBDT_PF_BUILD          = %ENBDT_PF_BUILD%          >> %Build_Macros%
-echo DEFINE SOURCE_DEBUG_ENABLE     = %SrcDebug%                >> %Build_Macros%
+
 echo DEFINE APLK_SETUP_ENABLE_BUILD = %APLK_SETUP_ENABLE_BUILD% >> %Build_Macros%
 
 if "%Arch%"=="IA32" (

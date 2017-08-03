@@ -201,3 +201,6 @@
   $(PLATFORM_PACKAGE_COMMON)/FpdtPei/FpdtPei.inf
 !endif
 
+!if $(SOURCE_DEBUG_ENABLE) == TRUE
+  SourceLevelDebugPkg/DebugAgentPei/DebugAgentPei.inf
+!endif

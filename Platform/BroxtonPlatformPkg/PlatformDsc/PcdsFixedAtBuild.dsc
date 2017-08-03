@@ -1,7 +1,7 @@
 ## @file
 #  Platform Fixed At Build Pcd Description.
 #
-#  Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -79,4 +79,10 @@
   #Overrides the CMOS Flag to disable ISA serial debug
   gClientCommonModuleTokenSpaceGuid.PcdStatusCodeFlagsCmosIndex|0x5C
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress|0xFE043000
+
+  !if $(SOURCE_DEBUG_ENABLE) == TRUE
+    gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x17
+    gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x07
+    gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseHardwareFlowControl|FALSE
+  !endif
 

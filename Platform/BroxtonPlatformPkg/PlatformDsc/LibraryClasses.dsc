@@ -22,7 +22,7 @@
    UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
    UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
    DxeSmmDriverEntryPoint|IntelFrameworkPkg/Library/DxeSmmDriverEntryPoint/DxeSmmDriverEntryPoint.inf
-   PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
+
    !if $(SOURCE_DEBUG_ENABLE) == TRUE
       PeCoffExtraActionLib|SourceLevelDebugPkg/Library/PeCoffExtraActionLibDebug/PeCoffExtraActionLibDebug.inf
       DebugCommunicationLib|SourceLevelDebugPkg/Library/DebugCommunicationLibSerialPort/DebugCommunicationLibSerialPort.inf
@@ -30,6 +30,7 @@
    !else
       PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
    !endif
+   DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
 
    #
    # Common
@@ -187,8 +188,6 @@
      SerialPortLib|$(PLATFORM_PACKAGE_COMMON)/Library/BaseSerialPortLib/BaseSerialPortLibNoInit.inf
    !endif
 
-   DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
-
    PchSerialIoUartLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/PeiDxeSmmPchSerialIoUartLib/PeiDxeSmmPchSerialIoUartLib.inf
    PchSerialIoLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/PeiDxeSmmPchSerialIoLib/PeiDxeSmmPchSerialIoLib.inf
    SerialPortParameterLib|$(PLATFORM_PACKAGE_COMMON)/Library/BaseSerialPortParameterLibCmos/BaseSerialPortParameterLibCmos.inf
@@ -208,12 +207,10 @@
    !endif
      TcgPpVendorLib|SecurityPkg/Library/TcgPpVendorLibNull/TcgPpVendorLibNull.inf
 
-   !if ($(FTPM_ENABLE) == TRUE)
-     Tpm2CommandLib|SecurityPkg/Library/Tpm2CommandLib/Tpm2CommandLib.inf
-     Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterDxe.inf
-     PttPtpLib|$(PLATFORM_SI_PACKAGE)/Txe/Library/PeiDxePttPtpLib/PeiDxePttPtpLib.inf
-     Tcg2PhysicalPresenceLib|SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.inf
-   !endif
+   Tpm2CommandLib|SecurityPkg/Library/Tpm2CommandLib/Tpm2CommandLib.inf
+   Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterDxe.inf
+   PttPtpLib|$(PLATFORM_SI_PACKAGE)/Txe/Library/PeiDxePttPtpLib/PeiDxePttPtpLib.inf
+   Tcg2PhysicalPresenceLib|SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.inf
    TpmMeasurementLib|SecurityPkg/Library/DxeTpmMeasurementLib/DxeTpmMeasurementLib.inf
    BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
    OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
@@ -229,10 +226,6 @@
    ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
    ScDxeRuntimePciLibPciExpress|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/DxeRuntimePciLibPciExpress/DxeRuntimePciLibPciExpress.inf
    TcgPhysicalPresenceLib|SecurityPkg/Library/DxeTcgPhysicalPresenceLib/DxeTcgPhysicalPresenceLib.inf
-
-   !if $(SOURCE_DEBUG_ENABLE) == TRUE
-     SerialPortLib|MdeModulePkg/Library/BaseSerialPortLib16550/BaseSerialPortLib16550.inf
-   !endif
 
    LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
    EfiRegTableLib|$(PLATFORM_PACKAGE_COMMON)/Library/EfiRegTableLib/EfiRegTableLib.inf

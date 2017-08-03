@@ -235,6 +235,10 @@
   READ_LOCK_STATUS   = TRUE
   FvNameGuid         = B73FE497-B92E-416e-8326-45AD0D270092
 
+!if $(SOURCE_DEBUG_ENABLE) == TRUE
+  INF  SourceLevelDebugPkg/DebugAgentPei/DebugAgentPei.inf
+!endif
+
   INF $(PLATFORM_PACKAGE_COMMON)/SampleCode/IntelFsp2WrapperPkg/FspsWrapperPeim/FspsWrapperPeim.inf
 
   INF $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformPostMemPei/PlatformPostMemPei.inf
@@ -385,6 +389,10 @@ APRIORI DXE {
   INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
 !if $(ACPI50_ENABLE) == TRUE
   INF MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe.inf
+!endif
+
+!if $(SOURCE_DEBUG_ENABLE) == TRUE
+#  INF  SourceLevelDebugPkg/DebugAgentDxe/DebugAgentDxe.inf
 !endif
 
   INF UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf

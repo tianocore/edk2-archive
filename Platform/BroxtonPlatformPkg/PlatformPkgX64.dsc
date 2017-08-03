@@ -119,6 +119,12 @@
     PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
     TimerLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformTscTimerLib/DxeTscTimerLib.inf
   !endif
+  
+  !if $(SOURCE_DEBUG_ENABLE) == TRUE
+    DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/DxeDebugAgentLib.inf
+  !else
+    DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
+  !endif
 
 [LibraryClasses.Common.DXE_CORE]
   !include $(PLATFORM_NAME)/PlatformDsc/LibraryClasses.DxeCore.dsc
