@@ -69,14 +69,6 @@
     PerformanceLib|MdePkg/Library/BasePerformanceLibNull/BasePerformanceLibNull.inf
   !endif
 
-!if $(SOURCE_DEBUG_ENABLE) == TRUE
-[LibraryClasses.common.SEC]
-  DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/SecPeiDebugAgentLib.inf
-
-[LibraryClasses.common.DXE_CORE]
-  DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/DxeDebugAgentLib.inf
-!endif
-
 [LibraryClasses.IA32.PEIM, LibraryClasses.IA32.PEI_CORE, LibraryClasses.IA32.SEC]
 !if $(PERFORMANCE_ENABLE) == TRUE
   !if $(INTEL_FPDT_ENABLE) == TRUE
@@ -115,16 +107,7 @@
   !include $(WORKSPACE)/Silicon/$(PLATFORM_SI_PACKAGE)/SiPkgDxeLib.dsc
 
 [LibraryClasses.Common.DXE_DRIVER]
-  !if $(PERFORMANCE_ENABLE) == TRUE
-    PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
-    TimerLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformTscTimerLib/DxeTscTimerLib.inf
-  !endif
-  
-  !if $(SOURCE_DEBUG_ENABLE) == TRUE
-    DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/DxeDebugAgentLib.inf
-  !else
-    DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
-  !endif
+  !include PlatformDsc/LibraryClasses.DxeDriver.dsc
 
 [LibraryClasses.Common.DXE_CORE]
   !include PlatformDsc/LibraryClasses.DxeCore.dsc

@@ -17,6 +17,8 @@
     <LibraryClasses>
       DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
       PlatformSecLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformSecLib/Vtf0PlatformSecLib.inf
+      PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
+      DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
     <PcdsFixedAtBuild>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x00
       gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x0

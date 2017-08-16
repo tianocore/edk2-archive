@@ -147,7 +147,6 @@ echo DEFINE SV_BIOS_ENABLE      = $SV_BIOS_ENABLE   >> $Build_Macros
 echo DEFINE PPV_BIOS_ENABLE     = $PPV_BIOS_ENABLE  >> $Build_Macros
 echo DEFINE RVVP_BIOS_ENABLE    = $RVVP_BIOS_ENABLE >> $Build_Macros
 echo DEFINE RVV_BIOS_ENABLE     = $RVV_BIOS_ENABLE  >> $Build_Macros
-echo DEFINE SOURCE_DEBUG_ENABLE = $SrcDebug         >> $Build_Macros
 
 if [ $Arch == "IA32" ]; then
   echo DEFINE X64_CONFIG = FALSE      >> $Build_Macros

@@ -236,7 +236,7 @@
   FvNameGuid         = B73FE497-B92E-416e-8326-45AD0D270092
 
 !if $(SOURCE_DEBUG_ENABLE) == TRUE
-  INF  SourceLevelDebugPkg/DebugAgentPei/DebugAgentPei.inf
+#  INF  SourceLevelDebugPkg/DebugAgentPei/DebugAgentPei.inf
 !endif
 
   INF $(PLATFORM_PACKAGE_COMMON)/SampleCode/IntelFsp2WrapperPkg/FspsWrapperPeim/FspsWrapperPeim.inf
@@ -392,7 +392,7 @@ APRIORI DXE {
 !endif
 
 !if $(SOURCE_DEBUG_ENABLE) == TRUE
-#  INF  SourceLevelDebugPkg/DebugAgentDxe/DebugAgentDxe.inf
+  INF  SourceLevelDebugPkg/DebugAgentDxe/DebugAgentDxe.inf
 !endif
 
   INF UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
