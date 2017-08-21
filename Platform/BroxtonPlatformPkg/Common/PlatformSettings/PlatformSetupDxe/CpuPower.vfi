@@ -64,9 +64,9 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
     oneof varid     = Setup.MaxPkgCState,
       prompt      = STRING_TOKEN(STR_MAX_PKG_CSTATE_SUPPORT_PROMPT),
       help        = STRING_TOKEN(STR_MAX_PKG_CSTATE_STATE_SUPPORT_HELP),
-      option text = STRING_TOKEN(STR_MAX_PKG_CSTATE_C2),  value = 2, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_MAX_PKG_CSTATE_C2),  value = 2, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
       option text = STRING_TOKEN(STR_MAX_PKG_CSTATE_C1),  value = 1, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_MAX_PKG_CSTATE_C0),  value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_MAX_PKG_CSTATE_C0),  value = 0, flags = RESET_REQUIRED;
     endoneof;
   endif;
   
