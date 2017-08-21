@@ -1,7 +1,7 @@
 // /** @file
 //  System Component Setup formset.
 //
-//  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+//  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 //
 //  This program and the accompanying materials
 //  are licensed and made available under the terms and conditions of the BSD License
@@ -48,8 +48,8 @@ form formid = SYSTEM_COMPONENT_FORM_ID,
   oneof varid   = Setup.ResetSelect,
     prompt      = STRING_TOKEN(STR_RESET_SELECT),
     help        = STRING_TOKEN(STR_RESET_SELECT_HELP),
-    option text = STRING_TOKEN(STR_WARM_RESET), value = 0x6, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_COLD_RESET), value = 0xE, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_WARM_RESET), value = 0x6, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_COLD_RESET), value = 0xE, flags = RESET_REQUIRED;
   endoneof;
 
   // Embedded Power Instrumentation
