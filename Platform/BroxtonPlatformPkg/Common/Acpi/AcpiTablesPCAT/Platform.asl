@@ -708,10 +708,12 @@ Scope(\_SB)
         Return (RBUF)
       }
 
-      Method (_STA, 0x0, NotSerialized)
-      {
-
-         Return (0xF)
+      Method (_STA, 0x0, NotSerialized) {
+        If (LEqual (OSYS, 2015)) {
+          Return (0x0)
+        } else {
+          Return (0xF)
+        }
       }
     }
   }//end scope
