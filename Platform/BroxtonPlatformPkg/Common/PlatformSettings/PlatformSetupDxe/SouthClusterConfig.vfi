@@ -266,8 +266,8 @@ form formid     = ISH_OPTIONS_FORM_ID,
   oneof varid  = Setup.ScIshEnabled,
       prompt   = STRING_TOKEN(STR_ISH_PROMPT),
       help     = STRING_TOKEN(STR_ISH_HELP),
-      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = RESET_REQUIRED;
     endoneof;
 
 endform; // End of ISH Configurations
@@ -2395,7 +2395,7 @@ form formid     = USB_OPTIONS_FORM_ID,
       prompt      = STRING_TOKEN(STR_PCH_USB3_PORT5_PROMPT),
       help        = STRING_TOKEN(STR_PCH_USB_PORT_DIS_HELP),
       option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_ENABLE), value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     endoneof;
   endif;
 
@@ -2411,7 +2411,7 @@ form formid     = USB_OPTIONS_FORM_ID,
     prompt      = STRING_TOKEN(STR_XHCI_COMPLIANCE_PROMPT),
     help        = STRING_TOKEN(STR_XHCI_COMPLIANCE_HELP),
     option text = STRING_TOKEN(STR_XHCI_COMPLIANCE_FALSE), value = 0, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_XHCI_COMPLIANCE_TRUE), value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_XHCI_COMPLIANCE_TRUE),  value = 1, flags = RESET_REQUIRED;
   endoneof;
   
 endform; // end of USB_OPTIONS_FORM_ID
@@ -2677,14 +2677,14 @@ form formid     = HDAUDIO_OPTIONS_FORM_ID,
     prompt      = STRING_TOKEN(STR_HDA_PROMPT),
     help        = STRING_TOKEN(STR_HDA_HELP),
     option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLE), value= 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
   endoneof;
 
   oneof varid   = Setup.ScHdAudioDsp,
     prompt      = STRING_TOKEN(STR_HDA_DSP_PROMPT),
     help        = STRING_TOKEN(STR_HDA_DSP_HELP),
     option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLE), value= 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),  value = 1, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
   endoneof;
 
  suppressif ideqval Setup.ScHdAudioDsp == 0;
