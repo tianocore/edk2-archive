@@ -40,8 +40,8 @@ BgUpdateFspmUpd (
   EFI_PLATFORM_INFO_HOB          *PlatformInfo = NULL;
   DRAM_POLICY_PPI                *DramPolicy;
   EFI_STATUS                     Status;
-  MRC_PARAMS_SAVE_RESTORE        *MrcNvData;
-  BOOT_VARIABLE_NV_DATA          *BootVariableNvData;
+ MRC_NV_DATA_FRAME                 *MrcNvData;
+
   MRC_PARAMS_SAVE_RESTORE        *MrcParamsHob;
   BOOT_VARIABLE_NV_DATA          *BootVariableNvDataHob;
 
@@ -84,18 +84,13 @@ BgUpdateFspmUpd (
     CopyMem (&(FspUpdRgn->FspmConfig.Ch0_Bit_swizzling), &DramPolicy->ChSwizzle, sizeof (DramPolicy->ChSwizzle));
 
     if (((VOID *)(UINT32)DramPolicy->MrcTrainingDataPtr != 0) &&
-       ((VOID *)(UINT32)DramPolicy->MrcBootDataPtr     != 0)) {
-      DEBUG ((DEBUG_INFO, "UpdateFspmUpd - NvsBufferPtr\n"));
-      MrcNvData          = (MRC_PARAMS_SAVE_RESTORE *) AllocateZeroPool (sizeof (MRC_PARAMS_SAVE_RESTORE));
-      BootVariableNvData = (BOOT_VARIABLE_NV_DATA *) AllocateZeroPool (sizeof (BOOT_VARIABLE_NV_DATA));
-
-      MrcParamsHob          = (MRC_PARAMS_SAVE_RESTORE*)((UINT32)DramPolicy->MrcTrainingDataPtr);
+        ((VOID *)(UINT32)DramPolicy->MrcBootDataPtr     != 0)) {
+      MrcNvData = (MRC_NV_DATA_FRAME *) AllocateZeroPool (sizeof (MRC_NV_DATA_FRAME));
+      MrcParamsHob = (MRC_PARAMS_SAVE_RESTORE*)((UINT32)DramPolicy->MrcTrainingDataPtr);
       BootVariableNvDataHob = (BOOT_VARIABLE_NV_DATA*)((UINT32)DramPolicy->MrcBootDataPtr);
-
-      CopyMem(MrcNvData, MrcParamsHob, sizeof (MRC_PARAMS_SAVE_RESTORE));
-      CopyMem(BootVariableNvData, BootVariableNvDataHob, sizeof (BOOT_VARIABLE_NV_DATA));
-      FspUpdRgn->FspmArchUpd.NvsBufferPtr        = (VOID *)(UINT32)MrcNvData;
-      FspUpdRgn->FspmConfig.VariableNvsBufferPtr = (VOID *)(UINT32)BootVariableNvData;
+      CopyMem(&(MrcNvData->MrcParamsSaveRestore), MrcParamsHob, sizeof (MRC_PARAMS_SAVE_RESTORE));
+      CopyMem(&(MrcNvData->BootVariableNvData), BootVariableNvDataHob, sizeof (BOOT_VARIABLE_NV_DATA));
+      FspUpdRgn->FspmArchUpd.NvsBufferPtr = (VOID *)(UINT32)MrcNvData;
     }
 
   }
