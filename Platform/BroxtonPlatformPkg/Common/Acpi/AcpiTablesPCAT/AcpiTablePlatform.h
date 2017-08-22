@@ -60,7 +60,7 @@
 #define DAY_ALRM        0x0D
 #define MON_ALRM        0x00
 #define CENTURY         0x32
-#define FLAG            (EFI_ACPI_5_0_WBINVD | EFI_ACPI_5_0_SLP_BUTTON | EFI_ACPI_5_0_RESET_REG_SUP | EFI_ACPI_5_0_RTC_S4)
+#define FLAG            (EFI_ACPI_5_0_WBINVD | EFI_ACPI_5_0_RESET_REG_SUP | EFI_ACPI_5_0_RTC_S4)
 #define IAPC_BOOT_ARCH  (EFI_ACPI_5_0_8042 | EFI_ACPI_5_0_LEGACY_DEVICES)
 #define RESERVED        0x00
 
