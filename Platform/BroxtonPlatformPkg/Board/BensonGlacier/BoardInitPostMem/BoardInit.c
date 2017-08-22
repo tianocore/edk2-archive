@@ -13,15 +13,7 @@
 
 **/
 
-#include <PiPei.h>
-#include <Library/PeiServicesLib.h>
-#include <Library/PcdLib.h>
-#include <Library/BaseMemoryLib.h>
-#include <Library/DebugLib.h>
-#include <Guid/PlatformInfo_Aplk.h>
-#include <Ppi/BoardInitSignalling.h>
 #include "BoardInit.h"
-#include "BoardInitMiscs.h"
 
 EFI_STATUS
 EFIAPI

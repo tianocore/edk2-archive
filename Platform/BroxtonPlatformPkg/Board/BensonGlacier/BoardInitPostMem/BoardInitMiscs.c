@@ -15,7 +15,6 @@
 
 #include "BoardInitMiscs.h"
 
-
 /**
   Configure GPIO group GPE tier.
 
@@ -49,6 +48,7 @@ BensonMultiPlatformInfoInit (
   IN OUT EFI_PLATFORM_INFO_HOB  *PlatformInfoHob
   )
 {
+  UINT8                  Data8;
   EFI_STATUS             Status;
 
 #if (ENBDT_PF_ENABLE == 1)
@@ -128,6 +128,39 @@ BensonMultiPlatformInfoInit (
   Status = BensonInitializeBoardOemId (PeiServices, PlatformInfoHob);
   Status = BensonInitializeBoardSsidSvid (PeiServices, PlatformInfoHob);
 
+  //
+  // TypeC MUX AUX mode
+  //
+
+  //
+  // Set P0-P4 to input mode
+  //
+  Data8  = 0x1F;
+  Status = ByteWriteI2C (0x05, 0x38, 0x03, 1, &Data8);
+  DEBUG ((DEBUG_INFO, "%a(#%d) - Setting button MUX into GPI mode returned %r\n", __FUNCTION__, __LINE__, Status));
+
+  //
+  // Set P0-P4 to inverted mode
+  //
+  Data8  = 0x1F;
+  Status = ByteWriteI2C (0x05, 0x38, 0x02, 1, &Data8);
+  DEBUG ((DEBUG_INFO, "%a(#%d) - Setting button MUX into inverted mode returned %r\n", __FUNCTION__, __LINE__, Status));
+
+  //
+  // Dump switch state
+  //
+  Data8  = 0x00;
+  Status = ByteReadI2C (0x05, 0x38, 0x00, 1, &Data8);
+  DEBUG ((DEBUG_INFO, "%a(#%d) - ByteReadI2C[0] returned %r\n", __FUNCTION__, __LINE__, Status));
+  if (!EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_INFO, "%a(#%d) - Input register         = %02x\n", __FUNCTION__, __LINE__, Data8));
+    DEBUG ((DEBUG_INFO, "%a(#%d) -               Volume + = %a\n", __FUNCTION__, __LINE__, (Data8 & BIT0) ? "Pressed" : "Not pressed"));
+    DEBUG ((DEBUG_INFO, "%a(#%d) -               Volume - = %a\n", __FUNCTION__, __LINE__, (Data8 & BIT1) ? "Pressed" : "Not pressed"));
+    DEBUG ((DEBUG_INFO, "%a(#%d) -                BT Pair = %a\n", __FUNCTION__, __LINE__, (Data8 & BIT2) ? "Pressed" : "Not pressed"));
+    DEBUG ((DEBUG_INFO, "%a(#%d) -               Mic Mute = %a\n", __FUNCTION__, __LINE__, (Data8 & BIT3) ? "Pressed" : "Not pressed"));
+    DEBUG ((DEBUG_INFO, "%a(#%d) -           Speaker Mute = %a\n", __FUNCTION__, __LINE__, (Data8 & BIT4) ? "Pressed" : "Not pressed"));
+  }
+
   return EFI_SUCCESS;
 }
 
@@ -151,7 +184,7 @@ BensonInitializeBoardOemId (
       break;
   }
 
-  PlatformInfoHob->AcpiOemId = OemId;
+  PlatformInfoHob->AcpiOemId      = OemId;
   PlatformInfoHob->AcpiOemTableId = OemTableId;
 
   return  EFI_SUCCESS;

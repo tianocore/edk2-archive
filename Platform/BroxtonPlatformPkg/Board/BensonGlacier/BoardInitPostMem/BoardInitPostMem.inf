@@ -2,7 +2,7 @@
 #  Board detected module for Intel(R) Atom(TM) x5 Processor Series.
 #  It will detect the board ID.
 #
-#  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -30,6 +30,8 @@
   PlatformInfoHob.c
   BoardGpios.c
   BoardGpios.h
+  TypeC.c
+  TypeC.h
 
 [LibraryClasses]
   PeiServicesLib
@@ -40,6 +42,8 @@
   IoLib
   SteppingLib
   GpioLib
+  I2cLibPei
+  TimerLib
 
 [Packages]
   MdePkg/MdePkg.dec
