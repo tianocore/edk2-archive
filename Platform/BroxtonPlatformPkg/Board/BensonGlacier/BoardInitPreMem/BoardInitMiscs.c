@@ -36,14 +36,16 @@ BgUpdateFspmUpd (
   IN FSPM_UPD                *FspUpdRgn
   )
 {
-  EFI_PEI_HOB_POINTERS           Hob;
-  EFI_PLATFORM_INFO_HOB          *PlatformInfo = NULL;
-  DRAM_POLICY_PPI                *DramPolicy;
-  EFI_STATUS                     Status;
- MRC_NV_DATA_FRAME                 *MrcNvData;
-
-  MRC_PARAMS_SAVE_RESTORE        *MrcParamsHob;
-  BOOT_VARIABLE_NV_DATA          *BootVariableNvDataHob;
+  EFI_PEI_HOB_POINTERS               Hob;
+  EFI_PLATFORM_INFO_HOB             *PlatformInfo = NULL;
+  DRAM_POLICY_PPI                   *DramPolicy;
+  EFI_STATUS                         Status;
+  MRC_NV_DATA_FRAME                 *MrcNvData;
+  MRC_PARAMS_SAVE_RESTORE           *MrcParamsHob;
+  BOOT_VARIABLE_NV_DATA             *BootVariableNvDataHob;
+  SYSTEM_CONFIGURATION               SystemConfiguration;
+  UINTN                              VariableSize;
+  EFI_PEI_READ_ONLY_VARIABLE2_PPI   *VariablePpi;
 
   Status = (*PeiServices)->LocatePpi (
                              PeiServices,
@@ -115,7 +117,7 @@ BgUpdateFspmUpd (
   FspUpdRgn->FspmConfig.Profile               = 0x0B; // LPDDR4_2400_24_22_22
   FspUpdRgn->FspmConfig.MemoryDown            = 0x01;
   FspUpdRgn->FspmConfig.DualRankSupportEnable = 0x01;
-  
+
   FspUpdRgn->FspmConfig.Ch0_RankEnable        = 0x03; // [0]: Rank 0 [1]: Rank 1
   FspUpdRgn->FspmConfig.Ch0_DeviceWidth       = 0x01; // x16
   FspUpdRgn->FspmConfig.Ch0_DramDensity       = 0x02; // 8Gb
@@ -144,6 +146,31 @@ BgUpdateFspmUpd (
     CopyMem (&(FspUpdRgn->FspmConfig.Ch1_Bit_swizzling), ChSwizzle_BG[1], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
     CopyMem (&(FspUpdRgn->FspmConfig.Ch2_Bit_swizzling), ChSwizzle_BG[2], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
     CopyMem (&(FspUpdRgn->FspmConfig.Ch3_Bit_swizzling), ChSwizzle_BG[3], DRAM_POLICY_NUMBER_BITS * sizeof(UINT8));
+  }
+
+  //
+  // Disable NPK based on DciEn
+  //
+  Status = PeiServicesLocatePpi (&gEfiPeiReadOnlyVariable2PpiGuid, 0, NULL, (VOID **) &VariablePpi);
+  if (!EFI_ERROR (Status)) {
+    VariableSize = sizeof (SYSTEM_CONFIGURATION);
+    Status = VariablePpi->GetVariable (
+                            VariablePpi,
+                            PLATFORM_SETUP_VARIABLE_NAME,
+                            &gEfiSetupVariableGuid,
+                            NULL,
+                            &VariableSize,
+                            &SystemConfiguration
+                            );
+    if (!EFI_ERROR (Status)) {
+      if (SystemConfiguration.DciEn == 0) {
+        FspUpdRgn->FspmConfig.NpkEn = 0;
+      } else if (SystemConfiguration.DciAutoDetect == 1) {
+        FspUpdRgn->FspmConfig.NpkEn = 3;
+      } else {
+        FspUpdRgn->FspmConfig.NpkEn = 1;
+      }
+    }
   }
 
   return EFI_SUCCESS;
@@ -290,16 +317,7 @@ BgDramCreatePolicyDefaults (
     CopyMem (DramPolicy->ChSwizzle, ChSwizlePtr, sizeof (DramPolicy->ChSwizzle));
   }
 
-  Status = VariablePpi->GetVariable (
-                          VariablePpi,
-                          PLATFORM_SETUP_VARIABLE_NAME,
-                          &gEfiSetupVariableGuid,
-                          NULL,
-                          &VariableSize,
-                          &SystemConfiguration
-                          );
-
-  if (!EFI_ERROR (Status)) {
+  if (ReadSetupVars) {
     if (SystemConfiguration.Max2G == 0) {
       DramPolicy->SystemMemorySizeLimit = 0x800;
     }
