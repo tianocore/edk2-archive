@@ -18,10 +18,22 @@
 #define _BENSON_BOARDINIT_H_
 
 #include <PiPei.h>
-#include <Library/IoLib.h>
-#include <Library/HobLib.h>
-#include <Library/TimerLib.h>
+
 #include <Guid/PlatformInfo_Aplk.h>
+
+#include <Library/BaseMemoryLib.h>
+#include <Library/DebugLib.h>
+#include <Library/GpioLib.h>
+#include <Library/HobLib.h>
+#include <Library/IoLib.h>
+#include <Library/PcdLib.h>
+#include <Library/PeiServicesLib.h>
+#include <Library/TimerLib.h>
+
+#include <Ppi/BoardInitSignalling.h>
+
+#include "BoardInitMiscs.h"
+#include "PlatformId.h"
 
 VOID BensonGpioTest (VOID);
 

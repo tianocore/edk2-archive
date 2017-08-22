@@ -1028,7 +1028,7 @@ PlatformInitPreMemEntryPoint (
     MultiPlatformGpioUpdatePreMem ();
 
     //
-    //Print out Patch version string (BXT)
+    // Print out Patch version string (BXT)
     //
     AsmWriteMsr64 (0x8B, 0);
     AsmCpuid (0x1, NULL, NULL, NULL, NULL);

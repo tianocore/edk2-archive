@@ -1,7 +1,7 @@
 /** @file
   Gpio setting for multiplatform before Memory init.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -281,7 +281,7 @@ MultiPlatformGpioUpdatePreMem (
     if (SystemConfiguration.LowPowerS0Idle == TRUE) {
       LpcGpioSize = sizeof (LpcGpio) / sizeof (LpcGpio[0]);
       //
-      // Set Indxe = 1 becasue the first element of LpcGpio[] has already set to IOS_Masked.
+      // Set Index = 1 becasue the first element of LpcGpio[] has already set to IOS_Masked.
       //
       for (Index = 1; Index < LpcGpioSize; Index++) {
 

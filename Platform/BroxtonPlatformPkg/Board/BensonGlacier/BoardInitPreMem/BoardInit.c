@@ -13,16 +13,7 @@
 
 **/
 
-#include <PiPei.h>
-#include <Library/PeiServicesLib.h>
-#include <Library/PcdLib.h>
-#include <Library/BaseMemoryLib.h>
-#include <Library/DebugLib.h>
-#include <Guid/PlatformInfo_Aplk.h>
-#include <Ppi/BoardInitSignalling.h>
 #include "BoardInit.h"
-#include "PlatformId.h"
-#include "BoardInitMiscs.h"
 
 EFI_STATUS
 EFIAPI
@@ -60,7 +51,7 @@ BensonGlacierPreMemInit (
   UINT8                            FabId;
 
   BoardId = 0;
-  FabId = 0;
+  FabId   = 0;
   Status = PeiServicesLocatePpi (
              &gBoardPreMemInitDoneGuid,
              0,

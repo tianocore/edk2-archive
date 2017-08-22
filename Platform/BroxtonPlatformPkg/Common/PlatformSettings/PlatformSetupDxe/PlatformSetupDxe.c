@@ -148,6 +148,7 @@ LoadPlatformDefaultValues (
       if (Private->FakeNvData.PmicSetupDefault == 1) {
         Private->FakeNvData.EnableRenderStandby = FALSE;
       }
+      break;
     default:
       break;
   }

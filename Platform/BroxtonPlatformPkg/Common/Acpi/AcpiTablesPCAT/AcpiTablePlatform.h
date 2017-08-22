@@ -2,7 +2,7 @@
   This file describes the contents of the ACPI Fixed ACPI Description Table
   (FADT).
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -23,7 +23,7 @@
 // ACPI table information used to initialize tables.
 //
 #define EFI_ACPI_OEM_ID           'I','N','T','E','L',' '   // OEMID 6 bytes long
-#define EFI_ACPI_OEM_TABLE_ID     SIGNATURE_64('L','A','N','F','O','R','D','C') // OEM table id 8 bytes long
+#define EFI_ACPI_OEM_TABLE_ID     SIGNATURE_64('M','I','N','N','O','W','v','3') // OEM table id 8 bytes long
 #define EFI_ACPI_OEM_REVISION     0x00000005
 #define EFI_ACPI_CREATOR_ID       SIGNATURE_32('M','S','F','T')
 #define EFI_ACPI_CREATOR_REVISION 0x0100000D

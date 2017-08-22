@@ -1,7 +1,7 @@
 /** @file
   ACPI DSDT table
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -47,24 +47,6 @@ scope (\_SB.PCI0) {
       Return (RBUF)
     }
 
-  Device (VUT0) {
-    Name (_HID, "INT3511")
-    Method (_STA, 0x0, NotSerialized)
-    {
-      If(LEqual(OSYS,2015)) {
-        Return(0xf)
-      }
-      else {
-        Return(0)
-      }
-    }
-    Method(_CRS, 0x0, NotSerialized){
-    Name(SBUF, ResourceTemplate (){
-    UARTSerialBus(115200,,,0xfc,,,,32,32,"\\_SB.PCI0.URT1" )
-    })
-    Return (SBUF)
-    }
-  } //Device (VUT0)
 
   } //  Device (URT1)
 
@@ -91,24 +73,6 @@ scope (\_SB.PCI0) {
       PSAT,   32
     }
 
-  Device (VUT1) {
-    Name (_HID, "INT3512")
-    Method (_STA, 0x0, NotSerialized)
-    {
-      If(LEqual(OSYS,2015)) {
-        Return(0xf)
-      }
-      else {
-        Return(0)
-      }
-    }
-    Method(_CRS, 0x0, NotSerialized){
-    Name(SBUF, ResourceTemplate (){
-    UARTSerialBus(115200,,,0xfc,,,,32,32,"\\_SB.PCI0.URT2" )
-    })
-    Return (SBUF)
-    }
-  } // Device(VUT1)
   } // Device (URT2)
 
   //
