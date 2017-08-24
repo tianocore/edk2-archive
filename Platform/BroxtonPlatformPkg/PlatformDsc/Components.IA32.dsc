@@ -116,6 +116,7 @@
        NULL|$(PLATFORM_NAME)/Board/MinnowBoard3/BoardInitPostMem/BoardInitPostMem.inf
        NULL|$(PLATFORM_NAME)/Board/LeafHill/BoardInitPostMem/BoardInitPostMem.inf
        NULL|$(PLATFORM_NAME)/Board/BensonGlacier/BoardInitPostMem/BoardInitPostMem.inf
+       I2cLibPei|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/I2CLibPei/I2CLibPei.inf
     <PcdsPatchableInModule>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x803805c6
   }

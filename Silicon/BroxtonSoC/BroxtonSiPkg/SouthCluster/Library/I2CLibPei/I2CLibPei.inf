@@ -1,0 +1,51 @@
+## @file
+#  Pei library for I2C bus driver.
+#
+#  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = I2CLibPei
+  FILE_GUID                      = 8EF61509-890B-4FF2-B352-1C0E9CDDEC8B
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = I2CLibPei
+
+  CONSTRUCTOR                    = IntelI2CPeiLibConstructor
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
+#
+
+[Sources.common]
+  I2CLibPei.c
+  I2CDelayPei.c
+  I2CIoLibPei.c
+
+[LibraryClasses]
+
+[PPIs]
+  gEfiPeiStallPpiGuid ## CONSUMES
+
+[Packages]
+  MdePkg/MdePkg.dec
+  BroxtonSiPkg/BroxtonSiPkg.dec
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress ## SOMETIMES_CONSUMES
+  gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress        ## CONSUMES
+
+
+
