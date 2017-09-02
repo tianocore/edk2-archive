@@ -116,7 +116,7 @@ LhUpdateFspmUpd (
   FspUpdRgn->FspmConfig.MemoryDown      = 1;
   FspUpdRgn->FspmConfig.DDR3LPageSize   = 0;
   FspUpdRgn->FspmConfig.DDR3LASR        = 0;
-  FspUpdRgn->FspmConfig.MemorySizeLimit = 0x1800;
+  FspUpdRgn->FspmConfig.MemorySizeLimit = 0;
   FspUpdRgn->FspmConfig.DIMM0SPDAddress = 0;
   FspUpdRgn->FspmConfig.DIMM1SPDAddress = 0;
   FspUpdRgn->FspmConfig.DDR3LPageSize   = 0;

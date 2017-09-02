@@ -786,9 +786,7 @@ InitializePlatform (
   mSystemConfiguration.BoardId = PlatformInfoHob->BoardId;
 
   if (mSystemConfiguration.PlatformSettingEn == 0) {
-    if (PlatformInfoHob->PmicVersion == 0) {
-      mSystemConfiguration.EnableRenderStandby = 0;
-    }
+
     mSystemConfiguration.PlatformSettingEn = 1;
   }
 

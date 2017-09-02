@@ -145,9 +145,7 @@ LoadPlatformDefaultValues (
     case BOARD_ID_LFH_CRB:
     case BOARD_ID_MINNOW:
     case BOARD_ID_BENSON:
-      if (Private->FakeNvData.PmicSetupDefault == 1) {
-        Private->FakeNvData.EnableRenderStandby = FALSE;
-      }
+
       break;
     default:
       break;
