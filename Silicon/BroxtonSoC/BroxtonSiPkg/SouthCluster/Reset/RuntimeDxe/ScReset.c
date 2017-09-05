@@ -296,7 +296,7 @@ IntelScResetSystem (
 
     case EfiResetCold:
       InitialData = V_RST_CNT_HARDSTARTSTATE;
-      OutputData  = V_RST_CNT_FULLRESET;
+      OutputData  = V_RST_CNT_HARDRESET;
       break;
 
     case EfiResetShutdown:
