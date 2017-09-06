@@ -113,8 +113,6 @@
    SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
    SecurityManagementLib|MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf
    IoApicLib|PcAtChipsetPkg/Library/BaseIoApicLib/BaseIoApicLib.inf
-   CmosAccessLib|$(PLATFORM_PACKAGE_COMMON)/Library/BaseCmosAccessLib/BaseCmosAccessLib.inf
-   BaseCmosAccessLib|$(PLATFORM_PACKAGE_COMMON)/Library/BaseCmosAccessLib/BaseCmosAccessLib.inf
    PostCodeLib|$(PLATFORM_PACKAGE_COMMON)/Library/BasePostCodeLibPort80Ex/BasePostCodeLibPort80Ex.inf
    DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
    !if $(USB_ENABLE) == TRUE
@@ -155,7 +153,6 @@
    # Platform
    #
    ResetSystemLib|$(PLATFORM_PACKAGE_COMMON)/Library/ResetSystemLib/ResetSystemLib.inf
-   PlatformCmosLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformCmosLib/PlatformCmosLib.inf
    PlatformPostCodeMapLib|$(PLATFORM_PACKAGE_COMMON)/Library/BasePlatformPostCodeMapLib/BasePlatformPostCodeMapLib.inf
    TimerLib|$(PLATFORM_PACKAGE_COMMON)/Library/IntelScAcpiTimerLib/IntelScAcpiTimerLib.inf
 
@@ -190,7 +187,6 @@
 
    PchSerialIoUartLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/PeiDxeSmmPchSerialIoUartLib/PeiDxeSmmPchSerialIoUartLib.inf
    PchSerialIoLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/PeiDxeSmmPchSerialIoLib/PeiDxeSmmPchSerialIoLib.inf
-   SerialPortParameterLib|$(PLATFORM_PACKAGE_COMMON)/Library/BaseSerialPortParameterLibCmos/BaseSerialPortParameterLibCmos.inf
 
    BiosIdLib|$(PLATFORM_PACKAGE_COMMON)/Library/BiosIdLib/BiosIdLib.inf
    CpuIA32Lib|$(PLATFORM_PACKAGE_COMMON)/Library/CpuIA32Lib/CpuIA32Lib.inf
@@ -234,8 +230,6 @@
      BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
    !endif
    SmmCpuPlatformHookLib|UefiCpuPkg/Library/SmmCpuPlatformHookLibNull/SmmCpuPlatformHookLibNull.inf
-
-   BasePlatformCmosLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformCmosLib/PlatformCmosLib.inf
 
    PmicLib|$(PLATFORM_PACKAGE_COMMON)/Library/PmicLib/PmicLibNull.inf
 

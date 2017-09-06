@@ -1,7 +1,7 @@
 /** @file
   Serial I/O Port library functions with no library constructor/destructor.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -18,9 +18,7 @@
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
 #include <Library/SerialPortLib.h>
-#include <Library/SerialPortParameterLib.h>
 #include <Library/PlatformHookLib.h>
-#include <Library/CmosAccessLib.h>
 #include <Library/ScSerialIoUartLib.h>
 
 #ifdef TRACE_HUB_DEBUGLIB_USAGE
@@ -104,13 +102,12 @@ UARTInitialize (
   //
   // Calculate divisor for baud generator
   //
-  BaudRate = GetSerialPortBaudRate ();
+  BaudRate = PcdGet32 (PcdSerialBaudRate);
   if ((BaudRate == 0) || ((BaudRate % 9600) != 0)) {
     //
     // If Serail Baud Rate is not valid, set it to the default value
     //
     BaudRate = PcdGet32 (PcdSerialBaudRate);
-    SetSerialPortBaudRate (BaudRate);
   }
   Divisor = MAX_BAUD_RATE / BaudRate;
 
@@ -174,23 +171,8 @@ SerialPortInitialize (
   VOID
   )
 {
-  UINT8  CmosStatusCodeFlags;
 
-  CmosStatusCodeFlags = GetDebugInterface ();
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-    CmosStatusCodeFlags = STATUS_CODE_USE_SERIALIO | STATUS_CODE_CMOS_VALID;
-    SetDebugInterface (CmosStatusCodeFlags);
-  }
-  //
-  // no init for MEM
-  //
-
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    PchSerialIoUartInit (PcdGet8 (PcdSerialIoUartNumber), TRUE, 115200, 3, FALSE);
-  }
-  //
-  // no init for TRACEHUB
-  //
+  PchSerialIoUartInit (PcdGet8 (PcdSerialIoUartNumber), TRUE, 115200, 3, FALSE);
 
   return RETURN_SUCCESS;
 }
@@ -307,19 +289,8 @@ SerialPortWrite (
   IN UINTN     NumberOfBytes
   )
 {
-  UINT8    CmosStatusCodeFlags;
 
-  CmosStatusCodeFlags = GetDebugInterface ();
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-    //
-    // invalid cmos value, it means action was attempted before Init
-    //
-    return RETURN_NOT_READY;
-  }
-
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    PchSerialIoUartOut (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes);
-  }
+  PchSerialIoUartOut (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes);
 
   return RETURN_SUCCESS;
 }
@@ -399,21 +370,9 @@ SerialPortRead (
   IN  UINTN     NumberOfBytes
   )
 {
-  UINT8    CmosStatusCodeFlags;
 
-  CmosStatusCodeFlags = GetDebugInterface ();
-
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-    //
-    // invalid cmos value, it means action was attempted before Init
-    //
-    return RETURN_NOT_READY;
-  }
-
-
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    PchSerialIoUartIn (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes, FALSE);
-  }
+  PchSerialIoUartIn (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes, FALSE);
+ 
   return RETURN_SUCCESS;
 }
 
@@ -475,23 +434,11 @@ SerialPortPoll (
   VOID
   )
 {
-  UINT8     CmosStatusCodeFlags;
+
   BOOLEAN   Status;
 
-  CmosStatusCodeFlags = GetDebugInterface ();
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-
-    //
-    // invalid cmos value, it means action was attempted before Init
-    //
-    return FALSE;
-  }
-
   Status = FALSE;
-
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    Status |= PchSerialIoUartPoll (PcdGet8 (PcdSerialIoUartNumber));
-  }
+  Status |= PchSerialIoUartPoll (PcdGet8 (PcdSerialIoUartNumber));
 
   return Status;
 }

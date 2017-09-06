@@ -61,7 +61,6 @@
   FspPolicyInitLib|$(PLATFORM_PACKAGE_COMMON)/Library/PeiFspPolicyInitLib/PeiFspPolicyInitLib.inf
   FspWrapperPlatformResetLib|$(PLATFORM_PACKAGE_COMMON)/FspSupport/Library/PeiFspWrapperPlatformResetLib/PeiFspWrapperPlatformResetLib.inf
 
-  BasePlatformCmosLib|$(PLATFORM_PACKAGE_COMMON)/Library/PlatformCmosLib/PlatformCmosLib.inf
   DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
   Tcg2PhysicalPresenceLib|SecurityPkg/Library/PeiTcg2PhysicalPresenceLib/PeiTcg2PhysicalPresenceLib.inf
 

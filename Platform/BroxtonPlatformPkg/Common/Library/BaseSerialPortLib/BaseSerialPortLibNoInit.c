@@ -1,7 +1,7 @@
 /** @file
   Serial I/O Port library functions with no library constructor/destructor.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -198,21 +198,8 @@ SerialPortWrite (
   IN UINTN     NumberOfBytes
   )
 {
-  UINT8   CmosStatusCodeFlags;
 
-  CmosStatusCodeFlags = GetDebugInterface ();
-
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-
-    //
-    // invalid cmos value, it means action was attempted before Init
-    //
-    return RETURN_NOT_READY;
-  }
-
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    PchSerialIoUartOut (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes);
-  }
+  PchSerialIoUartOut (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes);
 
   return RETURN_SUCCESS;
 }
@@ -293,21 +280,9 @@ SerialPortRead (
   IN  UINTN     NumberOfBytes
   )
 {
-  UINT8    CmosStatusCodeFlags;
 
-  CmosStatusCodeFlags = GetDebugInterface ();
+  PchSerialIoUartIn (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes, FALSE);
 
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-
-    //
-    // invalid cmos value, it means action was attempted before Init
-    //
-    return RETURN_NOT_READY;
-  }
-
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    PchSerialIoUartIn (PcdGet8 (PcdSerialIoUartNumber), Buffer, NumberOfBytes, FALSE);
-  }
   return RETURN_SUCCESS;
 }
 
@@ -369,23 +344,12 @@ SerialPortPoll (
   VOID
   )
 {
-  UINT8     CmosStatusCodeFlags;
+
   BOOLEAN   Status;
-
-  CmosStatusCodeFlags = GetDebugInterface ();
-  if ((!(CmosStatusCodeFlags & STATUS_CODE_CMOS_VALID)) || (CmosStatusCodeFlags & STATUS_CODE_CMOS_INVALID)) {
-
-    //
-    // invalid cmos value, it means action was attempted before Init
-    //
-    return FALSE;
-  }
 
   Status = FALSE;
 
-  if (CmosStatusCodeFlags & STATUS_CODE_USE_SERIALIO) {
-    Status |= PchSerialIoUartPoll (PcdGet8 (PcdSerialIoUartNumber));
-  }
+  Status |= PchSerialIoUartPoll (PcdGet8 (PcdSerialIoUartNumber));
 
   return Status;
 }

@@ -76,8 +76,6 @@
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBiosVideoCheckVbeEnable|TRUE
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBiosVideoCheckVgaEnable|TRUE
 
-  #Overrides the CMOS Flag to disable ISA serial debug
-  gClientCommonModuleTokenSpaceGuid.PcdStatusCodeFlagsCmosIndex|0x5C
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress|0xFE043000
 
   !if $(SOURCE_DEBUG_ENABLE) == TRUE

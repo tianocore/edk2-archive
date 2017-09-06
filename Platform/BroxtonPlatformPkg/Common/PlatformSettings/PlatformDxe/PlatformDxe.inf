@@ -65,7 +65,6 @@
   DxeSaPolicyLib
   ConfigBlockLib
   GpioLib
-  BasePlatformCmosLib
 
 [Guids]
   gEfiBiosIdGuid

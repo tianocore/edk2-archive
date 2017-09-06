@@ -255,30 +255,6 @@ EnableAcpiCallback (
 }
 
 
-#if (ENBDT_PF_ENABLE == 1) //BXTP
-VOID
-EFIAPI
-CheckCmosBatteryLost (
-  VOID
-  )
-{
-  UINT8                 Buffer8 = 0;
-
-  if (!CheckCmosBatteryStatus ()) {
-    Buffer8 = MmioRead8 (PMC_BASE_ADDRESS + R_PMC_GEN_PMCON_1);
-
-    //
-    // CMOS Battery then clear status
-    //
-    if (Buffer8 & B_PMC_GEN_PMCON_RTC_PWR_STS) {
-      Buffer8 &= ~B_PMC_GEN_PMCON_RTC_PWR_STS;
-      MmioWrite8 (PMC_BASE_ADDRESS + R_PMC_GEN_PMCON_1, Buffer8);
-    }
-  }
-}
-#endif //#if (ENBDT_PF_ENABLE == 1) //BXTP
-
-
 VOID
 PlatformScInitBeforeBoot (
   VOID
@@ -877,7 +853,6 @@ InitializePlatform (
   }
 
 #if (ENBDT_PF_ENABLE == 1) //BXTP
-  CheckCmosBatteryLost ();
 
 #ifdef SENSOR_INFO_VAR_SUPPORT
   InitializeSensorInfoVariable (); // Initialize Sensor Info variable
