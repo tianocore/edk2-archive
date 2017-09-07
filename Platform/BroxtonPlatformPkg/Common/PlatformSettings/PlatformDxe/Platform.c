@@ -390,6 +390,11 @@ ReadyToBootFunction (
     mPciLanInfo = NULL;
   }
 
+  //
+  // Set RTC century in case RTC core driver failed to initialize it.
+  //
+  AdjustRtcCentury ();
+
   return;
 }
 

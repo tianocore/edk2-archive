@@ -33,6 +33,7 @@
   PciDevice.c
   IchTcoReset.c
   SensorVar.c
+  Rtc.c
 
 [Packages]
   MdePkg/MdePkg.dec

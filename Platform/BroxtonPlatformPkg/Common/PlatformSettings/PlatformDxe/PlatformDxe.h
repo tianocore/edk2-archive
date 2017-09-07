@@ -235,6 +235,12 @@ InitSioPlatformPolicy (
   VOID
   );
 
+VOID
+EFIAPI
+AdjustRtcCentury (
+  VOID
+  );
+
 //
 // Global externs
 //
