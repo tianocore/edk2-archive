@@ -2384,6 +2384,22 @@ BdsLibBootViaBootOption (
                           0,
                           &ImageHandle
                           );
+
+  if (EFI_ERROR(Status)) {
+            //
+            //Try Ubuntu boot loader
+            //
+            FilePath = FileDevicePath (Handle, EFI_REMOVABLE_MEDIA_FILE_NAME_UBUNTU_X64);
+            Status = gBS->LoadImage (
+                            TRUE,
+                            gImageHandle,
+                            FilePath,
+                            NULL,
+                            0,
+                            &ImageHandle
+                            );
+          }
+           
         }
       }
     }
@@ -3721,6 +3737,18 @@ BdsLibGetBootableHandle (
                  &DosHeader,
                  Hdr
                  );
+
+      if (EFI_ERROR(Status)) {
+        //
+        //Try Ubuntu boot loader
+        //
+        Status = BdsLibGetImageHeader (
+                   SimpleFileSystemHandles[Index],
+                   EFI_REMOVABLE_MEDIA_FILE_NAME_UBUNTU_X64,
+                   &DosHeader,
+                   Hdr
+                   );
+      }
       if (!EFI_ERROR (Status) &&
         EFI_IMAGE_MACHINE_TYPE_SUPPORTED (Hdr.Pe32->FileHeader.Machine) &&
         Hdr.Pe32->OptionalHeader.Subsystem == EFI_IMAGE_SUBSYSTEM_EFI_APPLICATION) {
