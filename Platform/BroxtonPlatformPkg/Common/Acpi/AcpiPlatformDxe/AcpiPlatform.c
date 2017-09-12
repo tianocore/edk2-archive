@@ -656,7 +656,7 @@ PlatformUpdateTables (
 
     case EFI_ACPI_3_0_FIXED_ACPI_DESCRIPTION_TABLE_SIGNATURE:
       pFACP = (EFI_ACPI_3_0_FIXED_ACPI_DESCRIPTION_TABLE *) Table;
-      pFACP->ResetValue = mSystemConfiguration.ResetSelect;
+      pFACP->ResetValue = (UINT8) PcdGet8 (PcdResetType);
       pFACP->Flags |= BIT10;
       DEBUG ((DEBUG_INFO, "FACP ResetValue = %x\n", pFACP->ResetValue));
 

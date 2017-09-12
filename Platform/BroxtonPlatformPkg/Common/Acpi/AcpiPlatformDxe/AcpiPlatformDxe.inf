@@ -45,6 +45,7 @@
   DxeVtdLib
   SteppingLib
   SeCLib
+  PcdLib
 
 [Guids]
   gACPIOSFRMfgStringVariableGuid
@@ -84,6 +85,7 @@
   gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
   gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdResetType
 
 [Depex]
   gEfiAcpiSupportProtocolGuid        AND

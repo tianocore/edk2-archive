@@ -178,6 +178,7 @@
   gPlatformModuleTokenSpaceGuid.PcdUpdateFspmUpdFunc|0|UINT64|0x80000010
   gPlatformModuleTokenSpaceGuid.PcdDramCreatePolicyDefaultsFunc|0|UINT64|0x80000011
   gPlatformModuleTokenSpaceGuid.PcdGetBoardNameFunc|0|UINT64|0x80000012
+  gPlatformModuleTokenSpaceGuid.PcdResetType|0x0E|UINT8|0x80000013
   
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.

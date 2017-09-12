@@ -80,6 +80,7 @@
   gEfiBxtTokenSpaceGuid.PcdScAcpiIoPortBaseAddress
   gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdResetType
 
 [FixedPcd]
   gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize

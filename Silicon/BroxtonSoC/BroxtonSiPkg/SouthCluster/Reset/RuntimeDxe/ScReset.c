@@ -1,7 +1,7 @@
 /** @file
   Reset Architectural Protocol implementation.
 
-  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2011 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -289,14 +289,14 @@ IntelScResetSystem (
   switch (ResetType) {
     case EfiResetWarm:
       InitialData = V_RST_CNT_HARDSTARTSTATE;
-      OutputData  = mResetInstance->ResetSelect;
+      OutputData  = V_RST_CNT_HARDRESET;
       if (mResetInstance->ResetSelect == V_RST_CNT_FULLRESET) {
       }
       break;
 
     case EfiResetCold:
       InitialData = V_RST_CNT_HARDSTARTSTATE;
-      OutputData  = V_RST_CNT_HARDRESET;
+      OutputData = mResetInstance->ResetSelect;
       break;
 
     case EfiResetShutdown:

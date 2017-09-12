@@ -33,6 +33,7 @@
 #include <Ppi/BoardInitSignalling.h>
 
 #include "BoardInitMiscs.h"
+#include <ScRegs/RegsPcu.h>
 
 VOID BensonGpioTest (VOID);
 

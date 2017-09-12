@@ -61,6 +61,7 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardPostMemInitFunc
   gPlatformModuleTokenSpaceGuid.PcdBoardId
   gPlatformModuleTokenSpaceGuid.PcdFabId
+  gPlatformModuleTokenSpaceGuid.PcdResetType
 
 [Guids]
   gEfiPlatformInfoGuid

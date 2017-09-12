@@ -45,12 +45,14 @@ form formid = SYSTEM_COMPONENT_FORM_ID,
     option text = STRING_TOKEN(STR_PNP_POWER_PERFORMANCE_STRING), value = 3, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
   endoneof;
 
+suppressif TRUE;
   oneof varid   = Setup.ResetSelect,
     prompt      = STRING_TOKEN(STR_RESET_SELECT),
     help        = STRING_TOKEN(STR_RESET_SELECT_HELP),
     option text = STRING_TOKEN(STR_WARM_RESET), value = 0x6, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     option text = STRING_TOKEN(STR_COLD_RESET), value = 0xE, flags = RESET_REQUIRED;
   endoneof;
+endif;
 
   // Embedded Power Instrumentation
   oneof varid   = Setup.EPIEnable,

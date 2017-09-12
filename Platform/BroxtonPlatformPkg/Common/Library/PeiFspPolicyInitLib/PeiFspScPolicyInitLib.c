@@ -216,7 +216,7 @@ PeiFspScPolicyInit (
     //
     // Set ACPI and P2SB Base Addresses
     //
-    FspsUpd->FspsConfig.ResetSelect          = SystemConfiguration->ResetSelect;
+    FspsUpd->FspsConfig.ResetSelect          = (UINT8) PcdGet8 (PcdResetType);
     FspsUpd->FspsConfig.CRIDSettings         = SystemConfiguration->CRIDSettings;
 
     //

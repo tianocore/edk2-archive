@@ -1,7 +1,7 @@
 /** @file
   Internal header file for Fsp Policy Initialization Library.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -22,6 +22,7 @@
 #include <Library/ConfigBlockLib.h>
 #include <Library/PeiScPolicyLib.h>
 #include <Library/MemoryAllocationLib.h>
+#include <Library/PcdLib.h>
 #include <Guid/SetupVariable.h>
 #include <FspEas.h>
 #include <FspmUpd.h>

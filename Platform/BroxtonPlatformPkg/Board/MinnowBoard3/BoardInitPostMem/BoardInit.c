@@ -56,6 +56,7 @@ MinnowBoard3PostMemInitCallback (
   VOID                             *Instance;
   UINT8                            BoardId;
   UINT8                            FabId;
+  UINT8                            ResetType;
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -82,6 +83,12 @@ MinnowBoard3PostMemInitCallback (
   // Set init function PCD
   //
   PcdSet64 (PcdBoardPostMemInitFunc, (UINT64) (UINTN) Minnow3MultiPlatformInfoInit);
+  
+  //
+  // Set Reset Type according to different Board
+  //
+  ResetType = V_RST_CNT_FULLRESET;
+  PcdSet8 (PcdResetType, (UINT8) ResetType);
 
   //
   // Add init steps here

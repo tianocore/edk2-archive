@@ -381,8 +381,7 @@ UpdatePeiScPolicy (
   GeneralConfig->AcpiBase      = (UINT16) PcdGet16 (PcdScAcpiIoPortBaseAddress);
   GeneralConfig->P2sbBase      = (UINT32) PcdGet32 (PcdP2SBBaseAddress);
   GeneralConfig->Crid          = SystemConfiguration.CRIDSettings;
-  GeneralConfig->ResetSelect   = SystemConfiguration.ResetSelect;
-
+  GeneralConfig->ResetSelect   = (UINT8) PcdGet8 (PcdResetType);
   HpetConfig->Enable           = SystemConfiguration.Hpet;
   HpetConfig->Base             = HPET_BASE_ADDRESS;
   HpetConfig->BdfValid         = 0x01;

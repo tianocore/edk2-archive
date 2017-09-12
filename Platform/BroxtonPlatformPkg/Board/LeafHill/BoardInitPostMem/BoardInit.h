@@ -22,6 +22,7 @@
 #include <Library/HobLib.h>
 #include <Library/TimerLib.h>
 #include <Guid/PlatformInfo_Aplk.h>
+#include <ScRegs/RegsPcu.h>
 
 VOID LeafHillGpioTest (VOID);
 
