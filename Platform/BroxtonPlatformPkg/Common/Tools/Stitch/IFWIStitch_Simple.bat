@@ -30,6 +30,7 @@ if /i "%~1"=="Help" goto Usage
 
 set FspWrapper=FALSE
 set FabId=B
+set BoardId=MN
 
 if /i "%~2"=="B" (
     set FabId=B
@@ -37,6 +38,14 @@ if /i "%~2"=="B" (
 
 if /i "%~2"=="A" (
     set FabId=A
+)
+
+if /i "%~3"=="MN" (
+    set BoardId=MN
+)
+
+if /i "%~3"=="BG" (
+    set BoardId=BG
 )
 
 :OptLoop1
@@ -95,6 +104,8 @@ if not "!BIOS_Name!"=="!BIOS_Name:_R_=!" (
 
 if /i "!Platform_Type!"=="MINN" (
     set Platform_Type=MINN
+) else if /i "!Platform_Type!"=="BENS" (
+    set Platform_Type=BENS
 ) else (
     echo Error - Unsupported PlatformType: !Platform_Type!
     goto Usage
@@ -119,18 +130,25 @@ copy /y /b %BIOS_Names%\IBBL.Fv .\BIOS_COMPONENTS
 copy /y /b %BIOS_Names%\IBB.Fv .\BIOS_COMPONENTS
 copy /y /b %BIOS_Names%\OBB.Fv .\BIOS_COMPONENTS
 copy /y /b %BIOS_Names%\NvStorage.Fv .\BIOS_COMPONENTS
-if %FabId%==B (
-  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk1.bin .
-  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk2.bin .
-  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk3.bin .
-  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
-  ) else (
-  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk1.bin .
-  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk2.bin .
-  copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk3.bin .
-  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
-  )
 
+if %BoardId%==BG (
+  copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_A\SpiChunk1.bin .
+  copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_A\SpiChunk2.bin .
+  copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_A\SpiChunk3.bin .
+  copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
+) else if %BoardId%==MN (
+         if %FabId%==B (
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk1.bin .
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk2.bin .
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk3.bin .
+           copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
+         ) else (
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk1.bin .
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk2.bin .
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk3.bin .
+           copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
+         )
+)
 move /y spi_out.bin %BIOS_ID%.bin  >> Stitching.log
 
 if !ERRORLEVEL! NEQ 0 (

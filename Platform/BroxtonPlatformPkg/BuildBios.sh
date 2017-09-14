@@ -29,6 +29,7 @@ SV_String=_
 exitCode=0
 Arch=X64
 FabId=B
+BoardId=MN
 
 ## Initialize all the build flags to FALSE
 ## depending on the cmd line input, some will be set to TRUE prior to building
@@ -97,6 +98,9 @@ for (( i=1; i<=$#; ))
     if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
       shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
+      BoardId=BG
+      shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
       FabId=B
       shift
@@ -119,12 +123,16 @@ fi
 ## Remove the values for Platform_Type and Build_Target from BiosId.env and stage in Conf/
 cp $WORKSPACE/$PLATFORM_PACKAGE/BiosId.env       $WORKSPACE/Conf/BiosId.env
 sed -i '/^BOARD_ID/d' $WORKSPACE/Conf/BiosId.env
+sed -i '/^BOARD_REV/d' $WORKSPACE/Conf/BiosId.env
 sed -i '/^BUILD_TYPE/d' $WORKSPACE/Conf/BiosId.env
-sed -i '/^VERSION_MINOR/d' $WORKSPACE/Conf/BiosId.env
 
-
-BOARD_ID=MNW3
-echo BOARD_ID = MINNOWV >> $WORKSPACE/Conf/BiosId.env
+if [ $BoardId == "MN" ]; then
+  BOARD_ID=MNW3
+  echo BOARD_ID = MINNOW3 >> $WORKSPACE/Conf/BiosId.env
+else
+  BOARD_ID=BEN1
+  echo BOARD_ID = BENSONV >> $WORKSPACE/Conf/BiosId.env
+fi
 ENBDT_PF_BUILD=TRUE
 PLATFORM_NAME=BroxtonPlatformPkg
 PLATFORM_PACKAGE=Platform/BroxtonPlatformPkg  
@@ -164,13 +172,21 @@ else
   echo BUILD_TYPE = D >> $WORKSPACE/Conf/BiosId.env
 fi
 
-if [ $FabId == "B" ]; then
-  VERSION_MINOR=0B
-  echo VERSION_MINOR = 0B >> $WORKSPACE/Conf/BiosId.env
-else
-  VERSION_MINOR=0A
-  echo VERSION_MINOR = 0A >> $WORKSPACE/Conf/BiosId.env
+if [ $BoardId == "BG" ]; then
+  BOARD_REV=A
+  echo BOARD_REV = A >> $WORKSPACE/Conf/BiosId.env
 fi
+
+if [ $BoardId == "MN" ]; then
+  if [ $FabId == "B" ]; then
+    BOARD_REV=B
+    echo BOARD_REV = B >> $WORKSPACE/Conf/BiosId.env
+  else
+    BOARD_REV=A
+    echo BOARD_REV = A >> $WORKSPACE/Conf/BiosId.env
+  fi
+fi
+
 
 ##**********************************************************************
 ## Additional EDK Build Setup/Configuration
@@ -262,7 +278,7 @@ cp $BUILD_PATH/FV/SOC.fd $BUILD_PATH/FV/Bxt"$Arch".fd
 ##
 VERSION_MAJOR=$(grep '^VERSION_MAJOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-4)
 VERSION_MINOR=$(grep '^VERSION_MINOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-2)
-BIOS_Name="$BOARD_ID""$SV_String""$Arch"_"$BUILD_TYPE"_"$VERSION_MAJOR"_"$VERSION_MINOR"
+BIOS_Name="$BOARD_ID""$BOARD_REV""$SV_String""$Arch"_"$BUILD_TYPE"_"$VERSION_MAJOR"_"$VERSION_MINOR"
 
 cp -f $BUILD_PATH/FV/FVOBB.Fv  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVOBBX.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
@@ -270,16 +286,25 @@ cp -f $BUILD_PATH/FV/FVIBBR.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Too
 cp -f $BUILD_PATH/FV/FVIBBM.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVIBBL.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 
-if [ $FabId == "B" ]; then
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-else
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+if [ $BoardId == "BG" ]; then
+  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+fi
+
+if [ $BoardId == "MN" ]; then
+  if [ $FabId == "B" ]; then
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  else
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  fi
 fi
 
 #

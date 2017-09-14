@@ -18,6 +18,8 @@ function Usage () {
   echo
   echo "Usage: BuildBIOS.sh Build_Flags [PlatformName]  Target_Flag"
   echo
+  echo "       Build_Flags:                 /MN    Minnow3 Board (default: MN)"
+  echo "       Build_Flags:                 /BG    Benson Glacier Board"
   echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B)"
   echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B)"
   echo "       PlatformName [optional]:     Broxton  "                   
@@ -49,7 +51,11 @@ fi
 ## Build Flags
 for (( i=1; i<=$#; ))
   do
-    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
+    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
+      BoardId=BG
+      Build_Flags="$Build_Flags /BG"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
       FabId=B
       Build_Flags="$Build_Flags /B"
       shift

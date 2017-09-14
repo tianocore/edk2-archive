@@ -35,6 +35,7 @@ exitCode=0
 Build_Flags=
 Arch=IA32
 FabId=B
+BoardId=MN
 
 
 ## Parse Optional arguments
@@ -54,6 +55,10 @@ for (( i=1; i<=$#; ))
     if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
       Build_Flags="$Build_Flags /x64"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
+      BoardId=BG
+      Build_Flags="$Build_Flags /BG"
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
       FabId=B

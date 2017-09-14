@@ -11,6 +11,7 @@ set BuildTarget=Debug
 set Compiler=/vs13
 set Arch=/x64
 set FabId=/B
+set BoardId=/MN
 
 :: Optional arguments
 :OptLoop
@@ -72,6 +73,18 @@ if /i "%~1"=="/B" (
     shift
     goto OptLoop
 )
+if /i "%~1"=="/MN" (
+    set BoardId=/MN
+    echo.
+    shift
+    goto OptLoop
+)
+if /i "%~1"=="/BG" (
+    set BoardId=/BG
+    echo.
+    shift
+    goto OptLoop
+)
 
 :: Required argument(s)
 :: Require 2 input parameters
@@ -83,8 +96,8 @@ set BuildTarget=%~2
 
 :OptLoopEnd
 echo ---- Call Build Script of Broxton ----
-echo calling : Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
-call Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
+echo calling : Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %BoardId% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
+call Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %BoardId% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
 
 goto Exit
 
@@ -99,6 +112,8 @@ echo        /x64   Set Arch to X64  (default: X64)
 echo        /IA32  Set Arch to IA32 (default: X64)
 echo        /A     Set FabId to A (default:  FAB_B)
 echo        /B     Set FabId to B (default:  FAB_B)
+echo        /MN    Minnow3 Board (default: MN)
+echo        /BG    Benson Glacier Board
 echo        PlatformName:  Broxton
 echo        BuildTargets:  Release, Debug
 

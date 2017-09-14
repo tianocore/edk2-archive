@@ -7,6 +7,7 @@ set "Build_Flags= "
 set Arch=X64
 set SkipUsageFlag=FALSE
 set FabId=B
+set BoardId=MN
 set WORKSPACE=%CD%
 if %WORKSPACE:~-1%==\ (
   set WORKSPACE=%WORKSPACE:~0,-1%
@@ -90,7 +91,18 @@ if /i "%~1"=="/B" (
     shift
     goto OptLoop
 )
-
+if /i "%~1"=="/MN" (
+    set BoardId=MN
+    set Build_Flags=%Build_Flags% /MN
+    shift
+    goto OptLoop
+)
+if /i "%~1"=="/BG" (
+    set BoardId=BG
+    set Build_Flags=%Build_Flags% /BG
+    shift
+    goto OptLoop
+)
 
 :: Require 2 input parameters
 if "%~2"=="" (
@@ -130,7 +142,7 @@ del /f/q ver_strings >nul
 :: Translate Release Build Type
 if "%BUILD_TYPE%"=="R" set BUILD_TYPE=R
 
-set BIOS_Name=%BOARD_ID%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
+set BIOS_Name=%BOARD_ID%%BOARD_REV%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
 
 :: Start Integration process
 echo ================================================================================
@@ -139,8 +151,8 @@ echo.
 echo BIOS ROM input:  %BIOS_Name%
 echo.
 pushd %STITCH_PATH%
-   echo  - call IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %FabId%
-   call %STITCH_PATH%\IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %FabId%
+   echo  - call IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %FabId% %BoardId%
+   call %STITCH_PATH%\IFWIStitch_Simple.bat %STITCH_PATH%\%BIOS_Name% %FabId% %BoardId%
    @echo off
 popd
 if ErrorLevel 1 (

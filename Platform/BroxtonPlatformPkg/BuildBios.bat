@@ -25,6 +25,7 @@ set exitCode=0
 set Arch=X64
 set Compiler=VS2013
 set FabId=B
+set BoardId=MN
 if not defined BiosVersion set BiosVersion=DEV
 
 
@@ -165,6 +166,18 @@ if /i "%~1"=="/B" (
     shift
     goto OptLoop
 )
+if /i "%~1"=="/MN" (
+    set BoardId=MN
+    echo.
+    shift
+    goto OptLoop
+)
+if /i "%~1"=="/BG" (
+    set BoardId=BG
+    echo.
+    shift
+    goto OptLoop
+)
 
 :: Required argument(s)
 if "%~2"=="" (
@@ -178,7 +191,11 @@ echo. & echo -- Setting compiler to %Compiler% -- & echo.
 :: BOARD_ID needs to be exactly 7 characters (GenBiosId.exe limitation)
 echo Setting  %1  platform configuration and BIOS ID...
 if /i "%~1" == "%Minnow_RVP%" (
-    set BOARD_ID=MINNOWV
+  if %BoardId%==MN (
+    set BOARD_ID=MINNOW3
+  ) else if %BoardId%==BG (
+    set BOARD_ID=BENSONV
+  )
     set ENBDT_PF_BUILD=TRUE
     set PLATFORM_NAME=BroxtonPlatformPkg
     set PLATFORM_PACKAGE=%PLATFORM_PATH%
@@ -216,9 +233,9 @@ if "%Arch%"=="IA32" (
 ::Stage of copy of BiosId.env in Conf/ with Platform_Type and Build_Target values removed
 
 if "%Arch%"=="X64" (
-    findstr /b /v "BOARD_ID BUILD_TYPE VERSION_MINOR" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
+    findstr /b /v "BOARD_ID BUILD_TYPE BOARD_REV" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
 ) else if "%Arch%"=="IA32" (
-    findstr /b /v "BOARD_ID BUILD_TYPE VERSION_MINOR BOARD_EXT" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
+    findstr /b /v "BOARD_ID BUILD_TYPE BOARD_REV BOARD_EXT" %PLATFORM_PACKAGE%\BiosId.env > Conf\BiosId.env
     echo BOARD_EXT = I32 >> Conf\BiosId.env
 )
 
@@ -230,10 +247,16 @@ if /i "%~2" == "RELEASE" (
     echo BUILD_TYPE = D >> Conf\BiosId.env
 )
 
-if %FabId%==B (
-    echo VERSION_MINOR = 0B >> Conf\BiosId.env
-) else (
-    echo VERSION_MINOR = 0A >> Conf\BiosId.env
+if %BoardId%==BG (
+  echo BOARD_REV = A >> Conf\BiosId.env
+)
+
+if %BoardId%==MN (
+  if %FabId%==B (
+    echo BOARD_REV = B >> Conf\BiosId.env
+  ) else (
+    echo BOARD_REV = A >> Conf\BiosId.env
+  )
 )
 
 :: Set the Build_Type, Version_Major, and Version_Minor environment variables
@@ -405,7 +428,7 @@ if ErrorLevel 1 goto BldFail
 if "%BUILD_TYPE%"=="R" set BUILD_TYPE=R
 
 echo Copy BIOS...
-set BIOS_Name=%BOARD_ID%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
+set BIOS_Name=%BOARD_ID%%BOARD_REV%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
 copy /y/b %BUILD_PATH%\FV\Soc.fd          %STITCH_PATH%\%BIOS_Name%.ROM >nul
 copy /y   %STITCH_PATH%\FlashMap.h        %STITCH_PATH%\%BIOS_Name%.map >nul
 
