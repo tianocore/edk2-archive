@@ -4,7 +4,7 @@
     2) BDS boot device connect interface.
     3) BDS Misc interfaces for mainting boot variable, ouput string.
 
-Copyright (c) 2004 - 2013, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
 This program and the accompanying materials are licensed and made available under 
 the terms and conditions of the BSD License that accompanies this distribution.  
 The full text of the license may be found at
@@ -821,6 +821,9 @@ SetupResetReminder (
 #define  BDS_EFI_MESSAGE_USB_DEVICE_BOOT  0x0305 // Type 03; Sub-Type 05
 #define  BDS_EFI_MESSAGE_SATA_BOOT        0x0312 // Type 03; Sub-Type 18
 #define  BDS_EFI_MESSAGE_MAC_BOOT         0x030b // Type 03; Sub-Type 11
+#define  BDS_EFI_MESSAGE_NVME_BOOT        0x0317 // Type 03; Sub-Type 17
+#define  BDS_EFI_MESSAGE_SD_BOOT          0x031a // Type 03; Sub-Type 1a
+#define  BDS_EFI_MESSAGE_EMMC_BOOT        0x031d // Type 03; Sub-Type 1d
 #define  BDS_EFI_MESSAGE_MISC_BOOT        0x03FF
 
 ///
