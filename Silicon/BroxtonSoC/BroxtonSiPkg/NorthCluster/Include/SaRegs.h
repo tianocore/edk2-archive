@@ -15,7 +15,7 @@
   Registers / bits of new devices introduced in a SA generation will be just named
   as "_SA_" without [generation_name] inserted.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -58,6 +58,12 @@
 #define R_SA_MC_CAPID0_A               0xE4
 #define R_SA_MC_CAPID0_B               0xE8
 #define R_SA_MCHBAR_REG                0x48
+
+//
+// IA-Punit Mailbox on MCH BAR 
+//
+#define R_BIOS_MAILBOX_DATA            0x7080
+#define R_BIOS_MAILBOX_INTERFACE       0x7084
 
 //
 // Silicon Steppings

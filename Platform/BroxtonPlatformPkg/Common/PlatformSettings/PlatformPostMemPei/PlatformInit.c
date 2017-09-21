@@ -311,6 +311,53 @@ BXTPolicyInit (
   return EFI_SUCCESS;
 }
 
+VOID
+ConfigurePmicIMON (
+  VOID
+  )
+{
+  UINTN   PciD0F0RegBase = 0;
+  UINTN   MchBar = 0;
+  UINT32  Data;
+  UINT16  StallCount;
+  UINT64  PkgPwrSKU;
+
+  PciD0F0RegBase  = MmPciAddress (0,SA_MC_BUS,SA_MC_DEV,SA_MC_FUN,0);
+  MchBar          = MmioRead32 (PciD0F0RegBase + R_SA_MCHBAR_REG) &~BIT0;
+  PkgPwrSKU       = AsmReadMsr64 (MSR_PACKAGE_POWER_SKU);
+
+  StallCount = 0;
+  while (StallCount < 1000) {
+    Data = MmioRead32 (MchBar + R_BIOS_MAILBOX_INTERFACE); 
+    if ((Data & BIT31) == BIT31) {
+      MicroSecondDelay (1);
+    } else {
+      break;
+    }
+    StallCount++;
+  }
+  MmioWrite32 ( (MchBar + R_BIOS_MAILBOX_DATA), 0xfa0d04a4);
+  MmioWrite32 ( (MchBar + R_BIOS_MAILBOX_INTERFACE), 0x8000011d);
+
+  StallCount = 0;
+  while (StallCount < 1000) {
+    Data = MmioRead32 (MchBar + R_BIOS_MAILBOX_INTERFACE);
+    if ((Data & BIT31) == BIT31) {
+      MicroSecondDelay (1);
+    } else {
+      break;
+    }
+    StallCount++;
+  }
+
+  if ((PkgPwrSKU & 0x07FFF) >= 0x0903){
+    MmioWrite32 ( (MchBar + R_BIOS_MAILBOX_DATA), 0xe8330466);
+    MmioWrite32 ( (MchBar + R_BIOS_MAILBOX_INTERFACE), 0x8000001d);
+  } else { 
+    MmioWrite32 ( (MchBar + R_BIOS_MAILBOX_DATA), 0xed3303b3);
+    MmioWrite32 ( (MchBar + R_BIOS_MAILBOX_INTERFACE), 0x8000001d);
+  }
+}
 
 /**
   Platform Init PEI module entry point
@@ -363,6 +410,8 @@ PlatformInitEntryPoint (
   }
 
   PWM_Fan_Start ();
+  
+  ConfigurePmicIMON();
 
   //
   // Initialize PlatformInfo HOB
