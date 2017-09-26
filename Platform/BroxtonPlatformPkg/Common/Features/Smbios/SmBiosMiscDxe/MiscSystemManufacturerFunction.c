@@ -2,7 +2,7 @@
   This driver parses the mMiscSubclassDataTable structure and reports
   any generated data.
 
-  Copyright (c) 2009 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2009 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -19,7 +19,9 @@
 #include "MiscSubclassDriver.h"
 #include <Protocol/DxeSmmReadyToLock.h>
 #include <Library/PrintLib.h>
-
+#include <BoardFunctionsDxe.h>
+#include <Library/HobLib.h>
+#include <Guid/PlatformInfo.h>
 
 
 /**
@@ -59,6 +61,17 @@ AddSmbiosManuCallback (
   EFI_SMBIOS_PROTOCOL               *Smbios;
   CHAR16                            Buffer[40];
   CHAR16                            PlatformNameBuffer[40];
+  EFI_PEI_HOB_POINTERS              GuidHob;
+  GET_BOARD_NAME                    GetBoardNameFunc;
+  EFI_PLATFORM_INFO_HOB             *PlatformInfo = NULL;
+
+
+  GuidHob.Raw = GetHobList ();
+  if (GuidHob.Raw != NULL) {
+    if ((GuidHob.Raw = GetNextGuidHob (&gEfiPlatformInfoGuid, GuidHob.Raw)) != NULL) {
+      PlatformInfo = GET_GUID_HOB_DATA (GuidHob.Guid);
+    }
+  }
 
   ForType1InputData = (EFI_MISC_SYSTEM_MANUFACTURER *) Context;
 
@@ -72,7 +85,15 @@ AddSmbiosManuCallback (
   Status = gBS->LocateProtocol (&gEfiSmbiosProtocolGuid, NULL, (VOID **) &Smbios);
   ASSERT_EFI_ERROR (Status);
 
-  UnicodeSPrint (PlatformNameBuffer, sizeof (PlatformNameBuffer), L"%s", L"MinnowBoard V3 ");
+  UnicodeSPrint (PlatformNameBuffer, sizeof (PlatformNameBuffer), L"%s", L"Broxton ");
+
+  //
+  // Update Board Name from PCD
+  //
+  if (PlatformInfo != NULL) {
+    GetBoardNameFunc = (GET_BOARD_NAME) (UINTN) PcdGet64 (PcdGetBoardNameFunc);
+    UnicodeSPrint (PlatformNameBuffer, sizeof (PlatformNameBuffer), L"%s", GetBoardNameFunc(PlatformInfo->BoardId));
+  }
 
   //
   // Silicon Steppings

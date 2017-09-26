@@ -28,7 +28,7 @@ BgGetBoardName (
 
   DEBUG ((EFI_D_INFO,  "BoardInitDxe: GetBoardName - Benson Glacier\n"));
 
-  UnicodeSPrint (BoardName, sizeof (BoardName), L"Benson Glacier (%02x)", BoardId);
+  UnicodeSPrint (BoardName, sizeof (BoardName), L"Benson Glacier ");
 
   if (BoardId != (UINT8) BOARD_ID_BENSON) {
     return NULL;

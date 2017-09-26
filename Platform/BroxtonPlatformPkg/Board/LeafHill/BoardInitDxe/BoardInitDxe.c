@@ -27,7 +27,7 @@ LhGetBoardName (
   STATIC CHAR16  BoardName[40];
 
   DEBUG ((EFI_D_INFO,  "BoardInitDxe: GetBoardName - Leaf Hill\n"));
-  UnicodeSPrint (BoardName, sizeof (BoardName), L"Leaf Hill CRB (%02x)", BoardId);
+  UnicodeSPrint (BoardName, sizeof (BoardName), L"Leaf Hill CRB ");
 
   if (BoardId != (UINT8) BOARD_ID_LFH_CRB) {
     return NULL;
