@@ -3,7 +3,7 @@
   All function in this library is available for PEI, DXE, and SMM,
   But do not support UEFI RUNTIME environment call.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -24,7 +24,6 @@
 #include <Library/ScPcrLib.h>
 #include <Library/ScSerialIoLib.h>
 
-#define MAX_BAUD_RATE     460800  // Maximum Baud per SoC spec
 
 #define R_PCH_SERIAL_IO_8BIT_UART_RXBUF      0x00
 #define R_PCH_SERIAL_IO_8BIT_UART_TXBUF      0x00

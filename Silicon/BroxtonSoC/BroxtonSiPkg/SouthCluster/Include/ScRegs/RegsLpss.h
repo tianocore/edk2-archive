@@ -17,7 +17,7 @@
   - Registers / bits of new devices introduced in a SC generation will be just named
     as "_PCH_" without <generation_name> inserted.
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -124,8 +124,13 @@
 #define B_LPSS_IO_MEM_PCP_N_VAL           0x7FFF0000   ///< N value for the M over N divider
 #define B_LPSS_IO_MEM_PCP_M_VAL           0x0000FFFE   ///< M value for the M over N divider
 #define B_LPSS_IO_MEM_PCP_CLK_EN          BIT0         ///< Clock Enable
-#define V_LPSS_IO_PPR_CLK_M_DIV           1152         ///< Max Baudrate = (100MHz * (1152 / 15625)) / 16 = 460800Hz
+#define V_LPSS_IO_PPR_CLK_M_DIV           288          ///< Max Baudrate = (100MHz * (288 / 15625)) / 16 = 115200Hz
+                                                       /// 2304 -> 921600
+                                                       /// 1152 -> 460800
+                                                       ///  576 -> 230400
+                                                       ///  288 -> 115200
 #define V_LPSS_IO_PPR_CLK_N_DIV           15625
+#define MAX_BAUD_RATE                     115200       /// ((100000000 * (V_LPSS_IO_PPR_CLK_M_DIV / V_LPSS_IO_PPR_CLK_N_DIV)) / 16)
 
 #define R_LPSS_IO_MEM_RESETS              0x204        ///< Software Reset
 #define B_LPSS_IO_MEM_HC_RESET_REL        (BIT0|BIT1)  ///< LPSS IO Host Controller Reset Release
