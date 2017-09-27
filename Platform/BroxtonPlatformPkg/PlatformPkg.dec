@@ -182,6 +182,8 @@
   gPlatformModuleTokenSpaceGuid.PcdGetBoardNameFunc|0|UINT64|0x80000012
   gPlatformModuleTokenSpaceGuid.PcdResetType|0x0E|UINT8|0x80000013
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid|{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }|VOID*|0x80000014
+  ## This PCD used to enable or disable SueCreek
+  gPlatformModuleTokenSpaceGuid.PcdSueCreek|FALSE|BOOLEAN|0x80000015
    
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.

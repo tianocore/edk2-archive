@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 Scope (\_SB.PCI0.SPI1) {
   Device (TP0) {
-    Name (_HID, "SPT0001")
+    Name (_HID, "SUE1000")
     Name (_DDN, "SueCreek - SPI0, CS0")
     Name (_CRS, ResourceTemplate () {
       SpiSerialBus (
@@ -23,15 +23,17 @@ Scope (\_SB.PCI0.SPI1) {
         FourWireMode,           // Full duplex
         8,                      // Bits per word is 8 (byte)
         ControllerInitiated,    // Don't care
-        1000000,                // 1 MHz
-        ClockPolarityLow,       // SPI mode 0
-        ClockPhaseFirst,        // SPI mode 0
+        9600000,                // 9.6 MHz
+        ClockPolarityHigh,      // SPI mode 3
+        ClockPhaseSecond,       // SPI mode 3
         "\\_SB.PCI0.SPI1",      // SPI host controller
         0                       // Must be 0
       )
     })
+
+    External(\SUCE, IntObj)
     Method (_STA, 0x0, NotSerialized) {
-      If (LEqual (OSYS, 2015)) {
+      If (LEqual (SUCE, 0)) {
         Return (0x0)
       } else {
         Return (0xF)

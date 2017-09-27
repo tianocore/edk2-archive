@@ -86,6 +86,7 @@
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
   gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
   gPlatformModuleTokenSpaceGuid.PcdResetType
+  gPlatformModuleTokenSpaceGuid.PcdSueCreek
 
 [Depex]
   gEfiAcpiSupportProtocolGuid        AND

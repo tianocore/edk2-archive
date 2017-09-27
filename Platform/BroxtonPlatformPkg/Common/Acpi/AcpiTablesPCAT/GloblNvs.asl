@@ -1,7 +1,7 @@
 /** @file
   ACPI GNVS
 
-  Copyright (c) 1999 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -474,5 +474,11 @@
     IC5S,    32,    //   (906) I2C5 Speed - Standard mode/Fast mode/FastPlus mode/HighSpeed mode
     IC6S,    32,    //   (910) I2C6 Speed - Standard mode/Fast mode/FastPlus mode/HighSpeed mode
     IC7S,    32,    //   (914) I2C7 Speed - Standard mode/Fast mode/FastPlus mode/HighSpeed mode
+    SEN2,    8,     //   (918) EnableSen2Participant
+    PTTP,    8,     //   (919) PassiveThermalTripPointSen2
+    CTTP,    8,     //   (920) CriticalThermalTripPointSen2S3
+    HTTP,    8,     //   (921) HotThermalTripPointSen2
+    CRTP,    8,     //   (922) CriticalThermalTripPointSen2
+    SUCE,    8,     //   (923) SueCreekEnable: 0: disabled; 1: enabled
 }
 

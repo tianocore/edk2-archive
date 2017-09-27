@@ -96,6 +96,11 @@ MinnowBoard3PostMemInitCallback (
   //
   BufferSize = sizeof (EFI_GUID);
   PcdSetPtr(PcdBoardVbtFileGuid, &BufferSize, (UINT8 *)&gPeiMinnowBoard3VbtGuid);
+  
+  //
+  // Set PcdSueCreek
+  //
+  PcdSetBool (PcdSueCreek, FALSE);
     
   //
   // Add init steps here

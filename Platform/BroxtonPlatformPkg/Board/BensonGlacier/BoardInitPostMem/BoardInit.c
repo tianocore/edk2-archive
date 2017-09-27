@@ -88,6 +88,11 @@ BensonGlacierPostMemInitCallback (
   //
   BufferSize = sizeof (EFI_GUID);
   PcdSetPtr(PcdBoardVbtFileGuid, &BufferSize, (UINT8 *)&gPeiBensonGlacierVbtGuid);
+  
+  //
+  // Set PcdSueCreek
+  //
+  PcdSetBool (PcdSueCreek, TRUE);
     
   //
   // Add init steps here

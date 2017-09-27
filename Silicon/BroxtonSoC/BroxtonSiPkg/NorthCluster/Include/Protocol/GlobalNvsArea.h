@@ -1,7 +1,7 @@
 /** @file
   Header file for Global NVS Area definition.
 
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -506,6 +506,7 @@ typedef struct {
   UINT8       CriticalThermalTripPointSen2S3;         ///<   (920) CriticalThermalTripPointSen2S3
   UINT8       HotThermalTripPointSen2;                ///<   (921) HotThermalTripPointSen2
   UINT8       CriticalThermalTripPointSen2;           ///<   (922) CriticalThermalTripPointSen2
+  UINT8       SueCreekEnable;                         ///<   (923) SueCreekEnable: 0: disabled; 1: enabled                         
 } EFI_GLOBAL_NVS_AREA;
 #pragma pack ()
 

@@ -1439,6 +1439,8 @@ AcpiPlatformEntryPoint (
     mGlobalNvsArea.Area->BatteryCapacity0           = 100;
     mGlobalNvsArea.Area->Mmio32Base                 = (MmioRead32 ((UINTN) PcdGet64 (PcdPciExpressBaseAddress) + 0xBC) & 0xFFF00000);;
     mGlobalNvsArea.Area->Mmio32Length               = ACPI_MMIO_BASE_ADDRESS - mGlobalNvsArea.Area->Mmio32Base;
+    mGlobalNvsArea.Area->SueCreekEnable               = PcdGetBool(PcdSueCreek);
+
     //
     // Initialize IGD state by checking if IGD Device 2 Function 0 is enabled in the chipset
     //
