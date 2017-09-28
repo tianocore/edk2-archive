@@ -179,6 +179,14 @@ if /i "%~1"=="/BG" (
     goto OptLoop
 )
 
+if /i "%~1"=="/m" (
+    if defined NUMBER_OF_PROCESSORS (
+        set /a build_threads=%NUMBER_OF_PROCESSORS%
+    )
+    shift
+    goto OptLoop
+)
+
 :: Required argument(s)
 if "%~2"=="" (
    echo. & echo -- ERROR: Not Enough Arguments Provided

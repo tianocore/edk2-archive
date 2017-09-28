@@ -8,6 +8,7 @@ set Arch=X64
 set SkipUsageFlag=FALSE
 set FabId=B
 set BoardId=MN
+set buildthread=
 set WORKSPACE=%CD%
 if %WORKSPACE:~-1%==\ (
   set WORKSPACE=%WORKSPACE:~0,-1%
@@ -104,6 +105,14 @@ if /i "%~1"=="/BG" (
     goto OptLoop
 )
 
+if /i "%~1"=="/m" (
+    set buildthread=/m
+    echo.
+    shift
+    goto OptLoop
+)
+
+
 :: Require 2 input parameters
 if "%~2"=="" (
    echo. & echo -- ERROR: Not Enough Arguments Provided
@@ -120,8 +129,8 @@ echo ===========================================================================
 echo Build_IFWI:  Calling BIOS build Script...
 echo.
 
-echo - call BuildBios.bat %Build_Flags% %Platform_Type% %Build_Target%
-call %WORKSPACE%\%PLATFORM_PATH%\BuildBios.bat %Build_Flags% %Platform_Type% %Build_Target%
+echo - call BuildBios.bat %buildthread% %Build_Flags% %Platform_Type% %Build_Target%
+call %WORKSPACE%\%PLATFORM_PATH%\BuildBios.bat %buildthread% %Build_Flags% %Platform_Type% %Build_Target%
 if ErrorLevel 1 (
     echo echo  -- Error Building BIOS  & echo.
     set exitCode=1

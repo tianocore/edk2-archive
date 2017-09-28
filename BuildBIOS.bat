@@ -12,6 +12,7 @@ set Compiler=/vs13
 set Arch=/x64
 set FabId=/B
 set BoardId=/MN
+set buildthread=
 
 :: Optional arguments
 :OptLoop
@@ -86,6 +87,13 @@ if /i "%~1"=="/BG" (
     goto OptLoop
 )
 
+if /i "%~1"=="/m" (
+    set buildthread=/m
+    echo.
+    shift
+    goto OptLoop
+)
+
 :: Required argument(s)
 :: Require 2 input parameters
 if "%~2"=="" goto Usage
@@ -96,8 +104,8 @@ set BuildTarget=%~2
 
 :OptLoopEnd
 echo ---- Call Build Script of Broxton ----
-echo calling : Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %BoardId% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
-call Platform\%PlatformName%PlatformPkg\BuildIFWI.bat  %Compiler% %Arch% %BoardId% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
+echo calling : Platform\%PlatformName%PlatformPkg\BuildIFWI.bat %buildthread% %Compiler% %Arch% %BoardId% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
+call Platform\%PlatformName%PlatformPkg\BuildIFWI.bat %buildthread% %Compiler% %Arch% %BoardId% %FabId% /fspw %BuildFlags% MINN %BuildTarget% 
 
 goto Exit
 
