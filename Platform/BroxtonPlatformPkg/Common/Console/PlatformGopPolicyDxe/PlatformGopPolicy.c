@@ -27,12 +27,6 @@ extern EFI_BOOT_SERVICES   *gBS;
 
 PLATFORM_GOP_POLICY_PROTOCOL  mPlatformGOPPolicy;
 
-extern EFI_GUID gPeiDefaultVbtGuid;
-extern EFI_GUID gVbtMipiAuoGuid;
-extern EFI_GUID gVbtMipiSharpGuid;
-extern EFI_GUID gVbtMipiJdiGuid;
-extern EFI_GUID gVbtEdpTypeCGuid;
-
 //
 // Function implementations
 //
@@ -79,71 +73,27 @@ GetVbtData (
    OUT UINT32 *VbtSize
 )
 {
-  SYSTEM_CONFIGURATION          SystemConfiguration;
-  UINTN                         VarSize;
-  EFI_STATUS                    Status;
-  EFI_GUID  BmpImageGuid = { 0xE08CA6D5, 0x8D02, 0x43ae, {0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33} };
-  UINTN                         FvProtocolCount;
-  EFI_HANDLE                    *FvHandles;
-  EFI_FIRMWARE_VOLUME2_PROTOCOL *Fv;
-  UINTN                         Index;
-  UINT32                        AuthenticationStatus;
-  UINT8                         *Buffer;
-  UINTN                         VbtBufferSize;
 
-  if (VbtAddress == NULL || VbtSize == NULL){
-    return EFI_INVALID_PARAMETER;
-  }
-
-  VarSize = sizeof (SYSTEM_CONFIGURATION);
-  Status = gRT->GetVariable (
-                  L"Setup",
-                  &gEfiSetupVariableGuid,
-                  NULL,
-                  &VarSize,
-                  &SystemConfiguration
-                  );
-  ASSERT_EFI_ERROR (Status);
-
-  BmpImageGuid = gPeiDefaultVbtGuid;
-
-  Fv = NULL;
-  Buffer = 0;
-  FvHandles = NULL;
-  Status = gBS->LocateHandleBuffer(
-                  ByProtocol,
-                  &gEfiFirmwareVolume2ProtocolGuid,
-                  NULL,
-                  &FvProtocolCount,
-                  &FvHandles
-                  );
-  if (!EFI_ERROR (Status)) {
-    for (Index = 0; Index < FvProtocolCount; Index++) {
-      Status = gBS->HandleProtocol(
-                      FvHandles[Index],
-                      &gEfiFirmwareVolume2ProtocolGuid,
-                      (VOID **) &Fv
-                      );
-      VbtBufferSize = 0;
-      Status = Fv->ReadSection (
-                     Fv,
-                     &BmpImageGuid,
-                     EFI_SECTION_RAW,
-                     0,
-                     (VOID **)&Buffer,
-                     &VbtBufferSize,
-                     &AuthenticationStatus
-                     );
-      if (!EFI_ERROR (Status)) {
-        *VbtAddress = (EFI_PHYSICAL_ADDRESS) Buffer;
-        *VbtSize = (UINT32) VbtBufferSize;
+  VBT_INFO                     *VbtInfo = NULL;
+  EFI_PEI_HOB_POINTERS         GuidHob;
+  EFI_STATUS                   Status;
+   
+  //
+  // Get VBT data from HOB, which has been created in PEI phase.
+  //
+  Status = EFI_NOT_FOUND;
+  DEBUG ((DEBUG_ERROR, "GOP Policy Protocol GetVbtData from HOB\n"));
+  
+  GuidHob.Raw = GetHobList ();
+  if (GuidHob.Raw != NULL) {
+     if ((GuidHob.Raw = GetNextGuidHob (&gVbtInfoGuid, GuidHob.Raw)) != NULL) {
+        VbtInfo = GET_GUID_HOB_DATA (GuidHob.Guid);
+        *VbtAddress = VbtInfo->VbtAddress;
+        *VbtSize = VbtInfo->VbtSize;
         Status = EFI_SUCCESS;
-        break;
-      }
-    }
-  } else {
-    Status = EFI_NOT_FOUND;
-  }
+        DEBUG ((DEBUG_ERROR, "Found VBT.\n"));
+     }
+  } 
 
   return Status;
 }

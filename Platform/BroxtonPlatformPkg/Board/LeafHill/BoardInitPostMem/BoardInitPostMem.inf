@@ -60,6 +60,7 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardId
   gPlatformModuleTokenSpaceGuid.PcdFabId
   gPlatformModuleTokenSpaceGuid.PcdResetType
+  gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
 
 [Guids]
   gEfiPlatformInfoGuid
@@ -71,6 +72,7 @@
   gEfiTpmDeviceInstanceTpm12Guid
   gEfiTpmDeviceInstanceTpm20DtpmGuid
   gTpmDeviceInstanceTpm20PttPtpGuid
+  gPeiLeafHillVbtGuid
 
 [Ppis]
   gBoardPostMemInitStartGuid

@@ -233,9 +233,9 @@ PeiFspSaPolicyInit (
   }
 
   //
-  // Update VbtGuid based on VbtSelect opion from setup
+  // Update VbtGuid.
   //
-  PeiVbtGuid = gPeiDefaultVbtGuid;
+  CopyMem (&PeiVbtGuid, PcdGetPtr (PcdBoardVbtFileGuid), sizeof (EFI_GUID));
 
   //
   // Update UPD:LogoPtr

@@ -47,7 +47,6 @@
 [Guids]
   gEfiSetupVariableGuid
   gVbtInfoGuid
-  gPeiDefaultVbtGuid
   gVbtMipiAuoGuid
   gVbtMipiSharpGuid
   gVbtMipiJdiGuid
@@ -59,7 +58,8 @@
   gEfiFirmwareVolume2ProtocolGuid
   gPlatformGOPPolicyGuid
 
-[Pcd]
+[Pcd.common]
+  gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
 
 [Depex]
   gEfiCpuIo2ProtocolGuid        AND

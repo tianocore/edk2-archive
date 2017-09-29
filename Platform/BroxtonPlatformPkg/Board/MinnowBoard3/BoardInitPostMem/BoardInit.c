@@ -57,6 +57,7 @@ MinnowBoard3PostMemInitCallback (
   UINT8                            BoardId;
   UINT8                            FabId;
   UINT8                            ResetType;
+  UINTN                            BufferSize;
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -90,6 +91,12 @@ MinnowBoard3PostMemInitCallback (
   ResetType = V_RST_CNT_FULLRESET;
   PcdSet8 (PcdResetType, (UINT8) ResetType);
 
+  //
+  // Board specific VBT table.
+  //
+  BufferSize = sizeof (EFI_GUID);
+  PcdSetPtr(PcdBoardVbtFileGuid, &BufferSize, (UINT8 *)&gPeiMinnowBoard3VbtGuid);
+    
   //
   // Add init steps here
   //

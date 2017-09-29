@@ -76,11 +76,6 @@
 
 [Guids]
   gEfiSetupVariableGuid
-  gPeiDefaultVbtGuid
-  gVbtMipiAuoGuid
-  gVbtMipiSharpGuid
-  gVbtMipiJdiGuid
-  gVbtEdpTypeCGuid
   gEfiPlatformInfoGuid
   gPeiLogoGuid
 
@@ -89,6 +84,7 @@
   gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
   gPlatformModuleTokenSpaceGuid.PcdResetType
+  gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
 
 [Ppis]
   gSiPolicyPpiGuid                 ## CONSUMES

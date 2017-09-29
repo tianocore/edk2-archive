@@ -242,13 +242,27 @@
   INF $(PLATFORM_PACKAGE_COMMON)/SampleCode/IntelFsp2WrapperPkg/FspsWrapperPeim/FspsWrapperPeim.inf
 
   INF $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformPostMemPei/PlatformPostMemPei.inf
+  
 !if $(PEI_DISPLAY_ENABLE) == TRUE
   FILE FREEFORM = 7BB28B99-61BB-11D5-9A5D-0090273FC14D {
     SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Logo/Logo.bmp
   }
-
+  
+  # VBT For Leaf Hill (File Guid is gPeiLeafHillVbtGuid)
+  FILE FREEFORM = 6AE80680-5E3F-4E63-A5F5-78E5214F13FE {
+    SECTION RAW = $(PLATFORM_NAME)/Board/LeafHill/Vbt/VbtBxtMipi.bin
+    SECTION UI = "IntelGopVbt1"
+  }
+  
+  # VBT For Minnowboard 3 (File Guid is gPeiMinnowBoard3VbtGuid)
   FILE FREEFORM = E08CA6D5-8D02-43ae-ABB1-952CC787C933 {
-    SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Vbt/VbtBxtMipi.bin
+    SECTION RAW = $(PLATFORM_NAME)/Board/MinnowBoard3/Vbt/VbtBxtMipi.bin
+    SECTION UI = "IntelGopVbt1"
+  }
+    
+  # VBT For Benson Glacier (File Guid is gPeiBensonGlacierVbtGuid)
+  FILE FREEFORM = BFDE308E-2D5A-4CA7-AA76-19938AAAE4DA {
+    SECTION RAW = $(PLATFORM_NAME)/Board/BensonGlacier/Vbt/VbtBxtMipi.bin
     SECTION UI = "IntelGopVbt1"
   }
 !endif
@@ -561,10 +575,6 @@ APRIORI DXE {
 
 !if $(GOP_DRIVER_ENABLE) == TRUE
   INF $(PLATFORM_PACKAGE_COMMON)/Console/PlatformGopPolicyDxe/PlatformGopPolicyDxe.inf
-  FILE FREEFORM = E08CA6D5-8D02-43ae-ABB1-952CC787C933 {
-    SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Vbt/VbtBxtMipi.bin
-    SECTION UI = "IntelGopVbt1"
-  }
 !endif
 
   INF $(PLATFORM_PACKAGE_COMMON)/Console/GraphicsOutputDxe/GraphicsOutputDxe.inf
