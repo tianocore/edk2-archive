@@ -34,6 +34,7 @@
   IchTcoReset.c
   SensorVar.c
   Rtc.c
+  Logo.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -66,6 +67,7 @@
   DxeSaPolicyLib
   ConfigBlockLib
   GpioLib
+  DxeServicesLib
 
 [Guids]
   gEfiBiosIdGuid
@@ -116,6 +118,9 @@
   gDxePlatformTdtPolicyGuid
   gDxePlatformSeCPolicyGuid
   gEfiSeCOperationProtocolGuid
+  gEfiUgaDrawProtocolGuid
+  gEfiUgaDrawProtocolGuid |PcdUgaConsumeSupport
+  gEfiShellProtocolGuid
 
 [Pcd]
   gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
@@ -127,6 +132,11 @@
   gPlatformModuleTokenSpaceGuid.PcdPBTNDisableInterval
   gEfiMdeModulePkgTokenSpaceGuid.PcdFastPS2Detection
   gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
+  gPlatformModuleTokenSpaceGuid.PcdLogoFileGuid
+  gPlatformModuleTokenSpaceGuid.PcdLogoDisplay
+
+[FeaturePcd]
+  gEfiMdePkgTokenSpaceGuid.PcdUgaConsumeSupport
 
 [Depex]
   gEfiPciRootBridgeIoProtocolGuid     AND

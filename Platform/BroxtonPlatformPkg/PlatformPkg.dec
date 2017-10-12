@@ -184,6 +184,8 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid|{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }|VOID*|0x80000014
   ## This PCD used to enable or disable SueCreek
   gPlatformModuleTokenSpaceGuid.PcdSueCreek|FALSE|BOOLEAN|0x80000015
+  ## This PCD used for QR code display under EFI Shell
+  gPlatformModuleTokenSpaceGuid.PcdLogoDisplay|FALSE|BOOLEAN|0x80000016
    
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.
@@ -319,6 +321,7 @@
   gPlatformModuleTokenSpaceGuid.PcdTemporaryRamSize|0x2000|UINT32|0x10001002
     # @Prompt Stack size in the temporary RAM.
   gPlatformModuleTokenSpaceGuid.PcdPeiTemporaryRamStackSize|0|UINT32|0x10001003
+  gPlatformModuleTokenSpaceGuid.PcdLogoFileGuid|{0x1b, 0x9a, 0x3d, 0x71, 0x49, 0x88, 0x47, 0xc5, 0xb7, 0x2a, 0xb0, 0x7d, 0xc5, 0x10, 0x60, 0xc4 }|VOID*|0x10001004
 
 [PcdsFixedAtBuild]
   ## Specifies maximum number of PPIs provided by SecCore.

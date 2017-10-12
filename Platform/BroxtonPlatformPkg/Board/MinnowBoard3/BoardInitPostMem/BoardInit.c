@@ -101,6 +101,11 @@ MinnowBoard3PostMemInitCallback (
   // Set PcdSueCreek
   //
   PcdSetBool (PcdSueCreek, FALSE);
+
+  //
+  //Set PcdLogoDisplay
+  //
+  PcdSetBool (PcdLogoDisplay, TRUE);
     
   //
   // Add init steps here

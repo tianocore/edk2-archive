@@ -60,6 +60,7 @@
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
+  gPlatformModuleTokenSpaceGuid.PcdLogoDisplay
 
 [Guids]
   gEfiPlatformInfoGuid

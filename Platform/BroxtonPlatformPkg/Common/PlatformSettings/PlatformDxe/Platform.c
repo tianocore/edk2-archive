@@ -15,6 +15,7 @@
 
 #include "PlatformDxe.h"
 #include "Platform.h"
+#include "Logo.h"
 
 #include <Library/S3BootScriptLib.h>
 #include <Library/PciLib.h>
@@ -253,7 +254,6 @@ EnableAcpiCallback (
   Pm1Cnt |= B_ACPI_PM1_CNT_SCI_EN;
   IoWrite16 (AcpiBaseAddr + R_ACPI_PM1_CNT, Pm1Cnt);
 }
-
 
 VOID
 PlatformScInitBeforeBoot (
@@ -699,6 +699,8 @@ InitializePlatform (
   EFI_HOB_GUID_TYPE                   *FdoEnabledGuidHob = NULL;
   EFI_PLATFORM_INFO_HOB               *PlatformInfoHob;
   EFI_PEI_HOB_POINTERS                Hob;
+  EFI_EVENT                           EfiShellEvent = NULL;
+  VOID                                *mEfiShellProtocolRegistration;
 
   mImageHandle = ImageHandle;
 
@@ -900,6 +902,23 @@ InitializePlatform (
 
   OverrideSdCardPresence();
 
+  //
+  //QR code showing under EFI Shell
+  //
+  if (PcdGetBool(PcdLogoDisplay)) {
+  Status = gBS->CreateEvent (
+                  EVT_NOTIFY_SIGNAL,
+                  TPL_CALLBACK,
+                  EfiShellProtocolCallback,
+                  NULL,
+                  &EfiShellEvent
+                  );
+  Status = gBS->RegisterProtocolNotify (
+                  &gEfiShellProtocolGuid,
+                  EfiShellEvent,
+                  &mEfiShellProtocolRegistration
+                  );
+  }
   return EFI_SUCCESS;
 }
 

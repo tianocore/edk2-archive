@@ -582,6 +582,9 @@ APRIORI DXE {
   FILE FREEFORM = PCD(gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile) {
   SECTION RAW = $(PLATFORM_PACKAGE_COMMON)/Binaries/Logo/Logo.bmp
 }
+  FILE FREEFORM = PCD(gPlatformModuleTokenSpaceGuid.PcdLogoFileGuid) {
+  SECTION RAW = $(PLATFORM_NAME)/Board/MinnowBoard3/Logo/MinnowBoardLogo.bmp
+}
 
   INF $(PLATFORM_PACKAGE_COMMON)/PnpDxe/PnpDxe.inf
   INF $(PLATFORM_PACKAGE_COMMON)/PlatformSettings/PlatformGpio/PlatformGpio.inf
