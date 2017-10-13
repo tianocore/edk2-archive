@@ -255,8 +255,8 @@ build $Build_Flags
 #
 #   0xFEF7A000 = gIntelFsp2WrapperTokenSpaceGuid.PcdFlashFvFspBase = $(CAR_BASE_ADDRESS) + $(BLD_RAM_DATA_SIZE) + $(FSP_RAM_DATA_SIZE) + $(FSP_EMP_DATA_SIZE) + $(BLD_IBBM_SIZE)
 pushd  $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin
-python $WORKSPACE/Core/IntelFsp2Pkg/Tools/SplitFspBin.py rebase -f ApolloLakeFsp.fd -c m -b 0xFEF7A000 -o ./ -n FSP.fd
-python $WORKSPACE/Core/IntelFsp2Pkg/Tools/SplitFspBin.py split -f FSP.fd -o ./ -n FSP.Fv
+python $WORKSPACE/Core/IntelFsp2Pkg/Tools/SplitFspBin.py rebase -f Fsp.fd -c m -b 0xFEF7A000 -o ./ -n ApolloLakeFsp.fd
+python $WORKSPACE/Core/IntelFsp2Pkg/Tools/SplitFspBin.py split -f ApolloLakeFsp.fd -o ./ -n FSP.Fv
 popd
 cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_T.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $WORKSPACE/Silicon/BroxtonSoC/BroxtonFspPkg/ApolloLakeFspBinPkg/FspBin/FSP_M.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
