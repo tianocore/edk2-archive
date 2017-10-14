@@ -1456,7 +1456,7 @@ AcpiPlatformEntryPoint (
     mGlobalNvsArea.Area->Rtd3Support                  = mSystemConfiguration.Rtd3Support;
     mGlobalNvsArea.Area->RTD3Config0                  = mSystemConfiguration.RTD3ZPODD;
     mGlobalNvsArea.Area->EnableModernStandby          = mSystemConfiguration.ConsolidatedPR;
-    mGlobalNvsArea.Area->SelectBtDevice               = mSystemConfiguration.SelectBtDevice;
+    mGlobalNvsArea.Area->SelectBtDevice               = (UINT8) PcdGet8 (PcdBtDevice);
     mGlobalNvsArea.Area->ScHdAudioIoBufferOwnership   = mSystemConfiguration.ScHdAudioIoBufferOwnership;
     mGlobalNvsArea.Area->XdciEnable                   = mSystemConfiguration.ScUsbOtg;
     mGlobalNvsArea.Area->PciDelayOptimizationEcr      = mSystemConfiguration.PciDelayOptimizationEcr;

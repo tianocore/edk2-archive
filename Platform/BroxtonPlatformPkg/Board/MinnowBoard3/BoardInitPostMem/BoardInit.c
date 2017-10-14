@@ -57,6 +57,7 @@ MinnowBoard3PostMemInitCallback (
   UINT8                            BoardId;
   UINT8                            FabId;
   UINT8                            ResetType;
+  UINT8                            BtDevice;
   UINTN                            BufferSize;
 
   Status = PeiServicesLocatePpi (
@@ -90,6 +91,12 @@ MinnowBoard3PostMemInitCallback (
   //
   ResetType = V_RST_CNT_FULLRESET;
   PcdSet8 (PcdResetType, (UINT8) ResetType);
+
+  //
+  // Select bluetooth device.
+  //
+  BtDevice = SELECT_BLUE_TOOTH_BCM2E40;
+  PcdSet8 (PcdBtDevice, (UINT8) BtDevice);
 
   //
   // Board specific VBT table.

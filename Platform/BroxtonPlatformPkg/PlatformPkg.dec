@@ -186,6 +186,8 @@
   gPlatformModuleTokenSpaceGuid.PcdSueCreek|FALSE|BOOLEAN|0x80000015
   ## This PCD used for QR code display under EFI Shell
   gPlatformModuleTokenSpaceGuid.PcdLogoDisplay|FALSE|BOOLEAN|0x80000016
+  ## This PCD used to select bluetooth device
+  gPlatformModuleTokenSpaceGuid.PcdBtDevice|0x00|UINT8|0x80000017
    
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.

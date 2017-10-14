@@ -23,6 +23,13 @@
 //
 #define RES_MEM32_MIN_LEN   0x38000000
 
+//
+// Bluetooth device identifier.
+//
+#define SELECT_BLUE_TOOTH_DISABLE 0x00
+#define SELECT_BLUE_TOOTH_BCM2E40 0x01
+#define SELECT_BLUE_TOOTH_BCM2EA1 0x02
+
 #define RES_IO_BASE   0x0D00
 #define RES_IO_LIMIT  0xFFFF
 

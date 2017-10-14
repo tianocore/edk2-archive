@@ -32,7 +32,10 @@ Scope(\_SB.PCI0.URT1)
     }
 
     Method (_STA, 0x0, NotSerialized) {
-      Return (0xF)
+      If (LEqual (SBTD, 1)) {
+        Return (0xF)
+      }
+      Return (0)
     }
 
     Name (_S0W, 2)                            // required to put the device to D2 during S0 idle

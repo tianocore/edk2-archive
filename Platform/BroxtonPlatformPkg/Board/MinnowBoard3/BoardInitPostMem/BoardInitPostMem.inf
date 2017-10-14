@@ -61,6 +61,7 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdLogoDisplay
+  gPlatformModuleTokenSpaceGuid.PcdBtDevice
 
 [Guids]
   gEfiPlatformInfoGuid

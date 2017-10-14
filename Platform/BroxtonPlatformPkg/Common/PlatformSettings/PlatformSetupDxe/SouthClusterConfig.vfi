@@ -186,6 +186,7 @@ form formid     = MISC_OPTIONS_FORM_ID,
   subtitle text = STRING_TOKEN(STR_NULL_STRING);
   subtitle text = STRING_TOKEN(STR_LPSS_DEVICE_SETTING_SUBTITLE);
 
+suppressif TRUE;
   oneof varid  = SETUP_DATA.SelectBtDevice,
     prompt   = STRING_TOKEN(STR_PCH_SERIAL_IO_BLUETOOTH_DEVICE),
     help     = STRING_TOKEN(STR_PCH_SERIAL_IO_BLUETOOTH_HELP),
@@ -193,6 +194,7 @@ form formid     = MISC_OPTIONS_FORM_ID,
       option text = STRING_TOKEN(STR_BT_BCM2E40), value = 1, flags = RESET_REQUIRED;
 //      option text = STRING_TOKEN(STR_BT_BCM2EA1), value = 2, flags = RESET_REQUIRED;
   endoneof;
+endif;
 
   oneof varid   = Setup.I2s343A,
     prompt      = STRING_TOKEN(STR_I2C_DEVICE_CODEC_INT343A_PROMPT),
