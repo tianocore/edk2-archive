@@ -548,7 +548,7 @@ UpdateOrderPage (
   EFI_QUESTION_ID   QuestionId;
   UINT16            VarOffset;
 
-
+  CallbackData->BmmAskSaveOrNot = TRUE;
   UpdatePageStart (CallbackData);
 
   CreateMenuStringToken (CallbackData, CallbackData->BmmHiiHandle, OptionMenu);
