@@ -117,8 +117,6 @@ form formid = SECURITY_CONFIGURATION_FORM_ID,
     help        = STRING_TOKEN(STR_TPM_HELP),
     option text = STRING_TOKEN(STR_DISABLE), value = 0x00, flags = DEFAULT | MANUFACTURING | RESET_REQUIRED;
     option text = STRING_TOKEN(STR_TPM_PTT), value = 0x01, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_TPM_DTPM_1_2), value = 0x02, flags = RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_TPM_DTPM_2_0), value = 0x03, flags = RESET_REQUIRED;
   endoneof;
 
   suppressif NOT ideqval Setup.TPM == 1;
