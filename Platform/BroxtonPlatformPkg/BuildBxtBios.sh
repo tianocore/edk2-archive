@@ -98,6 +98,9 @@ for (( i=1; i<=$#; ))
     if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
       shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/MN" ]; then
+      BoardId=MN
+      shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
       BoardId=BG
       shift
@@ -232,11 +235,6 @@ fi
 ./Platform/BroxtonPlatformPkg/Common/Tools/GenBiosId/GenBiosId -i Conf/BiosId.env -o $BUILD_PATH/$Arch/BiosId.bin
 
 
-
-echo
-echo "**** Replace DebugLib.h to save space.... ****"
-cp PlatformTools/GCC/DebugLib.h Core/MdePkg/Include/Library/
-
 echo
 echo "**** Copy ResetVector to original folder ****"
 echo "**** Due to nasm can't execute in Ubuntu ****"
@@ -245,6 +243,8 @@ echo "**** Due to nasm can't execute in Ubuntu ****"
 echo "Invoking EDK2 build..."
 
 build $Build_Flags
+
+echo "check if Build was successful"
 
 ##**********************************************************************
 ## Post Build processing and cleanup

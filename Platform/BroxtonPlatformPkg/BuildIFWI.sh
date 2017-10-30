@@ -19,10 +19,12 @@ function Usage () {
   echo
   echo "Usage: BuildIFWI.sh Build_Flags Platform_Type Build_Target"
   echo
-  echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B)"
-  echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B)"
-  echo "       Platform_Type [optional]:    Broxton  "                   
-  echo "       Build_Target:                Release, Debug       "
+  echo "       Build_Flags:                 /MN    Minnow3 Board (default: MN) "
+  echo "       Build_Flags:                 /BG    Benson Glacier Board "
+  echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B) "
+  echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B) "
+  echo "       Platform_Type [optional]:    Broxton "                   
+  echo "       Build_Target:                Release, Debug "
   echo
   echo "Press any key......"
   read
@@ -55,6 +57,10 @@ for (( i=1; i<=$#; ))
     if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/X64" ]; then
       Arch=X64
       Build_Flags="$Build_Flags /x64"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/MN" ]; then
+      BoardId=MN
+      Build_Flags="$Build_Flags /MN"
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
       BoardId=BG
@@ -94,7 +100,7 @@ fi
 ## Build BIOS
 echo "======================================================================"
 echo "Build_IFWI:  Calling BIOS build Script..."
-bash Platform/BroxtonPlatformPkg/BuildBios.sh $Build_Flags $Platform_Type $Build_Target
+bash Platform/BroxtonPlatformPkg/BuildBxtBios.sh $Build_Flags $Platform_Type $Build_Target
 
 echo
 echo Finished Building Process.

@@ -2,6 +2,7 @@
 SetLocal EnableDelayedExpansion EnableExtensions
 
 :: Assign initial values
+set thisscript=%0
 set exitCode=0
 set "Build_Flags= "
 set Arch=X64
@@ -116,7 +117,7 @@ if /i "%~1"=="/m" (
 :: Require 2 input parameters
 if "%~2"=="" (
    echo. & echo -- ERROR: Not Enough Arguments Provided
-   echo -- Please review the Help screen "/?" -- & echo.
+   echo -- Please review the Help screen %thisscript% "/?" -- & echo.
    goto exit
 )
 
@@ -129,8 +130,8 @@ echo ===========================================================================
 echo Build_IFWI:  Calling BIOS build Script...
 echo.
 
-echo - call BuildBios.bat %buildthread% %Build_Flags% %Platform_Type% %Build_Target%
-call %WORKSPACE%\%PLATFORM_PATH%\BuildBios.bat %buildthread% %Build_Flags% %Platform_Type% %Build_Target%
+echo - call BuildBxtBios.bat %buildthread% %Build_Flags% %Platform_Type% %Build_Target%
+call %WORKSPACE%\%PLATFORM_PATH%\BuildBxtBios.bat %buildthread% %Build_Flags% %Platform_Type% %Build_Target%
 if ErrorLevel 1 (
     echo echo  -- Error Building BIOS  & echo.
     set exitCode=1
@@ -170,7 +171,7 @@ if ErrorLevel 1 (
 )
 echo.
 echo Build_IFWI is finished.
-echo The final IFWI file is located in Stitch\
+echo The final IFWI file is located in %WORKSPACE%\%PLATFORM_PATH%\Common\Tools\Stitch\
 echo ======================================================================
 
 
@@ -180,11 +181,12 @@ goto Exit
 if /i "%SkipUsageFlag%" == "TRUE" goto Exit
 echo Script to build BIOS firmware and stitch the entire IFWI.
 echo.
-echo Usage: BuildIFWI.bat [options] ^<PlatformType^> ^<BuildTarget^>
+echo Usage: %thisscript% [options] ^<PlatformType^> ^<BuildTarget^>
 echo.
 echo.    /?       Display this help text
 echo     /l       Log a copy of the build output to EDK2.log
 echo     /c       CleanAll before building
+echo     /m 	  Set the build thread count to number of processors
 echo     /FspW    Build FSP and FSP Wrapper
 echo     /x64     Set Arch to X64 (default)
 echo     /vs08    Set compiler to VisualStudio 2008

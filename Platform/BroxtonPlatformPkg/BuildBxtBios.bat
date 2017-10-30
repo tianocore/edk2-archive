@@ -44,8 +44,7 @@ if exist conf\.cache rmdir /q/s conf\.cache
 :: Override tools_def.txt
 echo Creating Conf folder and build config files...
 if not exist %WORKSPACE%\Conf md %WORKSPACE%\Conf
-copy /y %CORE_PATH%\BaseTools\Conf\*.template %WORKSPACE%\Conf\*.txt
-copy /y %WORKSPACE%\%PLATFORM_PATH%\DeviceCommonPkg\Override\BaseTools\Conf\tools_def.template %WORKSPACE%\Conf\tools_def.txt
+copy /y %WORKSPACE%\BaseTools\Conf\*.template %WORKSPACE%\Conf\*.txt
 
 :: Setup EDK environment. Edksetup puts new copies of target.txt, tools_def.txt, build_rule.txt in WorkSpace\Conf
 :: Also run edksetup as soon as possible to avoid it from changing environment variables we're overriding
@@ -576,9 +575,9 @@ goto :EOF
 :Usage
 echo.
 echo ***************************************************************************
-echo Build BIOS Rom for BXT platforms.
+echo Build Edk II BIOS Rom for BXT platforms.
 echo.
-echo Usage: BuildBios.bat [options] ^<PlatformType^> ^<BuildTarget^>
+echo Usage: %0 [options] ^<PlatformType^> ^<BuildTarget^>
 echo.
 echo.   /?       Display this help text
 echo    /l       Log a copy of the build output to EDK2.log

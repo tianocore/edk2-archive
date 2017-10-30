@@ -16,7 +16,7 @@ function Usage () {
   echo
   echo "Script to build BIOS firmware and stitch the entire IFWI."
   echo
-  echo "Usage: BuildBIOS.sh Build_Flags [PlatformName]  Target_Flag"
+  echo "Usage: BuildBios.sh Build_Flags [PlatformName]  Target_Flag"
   echo
   echo "       Build_Flags:                 /MN    Minnow3 Board (default: MN)"
   echo "       Build_Flags:                 /BG    Benson Glacier Board"
@@ -51,7 +51,11 @@ fi
 ## Build Flags
 for (( i=1; i<=$#; ))
   do
-    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
+    if [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/MN" ]; then
+      BoardId=MN
+      Build_Flags="$Build_Flags /MN"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
       BoardId=BG
       Build_Flags="$Build_Flags /BG"
       shift
@@ -68,14 +72,22 @@ for (( i=1; i<=$#; ))
     fi
   done
 
-Target_Flag=Release
+if [ "$1" == "Broxton" ]; then
+       shift
+ else
+   echo "No parameter for board : assume Broxton"  
+fi
+
+Target_Flag=Debug
+
 if [ "$1" == "Debug" ]; then
   Target_Flag=Debug
-  shift
-fi
-if [ "$1" == "Release" ]; then
+elif [ "$1" == "Release" ]; then
   Target_Flag=Release
-  shift
+else
+  echo "Error - Invalid Target"
+  echo "  Please review the Help screen"
+  Usage
 fi
 
 echo $Build_Flags
@@ -84,7 +96,7 @@ echo $Target_Flag
 export WORKSPACE=`pwd`
 export PACKAGES_PATH=$WORKSPACE:$WORKSPACE/Core:$WORKSPACE/Silicon/:$WORKSPACE/Platform:$WORKSPACE/Platform/BroxtonPlatformPkg:$WORKSPACE/Silicon/BroxtonSoC:$WORKSPACE/Platform/BroxtonPlatformPkg/Common
 
-. edksetup.sh
+. edksetup.sh BaseTools
 
 make -C BaseTools
 
