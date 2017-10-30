@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -14,13 +14,10 @@
 External(\IOBF, IntObj) // ScHdAudioIoBufferOwnership
 External(\IS3A, IntObj)
 
-Scope(\_SB.PCI0.I2C0) {
+  Scope(\_SB.PCI0.I2C7) {
   //-----------------------------------
   //  HD Audio I2S Codec device
-  //  ALC 298
-  //  I2C1
-  //  GPIO_192:SOC_CODEC_PD_N    North West Community number 5
-  //  GPIO_116:SOC_CODEC_IRQ     North West Community, direct IRQ, IRQ number 0x5B.
+  //  I2C7
   //-----------------------------------
   Device (HDAC)
   {
@@ -35,14 +32,10 @@ Scope(\_SB.PCI0.I2C0) {
 
     Method (_CRS, 0, Serialized) {
       Name (SBFB, ResourceTemplate () {
-        I2cSerialBus (0x1C, ControllerInitiated, 400000, AddressingMode7Bit, "\\_SB.PCI0.I2C0",,,)
+        I2cSerialBus (0x1A, ControllerInitiated, 400000, AddressingMode7Bit, "\\_SB.PCI0.I2C7",0x00, ResourceConsumer,,)
       })
 
-      Name (SBFI, ResourceTemplate () {
-        Interrupt (ResourceConsumer, Level, ActiveLow, ExclusiveAndWake,,,) {0x5B}
-      })
-
-      Return (ConcatenateResTemplate(SBFB, SBFI))
+      Return (SBFB)
     }
 
     Method (_STA, 0, NotSerialized)
