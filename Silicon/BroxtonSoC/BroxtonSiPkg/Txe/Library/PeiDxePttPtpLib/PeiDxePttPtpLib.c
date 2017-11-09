@@ -228,6 +228,8 @@ PttHciSend(
 {
   UINT32      ControlStatus;
   UINT32      WaitTime;
+  UINTN       StartAddress;
+  UINT32      *ReturnBuffer;
 
   //
   // Make sure that previous command was in fact completed if not, must not
@@ -290,12 +292,15 @@ PttHciSend(
     DataLength += (4 - (DataLength % 4));
     DEBUG ((DEBUG_INFO, "to %d\n", DataLength));
   }
-
-  MmioWriteBuffer32 ((UINTN) R_PTT_HCI_BASE_ADDRESS +
+  ReturnBuffer = (UINT32 *)PttBuffer;
+  StartAddress = (UINTN) R_PTT_HCI_BASE_ADDRESS +
                       ( TPM_LOCALITY_0 * TPM_LOCALITY_BUFFER_SIZE )+
-                      0x80,
-                      DataLength,
-                      (UINT32 *) PttBuffer );
+                      0x80;
+  while (DataLength != 0) {
+    MmioWrite32 ((UINTN) StartAddress, *(ReturnBuffer++));
+    StartAddress += sizeof (UINT32);
+    DataLength-= sizeof (UINT32);
+  }
 
   //
   // Trigger Command processing by writing to start register
@@ -334,6 +339,9 @@ PttHciReceive (
   UINT16      Data16;
   UINT32      Data32;
   EFI_STATUS  Status;
+  UINT32      *ReturnBuffer;
+  UINTN       StartAddress;
+  UINT32      DataLength;
 
   Status = EFI_SUCCESS;
   DEBUG ((DEBUG_INFO, "PTT: PttHciReceive start\n"));
@@ -365,11 +373,14 @@ PttHciReceive (
   //
   // Read the response data header
   //
-  MmioReadBuffer32 ((UINTN) R_PTT_HCI_BASE_ADDRESS +
-                      ( TPM_LOCALITY_0 * TPM_LOCALITY_BUFFER_SIZE )+
-                      0x80,
-                      PTT_HCI_RESPONSE_HEADER_SIZE,
-                     (UINT32 *) PttBuffer);
+  ReturnBuffer = (UINT32 *)PttBuffer;
+  StartAddress = (UINTN) R_PTT_HCI_BASE_ADDRESS + ( TPM_LOCALITY_0 * TPM_LOCALITY_BUFFER_SIZE ) + 0x80;
+  DataLength   = PTT_HCI_RESPONSE_HEADER_SIZE;
+  while (DataLength != 0) {
+    *(ReturnBuffer ++) = MmioRead32 (StartAddress);
+    StartAddress += sizeof (UINT32);
+    DataLength -= sizeof (UINT32);
+  }
 
   //
   // Check the reponse data header (tag, parasize and returncode)
@@ -411,11 +422,14 @@ PttHciReceive (
   //
   // Read the entire response data header
   //
-  MmioReadBuffer32 ((UINTN) R_PTT_HCI_BASE_ADDRESS +
-                      (TPM_LOCALITY_0 * TPM_LOCALITY_BUFFER_SIZE)+
-                      0x80,
-                      *RespSize,
-                     (UINT32 *) PttBuffer);
+  ReturnBuffer = (UINT32 *)PttBuffer;
+  StartAddress = (UINTN) R_PTT_HCI_BASE_ADDRESS + ( TPM_LOCALITY_0 * TPM_LOCALITY_BUFFER_SIZE ) + 0x80;
+  DataLength   = *RespSize;
+  while (DataLength != 0) {
+    *(ReturnBuffer ++) = MmioRead32 (StartAddress);
+    StartAddress += sizeof (UINT32);
+    DataLength -= sizeof (UINT32);
+  }
 Exit:
 
   return Status;
