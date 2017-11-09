@@ -64,6 +64,7 @@
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
+  gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
 
 [Guids]
   gEfiPlatformInfoGuid

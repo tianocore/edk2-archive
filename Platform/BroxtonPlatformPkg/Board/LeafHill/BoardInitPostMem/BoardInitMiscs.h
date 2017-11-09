@@ -86,6 +86,12 @@
 #define SUBSYSTEM_DEVICE_ID   0x1234
 #define SUBSYSTEM_SVID_SSID   (SUBSYSTEM_VENDOR_ID + (SUBSYSTEM_DEVICE_ID << 16))
 
+//
+// MaxPkgCState identifier.
+//
+#define MAX_PKG_CSTATE_C0 0x00
+#define MAX_PKG_CSTATE_C1 0x01
+#define MAX_PKG_CSTATE_C2 0x02
 EFI_STATUS
 LeafHillGetPlatformInfoHob (
   IN CONST EFI_PEI_SERVICES     **PeiServices,

@@ -1,7 +1,7 @@
 /** @file
   Implementation of Fsp PCH Policy Initialization.
 
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -112,7 +112,7 @@ PeiFspCpuPolicyInit (
     FspsUpd->FspsConfig.EnableCx              = SystemConfiguration->EnableCx;
     FspsUpd->FspsConfig.C1e                   = SystemConfiguration->EnableCxe;
     FspsUpd->FspsConfig.BiProcHot             = SystemConfiguration->EnableProcHot;
-    FspsUpd->FspsConfig.PkgCStateLimit        = (MAX_PKG_C_STATE) SystemConfiguration->MaxPkgCState;
+    FspsUpd->FspsConfig.PkgCStateLimit        = (MAX_PKG_C_STATE) PcdGet8 (PcdMaxPkgCState);
     FspsUpd->FspsConfig.EnableCx              = SystemConfiguration->EnableCx;
     FspsUpd->FspsConfig.CStateAutoDemotion    = SystemConfiguration->CStateAutoDemotion;
     FspsUpd->FspsConfig.CStateUnDemotion      = SystemConfiguration->CStateUnDemotion;

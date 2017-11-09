@@ -68,7 +68,7 @@ UpdatePeiCpuPolicy (
   PowerMgmtConfig->Cx                    = SystemConfiguration->EnableCx;
   PowerMgmtConfig->C1e                   = SystemConfiguration->EnableCxe;
   PowerMgmtConfig->BiProcHot             = SystemConfiguration->EnableProcHot;
-  PowerMgmtConfig->PkgCStateLimit        = (MAX_PKG_C_STATE) SystemConfiguration->MaxPkgCState;
+  PowerMgmtConfig->PkgCStateLimit        = (MAX_PKG_C_STATE) PcdGet8 (PcdMaxPkgCState);
   PowerMgmtConfig->AutoThermalReporting  = SystemConfiguration->AutoThermalReporting;
 
   if (BxtStepping () >= BxtPB1) {

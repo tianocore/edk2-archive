@@ -134,6 +134,7 @@
   gEfiBxtTokenSpaceGuid.PcdP2SBBaseAddress
   gPlatformModuleTokenSpaceGuid.PcdLogoFileGuid
   gPlatformModuleTokenSpaceGuid.PcdLogoDisplay
+  gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
 
 [FeaturePcd]
   gEfiMdePkgTokenSpaceGuid.PcdUgaConsumeSupport

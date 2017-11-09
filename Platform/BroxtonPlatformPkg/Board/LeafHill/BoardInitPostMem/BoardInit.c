@@ -58,6 +58,7 @@ LeafHillPostMemInitCallback (
   UINT8                            FabId;
   UINT8                            ResetType;
   UINTN                            BufferSize;
+  UINT8                            MaxPkgCState;
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -101,7 +102,13 @@ LeafHillPostMemInitCallback (
   // Set PcdSueCreek
   //
   PcdSetBool (PcdSueCreek, FALSE);
-    
+
+  //
+  // Set PcdMaxPkgCState
+  //
+  MaxPkgCState = MAX_PKG_CSTATE_C2;
+  PcdSet8 (PcdMaxPkgCState, (UINT8) MaxPkgCState);
+
   //
   // Add init steps here
   //

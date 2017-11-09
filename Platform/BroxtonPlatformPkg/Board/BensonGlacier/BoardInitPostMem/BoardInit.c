@@ -50,6 +50,7 @@ BensonGlacierPostMemInitCallback (
   UINT8                            FabId;
   UINT8                            ResetType;
   UINTN                            BufferSize;
+  UINT8                            MaxPkgCState;
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -88,12 +89,18 @@ BensonGlacierPostMemInitCallback (
   //
   BufferSize = sizeof (EFI_GUID);
   PcdSetPtr(PcdBoardVbtFileGuid, &BufferSize, (UINT8 *)&gPeiBensonGlacierVbtGuid);
-  
+
   //
   // Set PcdSueCreek
   //
   PcdSetBool (PcdSueCreek, TRUE);
-    
+
+  //
+  // Set PcdMaxPkgCState
+  //
+  MaxPkgCState = MAX_PKG_CSTATE_C2;
+  PcdSet8 (PcdMaxPkgCState, (UINT8) MaxPkgCState);
+
   //
   // Add init steps here
   //

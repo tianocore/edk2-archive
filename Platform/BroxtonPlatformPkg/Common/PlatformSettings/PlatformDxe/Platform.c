@@ -773,11 +773,9 @@ InitializePlatform (
     mSystemConfiguration.PlatformSettingEn = 1;
   }
 
-  mSystemConfiguration.PmicSetupDefault = 0;
-  if (PlatformInfoHob->PmicVersion == 0) {
-    mSystemConfiguration.PmicSetupDefault = 1;
-    mSystemConfiguration.MaxPkgCState = 0;
-  }
+  mSystemConfiguration.PmicSetupDefault = 1;
+  mSystemConfiguration.MaxPkgCState = PcdGet8 (PcdMaxPkgCState);
+
 
   Status = gRT->SetVariable (
                   L"Setup",

@@ -85,6 +85,7 @@
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
+  gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
 
 [Ppis]
   gSiPolicyPpiGuid                 ## CONSUMES
