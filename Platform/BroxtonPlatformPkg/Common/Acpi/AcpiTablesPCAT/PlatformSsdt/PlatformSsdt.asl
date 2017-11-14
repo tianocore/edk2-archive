@@ -31,6 +31,7 @@ DefinitionBlock (
   External(\_SB.PCI0.URT2, DeviceObj)
   External(\_SB.PCI0.SDIO, DeviceObj)
   External(\_SB.PCI0.SPI1, DeviceObj)
+  External(\_SB.PCI0.SPI3, DeviceObj)
   External(\_SB.GPO0.CWLE, IntObj)
   External(\_SB.GPO0.AVBL, IntObj)
   External(\_SB.PCI0.SDIO.PSTS, IntObj)
@@ -68,5 +69,6 @@ DefinitionBlock (
 
   include ("Fingerprint/Fingerprint_FPC.asl")
   include ("SueCreek/SueCreek.asl")
+  include ("Sensors/GenericSpi3.asl")
 }
 
