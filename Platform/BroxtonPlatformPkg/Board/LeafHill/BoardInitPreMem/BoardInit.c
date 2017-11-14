@@ -68,19 +68,18 @@ LeafHillPreMemInit (
              &Instance
              );
   if (!EFI_ERROR (Status)) {
-     DEBUG ((EFI_D_INFO,  "LeafHill PreMem Init: Skip\n"));
     return EFI_SUCCESS;
   }
-  DEBUG ((EFI_D_INFO,  "LeafHill Pre Mem Init\n"));
 
   //
   // Pre Mem Board Init
   //
   Status = LeafHillGetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
   if (BoardId != (UINT8) BOARD_ID_LFH_CRB) {
-    DEBUG ((EFI_D_INFO,  "Not a Leaf Hill Board - skip\n"));
     return EFI_SUCCESS;
   }
+
+  DEBUG ((EFI_D_INFO,  "This is LeafHill CRB.\n"));
 
   PcdSet8 (PcdBoardId, BoardId);
   PcdSet8 (PcdFabId, FabId);

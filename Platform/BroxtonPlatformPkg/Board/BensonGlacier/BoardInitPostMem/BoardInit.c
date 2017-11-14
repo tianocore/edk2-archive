@@ -59,7 +59,6 @@ BensonGlacierPostMemInitCallback (
              &Instance
              );
   if (!EFI_ERROR (Status)) {
-    DEBUG ((EFI_D_INFO,  "Benson Glacier Post Mem Init callback: Skip\n"));
     return EFI_SUCCESS;
   }
 
@@ -67,7 +66,6 @@ BensonGlacierPostMemInitCallback (
   FabId = (UINT8) PcdGet8 (PcdFabId);
   DEBUG ((EFI_D_INFO,  "PostMemInit: BoardId == 0x%X, FabId == 0x%X\n", BoardId, FabId));
   if (BoardId != (UINT8) BOARD_ID_BENSON) {
-    DEBUG ((EFI_D_INFO,  "Benson Glacier Post Mem Init callback: Skip\n"));
     return EFI_SUCCESS;
   }
 

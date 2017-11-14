@@ -68,11 +68,8 @@ MinnowBoard3PreMemInit (
              &Instance
              );
   if (!EFI_ERROR (Status)) {
-     DEBUG ((EFI_D_INFO,  "Minnow Board 3 Pre Mem Init: Skip\n"));
     return EFI_SUCCESS;
   }
-
-  DEBUG ((EFI_D_INFO,  "Minnow Board 3 Pre Mem Init\n"));
 
   //
   // Pre Mem Board Init
@@ -80,9 +77,10 @@ MinnowBoard3PreMemInit (
   Status = Minnow3GetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
 
   if (BoardId != (UINT8) BOARD_ID_MINNOW) {
-    DEBUG ((EFI_D_INFO,  "Not a Minnow Board - skip\n"));
     return EFI_SUCCESS;
   }
+
+  DEBUG ((EFI_D_INFO,  "This is MinnowBoard 3.\n"));
 
   PcdSet8 (PcdBoardId, BoardId);
   PcdSet8 (PcdFabId, FabId);

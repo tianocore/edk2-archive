@@ -59,22 +59,27 @@ BensonGlacierPreMemInit (
              &Instance
              );
   if (!EFI_ERROR (Status)) {
-     DEBUG ((EFI_D_INFO,  "Benson Glacier Pre Mem Init: Skip\n"));
     return EFI_SUCCESS;
   }
-
-  DEBUG ((EFI_D_INFO,  "Benson Glacier Pre Mem Init\n"));
 
   //
   // Pre Mem Board Init
   //
-  Status = BensonGetEmbeddedBoardIdFabId (PeiServices, &BoardId, &FabId);
+  Status = BensonGetBoardId (PeiServices, &BoardId);
 
   if (BoardId != (UINT8) BOARD_ID_BENSON) {
-    DEBUG ((EFI_D_INFO,  "Not a Benson Glacier - skip\n"));
     return EFI_SUCCESS;
   }
 
+  DEBUG ((EFI_D_INFO,  "This is Benson Glacier board.\n"));
+  
+  Status = BensonGetFabId (PeiServices, &FabId);
+  if (FabId == 1) {
+    DEBUG ((EFI_D_INFO,  "This is Benson Glacier FAB B.\n"));
+  } else if (FabId == 0) {
+    DEBUG ((EFI_D_INFO,  "This is Benson Glacier FAB A.\n"));
+  }
+  
   PcdSet8 (PcdBoardId, BoardId);
   PcdSet8 (PcdFabId, FabId);
 

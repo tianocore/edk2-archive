@@ -255,7 +255,11 @@ if /i "%~2" == "RELEASE" (
 )
 
 if %BoardId%==BG (
-  echo BOARD_REV = A >> Conf\BiosId.env
+  if %FabId%==B (
+    echo BOARD_REV = B >> Conf\BiosId.env
+  ) else (
+    echo BOARD_REV = A >> Conf\BiosId.env
+  )
 )
 
 if %BoardId%==MN (

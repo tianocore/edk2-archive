@@ -67,7 +67,6 @@ LeafHillPostMemInitCallback (
              &Instance
              );
   if (!EFI_ERROR (Status)) {
-    DEBUG ((EFI_D_INFO,  "Leaf Hill Post Mem Init callback: Skip\n"));
     return EFI_SUCCESS;
   }
 
@@ -75,7 +74,6 @@ LeafHillPostMemInitCallback (
   FabId = (UINT8) PcdGet8 (PcdFabId);
   DEBUG ((EFI_D_INFO,  "PostMemInit: BoardId == 0x%X, FabId == 0x%X\n", BoardId, FabId));
   if (BoardId != (UINT8) BOARD_ID_LFH_CRB) {
-    DEBUG ((EFI_D_INFO,  "LeafHill Post Mem Init callback: Skip\n"));
     return EFI_SUCCESS;
   }
 

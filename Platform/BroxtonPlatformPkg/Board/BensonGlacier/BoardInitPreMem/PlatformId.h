@@ -34,25 +34,15 @@ BensonGetFwCfgId (
 
 EFI_STATUS
 EFIAPI
-BensonGetBoardIdFabId (
+BensonGetBoardId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
-  OUT UINT8                     *BoardId,
-  OUT UINT8                     *FabId
+  OUT UINT8                     *BoardId
   );
 
 EFI_STATUS
 EFIAPI
-BensonGetEmbeddedBoardIdFabId (
+BensonGetFabId (
   IN CONST EFI_PEI_SERVICES     **PeiServices,
-  OUT UINT8                     *BoardId,
-  OUT UINT8                     *FabId
-  );
-
-EFI_STATUS
-EFIAPI
-BensonGetIVIBoardIdFabId (
-  IN CONST EFI_PEI_SERVICES     **PeiServices,
-  OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
   );
 

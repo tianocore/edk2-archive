@@ -22,17 +22,16 @@
 
 EFI_STATUS
 EFIAPI
-BensonGetEmbeddedBoardIdFabId(
+BensonGetBoardId(
   IN CONST EFI_PEI_SERVICES     **PeiServices,
-  OUT UINT8                     *BoardId,
-  OUT UINT8                     *FabId
+  OUT UINT8                     *BoardId
   )
 {
   BXT_CONF_PAD0   padConfg0;
   BXT_CONF_PAD1   padConfg1;
-  IN UINT32       CommAndOffset;
+  UINT32          CommAndOffset;
 
-  DEBUG ((DEBUG_INFO, "GetEmbeddedBoardIdFabId++\n"));
+  DEBUG ((DEBUG_INFO, "GetBoardId.\n"));
 
   //
   // Board_ID0: PMIC_STDBY
@@ -91,136 +90,43 @@ BensonGetEmbeddedBoardIdFabId(
 
   DEBUG ((DEBUG_INFO,  "BoardId: %02X\n", *BoardId));
 
-  //
-  // Fab_ID0: PMIC_I2C_SDA
-  //
-  CommAndOffset = GetCommOffset (NORTHWEST, 0x0108);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  //
-  // Set to Pull Up 20K
-  //
-  padConfg1.r.Term = 0xC;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  //
-  // Fab_ID1: PMIC_I2C_SCL
-  //
-  CommAndOffset = GetCommOffset (NORTHWEST, 0x0100);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  //Set to Pull Up 20K
-  padConfg1.r.Term = 0xC;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  //
-  // Fab_ID2: PMIC_BCUDISW2
-  //
-  CommAndOffset = GetCommOffset (NORTHWEST, 0x00D8);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  //
-  // Set to Pull Up 20K
-  //
-  padConfg1.r.Term = 0xC;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  //
-  // Fab_ID3: PMIC_BCUDISCRIT
-  //
-  CommAndOffset = GetCommOffset (NORTHWEST, 0x00E0);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  //
-  // Set to Pull Up 20K
-  //
-  padConfg1.r.Term = 0xC;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-
-  *FabId = (UINT8) (((GpioPadRead (GetCommOffset (NORTHWEST, 0x0108) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) | \
-                   (((GpioPadRead (GetCommOffset (NORTHWEST, 0x0100) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 1) | \
-                   (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00D8) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 2) | \
-                   (((GpioPadRead (GetCommOffset (NORTHWEST, 0x00E0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 3));
-
-  DEBUG ((EFI_D_INFO,  "FabId: %02X\n", *FabId));
-
-
   return EFI_SUCCESS;
 }
 
-
 EFI_STATUS
 EFIAPI
-BensonGetIVIBoardIdFabId (
+BensonGetFabId(
   IN CONST EFI_PEI_SERVICES     **PeiServices,
-  OUT UINT8                     *BoardId,
   OUT UINT8                     *FabId
   )
 {
   BXT_CONF_PAD0   padConfg0;
   BXT_CONF_PAD1   padConfg1;
-  IN UINT32       CommAndOffset;
+  UINT32           CommAndOffset;
 
-  DEBUG ((DEBUG_INFO, "GetIVIBoardIdFabId++\n"));
+  DEBUG ((DEBUG_INFO, "Benson GetFabId++\n"));
+
 
   //
-  // Board_ID0: GPIO_62
+  // FAB_ID: GPIO_30
   //
-  CommAndOffset = GetCommOffset (NORTH, 0x0190);
+
+  CommAndOffset = GetCommOffset (NORTH, 0x0F0);
   padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
   padConfg1.padCnf1 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET);
-  padConfg1.r.IOSTerm = 0x3; //Enable Pullup
-  padConfg1.r.Term = 0xC;    //20k wpu
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  //
-  // Board_ID1: GPIO_63
-  //
-  CommAndOffset = GetCommOffset (NORTH, 0x0198);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
+
+  padConfg0.r.PMode = M0; // Set to GPIO mode
+  padConfg0.r.GPIORxTxDis = GPI;  // Set to GPI
   GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  padConfg1.padCnf1 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET);
-  padConfg1.r.IOSTerm = 0x3; //Enable Pullup
-  padConfg1.r.Term = 0xC;    //20k wpu
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  //
-  // Board_ID2: GPIO_64
-  //
-  CommAndOffset = GetCommOffset (NORTH, 0x01A0);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  padConfg1.padCnf1 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET);
-  padConfg1.r.IOSTerm = 0x3; //Enable Pullup
-  padConfg1.r.Term = 0xC;    //20k wpu
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
-  //
-  // Board_ID3: GPIO_65
-  //
-  CommAndOffset = GetCommOffset (NORTH, 0x01A8);
-  padConfg0.padCnf0 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET);
-  padConfg0.r.PMode = 0;
-  padConfg0.r.GPIORxTxDis = 0x1;
-  GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF0_OFFSET, padConfg0.padCnf0);
-  padConfg1.padCnf1 = GpioPadRead (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET);
-  padConfg1.r.IOSTerm = 0x3; //Enable Pullup
-  padConfg1.r.Term = 0xC;    //20k wpu
+
+  padConfg1.r.IOSTerm  = EnPd;    // Enable pull-down
+  padConfg1.r.Term     = P_20K_L; // Set to 20K pull-down    
   GpioPadWrite (CommAndOffset + BXT_GPIO_PAD_CONF1_OFFSET, padConfg1.padCnf1);
 
-  *BoardId = (UINT8) (((GpioPadRead (GetCommOffset (NORTH, 0x0190) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) | \
-                     (((GpioPadRead (GetCommOffset (NORTH, 0x0198) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 1) | \
-                     (((GpioPadRead (GetCommOffset (NORTH, 0x01A0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 2) | \
-                     (((GpioPadRead (GetCommOffset (NORTH, 0x01A8) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1) << 3));
+
+  *FabId = (UINT8) (((GpioPadRead (GetCommOffset (NORTH, 0x0F0) + BXT_GPIO_PAD_CONF0_OFFSET) & BIT1) >> 1));
+
+  DEBUG ((EFI_D_INFO,  "FabId: %02X\n", *FabId));
 
   return EFI_SUCCESS;
 }
