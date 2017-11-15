@@ -59,7 +59,7 @@ BensonGlacierPostMemInitCallback (
   ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
 
  (*PeiServices)->LocatePpi (
-                    PeiServices,
+                    (CONST EFI_PEI_SERVICES **)PeiServices,
                     &gEfiPeiReadOnlyVariable2PpiGuid,
                     0,
                     NULL,
