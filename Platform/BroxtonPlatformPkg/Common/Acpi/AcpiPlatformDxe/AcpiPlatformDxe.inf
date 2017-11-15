@@ -88,6 +88,7 @@
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdBtDevice
+  gPlatformModuleTokenSpaceGuid.PcdTi3100AudioCodecEnable
 
 [Depex]
   gEfiAcpiSupportProtocolGuid        AND

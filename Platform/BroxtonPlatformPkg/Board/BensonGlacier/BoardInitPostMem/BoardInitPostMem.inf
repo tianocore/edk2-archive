@@ -65,6 +65,7 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
+  gPlatformModuleTokenSpaceGuid.PcdTi3100AudioCodecEnable
 
 [Guids]
   gEfiPlatformInfoGuid

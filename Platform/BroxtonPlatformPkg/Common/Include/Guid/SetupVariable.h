@@ -1133,7 +1133,8 @@ typedef struct {
   UINT8         CriticalThermalTripPointSen2;
   UINT8         CriticalThermalTripPointSen2S3;
   UINT8         HotThermalTripPointSen2;
-
+  
+  UINT8         SueCreekBypass;
 } SYSTEM_CONFIGURATION;
 #pragma pack(pop)
 

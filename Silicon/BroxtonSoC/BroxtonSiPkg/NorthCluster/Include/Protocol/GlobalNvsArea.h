@@ -506,7 +506,8 @@ typedef struct {
   UINT8       CriticalThermalTripPointSen2S3;         ///<   (920) CriticalThermalTripPointSen2S3
   UINT8       HotThermalTripPointSen2;                ///<   (921) HotThermalTripPointSen2
   UINT8       CriticalThermalTripPointSen2;           ///<   (922) CriticalThermalTripPointSen2
-  UINT8       SueCreekEnable;                         ///<   (923) SueCreekEnable: 0: disabled; 1: enabled                         
+  UINT8       SueCreekEnable;                         ///<   (923) SueCreekEnable: 0: disabled; 1: enabled
+  UINT8       Ti3100AudioCodecEnable;                 ///<   (924) TI3100 Audio Codec: 0:Disable; 1:Enable
 } EFI_GLOBAL_NVS_AREA;
 #pragma pack ()
 

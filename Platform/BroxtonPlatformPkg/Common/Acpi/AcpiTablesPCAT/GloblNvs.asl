@@ -480,5 +480,6 @@
     HTTP,    8,     //   (921) HotThermalTripPointSen2
     CRTP,    8,     //   (922) CriticalThermalTripPointSen2
     SUCE,    8,     //   (923) SueCreekEnable: 0: disabled; 1: enabled
+    ISCT,    8,     //   (924) TI3100 Audio Codec: 0:Disable; 1:Enable
 }
 

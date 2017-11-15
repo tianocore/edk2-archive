@@ -25,6 +25,7 @@ DefinitionBlock (
   External(\_SB.PCI0.I2C2, DeviceObj)
   External(\_SB.PCI0.I2C3, DeviceObj)
   External(\_SB.PCI0.I2C4, DeviceObj)
+  External(\_SB.PCI0.I2C5, DeviceObj)
   External(\_SB.PCI0.I2C7, DeviceObj)
   External(\_SB.PCI0.URT1, DeviceObj)
   External(\_SB.PCI0.URT2, DeviceObj)
@@ -44,6 +45,7 @@ DefinitionBlock (
 
   include ("Audio/AudioCodec_INT34C1.asl")
   include ("Audio/AudioCodec_INT343A.asl")
+  include ("Audio/AudioCodec10TI3100.asl")
 
   If (LEqual(IPUD, 1)) {
     include ("Camera/Camera_INT3471.asl")

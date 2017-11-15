@@ -51,6 +51,29 @@ BensonGlacierPostMemInitCallback (
   UINT8                            ResetType;
   UINTN                            BufferSize;
   UINT8                            MaxPkgCState;
+  UINTN                            VariableSize;
+  EFI_PEI_READ_ONLY_VARIABLE2_PPI  *VariableServices;
+  SYSTEM_CONFIGURATION             SystemConfiguration;
+
+  VariableSize = sizeof (SYSTEM_CONFIGURATION);
+  ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
+
+ (*PeiServices)->LocatePpi (
+                    PeiServices,
+                    &gEfiPeiReadOnlyVariable2PpiGuid,
+                    0,
+                    NULL,
+                    (VOID **) &VariableServices
+                     );
+
+  VariableServices->GetVariable (
+                      VariableServices,
+                      PLATFORM_SETUP_VARIABLE_NAME,
+                      &gEfiSetupVariableGuid,
+                      NULL,
+                      &VariableSize,
+                      &SystemConfiguration
+                      );
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -91,7 +114,15 @@ BensonGlacierPostMemInitCallback (
   //
   // Set PcdSueCreek
   //
-  PcdSetBool (PcdSueCreek, TRUE);
+  if (SystemConfiguration.SueCreekBypass) {
+    PcdSetBool (PcdSueCreek, FALSE);
+    PcdSetBool (PcdTi3100AudioCodecEnable, TRUE);
+    DEBUG ((EFI_D_INFO,  "Bypass SueCreek \n"));
+  } else {
+    PcdSetBool (PcdSueCreek, TRUE);
+    PcdSetBool (PcdTi3100AudioCodecEnable, FALSE); 
+    DEBUG ((EFI_D_INFO,  "Use SueCreek \n"));
+  }
 
   //
   // Set PcdMaxPkgCState

@@ -190,7 +190,8 @@
   gPlatformModuleTokenSpaceGuid.PcdBtDevice|0x00|UINT8|0x80000017
   ## This PCD used to select MaxPkgCState
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState|0x00|UINT8|0x80000018
-
+  ## This PCD used to select TI3100 Audio Codec
+  gPlatformModuleTokenSpaceGuid.PcdTi3100AudioCodecEnable|FALSE|BOOLEAN|0x80000019
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.
   gClientCommonModuleTokenSpaceGuid.PcdPlatformMemoryCheck|0|UINT8|0x40000005
