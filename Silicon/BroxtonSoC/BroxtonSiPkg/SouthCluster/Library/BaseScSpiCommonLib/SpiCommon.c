@@ -601,6 +601,7 @@ SendSpiCmd (
   UINT8           BiosCtlSave;
   UINT32          SmiEnSave;
   UINT16          ABase;
+  UINT32          HsfstsCtl;
 
   Status            = EFI_SUCCESS;
   SpiInstance       = SPI_INSTANCE_FROM_SPIPROTOCOL (This);
@@ -651,6 +652,15 @@ SendSpiCmd (
   if (!WaitForSpiCycleComplete (This, ScSpiBar0, FALSE)) {
     Status = EFI_DEVICE_ERROR;
     goto SendSpiCmdEnd;
+  }
+
+
+  if (FlashCycleType == FlashCycleWriteStatus) {
+    HsfstsCtl = MmioRead32 (ScSpiBar0 + R_SPI_HSFS);
+    if ((HsfstsCtl & B_SPI_HSFS_WRSDIS) != 0) {
+      Status = EFI_ACCESS_DENIED;
+      goto SendSpiCmdEnd;
+    }
   }
 
   HardwareSpiAddr = Address;

@@ -17,7 +17,7 @@
   - Registers / bits of new devices introduced in a SC generation will be just named
     as "_SC_" without <generation_name> inserted.
 
-  Copyright (c) 2011 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2011 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -92,6 +92,7 @@
 #define B_SPI_HSFS_FLOCKDN               BIT15         ///< Flash Configuration Lock-Down
 #define B_SPI_HSFS_FDV                   BIT14         ///< Flash Descriptor Valid
 #define B_SPI_HSFS_FDOPSS                BIT13         ///< Flash Descriptor Override Pin-Strap Status
+#define B_SPI_HSFS_WRSDIS                BIT11         ///< Write Status Disable
 #define B_SPI_HSFS_SCIP                  BIT5          ///< SPI Cycle in Progress
 #define B_SPI_HSFS_BERASE_MASK           (BIT4 | BIT3) ///< Block/Sector Erase Size
 #define V_SPI_HSFS_BERASE_256B           0//0x00       ///< Block/Sector = 256 Bytes

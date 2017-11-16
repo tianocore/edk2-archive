@@ -639,6 +639,8 @@ ScOnEndOfDxe (
   UINT16                     Data16Or;
   SI_POLICY_HOB              *SiPolicyHob;
   EFI_PEI_HOB_POINTERS       HobPtr;
+  UINT16                     Data16;
+  UINTN                      SpiBar0;
 
   NumOfDevltrOverride = 0;
   PciLpcRegBase = MmPciBase (
@@ -678,6 +680,20 @@ ScOnEndOfDxe (
     (VOID *) (UINTN) (PmcBase + R_PMC_PMIR)
     );
 
+  if (BxtSeries == BxtP){
+    SpiBar0 = MmioRead32 (PciSpiRegBase + R_SPI_BASE) &~(B_SPI_BAR0_MASK);
+
+    Data16 = (UINT16) (B_SPI_HSFS_FLOCKDN | B_SPI_HSFS_WRSDIS);
+    MmioWrite16 ((UINTN) (SpiBar0 + R_SPI_HSFS), Data16);
+    S3BootScriptSaveMemWrite (
+      EfiBootScriptWidthUint16,
+      (UINTN) (SpiBar0 + R_SPI_HSFS),
+      1,
+      &Data16
+      );
+
+  }
+  
   Status = GetConfigBlock ((VOID *) mScPolicy, &gLockDownConfigGuid, (VOID *) &LockDownConfig);
   ASSERT_EFI_ERROR (Status);
   if (LockDownConfig->GlobalSmi == TRUE) {
