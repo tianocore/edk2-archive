@@ -431,11 +431,6 @@ typedef struct {
   UINT8         Igd;
 
   //
-  // Flash update sleep delay
-  //
-  UINT8         FlashSleepDelay;
-
-  //
   // FSC system Variable
   //
   UINT8         IgdFlatPanel;
