@@ -35,6 +35,3 @@
   MmPciLib
   PchSerialIoLib
   TimerLib
-
-[Pcd]
-  gBxtRefCodePkgTokenSpaceGuid.PcdSerialIoUartNumber

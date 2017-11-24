@@ -81,6 +81,7 @@
       NULL|$(PLATFORM_NAME)/Board/MinnowBoard3/BoardInitPreMem/BoardInitPreMem.inf
       NULL|$(PLATFORM_NAME)/Board/LeafHill/BoardInitPreMem/BoardInitPreMem.inf
       NULL|$(PLATFORM_NAME)/Board/BensonGlacier/BoardInitPreMem/BoardInitPreMem.inf
+      NULL|$(PLATFORM_NAME)/Board/MinnowBoard3Next/BoardInitPreMem/BoardInitPreMem.inf
       BaseCryptLib|CryptoPkg/Library/BaseCryptLib/PeiCryptLib.inf
       CpuPolicyLib|$(PLATFORM_SI_PACKAGE)/Cpu/Library/PeiCpuPolicyLibPreMem/PeiCpuPolicyLibPreMem.inf
     <BuildOptions>
@@ -116,6 +117,7 @@
        NULL|$(PLATFORM_NAME)/Board/MinnowBoard3/BoardInitPostMem/BoardInitPostMem.inf
        NULL|$(PLATFORM_NAME)/Board/LeafHill/BoardInitPostMem/BoardInitPostMem.inf
        NULL|$(PLATFORM_NAME)/Board/BensonGlacier/BoardInitPostMem/BoardInitPostMem.inf
+       NULL|$(PLATFORM_NAME)/Board/MinnowBoard3Next/BoardInitPostMem/BoardInitPostMem.inf
        I2cLibPei|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/I2CLibPei/I2CLibPei.inf
     <PcdsPatchableInModule>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x803805c6

@@ -259,6 +259,12 @@
     SECTION RAW = $(PLATFORM_NAME)/Board/MinnowBoard3/Vbt/VbtBxtMipi.bin
     SECTION UI = "IntelGopVbt1"
   }
+  
+  # VBT For Minnowboard 3 Next (File Guid is gPeiMinnow3NextVbtGuid)
+  FILE FREEFORM = 1F9CBB42-107E-46A4-A2CB-92F586F9FB31 {
+    SECTION RAW = $(PLATFORM_NAME)/Board/MinnowBoard3Next/Vbt/VbtBxtMipi.bin
+    SECTION UI = "IntelGopVbt1"
+  }
     
   # VBT For Benson Glacier (File Guid is gPeiBensonGlacierVbtGuid)
   FILE FREEFORM = BFDE308E-2D5A-4CA7-AA76-19938AAAE4DA {

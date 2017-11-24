@@ -338,9 +338,6 @@
   gBxtRefCodePkgTokenSpaceGuid.PcdMmcSdMultiBlockSupport|TRUE|BOOLEAN|0x13
 
 [PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
-  ##
-  ## SerialIo Uart Configuration
-  gBxtRefCodePkgTokenSpaceGuid.PcdSerialIoUartNumber|2|UINT8|0x00100002
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId|"INTEL "|VOID*|0x30001034
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemTableId|0x20202020324B4445|UINT64|0x30001035
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision|0x00000002|UINT32|0x30001036

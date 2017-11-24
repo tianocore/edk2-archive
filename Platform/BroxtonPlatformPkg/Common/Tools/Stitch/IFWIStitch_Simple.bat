@@ -48,6 +48,10 @@ if /i "%~3"=="BG" (
     set BoardId=BG
 )
 
+if /i "%~3"=="MX" (
+    set BoardId=MX
+)
+
 :OptLoop1
 
 if /i "%~1"=="/FspW" (
@@ -154,6 +158,11 @@ if %BoardId%==BG (
            copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk3.bin .
            copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
          )
+) else if %BoardId%==MX (
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk1.bin .
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk2.bin .
+           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk3.bin .
+           copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
 )
 move /y spi_out.bin %BIOS_ID%.bin  >> Stitching.log
 

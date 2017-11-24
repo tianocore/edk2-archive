@@ -106,6 +106,13 @@ if /i "%~1"=="/BG" (
     goto OptLoop
 )
 
+if /i "%~1"=="/MX" (
+    set BoardId=MX
+    set Build_Flags=%Build_Flags% /MX
+    shift
+    goto OptLoop
+)
+
 if /i "%~1"=="/m" (
     set buildthread=/m
     echo.

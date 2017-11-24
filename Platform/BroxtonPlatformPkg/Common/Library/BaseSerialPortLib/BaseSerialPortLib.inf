@@ -54,7 +54,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialBaudRate
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase
   gClientCommonModuleTokenSpaceGuid.PcdStatusCodeFlagsCmosIndex
-  gBxtRefCodePkgTokenSpaceGuid.PcdSerialIoUartNumber
+  gPlatformModuleTokenSpaceGuid.PcdSerialIoUartNumber
 
 [Sources]
   BaseSerialPortLib.c

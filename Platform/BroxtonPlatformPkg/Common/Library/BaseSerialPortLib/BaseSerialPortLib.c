@@ -171,8 +171,11 @@ SerialPortInitialize (
   VOID
   )
 {
-
-  PchSerialIoUartInit (PcdGet8 (PcdSerialIoUartNumber), TRUE, 115200, 3, FALSE);
+  //
+  //PchSerialIoUartInit (PcdGet8 (PcdSerialIoUartNumber), TRUE, 115200, 3, FALSE);
+  //
+  PchSerialIoUartInit (0, TRUE, 115200, 3, FALSE);
+  PchSerialIoUartInit (2, TRUE, 115200, 3, FALSE);
 
   return RETURN_SUCCESS;
 }

@@ -26,10 +26,12 @@
   !if $(LZMA_ENABLE) == TRUE
       NULL|IntelFrameworkModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
   !endif
+     DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf 
   }
   MdeModulePkg/Universal/PCD/Dxe/Pcd.inf {
     <LibraryClasses>
       PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
+      DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf 
   }
 
 !if $(SOURCE_DEBUG_ENABLE) == TRUE
@@ -175,6 +177,7 @@
       NULL|$(PLATFORM_NAME)/Board/MinnowBoard3/BoardInitDxe/BoardInitDxe.inf
       NULL|$(PLATFORM_NAME)/Board/LeafHill/BoardInitDxe/BoardInitDxe.inf
       NULL|$(PLATFORM_NAME)/Board/BensonGlacier/BoardInitDxe/BoardInitDxe.inf
+      NULL|$(PLATFORM_NAME)/Board/MinnowBoard3Next/BoardInitDxe/BoardInitDxe.inf
   }
 
 !if $(DATAHUB_ENABLE) == TRUE

@@ -45,6 +45,7 @@
   IntelFrameworkPkg/IntelFrameworkPkg.dec
   IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
   BroxtonSiPkg/BroxtonSiPkg.dec
+  BroxtonPlatformPkg/PlatformPkg.dec
 
 [LibraryClasses]
   PcdLib
@@ -78,6 +79,7 @@
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8       ## CONSUMES
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1         ## CONSUMES
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultStopBits|1       ## CONSUMES
+  gPlatformModuleTokenSpaceGuid.PcdSerialIoUartNumber      ## CONSUMES
 
 [UserExtensions.TianoCore."ExtraFiles"]
   IsaSerialDxeExtra.uni

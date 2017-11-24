@@ -126,7 +126,7 @@ UpdateFspUpdConfigs (
   FspmUpd = (FSPM_UPD *)FspUpdRgnPtr;
   DEBUG ((DEBUG_INFO, "GetFspFspmUpdDataPointer - 0x%x\n", FspmUpd));
 
-  FspmUpd->FspmConfig.SerialDebugPortDevice     = 2;
+  FspmUpd->FspmConfig.SerialDebugPortDevice     = PcdGet8(PcdSerialIoUartNumber);
   FspmUpd->FspmConfig.SerialDebugPortType       = 2;// Skip the serial port init since we already did it
   FspmUpd->FspmConfig.SerialDebugPortStrideSize = 2;
   FspmUpd->FspmConfig.SerialDebugPortAddress    = 0;

@@ -36,6 +36,7 @@
 #include <FspmUpd.h>
 #include <FspsUpd.h>
 #include <SmipGenerated.h>
+#include <ScPreMemPolicyCommon.h>
 
 typedef
 EFI_STATUS
@@ -53,6 +54,12 @@ EFI_STATUS
   IN  UINTN                            *MrcTrainingDataAddr,
   IN  UINTN                            *MrcBootDataAddr,
   IN  UINT8                            BoardId
+  );
+
+typedef
+EFI_STATUS
+(EFIAPI *UPDATE_PCIE_CONFIG_FUNC) (
+  IN  SC_PCIE_PREMEM_CONFIG  *PciePreMemConfig
   );
 
 #endif

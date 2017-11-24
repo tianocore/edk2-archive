@@ -177,7 +177,12 @@ if /i "%~1"=="/BG" (
     shift
     goto OptLoop
 )
-
+if /i "%~1"=="/MX" (
+    set BoardId=MX
+    echo.
+    shift
+    goto OptLoop
+)
 if /i "%~1"=="/m" (
     if defined NUMBER_OF_PROCESSORS (
         set /a build_threads=%NUMBER_OF_PROCESSORS%
@@ -202,6 +207,8 @@ if /i "%~1" == "%Minnow_RVP%" (
     set BOARD_ID=MINNOW3
   ) else if %BoardId%==BG (
     set BOARD_ID=BENSONV
+  ) else if %BoardId%==MX (
+    set BOARD_ID=MINNEXT
   )
     set ENBDT_PF_BUILD=TRUE
     set PLATFORM_NAME=BroxtonPlatformPkg
@@ -263,6 +270,14 @@ if %BoardId%==BG (
 )
 
 if %BoardId%==MN (
+  if %FabId%==B (
+    echo BOARD_REV = B >> Conf\BiosId.env
+  ) else (
+    echo BOARD_REV = A >> Conf\BiosId.env
+  )
+)
+
+if %BoardId%==MX (
   if %FabId%==B (
     echo BOARD_REV = B >> Conf\BiosId.env
   ) else (

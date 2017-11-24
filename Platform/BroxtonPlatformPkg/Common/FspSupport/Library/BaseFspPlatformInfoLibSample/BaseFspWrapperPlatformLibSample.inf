@@ -88,4 +88,5 @@
   gIntelFsp2WrapperTokenSpaceGuid.PcdFspStackSize          ## CONSUMES
   gPlatformModuleTokenSpaceGuid.PcdFlashFvIBBLSize   ## CONSUMES
   gPlatformModuleTokenSpaceGuid.PcdUpdateFspmUpdFunc
+  gPlatformModuleTokenSpaceGuid.PcdSerialIoUartNumber
 

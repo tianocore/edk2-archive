@@ -61,6 +61,7 @@
   gPeiLeafHillVbtGuid                     = { 0x6ae80680, 0x5e3f, 0x4e63, { 0xa5, 0xf5, 0x78, 0xe5, 0x21, 0x4f, 0x13, 0xfe } }
   gPeiMinnowBoard3VbtGuid                 = { 0xE08CA6D5, 0x8D02, 0x43ae, { 0xAB, 0xB1, 0x95, 0x2C, 0xC7, 0x87, 0xC9, 0x33 } }
   gPeiBensonGlacierVbtGuid                = { 0xbfde308e, 0x2d5a, 0x4ca7, { 0xaa, 0x76, 0x19, 0x93, 0x8a, 0xaa, 0xe4, 0xda } }
+  gPeiMinnow3NextVbtGuid                  = { 0x1f9cbb42, 0x107e, 0x46a4, { 0xa2, 0xcb, 0x92, 0xf5, 0x86, 0xf9, 0xfb, 0x31 } }
   gPeiLogoGuid                            = { 0x7BB28B99, 0x61BB, 0x11d5, { 0x9A, 0x5D, 0x00, 0x90, 0x27, 0x3F, 0xC1, 0x4D } }
   gPlatformEmmcHs400TuningInfoGuid        = { 0xb0ae3e81, 0xc6b0, 0x4d35, { 0xad, 0x51, 0x91, 0x17, 0xe0, 0x65, 0x1e, 0xa3 } }
   gEfiTraceHubDebugLibIa32Guid            = { 0x23a3e7ba, 0x75d1, 0x4cb9, { 0x9c, 0x8f, 0x56, 0xfa, 0x4e, 0x48, 0xd9, 0x9e } }
@@ -192,6 +193,10 @@
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState|0x00|UINT8|0x80000018
   ## This PCD used to select TI3100 Audio Codec
   gPlatformModuleTokenSpaceGuid.PcdTi3100AudioCodecEnable|FALSE|BOOLEAN|0x80000019
+  ##
+  gPlatformModuleTokenSpaceGuid.PcdUpdatePcieConfigFunc|2|UINT64|0x8000001A
+  ## SerialIo Uart Configuration
+  #gPlatformModuleTokenSpaceGuid.PcdSerialIoUartNumber|2|UINT8|0x8000001B
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.
   gClientCommonModuleTokenSpaceGuid.PcdPlatformMemoryCheck|0|UINT8|0x40000005
@@ -332,3 +337,5 @@
   ## Specifies maximum number of PPIs provided by SecCore.
   # @Prompt Maximum number of PPIs provided by SecCore.
   gPlatformModuleTokenSpaceGuid.PcdSecCoreMaxPpiSupported|0x6|UINT32|0x10001010
+  ## SerialIo Uart Configuration
+  gPlatformModuleTokenSpaceGuid.PcdSerialIoUartNumber|2|UINT8|0x10001011

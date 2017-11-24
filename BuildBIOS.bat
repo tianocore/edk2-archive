@@ -56,7 +56,8 @@ echo        /x64   Set Arch to X64  (default: X64)
 echo        /IA32  Set Arch to IA32 (default: X64)
 echo        /A     Set FabId to A (default:  FAB_B)
 echo        /B     Set FabId to B (default:  FAB_B)
-echo        /MN    Minnow3 Board (default: MN)
+echo        /MN    MinnowBoard 3(default: MN)
+echo        /MX    MinnowBoard 3 Next
 echo        /BG    Benson Glacier Board
 echo        PlatformName:  Broxton
 echo        BuildTargets:  Release, Debug

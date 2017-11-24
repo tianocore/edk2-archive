@@ -71,6 +71,17 @@ BXT_GPIO_PAD_INIT  IshI2cGpio[] =
 };
 
 //
+// Turn on an LED so we know there is life in this board
+//
+BXT_GPIO_PAD_INIT  SignsOfLifeGpio[] =
+{
+  //
+  //                  Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,  Wake_Enabled ,Term_H_L,Inverted, GPI_ROUT, IOSstae, IOSTerm,     MMIO_Offset,      Community
+  //
+  BXT_GPIO_PAD_CONF(L"GPIO_26",                  M0   ,    GPO   , GPIO_D,  LO    ,   NA       , Wake_Disabled, P_NONE ,   NA    ,    NA,     NA   ,DisPuPd,    GPIO_PADBAR+0x00D0,  NORTH), // MB3N - SATA_LED
+};
+
+//
 // North Peak GPIO settings before memory initialization, as it needs to be enabled before memory init
 //
 BXT_GPIO_PAD_INIT  NorthPeakGpio[] =
@@ -162,8 +173,14 @@ BXT_GPIO_PAD_INIT  UartGpio [] =
   //
   //                   Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,Wake_Enabled, Term_H_L, Inverted,GPI_ROUT,IOSstae, IOSTerm,   MMIO_Offset,      Community
   //
-  BXT_GPIO_PAD_CONF(L"GPIO_46 LPSS_UART2_RXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,   NA    ,    NA,      NA  ,     NA, GPIO_PADBAR+0x0170,  NORTH),
-  BXT_GPIO_PAD_CONF(L"GPIO_47 LPSS_UART2_TXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,   NA    ,    NA,      NA  ,     NA, GPIO_PADBAR+0x0178,  NORTH),
+  BXT_GPIO_PAD_CONF(L"GPIO_38 LPSS_UART0_RXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0130, NORTH),     // SOC_UART1_TXD
+  BXT_GPIO_PAD_CONF(L"GPIO_39 LPSS_UART0_TXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0138, NORTH),     // SOC_UART1_RXD
+  BXT_GPIO_PAD_CONF(L"GPIO_42 LPSS_UART1_RXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0150, NORTH),     // SOC_UART1_TXD
+  BXT_GPIO_PAD_CONF(L"GPIO_43 LPSS_UART1_TXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0158, NORTH),     // SOC_UART1_RXD
+  BXT_GPIO_PAD_CONF(L"GPIO_46 LPSS_UART2_RXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0170, NORTH),     // SOC_UART2_TXD
+  BXT_GPIO_PAD_CONF(L"GPIO_47 LPSS_UART2_TXD",   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0178, NORTH),     // SOC_UART2_RXD
+  BXT_GPIO_PAD_CONF(L"GPIO_112 GP_SSP_1_FS0",    M2   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0218, NORTHWEST), // SOC_UART3_RXD
+  BXT_GPIO_PAD_CONF(L"GPIO_113 GP_SSP_1_FS1",    M2   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0220, NORTHWEST), // SOC_UART3_TXD
 };
 
 
@@ -214,16 +231,16 @@ MultiPlatformGpioProgramPreMem (
   )
 {
   // PAD programming
+  GpioPadConfigTable (sizeof (SignsOfLifeGpio) / sizeof (SignsOfLifeGpio[0]), SignsOfLifeGpio);
   GpioPadConfigTable (sizeof (IshI2cGpio) / sizeof (IshI2cGpio[0]), IshI2cGpio);
   GpioPadConfigTable (sizeof (NorthPeakGpio) / sizeof (NorthPeakGpio[0]), NorthPeakGpio);
   GpioPadConfigTable (sizeof (LpssSpi1Gpio) / sizeof (LpssSpi1Gpio[0]), LpssSpi1Gpio);
 
   GpioPadConfigTable (sizeof (PcieGpio) / sizeof (PcieGpio[0]), PcieGpio);
   *StartTimerTick = GetPerformanceCounter ();
-  GpioPadConfigTable (sizeof (SataGpio) / sizeof (SataGpio[0]), SataGpio);
   GpioPadConfigTable (sizeof (LpcGpio) / sizeof (LpcGpio[0]), LpcGpio);
   GpioPadConfigTable (sizeof (SmbusGpio) / sizeof (SmbusGpio[0]), SmbusGpio);
-  GpioPadConfigTable (sizeof (UartGpio) / sizeof (UartGpio[0]), UartGpio);
+  GpioPadConfigTable (sizeof (UartGpio)/sizeof (UartGpio[0]), UartGpio);
 
   return EFI_SUCCESS;
 }

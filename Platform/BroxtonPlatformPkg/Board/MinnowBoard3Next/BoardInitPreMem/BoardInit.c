@@ -68,7 +68,6 @@ MinnowBoard3NextPreMemInit (
              &Instance
              );
   if (!EFI_ERROR (Status)) {
-     DEBUG ((EFI_D_INFO,  "Minnow Board 3 Next Pre Mem Init: Skip\n"));
     return EFI_SUCCESS;
   }
 

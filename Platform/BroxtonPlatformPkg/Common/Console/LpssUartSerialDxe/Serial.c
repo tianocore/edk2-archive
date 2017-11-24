@@ -1652,7 +1652,7 @@ IsaSerialWrite (
 
   CharBuffer  = (UINT8 *) Buffer;
 
-  PchSerialIoUartOut (Uart2, CharBuffer, *BufferSize);
+  PchSerialIoUartOut (PcdGet8 (PcdSerialIoUartNumber), CharBuffer, *BufferSize);
 
   gBS->RestoreTPL (Tpl);
 
@@ -1696,7 +1696,7 @@ IsaSerialRead (
 
   Tpl     = gBS->RaiseTPL (TPL_NOTIFY);
 
-  *BufferSize = PchSerialIoUartIn(Uart2, Buffer, *BufferSize, FALSE);
+  *BufferSize = PchSerialIoUartIn(PcdGet8 (PcdSerialIoUartNumber), Buffer, *BufferSize, FALSE);
 
   gBS->RestoreTPL (Tpl);
 
