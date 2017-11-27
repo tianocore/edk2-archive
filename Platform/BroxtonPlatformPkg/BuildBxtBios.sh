@@ -104,6 +104,9 @@ for (( i=1; i<=$#; ))
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
       BoardId=BG
       shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/MX" ]; then
+      BoardId=MX
+      shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
       FabId=B
       shift
@@ -132,10 +135,14 @@ sed -i '/^BUILD_TYPE/d' $WORKSPACE/Conf/BiosId.env
 if [ $BoardId == "MN" ]; then
   BOARD_ID=MNW3
   echo BOARD_ID = MINNOW3 >> $WORKSPACE/Conf/BiosId.env
+elif [ $BoardId == "MX" ]; then
+  BOARD_ID=MNXT
+  echo BOARD_ID = MINNEXT >> $WORKSPACE/Conf/BiosId.env
 else
   BOARD_ID=BEN1
   echo BOARD_ID = BENSONV >> $WORKSPACE/Conf/BiosId.env
 fi
+
 ENBDT_PF_BUILD=TRUE
 PLATFORM_NAME=BroxtonPlatformPkg
 PLATFORM_PACKAGE=Platform/BroxtonPlatformPkg  
@@ -176,8 +183,13 @@ else
 fi
 
 if [ $BoardId == "BG" ]; then
-  BOARD_REV=A
-  echo BOARD_REV = A >> $WORKSPACE/Conf/BiosId.env
+  if [ $FabId == "B" ]; then
+    BOARD_REV=B
+    echo BOARD_REV = B >> $WORKSPACE/Conf/BiosId.env
+  else
+    BOARD_REV=A
+    echo BOARD_REV = A >> $WORKSPACE/Conf/BiosId.env
+  fi
 fi
 
 if [ $BoardId == "MN" ]; then
@@ -190,6 +202,15 @@ if [ $BoardId == "MN" ]; then
   fi
 fi
 
+if [ $BoardId == "MX" ]; then
+  if [ $FabId == "B" ]; then
+    BOARD_REV=B
+    echo BOARD_REV = B >> $WORKSPACE/Conf/BiosId.env
+  else
+    BOARD_REV=A
+    echo BOARD_REV = A >> $WORKSPACE/Conf/BiosId.env
+  fi
+fi
 
 ##**********************************************************************
 ## Additional EDK Build Setup/Configuration
@@ -291,10 +312,17 @@ cp -f $BUILD_PATH/FV/FVIBBM.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Too
 cp -f $BUILD_PATH/FV/FVIBBL.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 
 if [ $BoardId == "BG" ]; then
-  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-  cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  if [ $FabId == "B" ]; then
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  else 
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/BensonGlacier/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  fi
 fi
 
 if [ $BoardId == "MN" ]; then
@@ -308,6 +336,20 @@ if [ $BoardId == "MN" ]; then
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  fi
+fi
+
+if [ $BoardId == "MX" ]; then
+  if [ $FabId == "B" ]; then
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  else
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   fi
 fi
 

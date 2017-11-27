@@ -19,10 +19,11 @@ function Usage () {
   echo
   echo "Usage: BuildIFWI.sh Build_Flags Platform_Type Build_Target"
   echo
-  echo "       Build_Flags:                 /MN    Minnow3 Board (default: MN) "
+  echo "       Build_Flags:                 /MN    Minnowboard 3 (default) "
   echo "       Build_Flags:                 /BG    Benson Glacier Board "
-  echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B) "
-  echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B) "
+  echo "       Build_Flags:                 /MX    Minnowboard 3 Next "
+  echo "       Build_Flags:                 /A     Set FabId to A"
+  echo "       Build_Flags:                 /B     Set FabId to B (default)"
   echo "       Platform_Type [optional]:    Broxton "                   
   echo "       Build_Target:                Release, Debug "
   echo
@@ -65,6 +66,10 @@ for (( i=1; i<=$#; ))
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/BG" ]; then
       BoardId=BG
       Build_Flags="$Build_Flags /BG"
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/MX" ]; then
+      BoardId=MX
+      Build_Flags="$Build_Flags /MX"
       shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
       FabId=B
