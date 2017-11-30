@@ -89,7 +89,7 @@ BXT_GPIO_PAD_INIT  mMinnow3Next_GpioInitData_N[] =
   BXT_GPIO_PAD_CONF(L"GPIO_23",                  M0   ,    GPI   ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00B8, NORTH), // BOOT_SEL1#
   BXT_GPIO_PAD_CONF(L"GPIO_24",                  M0   ,    GPI   ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00C0, NORTH), // BOOT_SEL0#
   BXT_GPIO_PAD_CONF(L"GPIO_25",                  M0   ,    GPI   ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00C8, NORTH), // TEST#
-  BXT_GPIO_PAD_CONF(L"GPIO_26",                  M0   ,    GPO   ,  NA   ,  HI    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00D0, NORTH), // SATA_LED#
+  BXT_GPIO_PAD_CONF(L"GPIO_26",                  M5   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00D0, NORTH), // SATA_LEDN
   BXT_GPIO_PAD_CONF(L"GPIO_27",                  M0   ,    GPI   ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00D8, NORTH), // NC
   BXT_GPIO_PAD_CONF(L"GPIO_28",                  M0   ,    GPO   ,  NA   ,  HI    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00E0, NORTH), // USB2_EN
   BXT_GPIO_PAD_CONF(L"GPIO_29",                  M0   ,    GPO   ,  NA   ,  HI    ,   NA       , Wake_Disabled, P_NONE ,    NA   ,    NA,     NA   ,DisPuPd, GPIO_PADBAR+0x00E8, NORTH), // USB_DRIVE_BUS_1V8
