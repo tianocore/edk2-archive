@@ -82,6 +82,7 @@
   gEfiBxtTokenSpaceGuid.PcdPmcGcrBaseAddress
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
 
 [FixedPcd]
   gPlatformModuleTokenSpaceGuid.PcdFlashAreaSize

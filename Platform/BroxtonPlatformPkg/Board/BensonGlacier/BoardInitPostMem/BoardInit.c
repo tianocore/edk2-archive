@@ -58,13 +58,13 @@ BensonGlacierPostMemInitCallback (
   VariableSize = sizeof (SYSTEM_CONFIGURATION);
   ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
 
- (*PeiServices)->LocatePpi (
+  (*PeiServices)->LocatePpi (
                     (CONST EFI_PEI_SERVICES **)PeiServices,
                     &gEfiPeiReadOnlyVariable2PpiGuid,
                     0,
                     NULL,
                     (VOID **) &VariableServices
-                     );
+                    );
 
   VariableServices->GetVariable (
                       VariableServices,
@@ -129,6 +129,11 @@ BensonGlacierPostMemInitCallback (
   //
   MaxPkgCState = MAX_PKG_CSTATE_C2;
   PcdSet8 (PcdMaxPkgCState, (UINT8) MaxPkgCState);
+  
+  //
+  // Set PcdeMMCHostMaxSpeed
+  //
+  PcdSet8 (PcdeMMCHostMaxSpeed, (UINT8) (SystemConfiguration.ScceMMCHostMaxSpeed));
 
   //
   // Add init steps here

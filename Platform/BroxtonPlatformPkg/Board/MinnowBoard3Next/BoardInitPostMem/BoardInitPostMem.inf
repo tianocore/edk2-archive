@@ -60,6 +60,7 @@
   gPlatformModuleTokenSpaceGuid.PcdFabId
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
 
 [Guids]
   gEfiPlatformInfoGuid

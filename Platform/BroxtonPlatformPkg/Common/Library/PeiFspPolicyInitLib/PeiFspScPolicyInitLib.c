@@ -615,7 +615,8 @@ PeiFspScPolicyInit (
     FspsUpd->FspsConfig.UfsEnabled       = 0;
     FspsUpd->FspsConfig.eMMCEnabled      = SystemConfiguration->ScceMMCEnabled;
     FspsUpd->FspsConfig.SdioEnabled      = SystemConfiguration->SccSdioEnabled;
-    FspsUpd->FspsConfig.eMMCHostMaxSpeed = SystemConfiguration->ScceMMCHostMaxSpeed;
+    FspsUpd->FspsConfig.eMMCHostMaxSpeed = (UINT8) PcdGet8 (PcdeMMCHostMaxSpeed);
+
     FspsUpd->FspsConfig.GppLock          = SystemConfiguration->GPPLock;
     FspsUpd->FspsConfig.SdioTxCmdCntl          = 0x505;
     FspsUpd->FspsConfig.SdioTxDataCntl1        = 0xE;

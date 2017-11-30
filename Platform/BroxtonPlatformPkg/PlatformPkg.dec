@@ -197,6 +197,8 @@
   gPlatformModuleTokenSpaceGuid.PcdUpdatePcieConfigFunc|2|UINT64|0x8000001A
   ## SerialIo Uart Configuration
   #gPlatformModuleTokenSpaceGuid.PcdSerialIoUartNumber|2|UINT8|0x8000001B
+  ## This PCD used to select eMMCHostMaxSpeed
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed|0x00|UINT8|0x8000001C
   ## MemoryCheck value for checking memory before boot OS.
   ## To save the boot performance, the default MemoryCheck is set to 0.
   gClientCommonModuleTokenSpaceGuid.PcdPlatformMemoryCheck|0|UINT8|0x40000005

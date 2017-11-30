@@ -705,7 +705,7 @@ UpdatePeiScPolicy (
   ScsConfig->UfsEnable          = 0;
   ScsConfig->EmmcEnable         = SystemConfiguration.ScceMMCEnabled;
   ScsConfig->SdioEnable         = SystemConfiguration.SccSdioEnabled;
-  ScsConfig->EmmcHostMaxSpeed   = SystemConfiguration.ScceMMCHostMaxSpeed;
+  ScsConfig->EmmcHostMaxSpeed   = (UINT8) PcdGet8 (PcdeMMCHostMaxSpeed);
   ScsConfig->GppLock            = SystemConfiguration.GPPLock;
   ScsConfig->SccEmmcTraceLength = SCC_EMMC_LONG_TRACE_LEN;
 

@@ -59,6 +59,29 @@ LeafHillPostMemInitCallback (
   UINT8                            ResetType;
   UINTN                            BufferSize;
   UINT8                            MaxPkgCState;
+  UINTN                            VariableSize;
+  EFI_PEI_READ_ONLY_VARIABLE2_PPI  *VariableServices;
+  SYSTEM_CONFIGURATION             SystemConfiguration;
+
+  VariableSize = sizeof (SYSTEM_CONFIGURATION);
+  ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
+
+  (*PeiServices)->LocatePpi (
+                    (CONST EFI_PEI_SERVICES **)PeiServices,
+                    &gEfiPeiReadOnlyVariable2PpiGuid,
+                    0,
+                    NULL,
+                    (VOID **) &VariableServices
+                    );
+
+  VariableServices->GetVariable (
+                      VariableServices,
+                      PLATFORM_SETUP_VARIABLE_NAME,
+                      &gEfiSetupVariableGuid,
+                      NULL,
+                      &VariableSize,
+                      &SystemConfiguration
+                      );
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -106,6 +129,11 @@ LeafHillPostMemInitCallback (
   //
   MaxPkgCState = MAX_PKG_CSTATE_C2;
   PcdSet8 (PcdMaxPkgCState, (UINT8) MaxPkgCState);
+  
+  //
+  // Set PcdeMMCHostMaxSpeed
+  //
+  PcdSet8 (PcdeMMCHostMaxSpeed, (UINT8) (SystemConfiguration.ScceMMCHostMaxSpeed));
 
   //
   // Add init steps here

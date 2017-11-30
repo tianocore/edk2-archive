@@ -66,6 +66,7 @@
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
   gPlatformModuleTokenSpaceGuid.PcdTi3100AudioCodecEnable
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
 
 [Guids]
   gEfiPlatformInfoGuid

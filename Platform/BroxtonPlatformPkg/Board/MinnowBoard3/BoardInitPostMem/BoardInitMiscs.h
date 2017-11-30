@@ -94,6 +94,13 @@
 #define SUBSYSTEM_DEVICE_ID   0x1234
 #define SUBSYSTEM_SVID_SSID   (SUBSYSTEM_VENDOR_ID + (SUBSYSTEM_DEVICE_ID << 16))
 
+//
+// eMMCHostMaxSpeed identifier.
+//
+#define EMMC_HS400_MODE   0x00
+#define EMMC_HS200_MODE   0x01
+#define EMMC_DDR50_MODE   0x02
+
 EFI_STATUS
 Minnow3GetPlatformInfoHob (
   IN CONST EFI_PEI_SERVICES     **PeiServices,

@@ -86,6 +86,7 @@
   gPlatformModuleTokenSpaceGuid.PcdResetType
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
 
 [Ppis]
   gSiPolicyPpiGuid                 ## CONSUMES

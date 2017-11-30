@@ -62,6 +62,7 @@
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdLogoDisplay
   gPlatformModuleTokenSpaceGuid.PcdBtDevice
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
 
 [Guids]
   gEfiPlatformInfoGuid

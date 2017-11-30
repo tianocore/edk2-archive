@@ -63,6 +63,7 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
+  gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
 
 [Guids]
   gEfiPlatformInfoGuid

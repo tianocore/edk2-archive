@@ -59,6 +59,30 @@ MinnowBoard3PostMemInitCallback (
   UINT8                            ResetType;
   UINT8                            BtDevice;
   UINTN                            BufferSize;
+  UINT8                            MaxSpeed;
+  UINTN                            VariableSize;
+  EFI_PEI_READ_ONLY_VARIABLE2_PPI  *VariableServices;
+  SYSTEM_CONFIGURATION             SystemConfiguration;
+
+  VariableSize = sizeof (SYSTEM_CONFIGURATION);
+  ZeroMem (&SystemConfiguration, sizeof (SYSTEM_CONFIGURATION));
+
+  (*PeiServices)->LocatePpi (
+                    (CONST EFI_PEI_SERVICES **)PeiServices,
+                    &gEfiPeiReadOnlyVariable2PpiGuid,
+                    0,
+                    NULL,
+                    (VOID **) &VariableServices
+                    );
+
+  VariableServices->GetVariable (
+                      VariableServices,
+                      PLATFORM_SETUP_VARIABLE_NAME,
+                      &gEfiSetupVariableGuid,
+                      NULL,
+                      &VariableSize,
+                      &SystemConfiguration
+                      );
 
   Status = PeiServicesLocatePpi (
              &gBoardPostMemInitDoneGuid,
@@ -112,6 +136,17 @@ MinnowBoard3PostMemInitCallback (
   //
   PcdSetBool (PcdLogoDisplay, TRUE);
     
+  //
+  // Set PcdeMMCHostMaxSpeed
+  //
+  if ((SystemConfiguration.ScceMMCHostMaxSpeed == 0) || (SystemConfiguration.ScceMMCHostMaxSpeed == 1)) {
+    MaxSpeed = EMMC_HS200_MODE;
+    PcdSet8 (PcdeMMCHostMaxSpeed, (UINT8) MaxSpeed);
+  } else {
+    MaxSpeed = EMMC_DDR50_MODE;
+    PcdSet8 (PcdeMMCHostMaxSpeed, (UINT8) MaxSpeed);
+  }
+
   //
   // Add init steps here
   //
