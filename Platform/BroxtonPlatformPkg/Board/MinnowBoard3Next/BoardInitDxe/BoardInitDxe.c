@@ -26,9 +26,9 @@ Mb3NGetBoardName (
 {
   STATIC CHAR16  BoardName[40];
 
-  DEBUG ((EFI_D_INFO,  "BoardInitDxe: GetBoardName - Minnow Board v3 Next\n"));
+  DEBUG ((EFI_D_INFO,  "BoardInitDxe: GetBoardName - MinnowBoard 3 Module\n"));
 
-  UnicodeSPrint (BoardName, sizeof (BoardName), L"Minnow Board v3 Next (0x%02X)", BoardId);
+  UnicodeSPrint (BoardName, sizeof (BoardName), L"MinnowBoard 3 Module ");
 
   if (BoardId != (UINT8) BOARD_ID_MINNOW_NEXT) {
     return NULL;

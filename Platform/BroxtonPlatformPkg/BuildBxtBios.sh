@@ -136,8 +136,8 @@ if [ $BoardId == "MN" ]; then
   BOARD_ID=MNW3
   echo BOARD_ID = MINNOW3 >> $WORKSPACE/Conf/BiosId.env
 elif [ $BoardId == "MX" ]; then
-  BOARD_ID=MNXT
-  echo BOARD_ID = MINNEXT >> $WORKSPACE/Conf/BiosId.env
+  BOARD_ID=M3MO
+  echo BOARD_ID = M3MODUL >> $WORKSPACE/Conf/BiosId.env
 else
   BOARD_ID=BEN1
   echo BOARD_ID = BENSONV >> $WORKSPACE/Conf/BiosId.env

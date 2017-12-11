@@ -208,7 +208,7 @@ if /i "%~1" == "%Minnow_RVP%" (
   ) else if %BoardId%==BG (
     set BOARD_ID=BENSONV
   ) else if %BoardId%==MX (
-    set BOARD_ID=MINNEXT
+    set BOARD_ID=M3MODUL
   )
     set ENBDT_PF_BUILD=TRUE
     set PLATFORM_NAME=BroxtonPlatformPkg

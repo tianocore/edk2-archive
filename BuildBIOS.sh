@@ -20,7 +20,7 @@ function Usage () {
   echo
   echo "       Build_Flags:                 /MN    MinnowBoard3 (default: MN)"
   echo "       Build_Flags:                 /BG    Benson Glacier Board"
-  echo "       Build_Flags:                 /MX    MinnowBoard3 Next"
+  echo "       Build_Flags:                 /MX    MinnowBoard3 Module"
   echo "       Build_Flags:                 /A     Set FabId to A (default:  FAB_B)"
   echo "       Build_Flags:                 /B     Set FabId to B (default:  FAB_B)"
   echo "       PlatformName [optional]:     Broxton  "                   

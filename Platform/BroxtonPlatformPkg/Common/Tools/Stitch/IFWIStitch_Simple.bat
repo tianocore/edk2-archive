@@ -110,6 +110,8 @@ if /i "!Platform_Type!"=="MINN" (
     set Platform_Type=MINN
 ) else if /i "!Platform_Type!"=="BENS" (
     set Platform_Type=BENS
+) else if /i "!Platform_Type!"=="M3MO" (
+    set Platform_Type=M3MO
 ) else (
     echo Error - Unsupported PlatformType: !Platform_Type!
     goto Usage

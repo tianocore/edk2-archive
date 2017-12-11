@@ -2,7 +2,7 @@
   Board specific functions in DXE phase to be set as dynamic PCD and consumed by
   commmon platform code.
 
-  Copyright (c) 2009 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2009 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -26,9 +26,9 @@ Mb3GetBoardName (
 {
   STATIC CHAR16  BoardName[40];
 
-  DEBUG ((EFI_D_INFO,  "BoardInitDxe: GetBoardName - MinnowBoard V3\n"));
+  DEBUG ((EFI_D_INFO,  "BoardInitDxe: GetBoardName - MinnowBoard 3\n"));
 
-  UnicodeSPrint (BoardName, sizeof (BoardName), L"MinnowBoard V3 ");
+  UnicodeSPrint (BoardName, sizeof (BoardName), L"MinnowBoard 3 ");
 
   if (BoardId != (UINT8) BOARD_ID_MINNOW) {
     return NULL;
