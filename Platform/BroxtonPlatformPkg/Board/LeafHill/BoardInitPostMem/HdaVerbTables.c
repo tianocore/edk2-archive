@@ -1,5 +1,7 @@
 /** @file
-  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.<BR>
+  HD Audio Verb Table.
+
+  Copyright (c) 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -14,13 +16,6 @@
 #include "HdaVerbTables.h"
 
 HDAUDIO_VERB_TABLE HdaVerbTableAlc662 = {
-  //
-  // VerbTable: (Realtek ALC662)
-  // Revision ID = 0xff
-  // Codec Verb Table for IOTG CRB boards
-  // Codec Address: CAd value (0/1/2)
-  // Codec Vendor: 0x10EC0662
-  //
   {
     0x10EC0662,     // Vendor ID / Device ID
     0xFF,           // Revision ID
@@ -28,31 +23,7 @@ HDAUDIO_VERB_TABLE HdaVerbTableAlc662 = {
     15 * 4          // Number of data DWORDs following the header.
   },
   {
-    //
-    // Realtek Semiconductor Corp.
-    //
-    // Realtek High Definition Audio Configuration - Version : 5.0.2.6
-    // Realtek HD Audio Codec : ALC662-VD
-    // PCI PnP ID : PCI\VEN_8086&DEV_2668&SUBSYS_72708086
-    // HDA Codec PnP ID : HDAUDIO\FUNC_01&VEN_10EC&DEV_0662&SUBSYS_80860000
-    // The number of verb command block : 15
-    //
-    //     NID 0x12 : 0x40130000
-    //     NID 0x14 : 0x01014010
-    //     NID 0x15 : 0x01011012
-    //     NID 0x16 : 0x01016011
-    //     NID 0x18 : 0x01A19030
-    //     NID 0x19 : 0x02A19040
-    //     NID 0x1A : 0x0181303F
-    //     NID 0x1B : 0x0221401F
-    //     NID 0x1C : 0x411111F0
-    //     NID 0x1D : 0x4045E601
-    //     NID 0x1E : 0x01441120
-    //
-    //
-    // HDA Codec Subsystem ID Verb-table
-    // HDA Codec Subsystem ID  : 0x80860000
-    //
+
     0x00172000,
     0x00172100,
     0x00172286,
@@ -172,4 +143,3 @@ HDAUDIO_VERB_TABLE HdaVerbTableAlc662 = {
     0x0204A9B8
   }
 };
-

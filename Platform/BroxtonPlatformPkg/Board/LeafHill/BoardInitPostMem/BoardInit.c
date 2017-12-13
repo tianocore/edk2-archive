@@ -22,6 +22,7 @@
 #include <Ppi/BoardInitSignalling.h>
 #include "BoardInit.h"
 #include "BoardInitMiscs.h"
+#include "HdaVerbTables.h"
 
 EFI_STATUS
 EFIAPI
@@ -135,6 +136,12 @@ LeafHillPostMemInitCallback (
   //
   PcdSet8 (PcdeMMCHostMaxSpeed, (UINT8) (SystemConfiguration.ScceMMCHostMaxSpeed));
 
+  //
+  // HDA audio verb table
+  //
+  PcdSet64 (PcdHdaVerbTablePtr, (UINT64) (UINTN) &HdaVerbTableAlc662);
+  PcdSet8(HdaVerbTableEntryNum, 1);
+  
   //
   // Add init steps here
   //

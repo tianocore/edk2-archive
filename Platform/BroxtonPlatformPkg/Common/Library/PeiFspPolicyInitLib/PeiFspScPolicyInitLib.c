@@ -152,7 +152,6 @@ PeiFspScPolicyInit (
   BOOLEAN                          FlashProtectionEnabled;
   SC_POLICY_PPI                    *ScPolicy;
   SC_FLASH_PROTECTION_CONFIG       *FlashProtectionConfig;
-  SC_HDAUDIO_CONFIG                *HdaConfig;
   UINTN                            HeciBaseAddress;
   UINT32                           SecMode;
 
@@ -363,13 +362,11 @@ PeiFspScPolicyInit (
     FspsUpd->FspsConfig.Mmt                           = SystemConfiguration->ScHdAudioMmt;
     FspsUpd->FspsConfig.Hmt                           = SystemConfiguration->ScHdAudioHmt;
     FspsUpd->FspsConfig.HdAudioIoBufferOwnership      = SystemConfiguration->ScHdAudioIoBufferOwnership;
+    FspsUpd->FspsConfig.HdaVerbTableEntryNum          = PcdGet8(HdaVerbTableEntryNum);
+    FspsUpd->FspsConfig.HdaVerbTablePtr               = (UINT32)PcdGet64(PcdHdaVerbTablePtr);
 
-    Status = GetConfigBlock ((VOID *) ScPolicy, &gHdAudioConfigGuid, (VOID *) &HdaConfig);
-    ASSERT_EFI_ERROR (Status);
-    if (!EFI_ERROR (Status)) {
-      FspsUpd->FspsConfig.HdaVerbTableEntryNum          = HdaConfig->VerbTableEntryNum;
-      FspsUpd->FspsConfig.HdaVerbTablePtr               = HdaConfig->VerbTablePtr;
-    }
+    FspsUpd->FspsConfig.HdAudioDspUaaCompliance       = 1;
+
     FspsUpd->FspsConfig.BiosCfgLockDown               = SystemConfiguration->ScHdAudioBiosCfgLockDown;
     FspsUpd->FspsConfig.HDAudioPwrGate                = SystemConfiguration->ScHdAudioPwrGate;
     FspsUpd->FspsConfig.HDAudioClkGate                = SystemConfiguration->ScHdAudioClkGate;

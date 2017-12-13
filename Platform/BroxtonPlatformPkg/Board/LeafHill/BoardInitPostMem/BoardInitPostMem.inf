@@ -31,6 +31,7 @@
   PlatformInfoHob.c
   BoardGpios.c
   BoardGpios.h
+  HdaVerbTables.c
 
 [LibraryClasses]
   PeiServicesLib
@@ -64,7 +65,9 @@
   gPlatformModuleTokenSpaceGuid.PcdSueCreek
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
   gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
-
+  gPlatformModuleTokenSpaceGuid.PcdHdaVerbTablePtr
+  gPlatformModuleTokenSpaceGuid.HdaVerbTableEntryNum
+  
 [Guids]
   gEfiPlatformInfoGuid
   gEfiAuthenticatedVariableGuid

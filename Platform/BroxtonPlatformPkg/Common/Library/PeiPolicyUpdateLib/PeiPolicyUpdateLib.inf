@@ -25,7 +25,6 @@
   PeiScPolicyUpdate.c
   PeiCpuPolicyUpdatePreMem.c
   PeiCpuPolicyUpdate.c
-  HdaVerbTables.c
 
 [Packages]
   MdePkg/MdePkg.dec

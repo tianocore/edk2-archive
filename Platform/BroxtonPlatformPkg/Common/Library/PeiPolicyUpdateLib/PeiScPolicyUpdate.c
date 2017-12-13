@@ -18,7 +18,6 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/HobLib.h>
 #include <Library/PcdLib.h>
-#include "HdaVerbTables.h"
 #include <Guid/PlatformInfo.h>
 #include <Library/PeiScPolicyLib.h>
 #include <Library/HeciMsgLib.h>
@@ -67,43 +66,6 @@ InternalAddVerbTable (
     VerbTable->VerbTableHeader.VendorDeviceId,
     VerbTable->VerbTableHeader.DataDwords)
     );
-  return;
-}
-
-
-STATIC
-VOID
-InstallPlatformVerbTables (
-  IN  SC_HDAUDIO_CONFIG           *HdaConfig,
-  IN  UINT16                      BoardId,
-  IN  UINTN                       CodecType
-  )
-{
-  UINT8                           VerbTableEntryNum;
-  UINT32                          VerbTableArray[32];
-  UINT32                          *VerbTablePtr;
-
-  VerbTableEntryNum = 0;
-
-  //
-  // left switch cases defined which can be PlatformInfo or stepping
-  //
-  if (CodecType == HdaCodecPlatformOnboard) {
-    //
-    // Add onboard verb table. If we use a board that uses a different one, we need to split this code to board specific
-    // location.
-    //
-    InternalAddVerbTable (&VerbTableEntryNum, VerbTableArray, &HdaVerbTableAlc662);
-  } else {
-    DEBUG ((DEBUG_INFO, "HD-Audio Warning: External codec kit selected or platform verb table not found, installing all!\n"));
-  }
-
-  HdaConfig->VerbTableEntryNum = VerbTableEntryNum;
-
-  VerbTablePtr = (UINT32 *) AllocateZeroPool (sizeof (UINT32) *VerbTableEntryNum);
-  CopyMem (VerbTablePtr, VerbTableArray, sizeof (UINT32) *VerbTableEntryNum);
-  HdaConfig->VerbTablePtr = (UINT32) VerbTablePtr;
-
   return;
 }
 
@@ -547,16 +509,6 @@ UpdatePeiScPolicy (
     HdaConfig->DspPpModuleMask |= (UINT32) (SystemConfiguration.ScHdAudioPostProcessingMod[HdaIndex] ? (1 << HdaIndex) : 0);
   }
   HdaConfig->ResetWaitTimer = 300;
-
-  //
-  // Install Verb Table
-  //
-  if (SystemConfiguration.ScHdAudio) {
-    //
-    // set default to on board
-    //
-    InstallPlatformVerbTables (HdaConfig, BoardId, HdaCodecPlatformOnboard);
-  }
 
   //
   // Update GMM config

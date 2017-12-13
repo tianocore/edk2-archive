@@ -87,6 +87,8 @@
   gPlatformModuleTokenSpaceGuid.PcdBoardVbtFileGuid
   gPlatformModuleTokenSpaceGuid.PcdMaxPkgCState
   gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
+  gPlatformModuleTokenSpaceGuid.PcdHdaVerbTablePtr
+  gPlatformModuleTokenSpaceGuid.HdaVerbTableEntryNum
 
 [Ppis]
   gSiPolicyPpiGuid                 ## CONSUMES
