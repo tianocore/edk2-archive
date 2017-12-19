@@ -1,7 +1,7 @@
 /** @file
   This file contains routines that get Soc Stepping.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -109,6 +109,10 @@ BxtStepping (
       case V_SA_MC_RID_B:
         DEBUG ((DEBUG_INFO, "BXTP-B2 detected!\n"));
         return BxtPB2;
+        break;
+      case V_SA_MC_RID_C:
+        DEBUG ((DEBUG_INFO, "BXTP-E0 detected!\n"));
+        return BxtPE0;
         break;
       default:
         DEBUG ((DEBUG_ERROR, "Unsupported BXT-P stepping.\n"));

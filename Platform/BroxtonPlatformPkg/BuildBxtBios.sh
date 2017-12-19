@@ -107,6 +107,12 @@ for (( i=1; i<=$#; ))
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/MX" ]; then
       BoardId=MX
       shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/LH" ]; then
+      BoardId=LH
+      shift
+    elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/D" ]; then
+      FabId=D
+      shift
     elif [ "$(echo $1 | tr 'a-z' 'A-Z')" == "/B" ]; then
       FabId=B
       shift
@@ -138,9 +144,14 @@ if [ $BoardId == "MN" ]; then
 elif [ $BoardId == "MX" ]; then
   BOARD_ID=M3MO
   echo BOARD_ID = M3MODUL >> $WORKSPACE/Conf/BiosId.env
-else
+elif [ $BoardId == "BG" ]; then
   BOARD_ID=BEN1
   echo BOARD_ID = BENSONV >> $WORKSPACE/Conf/BiosId.env
+elif [ $BoardId == "LH" ]; then
+  BOARD_ID=LEAF
+  echo BOARD_ID = LEAFHIL >> $WORKSPACE/Conf/BiosId.env
+else
+  break
 fi
 
 ENBDT_PF_BUILD=TRUE
@@ -209,6 +220,13 @@ if [ $BoardId == "MX" ]; then
   else
     BOARD_REV=A
     echo BOARD_REV = A >> $WORKSPACE/Conf/BiosId.env
+  fi
+fi
+
+if [ $BoardId == "LH" ]; then
+  if [ $FabId == "D" ]; then
+    BOARD_REV=D
+    echo BOARD_REV = D >> $WORKSPACE/Conf/BiosId.env
   fi
 fi
 
@@ -350,6 +368,15 @@ if [ $BoardId == "MX" ]; then
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/MinnowBoard3Next/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  fi
+fi
+
+if [ $BoardId == "LH" ]; then
+  if [ $FabId == "D" ]; then
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/LeafHill/FAB_D/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/LeafHill/FAB_D/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/LeafHill/FAB_D/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Binaries/IFWI/LeafHill/FAB_D/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   fi
 fi
 

@@ -54,11 +54,13 @@ echo        /m     Set the build thread count to number of processors
 echo        /vs13  Set Compiler to vs2013 build (default: vs2013)
 echo        /x64   Set Arch to X64  (default: X64)
 echo        /IA32  Set Arch to IA32 (default: X64)
-echo        /A     Set FabId to A (default:  FAB_B)
+echo        /A     Set FabId to A
 echo        /B     Set FabId to B (default:  FAB_B)
+echo        /D     Set FabId to D
 echo        /MN    MinnowBoard 3(default: MN)
 echo        /MX    MinnowBoard 3 Module
 echo        /BG    Benson Glacier Board
+echo        /LH    LeafHill CRB Board
 echo        PlatformName:  Broxton
 echo        BuildTargets:  Release, Debug
 

@@ -165,6 +165,12 @@ if /i "%~1"=="/B" (
     shift
     goto OptLoop
 )
+if /i "%~1"=="/D" (
+    set FabId=D
+    echo.
+    shift
+    goto OptLoop
+)
 if /i "%~1"=="/MN" (
     set BoardId=MN
     echo.
@@ -179,6 +185,12 @@ if /i "%~1"=="/BG" (
 )
 if /i "%~1"=="/MX" (
     set BoardId=MX
+    echo.
+    shift
+    goto OptLoop
+)
+if /i "%~1"=="/LH" (
+    set BoardId=LH
     echo.
     shift
     goto OptLoop
@@ -209,6 +221,8 @@ if /i "%~1" == "%Minnow_RVP%" (
     set BOARD_ID=BENSONV
   ) else if %BoardId%==MX (
     set BOARD_ID=M3MODUL
+  ) else if %BoardId%==LH (
+    set BOARD_ID=LEAFHIL
   )
     set ENBDT_PF_BUILD=TRUE
     set PLATFORM_NAME=BroxtonPlatformPkg
@@ -282,6 +296,12 @@ if %BoardId%==MX (
     echo BOARD_REV = B >> Conf\BiosId.env
   ) else (
     echo BOARD_REV = A >> Conf\BiosId.env
+  )
+)
+
+if %BoardId%==LH (
+  if %FabId%==D (
+    echo BOARD_REV = D >> Conf\BiosId.env
   )
 )
 

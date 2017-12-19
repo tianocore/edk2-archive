@@ -144,6 +144,13 @@ AddSmbiosManuCallback (
       HiiSetString (mHiiHandle, STRING_TOKEN (STR_MISC_SYSTEM_VERSION), Buffer, NULL);
       DEBUG ((EFI_D_ERROR, "C0 Stepping Detected\n"));
       break;
+    case BxtPE0:
+      UnicodeSPrint (Buffer, sizeof (Buffer), L"%s%s", PlatformNameBuffer, L"E0 PLATFORM");
+      HiiSetString (mHiiHandle, STRING_TOKEN (STR_MISC_SYSTEM_PRODUCT_NAME), Buffer, NULL);
+      UnicodeSPrint (Buffer, sizeof (Buffer), L"%s", L"E0");
+      HiiSetString (mHiiHandle, STRING_TOKEN (STR_MISC_SYSTEM_VERSION), Buffer, NULL);
+      DEBUG ((EFI_D_ERROR, "E0 Stepping Detected\n"));
+      break;
     default:
       DEBUG ((EFI_D_ERROR, "Unknow Stepping Detected\n"));
       break;

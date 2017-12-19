@@ -52,6 +52,10 @@ if /i "%~3"=="MX" (
     set BoardId=MX
 )
 
+if /i "%~3"=="LH" (
+    set BoardId=LH
+)
+
 :OptLoop1
 
 if /i "%~1"=="/FspW" (
@@ -112,6 +116,8 @@ if /i "!Platform_Type!"=="MINN" (
     set Platform_Type=BENS
 ) else if /i "!Platform_Type!"=="M3MO" (
     set Platform_Type=M3MO
+) else if /i "!Platform_Type!"=="LEAF" (
+    set Platform_Type=LEAF
 ) else (
     echo Error - Unsupported PlatformType: !Platform_Type!
     goto Usage
@@ -164,6 +170,11 @@ if %BoardId%==BG (
            copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk1.bin .
            copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk2.bin .
            copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk3.bin .
+           copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
+) else if %BoardId%==LH (
+           copy /y /b ..\..\Binaries\IFWI\LeafHill\FAB_D\SpiChunk1.bin .
+           copy /y /b ..\..\Binaries\IFWI\LeafHill\FAB_D\SpiChunk2.bin .
+           copy /y /b ..\..\Binaries\IFWI\LeafHill\FAB_D\SpiChunk3.bin .
            copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
 )
 move /y spi_out.bin %BIOS_ID%.bin  >> Stitching.log

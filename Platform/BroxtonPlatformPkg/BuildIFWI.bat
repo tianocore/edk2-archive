@@ -93,6 +93,12 @@ if /i "%~1"=="/B" (
     shift
     goto OptLoop
 )
+if /i "%~1"=="/D" (
+    set FabId=D
+    set Build_Flags=%Build_Flags% /D
+    shift
+    goto OptLoop
+)
 if /i "%~1"=="/MN" (
     set BoardId=MN
     set Build_Flags=%Build_Flags% /MN
@@ -109,6 +115,13 @@ if /i "%~1"=="/BG" (
 if /i "%~1"=="/MX" (
     set BoardId=MX
     set Build_Flags=%Build_Flags% /MX
+    shift
+    goto OptLoop
+)
+
+if /i "%~1"=="/LH" (
+    set BoardId=LH
+    set Build_Flags=%Build_Flags% /LH
     shift
     goto OptLoop
 )

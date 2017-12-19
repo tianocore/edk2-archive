@@ -1,7 +1,7 @@
 /** @file
   Get Soc ID library implementation.
 
-  Copyright (c) 2014 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2014 - 2017, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -42,6 +42,7 @@ typedef enum {
   BxtPB0         = 0x50,
   BxtPB1,
   BxtPB2,
+  BxtPE0         = 0x60,
   BxtSteppingMax = 0xFF
 } BXT_STEPPING;
 
