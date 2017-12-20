@@ -145,36 +145,36 @@ copy /y /b %BIOS_Names%\NvStorage.Fv .\BIOS_COMPONENTS
 
 if %BoardId%==BG (
   if %FabId%==B (
-    copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_B\SpiChunk1.bin .
-    copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_B\SpiChunk2.bin .
-    copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_B\SpiChunk3.bin .
+    copy /y /b ..\..\..\Board\BensonGlacier\IFWI\FAB_B\SpiChunk1.bin .
+    copy /y /b ..\..\..\Board\BensonGlacier\IFWI\FAB_B\SpiChunk2.bin .
+    copy /y /b ..\..\..\Board\BensonGlacier\IFWI\FAB_B\SpiChunk3.bin .
   ) else (
-    copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_A\SpiChunk1.bin .
-    copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_A\SpiChunk2.bin .
-    copy /y /b ..\..\Binaries\IFWI\BensonGlacier\FAB_A\SpiChunk3.bin .  
+    copy /y /b ..\..\..\Board\BensonGlacier\IFWI\FAB_A\SpiChunk1.bin .
+    copy /y /b ..\..\..\Board\BensonGlacier\IFWI\FAB_A\SpiChunk2.bin .
+    copy /y /b ..\..\..\Board\BensonGlacier\IFWI\FAB_A\SpiChunk3.bin .  
   )  
   copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
 ) else if %BoardId%==MN (
          if %FabId%==B (
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk1.bin .
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk2.bin .
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_B\SpiChunk3.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3\IFWI\FAB_B\SpiChunk1.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3\IFWI\FAB_B\SpiChunk2.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3\IFWI\FAB_B\SpiChunk3.bin .
            copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
          ) else (
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk1.bin .
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk2.bin .
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3\FAB_A\SpiChunk3.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3\IFWI\FAB_A\SpiChunk1.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3\IFWI\FAB_A\SpiChunk2.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3\IFWI\FAB_A\SpiChunk3.bin .
            copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
          )
 ) else if %BoardId%==MX (
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk1.bin .
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk2.bin .
-           copy /y /b ..\..\Binaries\IFWI\MinnowBoard3Next\FAB_A\SpiChunk3.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3Next\IFWI\FAB_A\SpiChunk1.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3Next\IFWI\FAB_A\SpiChunk2.bin .
+           copy /y /b ..\..\..\Board\MinnowBoard3Next\IFWI\FAB_A\SpiChunk3.bin .
            copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
 ) else if %BoardId%==LH (
-           copy /y /b ..\..\Binaries\IFWI\LeafHill\FAB_D\SpiChunk1.bin .
-           copy /y /b ..\..\Binaries\IFWI\LeafHill\FAB_D\SpiChunk2.bin .
-           copy /y /b ..\..\Binaries\IFWI\LeafHill\FAB_D\SpiChunk3.bin .
+           copy /y /b ..\..\..\Board\LeafHill\IFWI\FAB_D\SpiChunk1.bin .
+           copy /y /b ..\..\..\Board\LeafHill\IFWI\FAB_D\SpiChunk2.bin .
+           copy /y /b ..\..\..\Board\LeafHill\IFWI\FAB_D\SpiChunk3.bin .
            copy /y /b SpiChunk1.bin+.\BIOS_COMPONENTS\IBBL.Fv+.\BIOS_COMPONENTS\IBB.Fv+SpiChunk2.bin+.\BIOS_COMPONENTS\OBB.Fv+.\BIOS_COMPONENTS\NvStorage.Fv+SpiChunk3.bin spi_out.bin
 )
 move /y spi_out.bin %BIOS_ID%.bin  >> Stitching.log
