@@ -266,6 +266,39 @@ ConfigureHdaAtBoot (
   Status = GetConfigBlock ((VOID *) ScPolicy, &gHdAudioConfigGuid, (VOID *) &HdaConfig);
   ASSERT_EFI_ERROR (Status);
 
+  if ((HdaConfig->IoBufferOwnership == ScHdaIoBufOwnerHdaLinkI2sPort) || \
+      (HdaConfig->IoBufferOwnership == ScHdaIoBufOwnerI2sPort)) {    
+    HdaConfig->DspEndpointBluetooth = TRUE;
+    HdaConfig->DspEndpointI2sSkp = TRUE;
+    HdaConfig->DspEndpointI2sHp = TRUE;
+  }
+  
+  DEBUG ((DEBUG_INFO, "------------------ HD-Audio Config ------------------\n"));
+  DEBUG ((DEBUG_INFO, " HDA Enable                   = %x\n", HdaConfig->Enable));
+  DEBUG ((DEBUG_INFO, " DSP Enable                   = %x\n", HdaConfig->DspEnable));
+  DEBUG ((DEBUG_INFO, " Pme                          = %x\n", HdaConfig->Pme));
+  DEBUG ((DEBUG_INFO, " I/O Buffer Ownership         = %x\n", HdaConfig->IoBufferOwnership));
+  DEBUG ((DEBUG_INFO, " I/O Buffer Voltage           = %x\n", HdaConfig->IoBufferVoltage));
+  DEBUG ((DEBUG_INFO, " VC Type                      = %x\n", HdaConfig->VcType));
+  DEBUG ((DEBUG_INFO, " DSP Feature Mask             = %x\n", HdaConfig->DspFeatureMask));
+  DEBUG ((DEBUG_INFO, " DSP PP Module Mask           = %x\n", HdaConfig->DspPpModuleMask));
+  DEBUG ((DEBUG_INFO, " ResetWaitTimer               = %x\n", HdaConfig->ResetWaitTimer));
+  DEBUG ((DEBUG_INFO, " VcType                       = %x\n", HdaConfig->VcType));
+  DEBUG ((DEBUG_INFO, " HD-A Link Frequency          = %x\n", HdaConfig->HdAudioLinkFrequency));
+  DEBUG ((DEBUG_INFO, " iDisp Link Frequency         = %x\n", HdaConfig->IDispLinkFrequency));
+  DEBUG ((DEBUG_INFO, " iDisp Link T-Mode            = %x\n", HdaConfig->IDispLinkTmode));
+  DEBUG ((DEBUG_INFO, " DSP Endpoint DMIC            = %x\n", HdaConfig->DspEndpointDmic));
+  DEBUG ((DEBUG_INFO, " DSP Endpoint I2S SKP         = %x\n", HdaConfig->DspEndpointI2sSkp));
+  DEBUG ((DEBUG_INFO, " DSP Endpoint I2S HP          = %x\n", HdaConfig->DspEndpointI2sHp));
+  DEBUG ((DEBUG_INFO, " DSP Endpoint BT              = %x\n", HdaConfig->DspEndpointBluetooth));
+  DEBUG ((DEBUG_INFO, " DSP Feature Mask             = %x\n", HdaConfig->DspFeatureMask));
+  DEBUG ((DEBUG_INFO, " DSP PP Module Mask           = %x\n", HdaConfig->DspPpModuleMask));
+  DEBUG ((DEBUG_INFO, " CSME Memory Transfers        = %x\n", HdaConfig->Mmt));
+  DEBUG ((DEBUG_INFO, " Host Memory Transfers        = %x\n", HdaConfig->Hmt));
+  DEBUG ((DEBUG_INFO, " BIOS Configuration Lock Down = %x\n", HdaConfig->BiosCfgLockDown));
+  DEBUG ((DEBUG_INFO, " Power Gating                 = %x\n", HdaConfig->PwrGate));
+  DEBUG ((DEBUG_INFO, " Clock Gating                 = %x\n", HdaConfig->ClkGate));
+
   HdaPciBase = MmPciBase (
                  DEFAULT_PCI_BUS_NUMBER_SC,
                  PCI_DEVICE_NUMBER_HDA,

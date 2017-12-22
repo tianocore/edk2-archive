@@ -568,7 +568,7 @@ NhltEndpointConstructor (
     case HdaBtRender:
       DEBUG ((DEBUG_INFO, "Endpoint: HdaBtRender\n"));
       if (GetBxtSeries() == BxtP) {
-        HdaEndpointBtRender.VirtualBusId = 2;
+        HdaEndpointBtRender.VirtualBusId = PcdGet8(HdaEndpointBtRenderVirtualBusId);
         DEBUG ((DEBUG_INFO, "For BXT-P, HdaEndpointBtRender.VirtualBusId Change to 0x%02x.\n", HdaEndpointBtRender.VirtualBusId));
       }
       CopyMem (Endpoint, &HdaEndpointBtRender, sizeof (ENDPOINT_DESCRIPTOR));
@@ -579,7 +579,7 @@ NhltEndpointConstructor (
     case HdaBtCapture:
       DEBUG ((DEBUG_INFO, "Endpoint: HdaBtCapture\n"));
       if (GetBxtSeries() == BxtP) {
-        HdaEndpointBtCapture.VirtualBusId = 2;
+        HdaEndpointBtCapture.VirtualBusId = PcdGet8(HdaEndpointBtCaptureVirtualBusId);
         DEBUG ((DEBUG_INFO, "For BXT-P, HdaEndpointBtCapture.VirtualBusId Change to 0x%02x.\n", HdaEndpointBtCapture.VirtualBusId));
       }
       CopyMem (Endpoint, &HdaEndpointBtCapture, sizeof (ENDPOINT_DESCRIPTOR));
@@ -589,12 +589,9 @@ NhltEndpointConstructor (
       break;
     case HdaI2sRenderSKP:
       DEBUG ((DEBUG_INFO, "Endpoint: HdaI2sRenderSKP\n"));
-      //
-      // For BXT-P, Virtual Bus ID is 5, while it is 0 for BXTM
-      //
       if (GetBxtSeries() == BxtP) {
-        HdaEndpointI2sRenderSKP.VirtualBusId = 5;
-        DEBUG ((DEBUG_INFO, "For BXT-P, Endpoint: HdaI2sRenderSKP virtual bus ID is 5.\n"));
+        HdaEndpointI2sRenderSKP.VirtualBusId = PcdGet8(HdaEndpointI2sRenderSKPVirtualBusId);
+        DEBUG ((DEBUG_INFO, "For BXT-P, Endpoint: HdaI2sRenderSKP virtual bus ID is 0x%02x.\n", HdaEndpointI2sRenderSKP.VirtualBusId));
       }
       CopyMem (Endpoint, &HdaEndpointI2sRenderSKP, sizeof (ENDPOINT_DESCRIPTOR));
       EndpointConfigBuffer = I2sConfigSKP;
@@ -610,12 +607,9 @@ NhltEndpointConstructor (
       break;
     case HdaI2sRenderHP:
       DEBUG ((DEBUG_INFO, "Endpoint: HdaI2sRenderHP\n"));
-      //
-      // For BXT-P, Virtual Bus ID is 5, while it is 0 for BXTM
-      //
       if (GetBxtSeries() == BxtP) {
-        HdaEndpointI2sRenderHP.VirtualBusId = 5;
-        DEBUG ((DEBUG_INFO, "For BXT-P, Endpoint: HdaI2sRenderHP virtual bus ID is 5.\n"));
+        HdaEndpointI2sRenderHP.VirtualBusId = PcdGet8(HdaEndpointI2sRenderHPVirtualBusId);
+        DEBUG ((DEBUG_INFO, "For BXT-P, Endpoint: HdaI2sRenderHP virtual bus ID is 0x%02x.\n", HdaEndpointI2sRenderHP.VirtualBusId ));
       }
       CopyMem (Endpoint, &HdaEndpointI2sRenderHP, sizeof (ENDPOINT_DESCRIPTOR));
       EndpointConfigBuffer = I2sConfig;
@@ -624,12 +618,9 @@ NhltEndpointConstructor (
       break;
     case HdaI2sCaptureHP:
       DEBUG ((DEBUG_INFO, "Endpoint: HdaI2sCaptureHP\n"));
-      //
-      // For BXT-P, Virtual Bus ID is 5, while it is 0 for BXTM
-      //
       if (GetBxtSeries() == BxtP) {
-        HdaEndpointI2sCapture.VirtualBusId = 5;
-        DEBUG ((DEBUG_INFO, "For BXT-P, Endpoint: HdaI2sCaptureHP virtual bus ID is 5.\n"));
+        HdaEndpointI2sCapture.VirtualBusId = PcdGet8(HdaEndpointI2sCaptureVirtualBusId);
+        DEBUG ((DEBUG_INFO, "For BXT-P, Endpoint: HdaI2sCaptureHP virtual bus ID is 0x%02x.\n", HdaEndpointI2sCapture.VirtualBusId));
       }
       CopyMem (Endpoint, &HdaEndpointI2sCapture, sizeof (ENDPOINT_DESCRIPTOR));
       EndpointConfigBuffer = I2sConfig;

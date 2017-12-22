@@ -204,16 +204,6 @@ BensonMultiPlatformGpioProgram (
     GpioPadConfigTable (sizeof (mBenson_GpioInitData_W) / sizeof (mBenson_GpioInitData_W[0]), PlatformInfoHob->PlatformGpioSetting_W);
     GpioPadConfigTable (sizeof (mBenson_GpioInitData_SW) / sizeof (mBenson_GpioInitData_SW[0]), PlatformInfoHob->PlatformGpioSetting_SW);
 
-    //
-    // Note1: This BXT BIOS WA needs to be applied after PAD programming to overwrite the GPIO setting to take effect.
-    // Note2: Enable TDO in BIOS SETUP as default for BXT Power-On only, need to set to AUTO prior to deliver to customer.
-    // For BXT A0 Stepping only, to disable TDO GPIO to save power.
-    //
-    if (PlatformInfoHob->FABID == FAB2) {
-      DEBUG ((DEBUG_INFO, "FAB ID: FAB2\n"));
-      GpioPadConfigTable(sizeof(mBenson_GpioInitData_FAB2)/sizeof(mBenson_GpioInitData_FAB2[0]), mBenson_GpioInitData_FAB2);
-    }
-
     if (SystemConfiguration.TDO == 2) {  //Auto
       if (BxtA0 == BxtStepping()) {
         DEBUG ((DEBUG_INFO, " BxtA0 TDO disable\n" ));

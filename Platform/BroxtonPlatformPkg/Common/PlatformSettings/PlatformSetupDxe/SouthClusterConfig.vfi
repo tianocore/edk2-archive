@@ -2765,8 +2765,8 @@ form formid     = HDAUDIO_OPTIONS_FORM_ID,
     oneof varid     = Setup.ScHdAudioNhltEndpointDmic,
            prompt      = STRING_TOKEN(STR_HDA_NHLT_ENDPOINT_DMIC),
            help        = STRING_TOKEN(STR_HDA_NHLT_ENDPOINT_DMIC_HELP),
-           option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
-           option text = STRING_TOKEN(STR_HDA_DMIC_2CH), value = 1, flags = DEFAULT |RESET_REQUIRED;
+           option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = DEFAULT | RESET_REQUIRED;
+           option text = STRING_TOKEN(STR_HDA_DMIC_2CH), value = 1, flags = RESET_REQUIRED;
            option text = STRING_TOKEN(STR_HDA_DMIC_4CH), value = 2, flags = RESET_REQUIRED;
     endoneof;
 

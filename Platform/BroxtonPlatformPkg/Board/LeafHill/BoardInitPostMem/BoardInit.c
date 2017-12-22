@@ -141,6 +141,15 @@ LeafHillPostMemInitCallback (
   //
   PcdSet64 (PcdHdaVerbTablePtr, (UINT64) (UINTN) &HdaVerbTableAlc662);
   PcdSet8(HdaVerbTableEntryNum, 1);
+
+  //
+  // I2S NHLT Virtual Bus ID
+  //
+  PcdSet8(HdaEndpointBtRenderVirtualBusId, 2);     //I2S3
+  PcdSet8(HdaEndpointBtCaptureVirtualBusId, 2);    //I2S3
+  PcdSet8(HdaEndpointI2sRenderSKPVirtualBusId, 5); //I2S6
+  PcdSet8(HdaEndpointI2sRenderHPVirtualBusId, 5);  //I2S6
+  PcdSet8(HdaEndpointI2sCaptureVirtualBusId, 5);   //I2S6
   
   //
   // Add init steps here

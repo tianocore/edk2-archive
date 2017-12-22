@@ -136,6 +136,15 @@ BensonGlacierPostMemInitCallback (
   PcdSet8 (PcdeMMCHostMaxSpeed, (UINT8) (SystemConfiguration.ScceMMCHostMaxSpeed));
 
   //
+  // I2S NHLT Virtual Bus ID
+  //
+  PcdSet8(HdaEndpointBtRenderVirtualBusId, 0x0F);  // N/A
+  PcdSet8(HdaEndpointBtCaptureVirtualBusId, 0x0F); // N/A
+  PcdSet8(HdaEndpointI2sRenderSKPVirtualBusId, 1); // I2S2
+  PcdSet8(HdaEndpointI2sRenderHPVirtualBusId, 1);  // I2S2
+  PcdSet8(HdaEndpointI2sCaptureVirtualBusId, 1);   // I2S2
+
+  //
   // Add init steps here
   //
   //

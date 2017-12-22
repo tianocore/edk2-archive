@@ -40,6 +40,11 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision      ## CONSUMES
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorId        ## CONSUMES
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorRevision  ## CONSUMES
+  gEfiBxtTokenSpaceGuid.HdaEndpointBtRenderVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointBtCaptureVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sRenderSKPVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sRenderHPVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sCaptureVirtualBusId
 
 [Sources]
   ScHdaLib.c

@@ -345,16 +345,6 @@ BXT_GPIO_PAD_INIT  mBenson_GpioInitData_Audio_SSP6 []=
   BXT_GPIO_PAD_CONF(L"GPIO_192 DBI_SCL",         M0  ,     HI_Z  ,GPIO_D,   HI    ,   NA      ,  Wake_Disabled,  P_2K_H,   NA    ,    NA,NA        ,  NA  ,  GPIO_PADBAR+0x0028,  NORTHWEST),//Feature: Codec Power Down PD Net in Sch: SOC_CODEC_PD_N
 };
 
-BXT_GPIO_PAD_INIT  mBenson_GpioInitData_FAB2[] =
-{
-  //
-  //                  Group Pin#:  pad_name,    PMode,GPIO_Config,HostSw,GPO_STATE,INT_Trigger,  Wake_Enabled ,Term_H_L,Inverted, GPI_ROUT, IOSstae, IOSTerm,     MMIO_Offset  ,Community
-  //
-  BXT_GPIO_PAD_CONF(L"GPIO_76 AVS_I2S1_WS_SYNC", M0   ,    GPI   ,GPIO_D,   NA    ,   Level   ,  Wake_Disabled, P_20K_L,   NA    ,IOAPIC,    TxDRxE,    NA,  GPIO_PADBAR+0x0120,  NORTHWEST),//Feature:SSIC_WWAN_Wake
-  BXT_GPIO_PAD_CONF(L"GPIO_6",                   M0   ,    GPI   ,GPIO_D,   NA    ,   Level    , Wake_Disabled, P_20K_L,   NA    ,IOAPIC,    TxDRxE,    NA,  GPIO_PADBAR+0x0030,  NORTH),    //Feature:DGPU Power OK
-  BXT_GPIO_PAD_CONF(L"GPIO_217 CNV_BRI_RSP",     M0   ,    GPO   ,GPIO_D,   LO    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,        NA,    NA,  GPIO_PADBAR+0x0240,  NORTH),    //Feature:DGPU_SEL
-};
-
 //
 // GPIO 191 is only used if EPI reworks are applied on the board. This GPIO switches between SD Card data (if set to 1) and EPI data (if set to 0).
 //

@@ -63,6 +63,11 @@
   gPlatformModuleTokenSpaceGuid.PcdLogoDisplay
   gPlatformModuleTokenSpaceGuid.PcdBtDevice
   gPlatformModuleTokenSpaceGuid.PcdeMMCHostMaxSpeed
+  gEfiBxtTokenSpaceGuid.HdaEndpointBtRenderVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointBtCaptureVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sRenderSKPVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sRenderHPVirtualBusId
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sCaptureVirtualBusId
 
 [Guids]
   gEfiPlatformInfoGuid

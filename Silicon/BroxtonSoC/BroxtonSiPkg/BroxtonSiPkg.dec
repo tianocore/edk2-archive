@@ -332,6 +332,18 @@
   gEfiBxtTokenSpaceGuid.PcdSetCoreCount|0|UINT32|0x10000223
   gEfiBxtTokenSpaceGuid.PcdVtdGfxBaseAddress|0xFED64000|UINT32|0x10000224
   gSiPkgTokenSpaceGuid.PcdForceVolatileVariable|FALSE|BOOLEAN|0x30000012
+  
+  ## I2S Audio Configuration
+  ## Blue Tooth Render
+  gEfiBxtTokenSpaceGuid.HdaEndpointBtRenderVirtualBusId|0x0F|UINT8|0x80000001
+  ## Blue Tooth Capture
+  gEfiBxtTokenSpaceGuid.HdaEndpointBtCaptureVirtualBusId|0x0F|UINT8|0x80000002
+  ## Speaker Render
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sRenderSKPVirtualBusId|0x0F|UINT8|0x80000003
+  ## Headphone Render
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sRenderHPVirtualBusId|0x0F|UINT8|0x80000004
+  ## Headphone Capture
+  gEfiBxtTokenSpaceGuid.HdaEndpointI2sCaptureVirtualBusId|0x0F|UINT8|0x80000005
 
 [PcdsFeatureFlag]
   gBxtRefCodePkgTokenSpaceGuid.PcdCeAtaSupport|FALSE|BOOLEAN|0x12

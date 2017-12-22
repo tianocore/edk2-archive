@@ -148,6 +148,15 @@ MinnowBoard3PostMemInitCallback (
   }
 
   //
+  // I2S NHLT Virtual Bus ID
+  //
+  PcdSet8(HdaEndpointBtRenderVirtualBusId, 2);     // I2S3
+  PcdSet8(HdaEndpointBtCaptureVirtualBusId, 2);    // I2S3
+  PcdSet8(HdaEndpointI2sRenderSKPVirtualBusId, 0); // I2S1
+  PcdSet8(HdaEndpointI2sRenderHPVirtualBusId, 0);  // I2S1
+  PcdSet8(HdaEndpointI2sCaptureVirtualBusId, 0);   // I2S1
+
+  //
   // Add init steps here
   //
   //
