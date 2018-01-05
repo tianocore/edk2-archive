@@ -1,7 +1,7 @@
 /** @file
   GUID used for Platform Info Data entries in the HOB list.
 
-  Copyright (c) 1999 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 1999 - 2018, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -147,11 +147,22 @@ typedef struct {
   UINT8  IgdPAVP;               // IGD PAVP data
 } EFI_PLATFORM_IGD_DATA;
 
+//
+// Board ID pin definiton
+//
+// Bit     SoC Pin            Value (Leaf Hill)  Value (Minnow Board 3)    Value (Benson Glacier)   Value (Aurora Glacier)
+// 0    GPIO_224 (J45)         PU (1)              PU (1)                    PD  (0)                  PD  (0)
+// 1    GPIO_213 (M47)         PU (1)              PU (1)                    PD  (0)                  PU  (1)
+// 2    GPIO_223 (H48)         PU (1)              PU (1)                    PU  (1)                  PU  (1)
+// 3    GP_CAMERASB10 (R34)    PD (0)              PU (1)                    PU  (1)                  PU  (1)
+//
+
 typedef enum {
+  BOARD_ID_MINNOW_NEXT     = 0x03,     // Minnow Board Next
   BOARD_ID_LFH_CRB         = 0x07,     // Leaf Hill
   BOARD_ID_MINNOW          = 0x0F,     // Minnow Board
-  BOARD_ID_MINNOW_NEXT     = 0x03,     // Minnow Board Next
   BOARD_ID_BENSON          = 0x0C,     // Benson Glacier
+  BOARD_ID_AURORA          = 0x0E,     // Aurora Glacier
   BOARD_ID_APL_UNKNOWN     = 0xFF
 } APL_BOARD_ID_LIST;
 

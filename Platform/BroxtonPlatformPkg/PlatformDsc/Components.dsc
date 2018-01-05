@@ -1,7 +1,7 @@
 ## @file
 #  Platform Components Description.
 #
-#  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016 - 2018, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -177,6 +177,7 @@
       NULL|$(PLATFORM_NAME)/Board/MinnowBoard3/BoardInitDxe/BoardInitDxe.inf
       NULL|$(PLATFORM_NAME)/Board/LeafHill/BoardInitDxe/BoardInitDxe.inf
       NULL|$(PLATFORM_NAME)/Board/BensonGlacier/BoardInitDxe/BoardInitDxe.inf
+      NULL|$(PLATFORM_NAME)/Board/AuroraGlacier/BoardInitDxe/BoardInitDxe.inf
       NULL|$(PLATFORM_NAME)/Board/MinnowBoard3Next/BoardInitDxe/BoardInitDxe.inf
   }
 

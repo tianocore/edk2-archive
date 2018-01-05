@@ -183,6 +183,14 @@ if /i "%~1"=="/BG" (
     shift
     goto OptLoop
 )
+
+if /i "%~1"=="/AG" (
+    set BoardId=AG
+    echo.
+    shift
+    goto OptLoop
+)
+
 if /i "%~1"=="/MX" (
     set BoardId=MX
     echo.
@@ -219,6 +227,8 @@ if /i "%~1" == "%Minnow_RVP%" (
     set BOARD_ID=MINNOW3
   ) else if %BoardId%==BG (
     set BOARD_ID=BENSONV
+  ) else if %BoardId%==AG (
+    set BOARD_ID=AURORAV
   ) else if %BoardId%==MX (
     set BOARD_ID=M3MODUL
   ) else if %BoardId%==LH (
@@ -281,6 +291,10 @@ if %BoardId%==BG (
   ) else (
     echo BOARD_REV = A >> Conf\BiosId.env
   )
+)
+
+if %BoardId%==AG (
+  echo BOARD_REV = A >> Conf\BiosId.env
 )
 
 if %BoardId%==MN (
@@ -474,6 +488,7 @@ if ErrorLevel 1 goto BldFail
 if "%BUILD_TYPE%"=="R" set BUILD_TYPE=R
 
 echo Copy BIOS...
+echo BIOS_Name=%BOARD_ID%%BOARD_REV%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
 set BIOS_Name=%BOARD_ID%%BOARD_REV%_%Arch%_%BUILD_TYPE%_%VERSION_MAJOR%_%VERSION_MINOR%
 copy /y/b %BUILD_PATH%\FV\Soc.fd          %STITCH_PATH%\%BIOS_Name%.ROM >nul
 copy /y   %STITCH_PATH%\FlashMap.h        %STITCH_PATH%\%BIOS_Name%.map >nul

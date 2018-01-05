@@ -24,15 +24,16 @@
 // Board ID pin definiton
 //
 // Bit     SoC Pin            Value (Leaf Hill)  Value (Minnow Board 3)    Value (Benson Glacier)   Value (Aurora Glacier)
-// 0    GPIO_224 (J45)         PU (1)              PU (1)                    PD  (0)                  PD  (0)
-// 1    GPIO_213 (M47)         PU (1)              PU (1)                    PD  (0)                  PU  (1)
-// 2    GPIO_223 (H48)         PU (1)              PU (1)                    PU  (1)                  PU  (1)
-// 3    GP_CAMERASB10 (R34)    PD (0)              PU (1)                    PU  (1)                  PU  (1)
+// 0	GPIO_224 (J45)         PU (1)              PU (1)                    PD  (0)                  PD  (0)
+// 1	GPIO_213 (M47)	       PU (1)              PU (1)                    PD  (0)                  PU  (1)
+// 2	GPIO_223 (H48)	       PU (1)              PU (1)                    PU  (1)                  PU  (1)
+// 3	GP_CAMERASB10 (R34)    PD (0)              PU (1)                    PU  (1)                  PU  (1)
 //
+
 
 EFI_STATUS
 EFIAPI
-BensonGetBoardId(
+AuroraGetBoardId(
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *BoardId
   )
@@ -105,7 +106,7 @@ BensonGetBoardId(
 
 EFI_STATUS
 EFIAPI
-BensonGetFabId(
+AuroraGetFabId(
   IN CONST EFI_PEI_SERVICES     **PeiServices,
   OUT UINT8                     *FabId
   )
@@ -114,7 +115,7 @@ BensonGetFabId(
   BXT_CONF_PAD1   padConfg1;
   UINT32           CommAndOffset;
 
-  DEBUG ((DEBUG_INFO, "Benson GetFabId++\n"));
+  DEBUG ((DEBUG_INFO, "Aurora GetFabId++\n"));
 
 
   //

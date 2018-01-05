@@ -1,7 +1,7 @@
 ## @file
 #  FDF file of Platform.
 #
-#  Copyright (c) 2008 - 2017, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2008 - 2018, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -269,6 +269,12 @@
   # VBT For Benson Glacier (File Guid is gPeiBensonGlacierVbtGuid)
   FILE FREEFORM = BFDE308E-2D5A-4CA7-AA76-19938AAAE4DA {
     SECTION RAW = $(PLATFORM_NAME)/Board/BensonGlacier/Vbt/VbtBxtMipi.bin
+    SECTION UI = "IntelGopVbt1"
+  }
+
+  # VBT For Aurora Glacier (File Guid is gPeiAuroraGlacierVbtGuid)
+  FILE FREEFORM = AA80B0B1-BA1E-4D4F-83E0-CCF47AAA3CD8 {
+    SECTION RAW = $(PLATFORM_NAME)/Board/AuroraGlacier/Vbt/VbtBxtMipi.bin
     SECTION UI = "IntelGopVbt1"
   }
 !endif

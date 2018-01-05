@@ -60,6 +60,7 @@ echo        /D     Set FabId to D
 echo        /MN    MinnowBoard 3(default: MN)
 echo        /MX    MinnowBoard 3 Module
 echo        /BG    Benson Glacier Board
+echo        /AG    Aurora Glacier Board
 echo        /LH    LeafHill CRB Board
 echo        PlatformName:  Broxton
 echo        BuildTargets:  Release, Debug
