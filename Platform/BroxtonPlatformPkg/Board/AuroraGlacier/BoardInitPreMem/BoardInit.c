@@ -73,15 +73,13 @@ AuroraGlacierPreMemInit (
 
   DEBUG ((EFI_D_INFO,  "This is Aurora Glacier board.\n"));
   
-  //
-  //Status = AuroraGetFabId (PeiServices, &FabId);
-  //if (FabId == 1) {
-  //  DEBUG ((EFI_D_INFO,  "This is Aurora Glacier FAB B.\n"));
-  //} else if (FabId == 0) {
-  //  DEBUG ((EFI_D_INFO,  "This is Aurora Glacier FAB A.\n"));
-  //}
-  //
-  FabId = 0;
+  
+  Status = AuroraGetFabId (PeiServices, &FabId);
+  if (FabId == 1) {
+    DEBUG ((EFI_D_INFO,  "This is Aurora Glacier FAB B.\n"));
+  } else if (FabId == 0) {
+    DEBUG ((EFI_D_INFO,  "This is Aurora Glacier FAB A.\n"));
+  }
   
   PcdSet8 (PcdBoardId, BoardId);
   PcdSet8 (PcdFabId, FabId);
