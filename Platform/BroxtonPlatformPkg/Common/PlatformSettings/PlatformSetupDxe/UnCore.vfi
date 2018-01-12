@@ -300,14 +300,16 @@ form formid = UNCORE_FORM_ID,
       help        = STRING_TOKEN(STR_WORLDCAMERA_SELECTION_HELP),
       option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
       option text = STRING_TOKEN(STR_IMX214), value = 1, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_IMX135), value = 2, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IMX135), value = 2, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IMX219), value = 3, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
     endoneof;
 
     oneof varid = Setup.UserCameraSel,
       prompt      = STRING_TOKEN(STR_USERCAMERA_SELECTION_PROMPT),
       help        = STRING_TOKEN(STR_USERCAMERA_SELECTION_HELP),
-      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = RESET_REQUIRED;
-      option text = STRING_TOKEN(STR_OV2740), value = 1, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_DISABLE), value = 0, flags = MANUFACTURING | DEFAULT | RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_OV2740), value = 1, flags = RESET_REQUIRED;
+      option text = STRING_TOKEN(STR_IMX219), value = 2, flags = RESET_REQUIRED;
     endoneof;
     
     // Rotation

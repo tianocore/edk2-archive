@@ -73,7 +73,7 @@ BXT_GPIO_PAD_INIT  mBenson_GpioInitData_N[] =
   BXT_GPIO_PAD_CONF(L"GPIO_7",                   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,   HizRx0I,   SAME, GPIO_PADBAR+0x0038,  NORTH),//Mux with DISP1_TOUCH_INT_N based on the SW3 switch
   BXT_GPIO_PAD_CONF(L"GPIO_8",                   M1   ,    NA    ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,   NA    ,    NA,   HizRx0I,   SAME, GPIO_PADBAR+0x0040,  NORTH),//Mux with DISP1_TOUCH_RST_N based on the SW3 switch
   BXT_GPIO_PAD_CONF(L"GPIO_9",                   M0   ,    GPO   ,  NA   ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA    ,   NA     ,NA   ,     NA, GPIO_PADBAR+0x0048,  NORTH),//Feature: LB
-  BXT_GPIO_PAD_CONF(L"GPIO_10",                  M0   ,    GPO   ,  NA   ,  NA    ,   NA    , Wake_Enabled , P_20K_L, Inverted,IOAPIC,   TxDRxE ,     NA, GPIO_PADBAR+0x0050,  NORTH),//Feature: LB     
+  BXT_GPIO_PAD_CONF(L"GPIO_10",                  M0   ,    GPO   ,  NA   ,  NA    ,   NA    , Wake_Enabled , P_20K_L, Inverted,IOAPIC,   TxDRxE ,     NA, GPIO_PADBAR+0x0050,  NORTH),//Feature: CAM0_POWEREN
   BXT_GPIO_PAD_CONF(L"GPIO_11",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA     ,NA   ,     NA, GPIO_PADBAR+0x0058,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_12",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Enabled , P_20K_L,    NA   ,    NA     ,NA   ,     NA, GPIO_PADBAR+0x0060,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_13",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA     ,NA   ,     NA, GPIO_PADBAR+0x0068,  NORTH),//Feature: LB
@@ -82,7 +82,7 @@ BXT_GPIO_PAD_INIT  mBenson_GpioInitData_N[] =
   BXT_GPIO_PAD_CONF(L"GPIO_16",                  M0   ,    GPI   ,  NA   ,  NA    ,   Edge     , Wake_Disabled, P_20K_H, Inverted,IOAPIC,  HizRx0I ,DisPuPd, GPIO_PADBAR+0x0080,  NORTH),//Feature:SIM Card Detect        Net in Sch: SIM_CON_CD1, falling edge trigger
   BXT_GPIO_PAD_CONF(L"GPIO_17",                  M0   ,    GPI   , GPIO_D,  NA    ,   Edge     , Wake_Disabled, P_NONE ,    NA   ,IOAPIC,     NA   ,DisPuPd, GPIO_PADBAR+0x0088, NORTH), // SOC_LSE_HOST_IRQ_N
   BXT_GPIO_PAD_CONF(L"GPIO_18",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0090,  NORTH),//Feature: LB
-  BXT_GPIO_PAD_CONF(L"GPIO_19",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0098,  NORTH),//Feature: LB
+  BXT_GPIO_PAD_CONF(L"GPIO_19",                  M0   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_H,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x0098,  NORTH),//Feature: CAM0_POWEREN
   BXT_GPIO_PAD_CONF(L"GPIO_20",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00A0,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_21",                  M1   ,    NA    , NA    ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00A8,  NORTH),//Feature: LB
   BXT_GPIO_PAD_CONF(L"GPIO_22",                  M0   ,    GPIO  ,GPIO_D ,  NA    ,   NA       , Wake_Disabled, P_20K_L,    NA   ,    NA,     NA   ,     NA, GPIO_PADBAR+0x00B0,  NORTH),//Feature: LB
