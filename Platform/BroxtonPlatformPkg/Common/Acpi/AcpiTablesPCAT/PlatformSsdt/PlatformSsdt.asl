@@ -36,12 +36,14 @@ DefinitionBlock (
   External(\_SB.GPO0.CWLE, IntObj)
   External(\_SB.GPO0.AVBL, IntObj)
   External(\_SB.PCI0.SDIO.PSTS, IntObj)
+  External(\SUCE, IntObj)
   External(HIDG, MethodObj)
   External(OSYS, IntObj)
   External(SBTD, IntObj)
   External(WCAS, IntObj)
   External(UCAS, IntObj)
   External(CROT, IntObj)
+
   External(TP7G)
   External(IPUD)
 
@@ -72,6 +74,7 @@ DefinitionBlock (
 
   include ("Fingerprint/Fingerprint_FPC.asl")
   include ("SueCreek/SueCreek.asl")
+  include ("SueCreek/SueCreekLeds.asl")
   include ("Sensors/GenericSpi3.asl")
 }
 

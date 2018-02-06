@@ -30,8 +30,6 @@ Scope (\_SB.PCI0.SPI1) {
         0                       // Must be 0
       )
     })
-
-    External(\SUCE, IntObj)
     Method (_STA, 0x0, NotSerialized) {
       If (LEqual (SUCE, 0)) {
         Return (0x0)
