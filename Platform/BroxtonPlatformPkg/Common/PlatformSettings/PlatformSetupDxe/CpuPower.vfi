@@ -40,8 +40,8 @@ form formid = CPU_PWR_CONFIGURATION_FORM_ID,
   oneof varid  = Setup.TurboModeEnable,
     prompt = STRING_TOKEN(STR_PROCESSOR_TURBO_MODE),
     help = STRING_TOKEN(STR_PROCESSOR_TURBO_MODE_HELP),
-    option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = MANUFACTURING |DEFAULT | RESET_REQUIRED;
-    option text = STRING_TOKEN(STR_ENABLE),   value = 1, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_DISABLE),  value = 0, flags = RESET_REQUIRED;
+    option text = STRING_TOKEN(STR_ENABLE),   value = 1, flags = MANUFACTURING |DEFAULT | RESET_REQUIRED;
   endoneof;
   endif;
 
