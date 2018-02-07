@@ -269,7 +269,6 @@ ParseObbPayload (
   UINTN                            VariableSize;
   EFI_STATUS                       Status;
   EFI_FIRMWARE_VOLUME_HEADER       *FvHeader;
-  EFI_FIRMWARE_VOLUME_HEADER       *FvHeaderS3;
   EFI_PLATFORM_INFO_HOB            *PlatformInfo;
   EFI_PEI_READ_ONLY_VARIABLE2_PPI  *VariableServices;
   SYSTEM_CONFIGURATION             SystemConfiguration;
@@ -298,13 +297,17 @@ ParseObbPayload (
   DEBUG ((EFI_D_INFO, "FSP-S Fsp Size = 0x%X\n", FspHeader->ImageSize));
 
   //
-  // Copy to FSP-S to preferred base
+  // Copy to FSP-S to preferred base. The preferred base is defined in FSP Integration Guide.
+  // This region must be reserved for BIOS S3 resume.
   //
+  BuildMemoryAllocationHob (
+    (EFI_PHYSICAL_ADDRESS)FspSImageBase,
+    (UINT64)FspHeader->ImageSize,
+    EfiReservedMemoryType
+  );
   CopyMemSse4 ((VOID*) FspSImageBase, FvHeader, (UINT32) FvHeader->FvLength);
 
-  if (BootMode != BOOT_ON_S3_RESUME) {
-    PcdSet32S (PcdFspsBaseAddress, (UINT32) FspSImageBase);
-  }
+  PcdSet32S (PcdFspsBaseAddress, (UINT32) FspSImageBase);
 
   while ((UINT32) FvHeader < PayloadTail) {
     if (FvHeader->Signature != EFI_FVH_SIGNATURE) {
@@ -319,21 +322,7 @@ ParseObbPayload (
     }
     DEBUG ((EFI_D_INFO, "Found Fv with GUID: %g\n", FvName));
 
-    if (BootMode == BOOT_ON_S3_RESUME) {
-      //
-      // FspW requires both IBBR and FSP-S on S3 resume
-      // but only copy FSP-S, do not install it.
-      //
-      DEBUG ((DEBUG_INFO, "S3 Resume: Only looking for IBBR and FSP-S.\n"));
-      if (CompareGuid (FvName, &gFspSFirmwareFileSystemFvGuid) || CompareGuid (FvName, &gIbbrFirmwareFileSystemFvGuid)) {
-        FvHeaderS3 = FvHeader;
-        if (CompareGuid (FvName, &gIbbrFirmwareFileSystemFvGuid)) {
-          PeiServicesInstallFvInfoPpi (NULL, FvHeaderS3, (UINT32) FvHeaderS3->FvLength, NULL, NULL);
-        } else {
-          PcdSet32S (PcdFspsBaseAddress, (UINT32) FvHeaderS3);
-        }
-      }
-    } else if (CompareGuid (&FvHeader->FileSystemGuid, &gEfiSystemNvDataFvGuid)) {
+    if (CompareGuid (&FvHeader->FileSystemGuid, &gEfiSystemNvDataFvGuid)) {
       DEBUG ((EFI_D_INFO, "NVStorage FV at 0x%x.\n", (UINT32) FvHeader));
       Status = PeiServicesLocatePpi (&gEfiPeiReadOnlyVariable2PpiGuid, 0, NULL, (VOID **) &VariableServices);
       if (EFI_ERROR (Status)) {

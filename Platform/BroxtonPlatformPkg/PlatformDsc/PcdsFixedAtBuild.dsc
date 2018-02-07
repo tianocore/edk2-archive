@@ -83,4 +83,6 @@
     gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x07
     gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseHardwareFlowControl|FALSE
   !endif
+  
+  gUefiCpuPkgTokenSpaceGuid.PcdCpuSmmStackSize|0x3000
 
