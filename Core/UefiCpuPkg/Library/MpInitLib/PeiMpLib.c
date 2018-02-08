@@ -1,7 +1,7 @@
 /** @file
   MP initialize support functions for PEI phase.
 
-  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016 - 2018, Intel Corporation. All rights reserved.<BR>
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
@@ -185,42 +185,6 @@ GetWakeupBuffer (
   }
 
   return (UINTN) -1;
-}
-
-/**
-  Allocate reset vector buffer.
-
-  @param[in, out]  CpuMpData  The pointer to CPU MP Data structure.
-**/
-VOID
-AllocateResetVector (
-  IN OUT CPU_MP_DATA          *CpuMpData
-  )
-{
-  UINTN           ApResetVectorSize;
-
-  if (CpuMpData->WakeupBuffer == (UINTN) -1) {
-    ApResetVectorSize = CpuMpData->AddressMap.RendezvousFunnelSize +
-                          sizeof (MP_CPU_EXCHANGE_INFO);
-
-    CpuMpData->WakeupBuffer      = GetWakeupBuffer (ApResetVectorSize);
-    CpuMpData->MpCpuExchangeInfo = (MP_CPU_EXCHANGE_INFO *) (UINTN)
-                    (CpuMpData->WakeupBuffer + CpuMpData->AddressMap.RendezvousFunnelSize);
-  }
-  BackupAndPrepareWakeupBuffer (CpuMpData);
-}
-
-/**
-  Free AP reset vector buffer.
-
-  @param[in]  CpuMpData  The pointer to CPU MP Data structure.
-**/
-VOID
-FreeResetVector (
-  IN CPU_MP_DATA              *CpuMpData
-  )
-{
-  RestoreWakeupBuffer (CpuMpData);
 }
 
 /**
