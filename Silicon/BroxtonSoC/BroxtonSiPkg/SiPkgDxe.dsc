@@ -1,7 +1,7 @@
 ## @file
 #  Component description file for the Broxton RC DXE drivers.
 #
-#  Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2004 - 2018, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -41,3 +41,16 @@ $(PLATFORM_SI_PACKAGE)/Hsti/Dxe/HstiSiliconDxe.inf {
   }
 !endif
 
+$(PLATFORM_SI_PACKAGE)/SouthCluster/Smbus/Dxe/PchSmbusDxe.inf {
+    <PcdsPatchableInModule>
+      gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0xFFFFFFFF
+    <PcdsFixedAtBuild>
+      gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x27
+    <LibraryClasses>
+!if $(TARGET) != RELEASE
+      DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+!endif
+    <BuildOptions>
+      ICC:*_*_*_CC_FLAGS = /D MDEPKG_NDEBUG
+      GCC:*_*_*_CC_FLAGS = -D MDEPKG_NDEBUG
+  }

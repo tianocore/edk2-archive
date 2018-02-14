@@ -43,6 +43,7 @@
   PrintLib
 
 [Protocols]
+  gEfiSmbusHcProtocolGuid
 
 [Guids]
 

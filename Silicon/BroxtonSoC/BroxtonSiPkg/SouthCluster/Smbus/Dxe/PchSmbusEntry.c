@@ -17,6 +17,8 @@
 
 extern EFI_GUID gEfiSmbusArpMapGuid;
 
+SMBUS_INSTANCE  *mSmbusContext;
+
 /**
   Execute an SMBus operation
 

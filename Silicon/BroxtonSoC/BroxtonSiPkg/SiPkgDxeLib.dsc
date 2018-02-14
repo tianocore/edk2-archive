@@ -1,7 +1,7 @@
 ## @file
 #  Component description file for the Broxton RC DXE libraries.
 #
-#  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2004 - 2018, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -33,3 +33,7 @@
   HeciMsgLib|$(PLATFORM_SI_PACKAGE)/Txe/Library/HeciMsgLib/DxeSmmHeciMsgLib.inf
   SeCLib|$(PLATFORM_SI_PACKAGE)/Txe/Library/SeCLib/SeCLib.inf
 
+#
+# SMBus
+#  
+  ScSmbusCommonLib|$(PLATFORM_SI_PACKAGE)/SouthCluster/Library/Private/PeiDxeSmmScSmbusCommonLib/PeiDxeSmmScSmbusCommonLib.inf

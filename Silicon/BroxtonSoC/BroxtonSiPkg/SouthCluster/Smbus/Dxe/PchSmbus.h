@@ -92,7 +92,7 @@ typedef struct _SMBUS_INSTANCE {
 //
 // Driver global data
 //
-SMBUS_INSTANCE  *mSmbusContext;
+extern SMBUS_INSTANCE  *mSmbusContext;
 
 //
 // Prototypes

@@ -692,6 +692,11 @@ APRIORI DXE {
   #
   INF MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
   INF $(PLATFORM_PACKAGE_COMMON)/Features/Smbios/SmBiosMiscDxe/SmBiosMiscDxe.inf
+  
+  #
+  #SM Bus
+  #
+  INF $(PLATFORM_SI_PACKAGE)/SouthCluster/Smbus/Dxe/PchSmbusDxe.inf
 
   #
   # LAN/Network
