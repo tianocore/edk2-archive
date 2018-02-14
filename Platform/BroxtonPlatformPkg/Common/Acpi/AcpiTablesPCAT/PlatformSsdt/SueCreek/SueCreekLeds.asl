@@ -15,6 +15,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 Scope(\_SB.PCI0.I2C5) {
   Device (LED0) {
     Name (_HID, "PCA9956")
+    Name (_UID, 0)
     Name (_DDN, "SueCreekLed, CS0")
     Name (SBUF, ResourceTemplate () {
       I2cSerialBus (
@@ -42,6 +43,7 @@ Scope(\_SB.PCI0.I2C5) {
   }
   Device (LED1) {
     Name (_HID, "PCA9956")
+    Name (_UID, 1)
     Name (_DDN, "SueCreekLed, CS0")
     Name (SBUF, ResourceTemplate () {
       I2cSerialBus (
