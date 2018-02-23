@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
 # This program and the accompanying materials
 # are licensed and made available under the terms and conditions of the BSD License
 # which accompanies this distribution.  The full text of the license may be found at
@@ -288,6 +288,7 @@ echo "check if Build was successful"
 ##**********************************************************************
 ## Post Build processing and cleanup
 ##**********************************************************************
+grep "_PCD_VALUE_" $BUILD_PATH/IA32/BroxtonPlatformPkg/Common/PlatformSettings/PlatformPreMemPei/PlatformPreMemPei/DEBUG/AutoGen.h > FlashMap.h
 
 #
 # FSP Rebase and Split
@@ -322,6 +323,35 @@ Split -f $BUILD_PATH/FV/Bxt"$Arch".fd -s 0x35000 -o $BUILD_PATH/FV/FVIBBM.Fv
 VERSION_MAJOR=$(grep '^VERSION_MAJOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-4)
 VERSION_MINOR=$(grep '^VERSION_MINOR' Conf/BiosId.env | cut -d ' ' -f 3 | cut -c 1-2)
 BIOS_Name="$BOARD_ID""$BOARD_REV""$SV_String""$Arch"_"$BUILD_TYPE"_"$VERSION_MAJOR"_"$VERSION_MINOR"
+cp $BUILD_PATH/FV/SOC.fd $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch/$BIOS_Name.ROM
+
+echo Get NvStorage Base and Size...
+if [ -e $(pwd)/FlashMap.h ]; then
+  NvStorageBase=$(printf "0x%x" $(grep _PCD_VALUE_PcdFlashNvStorageBase FlashMap.h | awk '{print $3}' | awk -FU '{print $1}'))
+  BaseAddress=$(printf "0x%x" $(grep _PCD_VALUE_PcdFlashBaseAddress FlashMap.h | awk '{print $3}' | awk -FU '{print $1}'))
+  NvStorageSize=$(printf "0x%x" $(grep _PCD_VALUE_PcdFlashNvStorageSize FlashMap.h | awk '{print $3}' | awk -FU '{print $1}'))
+  VpdOffset=$(($NvStorageBase - $BaseAddress))
+  VpdSize=$(printf "%d" $NvStorageSize)
+
+  #Dump what we found
+  echo - NvStorageBase = $NvStorageBase
+  echo - BaseAddress = $BaseAddress
+  echo - NvStorageSize = $NvStorageSize
+  echo - VpdOffset = $VpdOffset
+  echo - VpdSize= $VpdSize
+
+  #Create NvStorage.fv
+  echo Create NvStorage.fv...
+  pushd $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
+  Split -f $BIOS_Name.ROM -s $VpdOffset -o temp1.bin -t temp2.bin
+  Split -f temp2.bin -s $VpdSize -o NvStorage.Fv -t temp3.bin
+  rm temp1.bin temp2.bin temp3.bin
+  popd
+else
+  echo "ERROR: Couldn't find FlashMap.h"
+  ErrorExit
+fi
+
 
 cp -f $BUILD_PATH/FV/FVOBB.Fv  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
 cp -f $BUILD_PATH/FV/FVOBBX.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
@@ -334,12 +364,10 @@ if [ $BoardId == "BG" ]; then
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   else 
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/BensonGlacier/IFWI/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   fi
 fi
 
@@ -348,12 +376,10 @@ if [ $BoardId == "MN" ]; then
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   else
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3/IFWI/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   fi
 fi
 
@@ -362,12 +388,10 @@ if [ $BoardId == "MX" ]; then
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_B/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_B/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_B/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_B/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   else
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_A/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_A/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_A/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/MinnowBoard3Next/IFWI/FAB_A/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   fi
 fi
 
@@ -376,7 +400,6 @@ if [ $BoardId == "LH" ]; then
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/LeafHill/IFWI/FAB_D/SpiChunk1.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/LeafHill/IFWI/FAB_D/SpiChunk2.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
     cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/LeafHill/IFWI/FAB_D/SpiChunk3.bin  $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
-    cp -f $WORKSPACE/Platform/BroxtonPlatformPkg/Board/LeafHill/IFWI/FAB_D/GCC/NvStorage.Fv $WORKSPACE/Platform/BroxtonPlatformPkg/Common/Tools/Stitch
   fi
 fi
 
