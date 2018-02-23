@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2012 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2012 - 2018, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -177,6 +177,8 @@ Method(_PTS,1)
 Method(_WAK,1,Serialized)
 {
   P8XH(1,0xAB) // Beginning of _WAK.
+
+  Notify(\_SB.PWRB,0x02)
 
   If (NEXP) {
     // Reinitialize the Native PCI Express after resume
@@ -718,6 +720,21 @@ Scope(\_SB)
     }
   }//end scope
 
+  //
+  // Define a Control Method Power Button.
+  //
+  Device(PWRB)
+  {
+    Name(_HID,EISAID("PNP0C0C"))
+
+    // GPE16 = Waketime SCI.  
+    Name(_PRW, Package() {16,4})
+  }
+
+  Device(SLPB)
+  {
+    Name(_HID, EISAID("PNP0C0E"))
+  }
 } // end Scope(\_SB)
 
 Scope (\)
