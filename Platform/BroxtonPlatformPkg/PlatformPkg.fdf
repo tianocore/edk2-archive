@@ -702,10 +702,17 @@ APRIORI DXE {
   # LAN/Network
   #
 !if $(NETWORK_ENABLE) == TRUE
+  
+  FILE DRIVER = 51B24E4E-FDD2-4047-BE4D-131873A457B2 {
+    SECTION PE32 = BroxtonPlatformPkg/Common/Binaries/UNDI/AX88179/AX88179_178A_UEFI_V2.7.0_X64.efi
+    SECTION UI = "UNDI"
+  }
+
   FILE DRIVER = 2E561D56-4863-44F7-960D-EF2D7F2D35BB {
     SECTION PE32 = BroxtonPlatformPkg/Common/Binaries/UNDI/I210PcieUndiDxe/E7320X3.EFI
     SECTION UI = "UNDI"
   }
+
   INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
   INF MdeModulePkg/Universal/Network/SnpDxe/SnpDxe.inf
   INF MdeModulePkg/Universal/Network/DpcDxe/DpcDxe.inf
