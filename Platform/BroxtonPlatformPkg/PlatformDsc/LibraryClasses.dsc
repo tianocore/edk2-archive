@@ -272,3 +272,6 @@
 
    BltLib|$(PLATFORM_PACKAGE_COMMON)/Library/FrameBufferBltLib/FrameBufferBltLib.inf
 
+   UefiBootManagerLib | MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
+   PlatformBootManagerLib | Platform/BroxtonPlatformPkg/Common/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
+   BootLogoLib | MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf

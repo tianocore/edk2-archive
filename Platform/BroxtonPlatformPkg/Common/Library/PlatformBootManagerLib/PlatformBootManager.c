@@ -35,7 +35,6 @@
 #include <Guid/TpmInstance.h>
 #include <Guid/PttPTPInstanceGuid.h>
 
-#pragma optimize("g", off)
 
 #define TIMEOUT_COMMAND 100000
 #define BIOS_COLOR_CODING_BAR_HEIGHT  40
@@ -635,8 +634,6 @@ UpdateDevicePath (
   return Return;
 }
 
-#pragma optimize("g", off)
-
 /**
   Check if current BootCurrent variable is internal shell boot option.
 
@@ -1047,6 +1044,6 @@ PlatformBootManagerAfterConsole (
   }
   
   if (IsNeedSortBootOption()) {
-    EfiBootManagerSortLoadOptionVariable (LoadOptionTypeBoot, CompareBootOption);
+    EfiBootManagerSortLoadOptionVariable (LoadOptionTypeBoot, (SORT_COMPARE)CompareBootOption);
   }
 }

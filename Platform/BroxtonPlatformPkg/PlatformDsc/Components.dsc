@@ -107,7 +107,7 @@
       GCC:*_*_*_CC_FLAGS = -D MDEPKG_NDEBUG
   }
 
-  IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf {
+  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf {
     <LibraryClasses>
       OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
       IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
@@ -115,6 +115,13 @@
       Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterDxe.inf
       NULL|SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2InstanceLibDTpm.inf
       NULL|$(PLATFORM_PACKAGE_COMMON)/Library/Tpm2DeviceLibPtp/Tpm2InstanceLibPtt.inf
+  }
+  MdeModulePkg/Application/BootManagerMenuApp/BootManagerMenuApp.inf
+  MdeModulePkg/Application/UiApp/UiApp.inf {
+    <LibraryClasses>
+      NULL|MdeModulePkg/Library/DeviceManagerUiLib/DeviceManagerUiLib.inf
+      NULL|MdeModulePkg/Library/BootManagerUiLib/BootManagerUiLib.inf
+      NULL|MdeModulePkg/Library/BootMaintenanceManagerUiLib/BootMaintenanceManagerUiLib.inf
   }
 
   $(PLATFORM_PACKAGE_COMMON)/SampleCode/IntelFsp2WrapperPkg/FspNotifyDxe/FspNotifyDxe.inf
