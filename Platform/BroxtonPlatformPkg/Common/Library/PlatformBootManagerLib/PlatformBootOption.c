@@ -24,9 +24,9 @@ EFI_EVENT  HotKeyEvent    = NULL;
 UINTN      mUiAppOptionNumber;
 CHAR16     *TmpStr = L"Press [F2] key to enter BIOS Setup";
 
-EFI_GRAPHICS_OUTPUT_BLT_PIXEL Foreground;
-EFI_GRAPHICS_OUTPUT_BLT_PIXEL Background;
-EFI_GRAPHICS_OUTPUT_BLT_PIXEL Color;
+EFI_GRAPHICS_OUTPUT_BLT_PIXEL mForeground;
+EFI_GRAPHICS_OUTPUT_BLT_PIXEL mBackground;
+EFI_GRAPHICS_OUTPUT_BLT_PIXEL mColor;
 
 EFI_GUID mUiFile = { 0x462CAA21, 0x7614, 0x4503, { 0x83, 0x6E, 0x8A, 0xB6, 0xF4, 0x66, 0x23, 0x31 } };
 EFI_GUID mBootMenuFile = { 0xEEC25BDC, 0x67F2, 0x4D95, { 0xB1, 0xD5, 0xF8, 0x1B, 0x20, 0x39, 0xD1, 0x1D }};
@@ -432,16 +432,16 @@ PlatformBootManagerWaitCallback (
 
   TimeoutDefault = PcdGet16 (PcdPlatformBootTimeOut);
   if (TimeoutDefault == TimeoutRemain) {
-    SetMem (&Foreground, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL), 0xff);
-    SetMem (&Background, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL), 0x0);
-    SetMem (&Color, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL), 0xff);
+    SetMem (&mForeground, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL), 0xff);
+    SetMem (&mBackground, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL), 0x0);
+    SetMem (&mColor, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL), 0xff);
   }
 
   PlatformBdsShowProgress (
-    Foreground,
-    Background,
+    mForeground,
+    mBackground,
     TmpStr,
-    Color,
+    mColor,
     ((TimeoutDefault - TimeoutRemain) * 100 / TimeoutDefault),
     0
     );
