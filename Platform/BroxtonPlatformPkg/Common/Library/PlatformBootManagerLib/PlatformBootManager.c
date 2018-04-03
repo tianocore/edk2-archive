@@ -23,6 +23,7 @@
 #include <Protocol/ExitPmAuth.h>
 #include <Protocol/UsbIo.h>
 #include <Protocol/VariableLock.h>
+#include <Protocol/GenericMemoryTest.h>
 #include <Library/IoLib.h>
 #include <Library/PciLib.h>
 #include <Library/TcgPhysicalPresenceLib.h>
@@ -1000,9 +1001,29 @@ PlatformBootManagerAfterConsole (
   VOID
   )
 {
-  EFI_BOOT_MODE                 LocalBootMode;
+  EFI_STATUS                        Status;
+  EFI_BOOT_MODE                     LocalBootMode;
+  BOOLEAN                           RequireSoftECCInit;
+  EFI_GENERIC_MEMORY_TEST_PROTOCOL  *GenMemoryTest;
   
   DEBUG ((EFI_D_INFO, "PlatformBootManagerAfterConsole\n"));
+
+  //
+  // Run memory test code at this point.
+  //
+  Status = gBS->LocateProtocol (
+                  &gEfiGenericMemTestProtocolGuid,
+                  NULL,
+                  (VOID **) &GenMemoryTest
+                  );
+
+  if (!EFI_ERROR (Status)) {
+    Status = GenMemoryTest->MemoryTestInit (
+                              GenMemoryTest,
+                              IGNORE,
+                              &RequireSoftECCInit
+                              );
+  } 
 
   //
   // Get current Boot Mode.

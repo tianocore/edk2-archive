@@ -92,6 +92,7 @@
   gEfiFormBrowser2ProtocolGuid
   gExitPmAuthProtocolGuid
   gEfiGraphicsOutputProtocolGuid
+  gEfiGenericMemTestProtocolGuid
   
 [Guids]
   gEfiGlobalVariableGuid
