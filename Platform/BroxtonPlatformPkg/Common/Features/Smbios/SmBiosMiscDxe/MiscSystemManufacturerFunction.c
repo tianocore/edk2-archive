@@ -2,7 +2,7 @@
   This driver parses the mMiscSubclassDataTable structure and reports
   any generated data.
 
-  Copyright (c) 2009 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2009 - 2018, Intel Corporation. All rights reserved.<BR>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -22,7 +22,176 @@
 #include <BoardFunctionsDxe.h>
 #include <Library/HobLib.h>
 #include <Guid/PlatformInfo.h>
+#include <IndustryStandard/Emmc.h>
+#include <Protocol/SdMmcPassThru.h>
+#include <Protocol/DevicePath.h>
 
+/**
+  Return the description for network boot device.
+
+  @param Handle                Controller handle.
+
+  @return  The description string.
+**/
+CHAR16 *
+GetNetworkDescription (
+  IN EFI_HANDLE                  Handle
+  )
+{
+  EFI_STATUS                     Status;
+  EFI_DEVICE_PATH_PROTOCOL       *DevicePath;
+  MAC_ADDR_DEVICE_PATH           *Mac;
+  VLAN_DEVICE_PATH               *Vlan;
+  EFI_DEVICE_PATH_PROTOCOL       *Ip;
+  EFI_DEVICE_PATH_PROTOCOL       *Uri;
+  CHAR16                         *Description;
+  UINTN                          DescriptionSize;
+
+  Status = gBS->OpenProtocol (
+                  Handle,
+                  &gEfiLoadFileProtocolGuid,
+                  NULL,
+                  gImageHandle,
+                  Handle,
+                  EFI_OPEN_PROTOCOL_TEST_PROTOCOL
+                  );
+  if (EFI_ERROR (Status)) {
+    return NULL;
+  }
+
+  Status = gBS->OpenProtocol (
+                  Handle,
+                  &gEfiDevicePathProtocolGuid,
+                  (VOID **) &DevicePath,
+                  gImageHandle,
+                  Handle,
+                  EFI_OPEN_PROTOCOL_GET_PROTOCOL
+                  );
+  if (EFI_ERROR (Status) || (DevicePath == NULL)) {
+    return NULL;
+  }
+
+  //
+  // The PXE device path is like:
+  //   ....../Mac(...)[/Vlan(...)][/Wi-Fi(...)]
+  //   ....../Mac(...)[/Vlan(...)][/Wi-Fi(...)]/IPv4(...)
+  //   ....../Mac(...)[/Vlan(...)][/Wi-Fi(...)]/IPv6(...)
+  //
+  // The HTTP device path is like:
+  //   ....../Mac(...)[/Vlan(...)][/Wi-Fi(...)]/IPv4(...)/Uri(...)
+  //   ....../Mac(...)[/Vlan(...)][/Wi-Fi(...)]/IPv6(...)/Uri(...)
+  //
+  while (!IsDevicePathEnd (DevicePath) &&
+         ((DevicePathType (DevicePath) != MESSAGING_DEVICE_PATH) ||
+          (DevicePathSubType (DevicePath) != MSG_MAC_ADDR_DP))
+         ) {
+    DevicePath = NextDevicePathNode (DevicePath);
+  }
+
+  if (IsDevicePathEnd (DevicePath)) {
+    return NULL;
+  }
+
+  Mac = (MAC_ADDR_DEVICE_PATH *) DevicePath;
+  DevicePath = NextDevicePathNode (DevicePath);
+
+  //
+  // Locate the optional Vlan node
+  //
+  if ((DevicePathType (DevicePath) == MESSAGING_DEVICE_PATH) &&
+      (DevicePathSubType (DevicePath) == MSG_VLAN_DP)
+      ) {
+    Vlan = (VLAN_DEVICE_PATH *) DevicePath;
+    DevicePath = NextDevicePathNode (DevicePath);
+  } else {
+    Vlan = NULL;
+  }
+
+  //
+  // Skip the optional Wi-Fi node
+  //
+  if ((DevicePathType (DevicePath) == MESSAGING_DEVICE_PATH) &&
+      (DevicePathSubType (DevicePath) == MSG_WIFI_DP)
+      ) {
+    DevicePath = NextDevicePathNode (DevicePath);
+  }
+
+  //
+  // Locate the IP node
+  //
+  if ((DevicePathType (DevicePath) == MESSAGING_DEVICE_PATH) &&
+      ((DevicePathSubType (DevicePath) == MSG_IPv4_DP) ||
+       (DevicePathSubType (DevicePath) == MSG_IPv6_DP))
+      ) {
+    Ip = DevicePath;
+    DevicePath = NextDevicePathNode (DevicePath);
+  } else {
+    Ip = NULL;
+  }
+
+  //
+  // Locate the URI node
+  //
+  if ((DevicePathType (DevicePath) == MESSAGING_DEVICE_PATH) &&
+      (DevicePathSubType (DevicePath) == MSG_URI_DP)
+      ) {
+    Uri = DevicePath;
+    DevicePath = NextDevicePathNode (DevicePath);
+  } else {
+    Uri = NULL;
+  }
+
+  //
+  // Build description like below:
+  //   "PXEv6 (MAC:112233445566 VLAN1)"
+  //   "HTTPv4 (MAC:112233445566)"
+  //
+  DescriptionSize = sizeof (L"112233445566");
+  Description     = AllocatePool (DescriptionSize);
+  ASSERT (Description != NULL);
+  UnicodeSPrint (
+    Description, DescriptionSize,
+    L"%02x%02x%02x%02x%02x%02x",
+    Mac->MacAddress.Addr[0], Mac->MacAddress.Addr[1], Mac->MacAddress.Addr[2],
+    Mac->MacAddress.Addr[3], Mac->MacAddress.Addr[4], Mac->MacAddress.Addr[5]
+    );
+  return Description;
+}
+
+CHAR16 *
+GetMacAddressString(
+  )
+{
+  EFI_HANDLE    *Handles;
+  UINTN         HandleCount;
+  UINT8         Index;
+  CHAR16        *MacAddressString = NULL;
+  
+  //
+  // Parse load file protocol
+  //
+  gBS->LocateHandleBuffer (
+       ByProtocol,
+       &gEfiLoadFileProtocolGuid,
+       NULL,
+       &HandleCount,
+       &Handles
+       );
+  for (Index = 0; Index < HandleCount; Index++) {
+
+    MacAddressString = GetNetworkDescription (Handles[Index]);
+
+    if (MacAddressString != NULL) {
+      break;
+    }
+  }
+
+  if (HandleCount != 0) {
+    FreePool (Handles);
+  }
+
+  return MacAddressString;
+}
 
 /**
   Publish the smbios type 1.
@@ -61,10 +230,16 @@ AddSmbiosManuCallback (
   EFI_SMBIOS_PROTOCOL               *Smbios;
   CHAR16                            Buffer[40];
   CHAR16                            PlatformNameBuffer[40];
+  CHAR16                            SerialNumberBuffer[sizeof (L"112233445566")];
   EFI_PEI_HOB_POINTERS              GuidHob;
   GET_BOARD_NAME                    GetBoardNameFunc;
   EFI_PLATFORM_INFO_HOB             *PlatformInfo = NULL;
+  CHAR16                            *MacAddressString = NULL;
+  STATIC BOOLEAN                    mType1Installed = FALSE;
 
+  if (mType1Installed == TRUE) {
+    return;
+  }
 
   GuidHob.Raw = GetHobList ();
   if (GuidHob.Raw != NULL) {
@@ -177,6 +352,11 @@ AddSmbiosManuCallback (
     return;
   }
 
+  MacAddressString = GetMacAddressString();
+  if ( MacAddressString != NULL) {
+    UnicodeSPrint (SerialNumberBuffer, sizeof (L"112233445566"), L"%s", GetMacAddressString());
+    HiiSetString (mHiiHandle, STRING_TOKEN (STR_MISC_SYSTEM_SERIAL_NUMBER), SerialNumberBuffer, NULL);
+  }
   TokenToGet = STRING_TOKEN (STR_MISC_SYSTEM_SERIAL_NUMBER);
   SerialNumber = HiiGetPackageString (&gEfiCallerIdGuid, TokenToGet, NULL);
   SerialNumStrLen = StrLen (SerialNumber);
@@ -236,9 +416,16 @@ AddSmbiosManuCallback (
   //
   // Unique UUID
   //
-  ForType1InputData->SystemUuid.Data1 = PcdGet32 (PcdProductSerialNumber);
-  ForType1InputData->SystemUuid.Data4[0] = PcdGet8 (PcdEmmcManufacturerId);
-
+  //ForType1InputData->SystemUuid.Data1 = PcdGet32 (PcdProductSerialNumber);
+  //ForType1InputData->SystemUuid.Data4[0] = PcdGet8 (PcdEmmcManufacturerId);
+  ForType1InputData->SystemUuid.Data1 = (UINT32)MacAddressString [0] + (((UINT32)MacAddressString [1]) << 16);
+  ForType1InputData->SystemUuid.Data2 = (UINT16)MacAddressString [2];
+  ForType1InputData->SystemUuid.Data3 = (UINT16)MacAddressString [3];
+  ForType1InputData->SystemUuid.Data4[0] = (UINT8)MacAddressString [4];
+  ForType1InputData->SystemUuid.Data4[1] = (UINT8)(MacAddressString [4] >> 8);
+  ForType1InputData->SystemUuid.Data4[2] = (UINT8)MacAddressString [5];
+  ForType1InputData->SystemUuid.Data4[3] = (UINT8)(MacAddressString [5] >> 8);
+  
   CopyMem ((UINT8 *) (&SmbiosRecord->Uuid),&ForType1InputData->SystemUuid,16);
 
   SmbiosRecord->WakeUpType = (UINT8) ForType1InputData->SystemWakeupType;
@@ -262,6 +449,9 @@ AddSmbiosManuCallback (
                      (EFI_SMBIOS_TABLE_HEADER *) SmbiosRecord
                      );
   FreePool (SmbiosRecord);
+  
+  mType1Installed = TRUE;
+  
   return;
 }
 
@@ -279,9 +469,8 @@ AddSmbiosManuCallback (
 **/
 MISC_SMBIOS_TABLE_FUNCTION(MiscSystemManufacturer)
 {
-  EFI_STATUS                    Status;
+  EFI_STATUS                    Status = EFI_SUCCESS;
   static BOOLEAN                CallbackIsInstalledManu = FALSE;
-  VOID                          *AddSmbiosManuCallbackNotifyReg;
   EFI_EVENT                     AddSmbiosManuCallbackEvent;
 
 
@@ -289,32 +478,17 @@ MISC_SMBIOS_TABLE_FUNCTION(MiscSystemManufacturer)
     CallbackIsInstalledManu = TRUE;          // Prevent more than 1 callback.
     DEBUG ((EFI_D_INFO, "Create Smbios Manu callback.\n"));
 
-  //
-  // gEfiDxeSmmReadyToLockProtocolGuid is ready
-  //
-  Status = gBS->CreateEvent (
-                  EVT_NOTIFY_SIGNAL,
-                  TPL_CALLBACK,
-                  AddSmbiosManuCallback,
-                  RecordData,
-                  &AddSmbiosManuCallbackEvent
-                  );
 
-  ASSERT_EFI_ERROR (Status);
-  if (EFI_ERROR (Status)) {
-    return Status;
+
+  Status = EfiCreateEventReadyToBootEx (
+             TPL_CALLBACK,
+             (EFI_EVENT_NOTIFY)AddSmbiosManuCallback,
+             RecordData,
+             &AddSmbiosManuCallbackEvent
+             );
 
   }
 
-  Status = gBS->RegisterProtocolNotify (
-                  &gEfiDxeSmmReadyToLockProtocolGuid,
-                  AddSmbiosManuCallbackEvent,
-                  &AddSmbiosManuCallbackNotifyReg
-                  );
-
-  return Status;
-  }
-
-  return EFI_SUCCESS;
+  return Status;  
 }
 
